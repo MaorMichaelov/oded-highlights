@@ -240,7 +240,43 @@ def scene_mode(args):
     print(f"QA(scene) faces_found={len(faces)} overlap_ok={ok} size={os.path.getsize(args.out)//1024} KB headline box={box}")
     return 0 if ok else 3
 
+def react_mode(args):
+    """Oded's own-channel style: sharp serious face LARGE on one side, the thing he reacts to (art/video frame) on the other."""
+    th = THEMES[args.theme]; left_face = args.side == "left"
+    sub = Image.open(args.react).convert("RGB"); r = max(W / sub.width, H / sub.height)
+    sub = sub.resize((int(sub.width * r) + 1, int(sub.height * r) + 1), Image.LANCZOS).filter(ImageFilter.UnsharpMask(radius=2, percent=90, threshold=2))
+    l, t = (sub.width - W) // 2, (sub.height - H) // 2; bg = sub.crop((l, t, l + W, t + H)); bg = ImageEnhance.Color(bg).enhance(1.1)
+    # darken + tint the face side so the face pops, feathered into the art
+    g = Image.new("L", (W, H), 0); gd = ImageDraw.Draw(g)
+    for x in range(W):
+        u = (1 - x / W) if left_face else (x / W)
+        gd.line([(x, 0), (x, H)], fill=int(215 * max(0.0, min(1.0, (u - 0.30) / 0.45))))
+    bg = Image.composite(Image.new("RGB", (W, H), th["dark"]), bg, g)
+    fr = Image.open(args.frame).convert("RGB")
+    crop = fr.crop(tuple(map(int, args.crop.split(","))))
+    person = cutout(enhance(crop, int(H * 1.0))); person = person.crop(person.split()[-1].getbbox())
+    k = min(1.0, H * 1.0 / person.height, W * 0.58 / person.width)
+    if k < 1: person = person.resize((int(person.width * k), int(person.height * k)), Image.LANCZOS)
+    px = -20 if left_face else W - person.width + 20; py = H - person.height + 24
+    sh = person.split()[-1].filter(ImageFilter.GaussianBlur(18)); shadow = Image.new("RGBA", person.size, (0, 0, 0, 0)); shadow.putalpha(sh.point(lambda v: int(v * 0.65)))
+    lay = Image.new("RGBA", (W, H), (0, 0, 0, 0)); lay.alpha_composite(shadow, (max(0, px + (14 if left_face else -14)), max(0, py + 8)) if px >= 0 else (14, py + 8)); lay.alpha_composite(person, (max(px, 0) if False else px, py) if px >= 0 else (0, py)) if px < 0 else lay.alpha_composite(person, (px, py))
+    bg.paste(lay, (0, 0), lay)
+    face_box = detect_face_box(person, max(px, 0), py); lines = [(args.head, "white"), (args.accent, "accent")] if args.accent else []
+    box = (0, 0, 0, 0); ok = True
+    if args.head:
+        ax = (int(W * 0.46), W - 30) if left_face else (30, int(W * 0.54))
+        box = headline_taklipu(bg, lines or [(args.head, "accent")], ax, ribbon=(210, 25, 25) if args.ribbon else None)
+        ok = overlap(box, face_box) / max(1, (face_box[2] - face_box[0]) * (face_box[3] - face_box[1])) < 0.02
+    q = 94
+    while True:
+        bg.save(args.out, quality=q, optimize=True, subsampling=0)
+        if os.path.getsize(args.out) < 1_900_000 or q <= 70: break
+        q -= 4
+    bg.resize((168, 94), Image.LANCZOS).save(os.path.splitext(args.out)[0] + "_168.png")
+    print(f"QA(react) overlap_ok={ok} size={os.path.getsize(args.out)//1024} KB"); return 0 if ok else 3
+
 def make(args):
+    if args.react: return react_mode(args)
     if args.scene: return scene_mode(args)
     th = THEMES[args.theme]; side = args.side
     frame = Image.open(args.frame).convert("RGB"); x0, y0, x1, y1 = map(int, args.crop.split(","))
@@ -285,8 +321,8 @@ def make(args):
     return 0 if ok_overlap else 3
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(); ap.add_argument("--frame"); ap.add_argument("--crop"); ap.add_argument("--scene", help="finished AI scene image (full 16:9 art); only the Hebrew headline + QA are added")
-    ap.add_argument("--head", required=True); ap.add_argument("--accent", default=""); ap.add_argument("--theme", default="green", choices=THEMES)
+    ap = argparse.ArgumentParser(); ap.add_argument("--frame"); ap.add_argument("--crop"); ap.add_argument("--react", help="image of the thing the streamer reacts to (art / video frame) shown on the other side"); ap.add_argument("--scene", help="finished AI scene image (full 16:9 art); only the Hebrew headline + QA are added")
+    ap.add_argument("--head", default=""); ap.add_argument("--accent", default=""); ap.add_argument("--theme", default="green", choices=THEMES)
     ap.add_argument("--out", required=True); ap.add_argument("--guest"); ap.add_argument("--guest-crop"); ap.add_argument("--prop"); ap.add_argument("--bg"); ap.add_argument("--art", action="store_true", help="use --bg as recognisable art (no blur/rays)")
     ap.add_argument("--side", default="left", choices=["left", "right"]); ap.add_argument("--style", default="taklipu", choices=["taklipu", "classic"]); ap.add_argument("--ribbon", action="store_true", help="red torn ribbon behind the headline")
     sys.exit(make(ap.parse_args()))
