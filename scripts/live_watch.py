@@ -65,6 +65,8 @@ def main():
     if not new or not GROQ_KEY:
         if not GROQ_KEY: print("GROQ_API_KEY not set: skipping transcription")
         st[vid] = cur; st["_current_vod"] = vid; (STATE / "ingest_state.json").write_text(json.dumps(st, indent=1)); return 0
+    if not shutil.which("ffmpeg"):
+        subprocess.run("sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg", shell=True, check=False)
     tmp = Path(tempfile.mkdtemp())
     try:
         # transcribe in ~5 min windows
