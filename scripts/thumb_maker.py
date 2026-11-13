@@ -100,13 +100,14 @@ def background(th, side, backdrop=None):
     vig = vig.filter(ImageFilter.GaussianBlur(160)); bg = Image.composite(bg, Image.new("RGB", (W, H), (0, 0, 0)), vig.point(lambda v: 90 + int(v * 0.65)))
     return bg
 
-def headline(bg, lines, th, side, avoid_box):
+def headline(bg, lines, th, side, avoid_box, area=None, y0=96):
     """lines: [(text, kind)] kind in white|accent. Placed on the side opposite the face; returns text bbox."""
     d = ImageDraw.Draw(bg)
     pb = avoid_box
     area_x0, area_x1 = (max(int(W * 0.40), pb[2] - 70), W - 36) if side == "left" else (36, min(int(W * 0.60), pb[0] + 70))
     sizes = [(170, 150), (250, 205)]  # (size for first line, size for accent line)
-    y = 96; boxes = []
+    if area: area_x0, area_x1 = area
+    y = y0; boxes = []
     for i, (txt, kind) in enumerate(lines):
         size = 150 if i == 0 else 230
         while True:
@@ -127,21 +128,62 @@ def headline(bg, lines, th, side, avoid_box):
 def detect_face_box(person, px, py):
     """face box on the canvas (OpenCV Haar; fallback: upper-middle of the cut-out)."""
     try:
-        import cv2
-        rgb = np.array(person.convert("RGB")); g = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY)
-        fs = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml").detectMultiScale(g, 1.1, 5, minSize=(80, 80))
-        if len(fs):
-            x, y, w, h = max(fs, key=lambda r: r[2] * r[3]); m = int(0.12 * w)
-            return (px + x - m, py + y - m, px + x + w + m, py + y + h + m)
+        fs = detect_faces(person.convert("RGB"))
+        if fs:
+            x0, y0, x1, y1 = max(fs, key=lambda r: (r[2] - r[0]) * (r[3] - r[1])); return (px + x0, py + y0, px + x1, py + y1)
     except Exception: pass
     w, h = person.size
     return (px + int(0.2 * w), py, px + int(0.8 * w), py + int(0.55 * h))
+
+YUNET = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models", "face_detection_yunet_2023mar.onnx")
+def detect_faces(rgb):
+    """[(x0,y0,x1,y1)] using YuNet (works on stylised / AI faces too), Haar fallback."""
+    import cv2
+    bgr = cv2.cvtColor(np.array(rgb), cv2.COLOR_RGB2BGR); h, w = bgr.shape[:2]; out = []
+    try:
+        det = cv2.FaceDetectorYN.create(YUNET, "", (w, h), 0.55, 0.3, 5000); _, res = det.detect(bgr)
+        for r in (res if res is not None else []):
+            x, y, fw, fh = r[:4]; m = 0.18 * fw; out.append((int(x - m), int(y - m), int(x + fw + m), int(y + fh + m)))
+    except Exception: pass
+    if not out:
+        g = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
+        for x, y, fw, fh in cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml").detectMultiScale(g, 1.08, 4, minSize=(70, 70)):
+            m = int(0.15 * fw); out.append((x - m, y - m, x + fw + m, y + fh + m))
+    return out
 
 def overlap(a, b):
     x0, y0, x1, y1 = max(a[0], b[0]), max(a[1], b[1]), min(a[2], b[2]), min(a[3], b[3])
     return max(0, x1 - x0) * max(0, y1 - y0)
 
+def scene_mode(args):
+    """AI-generated scene already contains the people/props: add the Hebrew headline where it does NOT cover faces, then QA."""
+    th = THEMES[args.theme]
+    im = Image.open(args.scene).convert("RGB"); r = max(W / im.width, H / im.height)
+    im = im.resize((int(im.width * r) + 1, int(im.height * r) + 1), Image.LANCZOS); l, t = (im.width - W) // 2, (im.height - H) // 2
+    bg = im.crop((l, t, l + W, t + H))
+    faces = detect_faces(bg)
+    lines = [(args.head, "white"), (args.accent, "accent")] if args.accent else [(args.head, "accent")]
+    # try candidate headline areas (top band split / top-left / top-right / top-center); keep the one with the least face overlap
+    cands = [(36, W - 36), (36, int(W * 0.62)), (int(W * 0.38), W - 36), (int(W * 0.2), int(W * 0.8))]
+    best = None
+    for (ax0, ax1) in cands:
+        probe = bg.copy(); box = headline(probe, lines, th, "left", (0, 0, 0, 0), area=(ax0, ax1), y0=18)
+        ov = sum(overlap(box, f) for f in faces)
+        if best is None or ov < best[0]: best = (ov, (ax0, ax1), box)
+        if ov == 0: break
+    box = headline(bg, lines, th, "left", (0, 0, 0, 0), area=best[1], y0=18)
+    inter = sum(overlap(box, f) for f in faces); fa = max(1, sum((f[2] - f[0]) * (f[3] - f[1]) for f in faces)) if faces else 1
+    ok = inter / fa < 0.02; q = 94
+    while True:
+        bg.save(args.out, quality=q, optimize=True, subsampling=0)
+        if os.path.getsize(args.out) < 1_900_000 or q <= 70: break
+        q -= 4
+    bg.resize((168, 94), Image.LANCZOS).save(os.path.splitext(args.out)[0] + "_168.png")
+    print(f"QA(scene) faces_found={len(faces)} overlap_ok={ok} size={os.path.getsize(args.out)//1024} KB headline box={box}")
+    return 0 if ok else 3
+
 def make(args):
+    if args.scene: return scene_mode(args)
     th = THEMES[args.theme]; side = args.side
     frame = Image.open(args.frame).convert("RGB"); x0, y0, x1, y1 = map(int, args.crop.split(","))
     face = enhance(frame.crop((x0, y0, x1, y1)), int(H * 1.02)); person = cutout(face)
@@ -180,7 +222,7 @@ def make(args):
     return 0 if ok_overlap else 3
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(); ap.add_argument("--frame", required=True); ap.add_argument("--crop", required=True)
+    ap = argparse.ArgumentParser(); ap.add_argument("--frame"); ap.add_argument("--crop"); ap.add_argument("--scene", help="finished AI scene image (full 16:9 art); only the Hebrew headline + QA are added")
     ap.add_argument("--head", required=True); ap.add_argument("--accent", default=""); ap.add_argument("--theme", default="green", choices=THEMES)
     ap.add_argument("--out", required=True); ap.add_argument("--guest"); ap.add_argument("--guest-crop"); ap.add_argument("--prop"); ap.add_argument("--bg")
     ap.add_argument("--side", default="left", choices=["left", "right"])
