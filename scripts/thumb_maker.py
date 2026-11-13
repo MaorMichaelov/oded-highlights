@@ -162,6 +162,53 @@ def detect_faces(rgb):
             m = int(0.15 * fw); out.append((x - m, y - m, x + fw + m, y + fh + m))
     return out
 
+def headline_taklipu(bg, lines, area, y0=14, ribbon=None, tilt=-2.5):
+    """Headline in the reference style: ultra-heavy Hebrew, sheared (italic), thick black outline, white line + yellow->orange gradient line,
+    optional torn red ribbon behind. area=(x0,x1). Returns the bbox. lines: [(text, 'white'|'accent')]."""
+    import random
+    d0 = ImageDraw.Draw(bg); ax0, ax1 = area; y = y0; boxes = []
+    layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    for i, (txt, kind) in enumerate(lines):
+        size = 210 if i == 0 else 235
+        while True:
+            f = font(size); w = d0.textlength(txt, font=f, direction="rtl")
+            if w <= (ax1 - ax0) * 0.94 or size < 60: break
+            size -= 5
+        asc, desc = f.getmetrics(); st = max(6, int(size * 0.075)); pad = st + 30
+        tl = Image.new("RGBA", (int(w) + 2 * pad, asc + desc + 2 * pad), (0, 0, 0, 0)); td = ImageDraw.Draw(tl)
+        td.text((pad, pad), txt, font=f, fill=(0, 0, 0, 255), stroke_width=st + 6, stroke_fill=(0, 0, 0, 255), direction="rtl", language="he")
+        mask = Image.new("L", tl.size, 0); ImageDraw.Draw(mask).text((pad, pad), txt, font=f, fill=255, direction="rtl", language="he")
+        if kind == "accent":
+            grad = Image.new("RGB", tl.size); gd = ImageDraw.Draw(grad)
+            for yy in range(tl.height):
+                t = min(1, max(0, (yy - pad) / max(1, asc + desc)))
+                gd.line([(0, yy), (tl.width, yy)], fill=(255, int(238 - 78 * t), int(10 + 10 * t)))
+            fill_img = grad
+        else: fill_img = Image.new("RGB", tl.size, (255, 255, 255))
+        tl.paste(fill_img, (0, 0), mask)
+        # inner dark edge for depth
+        edge = mask.filter(ImageFilter.MinFilter(5)); inner = ImageChops.subtract(mask, edge)
+        tl.paste(Image.new("RGB", tl.size, (40, 20, 0)), (0, 0), inner.point(lambda v: int(v * 0.35)))
+        tl = tl.transform(tl.size, Image.AFFINE, (1, 0.17, -0.17 * tl.height / 2, 0, 1, 0), resample=Image.BICUBIC)   # italic shear
+        x = ax1 - tl.width + pad if True else ax0
+        x = int(x - (ax1 - ax0 - (tl.width - 2 * pad)) * 0.0)
+        layer.alpha_composite(tl, (max(0, int(x - pad)), int(y - pad)) if False else (max(0, min(W - tl.width, int(ax1 - tl.width + pad))), int(y)))
+        boxes.append((int(ax1 - tl.width + pad), int(y + pad), int(ax1), int(y + tl.height - pad))); y += int((asc + desc) * 0.80)
+    box = (min(b[0] for b in boxes), min(b[1] for b in boxes), max(b[2] for b in boxes), max(b[3] for b in boxes))
+    if ribbon:
+        rb = Image.new("RGBA", (W, H), (0, 0, 0, 0)); rd = ImageDraw.Draw(rb); random.seed(7)
+        x0, y0_, x1, y1 = box[0] - 40, box[1] + 10, box[2] + 40, box[3] - 5
+        pts = [(x0 + random.randint(-14, 14), y0_ + random.randint(-12, 12))]
+        for xx in range(x0, x1, 28): pts.append((xx, y0_ + random.randint(-14, 12)))
+        for yy in range(y0_, y1, 26): pts.append((x1 + random.randint(-10, 14), yy))
+        for xx in range(x1, x0, -28): pts.append((xx, y1 + random.randint(-12, 14)))
+        for yy in range(y1, y0_, -26): pts.append((x0 + random.randint(-14, 10), yy))
+        rd.polygon(pts, fill=ribbon + (235,)); rb = rb.filter(ImageFilter.GaussianBlur(1.2)); bg.paste(rb, (0, 0), rb)
+    layer = layer.rotate(tilt, resample=Image.BICUBIC, center=((box[0] + box[2]) / 2, (box[1] + box[3]) / 2))
+    sh = layer.split()[-1].filter(ImageFilter.GaussianBlur(10)); shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0)); shadow.putalpha(sh.point(lambda v: int(v * 0.6)))
+    bg.paste(shadow, (6, 10), shadow); bg.paste(layer, (0, 0), layer)
+    return box
+
 def overlap(a, b):
     x0, y0, x1, y1 = max(a[0], b[0]), max(a[1], b[1]), min(a[2], b[2]), min(a[3], b[3])
     return max(0, x1 - x0) * max(0, y1 - y0)
@@ -182,7 +229,7 @@ def scene_mode(args):
         ov = sum(overlap(box, f) for f in faces)
         if best is None or ov < best[0]: best = (ov, (ax0, ax1), box)
         if ov == 0: break
-    box = headline(bg, lines, th, "left", (0, 0, 0, 0), area=best[1], y0=18)
+    box = headline_taklipu(bg, lines, best[1], ribbon=(210, 25, 25) if args.ribbon else None) if args.style == "taklipu" else headline(bg, lines, th, "left", (0, 0, 0, 0), area=best[1], y0=18)
     inter = sum(overlap(box, f) for f in faces); fa = max(1, sum((f[2] - f[0]) * (f[3] - f[1]) for f in faces)) if faces else 1
     ok = inter / fa < 0.02; q = 94
     while True:
@@ -219,7 +266,12 @@ def make(args):
         pr = Image.open(args.prop).convert("RGBA"); s = min(330 / pr.width, 330 / pr.height); pr = pr.resize((int(pr.width * s), int(pr.height * s)), Image.LANCZOS)
         bg.paste(pr, ((W - pr.width - 40) if side == "left" else 40, H - pr.height - 30), pr)
     lines = [(args.head, "white"), (args.accent, "accent")] if args.accent else [(args.head, "accent")]
-    tb = headline(bg, lines, th, side, person_box)
+    if args.style == "taklipu":
+        pb = person_box; area = (max(30, int(W * 0.36)), W - 30) if side == "left" else (30, min(W - 30, int(W * 0.64)))
+        if side == "left": area = (max(pb[2] - 120, int(W * 0.40)), W - 30)
+        else: area = (30, min(pb[0] + 120, int(W * 0.60)))
+        tb = headline_taklipu(bg, lines, area, ribbon=(210, 25, 25) if args.ribbon else None)
+    else: tb = headline(bg, lines, th, side, person_box)
     # ---- QA ----
     inter = overlap(tb, face_box); face_area = (face_box[2] - face_box[0]) * (face_box[3] - face_box[1])
     ok_overlap = inter / max(1, face_area) < 0.02
@@ -236,5 +288,5 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(); ap.add_argument("--frame"); ap.add_argument("--crop"); ap.add_argument("--scene", help="finished AI scene image (full 16:9 art); only the Hebrew headline + QA are added")
     ap.add_argument("--head", required=True); ap.add_argument("--accent", default=""); ap.add_argument("--theme", default="green", choices=THEMES)
     ap.add_argument("--out", required=True); ap.add_argument("--guest"); ap.add_argument("--guest-crop"); ap.add_argument("--prop"); ap.add_argument("--bg"); ap.add_argument("--art", action="store_true", help="use --bg as recognisable art (no blur/rays)")
-    ap.add_argument("--side", default="left", choices=["left", "right"])
+    ap.add_argument("--side", default="left", choices=["left", "right"]); ap.add_argument("--style", default="taklipu", choices=["taklipu", "classic"]); ap.add_argument("--ribbon", action="store_true", help="red torn ribbon behind the headline")
     sys.exit(make(ap.parse_args()))
