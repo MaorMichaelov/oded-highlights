@@ -9,3 +9,6 @@ Layout:
 - `RULES.md` operating rules
 
 No secrets are stored here.
+
+## Links
+- Privacy policy: [PRIVACY.md](PRIVACY.md)
