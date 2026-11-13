@@ -10,6 +10,7 @@ CHANNEL = os.environ.get("CHANNEL", "odedsvr")
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 ROOT = Path(__file__).resolve().parent.parent
 STATE = ROOT / "state"; (STATE / "transcripts").mkdir(parents=True, exist_ok=True)
+QUALITY = os.environ.get("AUDIO_QUALITY", "480p30")   # measured: 160p audio=51 kbps (bad transcripts), 480p/720p=102 kbps (clearly better)
 MAX_SEGS_PER_RUN = int(os.environ.get("MAX_SEGS_PER_RUN", "90"))   # ~15 min of audio per run (Groq free: 7200 audio-sec/hour)
 GROQ_KEY = os.environ.get("GROQ_API_KEY", "")
 
@@ -50,7 +51,7 @@ def main():
     v = vids[int(os.environ.get("FORCE_VOD", "0"))] if os.environ.get("FORCE_VOD") else vids[0]; vid = str(v["id"]); src = v.get("source")
     if not src: print("no source yet"); return 0
     base = src.rsplit("/master.m3u8", 1)[0]
-    code, pl = curl(f"{base}/160p30/playlist.m3u8")
+    code, pl = curl(f"{base}/{QUALITY}/playlist.m3u8")
     if code != "200": print("playlist http", code); return 0
     segs = []; cum = 0.0; d = None
     for l in pl.decode().splitlines():
@@ -73,7 +74,7 @@ def main():
         for k in range(0, len(new), 30):
             win = new[k:k + 30]; files = []
             for name, s, dd in win:
-                f = tmp / name; curl(f"{base}/160p30/{name}", out=str(f)); files.append(f)
+                f = tmp / name; curl(f"{base}/{QUALITY}/{name}", out=str(f)); files.append(f)
             lst = tmp / "l.txt"; lst.write_text("".join(f"file '{f}'\n" for f in files if f.exists() and f.stat().st_size > 500))
             mp3 = tmp / "w.mp3"
             subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", str(lst), "-vn", "-ac", "1", "-ar", "16000", "-b:a", "32k", str(mp3)])
