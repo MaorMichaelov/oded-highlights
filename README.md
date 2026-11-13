@@ -12,3 +12,9 @@ No secrets are stored here.
 
 ## Links
 - Privacy policy: [PRIVACY.md](PRIVACY.md)
+
+## Thumbnail maker (`scripts/thumb_maker.py`)
+Zero-cost, automatic: real face frame -> upscale/recover -> person cut-out (rembg) -> sticker outline + glow -> themed sunburst background ->
+Hebrew headline on the opposite side -> QA (headline never overlaps the face, <2 MB, 168x94 preview).
+`python3 scripts/thumb_maker.py --frame F.png --crop x0,y0,x1,y1 --head "הכל זה" --accent "כסף!" --theme money --side right --out thumb.jpg`
+Themes: green, danger, party, money, cool. Needs: pillow numpy opencv-python-headless rembg onnxruntime. An AI-generated scene can be passed with `--bg`.
