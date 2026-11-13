@@ -13,3 +13,5 @@ seg_*/
 work/
 streams/
 __pycache__/
+assets/faces/
+*.faces.zip

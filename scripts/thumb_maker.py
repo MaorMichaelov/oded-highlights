@@ -162,14 +162,14 @@ def detect_faces(rgb):
             m = int(0.15 * fw); out.append((x - m, y - m, x + fw + m, y + fh + m))
     return out
 
-def headline_taklipu(bg, lines, area, y0=14, ribbon=None, tilt=-2.5):
+def headline_taklipu(bg, lines, area, y0=14, ribbon=None, tilt=3.5):
     """Headline in the reference style: ultra-heavy Hebrew, sheared (italic), thick black outline, white line + yellow->orange gradient line,
     optional torn red ribbon behind. area=(x0,x1). Returns the bbox. lines: [(text, 'white'|'accent')]."""
     import random
     d0 = ImageDraw.Draw(bg); ax0, ax1 = area; y = y0; boxes = []
     layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     for i, (txt, kind) in enumerate(lines):
-        size = 210 if i == 0 else 235
+        size = 112 if i == 0 else 180   # calibrated to the approved thumbnails (line1 ~104-112, line2 ~140-190 on 1280 wide)
         while True:
             f = font(size); w = d0.textlength(txt, font=f, direction="rtl")
             if w <= (ax1 - ax0) * 0.94 or size < 60: break
