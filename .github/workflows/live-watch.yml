@@ -2,7 +2,20 @@ name: live-watch
 on:
   schedule:
     - cron: "*/10 * * * *"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      force_vod:
+        description: "TEST: treat video index N as live (leave empty normally)"
+        required: false
+        default: ""
+      start_seg:
+        description: "TEST: first segment"
+        required: false
+        default: "0"
+      max_segs:
+        description: "TEST: segments to ingest"
+        required: false
+        default: "90"
 concurrency:
   group: live-watch
   cancel-in-progress: false
@@ -17,8 +30,14 @@ jobs:
       - name: Check live and ingest new audio
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-        run: python3 scripts/live_watch.py
+          FORCE_VOD: ${{ inputs.force_vod }}
+          START_SEG: ${{ inputs.start_seg }}
+          MAX_SEGS_PER_RUN: ${{ inputs.max_segs || '90' }}
+        run: |
+          python3 scripts/live_watch.py
+          if [ -n "$FORCE_VOD" ]; then echo "--- TEST transcript sample ---"; head -n 12 state/transcripts/*.jsonl; fi
       - name: Commit state
+        if: ${{ inputs.force_vod == '' }}
         run: |
           git config user.name "highlights-bot"
           git config user.email "highlights-bot@users.noreply.github.com"
