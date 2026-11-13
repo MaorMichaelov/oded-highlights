@@ -84,6 +84,17 @@ def sticker(person, th, outline_px=16, glow_px=46):
     p = Image.new("RGBA", canvas.size, (0, 0, 0, 0)); p.paste(person, (pad, pad)); canvas.alpha_composite(p)
     return canvas, pad
 
+def art_background(art, side):
+    """keep a supplied art/scene recognisable (cover-fit, light sharpen, soft dark gradient behind the headline side)."""
+    r = max(W / art.width, H / art.height); a = art.convert("RGB").resize((int(art.width * r) + 1, int(art.height * r) + 1), Image.LANCZOS)
+    l, t = (a.width - W) // 2, (a.height - H) // 2; a = a.crop((l, t, l + W, t + H)).filter(ImageFilter.UnsharpMask(radius=2, percent=90, threshold=2))
+    a = ImageEnhance.Color(a).enhance(1.12)
+    g = Image.new("L", (W, H), 0); gd = ImageDraw.Draw(g)
+    for x in range(W):
+        t_ = (x / W) if side == "right" else (1 - x / W)           # darker toward the headline side
+        gd.line([(x, 0), (x, H)], fill=int(150 * max(0.0, t_ - 0.35) / 0.65) if side == "left" else int(150 * max(0.0, (1 - t_) - 0.35) / 0.65))
+    return Image.composite(Image.new("RGB", (W, H), (10, 0, 20)), a, g)
+
 def background(th, side, backdrop=None):
     bg = Image.new("RGB", (W, H), th["dark"])
     if backdrop is not None:
@@ -191,7 +202,7 @@ def make(args):
     k = min(1.0, H * 0.98 / person.height, W * 0.55 / person.width)
     if k < 1.0: person = person.resize((int(person.width * k), int(person.height * k)), Image.LANCZOS)
     stk, pad = sticker(person, th)
-    bg = background(th, side, Image.open(args.bg) if args.bg else None)
+    bg = art_background(Image.open(args.bg), side) if (args.bg and args.art) else background(th, side, Image.open(args.bg) if args.bg else None)
     px = -10 if side == "left" else W - person.width + 10   # flush to the edge
     py = H - person.height + 22   # bleed off the bottom edge like pro thumbnails (no floating outline)
     layer = Image.new("RGBA", (W, H), (0, 0, 0, 0)); layer.alpha_composite(stk, (px - pad, py - pad) if False else (px - pad, py - pad)); bg.paste(layer, (0, 0), layer)
@@ -224,6 +235,6 @@ def make(args):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(); ap.add_argument("--frame"); ap.add_argument("--crop"); ap.add_argument("--scene", help="finished AI scene image (full 16:9 art); only the Hebrew headline + QA are added")
     ap.add_argument("--head", required=True); ap.add_argument("--accent", default=""); ap.add_argument("--theme", default="green", choices=THEMES)
-    ap.add_argument("--out", required=True); ap.add_argument("--guest"); ap.add_argument("--guest-crop"); ap.add_argument("--prop"); ap.add_argument("--bg")
+    ap.add_argument("--out", required=True); ap.add_argument("--guest"); ap.add_argument("--guest-crop"); ap.add_argument("--prop"); ap.add_argument("--bg"); ap.add_argument("--art", action="store_true", help="use --bg as recognisable art (no blur/rays)")
     ap.add_argument("--side", default="left", choices=["left", "right"])
     sys.exit(make(ap.parse_args()))
