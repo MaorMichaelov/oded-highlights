@@ -9,3 +9,9 @@
 - Budget is 0: use free tiers only (GitHub Actions, Groq free Whisper, YouTube API).
 - Priority topic for the GTA 6 subathon: the first reaction / first time entering the game.
 - Never put tokens or keys in this repo. They live in GitHub Actions secrets.
+
+## Owner feedback (permanent rules)
+- Opening captions use the BRAND GREEN (120,230,40), not yellow (peak_open_lowmem.py REF_YEL).
+- NO arbitrary zooms / punch-ins. Only reframe or crop when it has a clear purpose (e.g. a screen-share where the content is tiny). Default: no zoom.
+- Keep the logo sting + subscribe popup; they should look closer to the Taklipu reference (animated wipe, logo bounce, cursor click) - improvement in progress.
+- Test uploads are Private and titled with "בדיקה:" until the owner approves. Never delete anything.

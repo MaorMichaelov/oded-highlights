@@ -172,7 +172,7 @@ def popup_frames(work,face,n,line1,hlword):
 # in place (phrase layout fixed, centered), white fill + yellow hard offset shadow; highlighted word = yellow fill + black
 # hard offset shadow; black outline 0.0075H; offset (0.005H,0.0065H). Phrase pops in 1.28x->1.0 (0.2s ease-out, alpha
 # 0.35->1 in 0.07s); every added word re-pops the line 1.08x->1.0 (0.13s); old phrase fades out over 0.07s.
-REF_YEL=(255,214,0)
+REF_YEL=(120,230,40)  # brand green (was reference yellow); Maor asked for green captions
 def _ref_font(H_):
     return font(max(10,int(round(0.123*H_))))
 def ref_phrases(cap,H_,W_,maxw=3,maxfrac=0.62):
