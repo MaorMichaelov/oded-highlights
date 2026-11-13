@@ -16,5 +16,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
-      - run: pip install -q faster-whisper
+      - run: pip install -q faster-whisper "av==15.1.0"
       - run: python3 scripts/asr_bench.py "${{ inputs.base_url }}" ${{ inputs.first_seg }} ${{ inputs.last_seg }}
