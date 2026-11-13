@@ -1,0 +1,20 @@
+name: asr-bench
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "VOD hls base url"
+        default: "https://stream.kick.com/3c81249a5ce0/ivs/v1/196233775518/4JGobkvk5q8T/2026/11/12/15/10/JiexTRSrZKwh/media/hls"
+      first_seg:
+        default: "228"
+      last_seg:
+        default: "242"
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - run: pip install -q faster-whisper
+      - run: python3 scripts/asr_bench.py "${{ inputs.base_url }}" ${{ inputs.first_seg }} ${{ inputs.last_seg }}
