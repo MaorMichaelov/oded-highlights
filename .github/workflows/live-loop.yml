@@ -1,0 +1,38 @@
+name: live-loop
+# GitHub's cron did not fire for this repo (0 scheduled runs in 4 h). This job does the polling itself:
+# it loops for ~5h40m (check every 5 min), then dispatches the next run of itself (workflow_dispatch via GITHUB_TOKEN is allowed).
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "17 */6 * * *"   # backup starter in case the chain ever breaks
+concurrency:
+  group: live-watch
+  cancel-in-progress: false
+permissions:
+  contents: write
+  actions: write
+jobs:
+  loop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+      - name: Poll loop
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
+          end=$((SECONDS+20400))
+          while [ $SECONDS -lt $end ]; do
+            [ -f state/PAUSE ] && { echo "PAUSE file present, stopping"; exit 0; }
+            python3 scripts/live_watch.py || echo "live_watch failed (continuing)"
+            git add state
+            if ! git diff --cached --quiet; then
+              git commit -q -m "state: live watch $(date -u +%FT%TZ)"
+              git pull --rebase -q || true
+              git push -q || true
+            fi
+            sleep 300
+          done
+          gh workflow run live-loop.yml --ref main
