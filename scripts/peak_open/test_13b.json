@@ -1,0 +1,17 @@
+{
+ "body": "/workspace/kick_clipper/streams/vod_137423561/clips/calls_shiber_biggie_v1_zoom.mp4",
+ "body_dur": 12.0,
+ "work": "/tmp/po_test13b",
+ "res": [1920,1080],
+ "vod_dir": "/workspace/kick_clipper/streams/vod_137423561",
+ "cuts": "/workspace/kick_clipper/streams/vod_137423561/cs/cuts_k.json",
+ "montage": [
+  {"t": 247.95, "d": 2.6, "cap": "עשיתי לו! עשיתי לו סע!", "hl": ["סע!"]},
+  {"t": 143.0, "d": 2.8, "cap": "ניגי! מה איתך, חיים של אבא?", "hl": ["ניגי!"]},
+  {"t": 28.9, "d": 3.0, "cap": "אני פשוט לא שומר את המספר של ביגי", "hl": ["ביגי"]}
+ ],
+ "premise": ["-"],
+ "headshot": "/workspace/kick_clipper/thumb_assets/faces/oded/explain_01.png",
+ "popup_face": "/workspace/kick_clipper/thumb_assets/faces/oded/smile_01.png",
+ "sub_at": 4.0
+}

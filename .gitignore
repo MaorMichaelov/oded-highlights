@@ -1,0 +1,14 @@
+# secrets and tokens - NEVER commit
+*.token
+refresh*.json
+access*.txt
+client_secret*.json
+.env
+# media and work dirs
+*.mp4
+*.mp3
+*.wav
+*.ts
+seg_*/
+work/
+streams/

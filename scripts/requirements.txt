@@ -1,0 +1,7 @@
+streamlink==8.6.3
+faster-whisper==1.2.1
+av==15.1.0
+# av 19.x breaks faster-whisper 1.2.1 (av.open metadata_errors removed)
+auto-editor==29.3.1
+pillow==13.0.0
+websocket-client==1.9.2
