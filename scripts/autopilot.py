@@ -74,6 +74,12 @@ def fallback(ing, dry):
     def used(c): return any(any(a < c["b"] and c["a"] < b for p in x.get("pieces", []) for a, b in p.get("keep", [])) for x in done)
     for c in cands:
         if c["score"] < FALLBACK_SCORE or used(c): continue
+        if os.environ.get("FALLBACK_RENDER", "0") != "1":    # owner rule: a heuristic must never upload alone; mark the candidate and wait for the judge
+            pf = os.path.join(ST, "pending_candidates.json"); pend = jf(pf, []) or []
+            if not any(abs(x["a"] - c["a"]) < 60 for x in pend):
+                pend.append({"vod": vod, "a": c["a"], "b": c["b"], "score": c["score"], "preview": c.get("preview", ""), "marked_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
+                json.dump(pend, open(pf, "w"), ensure_ascii=False, indent=1); print(f"candidate marked (no upload): VOD {c['a']}-{c['b']} score {c['score']}")
+            continue
         cid = f"auto_{today}_{time.strftime('%H%M', time.gmtime())}"; d = os.path.join(clips, cid); os.makedirs(d, exist_ok=True)
         json.dump({"vod": vod, "base": ing.get("_vod_base"), "pieces": [{"keep": [[c["a"], c["b"]]], "ch": "הרגע המרכזי"}]}, open(os.path.join(d, "cuts.json"), "w"), ensure_ascii=False, indent=1)
         gta = c.get("info", {}).get("gta", 0) > 2

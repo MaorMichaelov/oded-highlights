@@ -63,5 +63,9 @@ def ts(s): s = int(round(s)); return f"{s//60:02d}:{s%60:02d}"
 lines = ["00:00 פתיחה"] + [f'{ts(c["t"] + off)} {c["ch"]}' for c in chapters]
 meta = json.load(open(os.path.join(clip, "meta.json"))) if os.path.exists(os.path.join(clip, "meta.json")) else {"title": spec["title"], "description": spec["description"], "tags": spec.get("tags", []), "privacy": "private"}
 meta["description"] = spec["description"].rstrip() + "\n\nפרקים:\n" + "\n".join(lines)
+b = spec.get("brief")   # draft note for the thumbnail bot: what the clip is about, who appears, the strongest moment
+if b:
+    note = f"[טיוטה - למחוק לפני פרסום] על מה: {b.get('about', '')} | מופיעים: {b.get('who', 'עודד')} | הרגע החזק: {b.get('peak', '')}"
+    meta["description"] = note + "\n\n" + meta["description"]; open(os.path.join(clip, "brief.md"), "w").write(note + "\n")
 json.dump(meta, open(os.path.join(clip, "meta.json"), "w"), ensure_ascii=False, indent=1)
 print("FINAL", final, "chapters:", len(lines))

@@ -15,7 +15,7 @@ You are the topic judge of the ODED HIGHLIGHTS pipeline (repo MaorMichaelov/oded
 ## GTA 6 subathon mode (19-21 Nov 2026)
 - state/topics/<vod>.candidates.json already scores GTA cues, 'first time' phrases and Kick chat spikes (state/chat/, mapped to VOD time minus ~20 s). Prefer the top candidate; chat_spikes>=3 or chat_max_z>=4 means the audience reacted.
 - PRIORITY 1: Oded's first time entering / first reaction to GTA 6 (and first mission, first police chase, first big crash/fail): hold only 6-8 minutes after it ends (not 15-20), render immediately, title with the moment (e.g. "עודד נכנס בפעם הראשונה ל-GTA 6 ומתפוצץ!"), thumbnail preset game_launch.
-- Cadence: at most 3 uploads per day (private); queue the rest in state/clips and tell the owner. Never two clips of the same moment.
+- Cadence (owner, 14 Nov): EVERY relevant topic of the stream gets a clip (not only 2-3), also when Ronen or friends appear at Oded's stream. Long videos only (no shorts, min ~6 min). Never two clips of the same moment. All uploads are PRIVATE drafts without a thumbnail (the other bot makes thumbnails and publishes). A weak candidate is never uploaded: leave it in state/pending_candidates.json. In spec.json add "brief": {"about": ..., "who": ..., "peak": ...} (shown in the draft description so the thumbnail matches).
 - Keep sessions cheap: if nothing is closed and new since the last run, stop immediately.
 
 ## YouTube research before cutting a clip (scripts/yt_research.py)
