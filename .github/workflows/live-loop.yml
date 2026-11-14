@@ -56,6 +56,7 @@ jobs:
             python3 scripts/stations/index.py || echo "index failed (continuing)"
             python3 scripts/stations/brief.py || echo "brief skipped"
             git add state; git diff --cached --quiet || { git commit -q -m "state: pick $(date -u +%FT%TZ)"; git pull --rebase -q || true; git push -q || true; }
-            sleep 300
+            B=$(python3 -c 'import json;print(json.load(open("state/ingest_state.json")).get("_behind_segs",0))' 2>/dev/null || echo 0)
+            if [ "${B:-0}" -gt 12 ]; then echo "transcription is $B segments behind: no sleep"; else sleep 300; fi
           done
           gh workflow run live-loop.yml --ref main

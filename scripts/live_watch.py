@@ -11,7 +11,7 @@ UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like 
 ROOT = Path(__file__).resolve().parent.parent
 STATE = ROOT / os.environ.get("STATE_DIR", "state"); (STATE / "transcripts").mkdir(parents=True, exist_ok=True)
 QUALITY = os.environ.get("AUDIO_QUALITY", "480p30")   # measured: 160p audio=51 kbps (bad transcripts), 480p/720p=102 kbps (clearly better)
-MAX_SEGS_PER_RUN = int(os.environ.get("MAX_SEGS_PER_RUN", "90"))   # ~15 min of audio per run (Groq free: 7200 audio-sec/hour)
+MAX_SEGS_PER_RUN = int(os.environ.get("MAX_SEGS_PER_RUN", "120"))   # ~15 min of audio per run (Groq free: 7200 audio-sec/hour)
 GROQ_KEY = os.environ.get("GROQ_API_KEY", "")
 ASR = os.environ.get("ASR", "ivrit")          # ivrit = ivrit-ai/whisper-large-v3-turbo-ct2 on CPU (RTF ~0.4 on a 4-vCPU runner, no daily quota); groq = fallback
 _model = None
@@ -124,7 +124,7 @@ def main():
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     cur["last_run"] = now; st[vid] = cur; st["_current_vod"] = vid
-    st["_vod_base"] = base
+    st["_vod_base"] = base; st["_behind_segs"] = max(0, len(segs) - 2 - cur["next_seg"])   # how far transcription lags behind the live edge
     try:
         import calendar; st["_vod_start_epoch"] = calendar.timegm(time.strptime((v.get("start_time") or "")[:19], "%Y-%m-%d %H:%M:%S"))
     except Exception: pass
