@@ -58,6 +58,14 @@ ospec = dict(body=body, body_dur=dur, work=os.path.join(work, "po"), res=[1920, 
 sp = os.path.join(work, "open_spec.json"); json.dump(ospec, open(sp, "w"), ensure_ascii=False, indent=1)
 final = os.path.join(clip, "final.mp4"); print("building opening ...")
 run([sys.executable, os.path.join(HERE, "peak_open", "nov13_open.py"), sp, final])
+def probe(f):
+    o = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height,r_frame_rate:format=bit_rate", "-of", "json", f], capture_output=True, text=True).stdout
+    j = json.loads(o); st = j["streams"][0]; n, d = st["r_frame_rate"].split("/"); return st["width"], st["height"], float(n) / float(d), int(j["format"]["bit_rate"]) / 1e6
+w_, h_, fps_, mbps = probe(final); print(f"QUALITY {w_}x{h_} {fps_:.1f}fps {mbps:.1f} Mbps")
+if (w_, h_) != (1920, 1080) or abs(fps_ - 60) > 0.5: print("QUALITY FAIL: must be 1920x1080 60fps"); sys.exit(3)
+if mbps < 8:    # owner rule: > 8 Mbps
+    hi = final + ".hi.mp4"; run(["ffmpeg", "-y", "-i", final, "-c:v", "libx264", "-preset", "veryfast", "-b:v", "12M", "-maxrate", "16M", "-bufsize", "24M", "-pix_fmt", "yuv420p", "-c:a", "copy", hi]); os.replace(hi, final)
+    print("re-encoded to higher bitrate:", probe(final))
 off = json.load(open(final + ".open.json"))["body_offset_in_out"]
 def ts(s): s = int(round(s)); return f"{s//60:02d}:{s%60:02d}"
 lines = ["00:00 פתיחה"] + [f'{ts(c["t"] + off)} {c["ch"]}' for c in chapters]
