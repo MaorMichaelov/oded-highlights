@@ -2,7 +2,7 @@
 # Record a Kick live in closed ffmpeg segments so earlier parts can be
 # clipped while the recording continues.
 # Usage: record.sh [channel_slug] [quality]
-#   quality: 1080p60 | 720p60 | 480p | best   (default: 720p60)
+#   quality: 1080p60 | 720p60 | 480p | best   (default: 1080p60)
 # Env:
 #   OUT_DIR       base output directory (default: <script>/recordings)
 #   SEGMENT_TIME  segment length in seconds (default: 300)
@@ -11,7 +11,7 @@
 set -euo pipefail
 
 CHANNEL="${1:-odedsvr}"
-QUALITY="${2:-720p60}"
+QUALITY="${2:-1080p60}"
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 CHECK="$ROOT/check_live.sh"
 YT_DLP="${YT_DLP:-$(command -v yt-dlp || true)}"

@@ -17,6 +17,8 @@ segs = []; cum = 0.0; d = None
 for l in pl:
     if l.startswith("#EXTINF:"): d = float(l[8:].split(",")[0])
     elif l and not l.startswith("#") and d is not None: segs.append((l, cum, d)); cum += d; d = None
+if not segs: sys.exit(f"no {Q} playlist at {base}: refusing to fall back to a lower quality")
+if Q != "1080p60": sys.exit("only 1080p60 is allowed (owner rule: never 720p)")
 C = json.load(open(cuts_f))
 def files(a, b): return [s for s in segs if s[1] + s[2] > a and s[1] < b]
 need = {}

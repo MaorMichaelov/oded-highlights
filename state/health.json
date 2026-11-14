@@ -1,0 +1,10 @@
+{
+ "live_loop_running": true,
+ "state_age_min": 10.5,
+ "live": false,
+ "recent_failed_renders": 0,
+ "stuck_clips": [],
+ "pending_candidates": 0,
+ "problems": [],
+ "checked_at": "2026-11-14T16:59:33Z"
+}

@@ -32,6 +32,8 @@ jobs:
       - name: "Station 4 - EDIT (opening, sting, popup, quality gate)"
         env: { GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}" }
         run: python3 scripts/stations/edit.py "state/clips/${{ inputs.clip_id }}"
+      - name: "Station 7 - QUALITY gate (1080p60, > 8 Mbps, sync, dead air, loudness)"
+        run: python3 scripts/stations/quality.py "state/clips/${{ inputs.clip_id }}"
       - name: "Station 5 - DRAFT (private upload)"
         if: ${{ inputs.upload == 'true' && env.HAS_YT == 'true' }}
         env:
@@ -40,6 +42,7 @@ jobs:
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
         run: python3 scripts/stations/draft.py "state/clips/${{ inputs.clip_id }}"
       - name: Keep the rendered video (works even without YouTube secrets)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: clip-${{ inputs.clip_id }}
