@@ -33,6 +33,7 @@ jobs:
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
         run: |
+          set -o pipefail
           D="state/clips/${{ inputs.clip_id }}"; T=$(ls assets/final_thumbs/${{ inputs.clip_id }}_s1.jpg 2>/dev/null || true)
           python3 scripts/yt_upload.py "$D/final.mp4" "$D/meta.json" $T | tee "$D/upload.log"
       - name: Keep the rendered video (works even without YouTube secrets)
