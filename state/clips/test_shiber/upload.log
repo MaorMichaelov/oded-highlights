@@ -1,1 +1,10 @@
-token error: {'error': 'invalid_client', 'error_description': 'The OAuth client was not found.'}
+uploading 78 MB ...
+VIDEO_ID dnh6bStjHWM | status: uploaded private
+thumbnail: {
+  "kind": "youtube#thumbnailSetResponse",
+  "etag": "BKbSSkTU2PDgsmpG-_f-9UBPklo",
+  "items": [
+    {
+      "default": {
+        "url": "https://i9.ytimg.com/vi/dnh6bStjHWM/default.jpg?sqp=CJDc4dcG&
+https://youtu.be/dnh6bStjHWM
