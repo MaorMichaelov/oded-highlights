@@ -15,3 +15,5 @@ streams/
 __pycache__/
 assets/faces/
 *.faces.zip
+state/clips/*/work/
+state/clips/*/final.mp4*

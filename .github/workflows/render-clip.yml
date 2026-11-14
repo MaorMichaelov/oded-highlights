@@ -1,0 +1,40 @@
+name: render-clip
+# Renders a clip decided by the topic session: state/clips/<id>/{cuts.json,spec.json} -> final.mp4 -> private YouTube upload (if secrets exist).
+on:
+  workflow_dispatch:
+    inputs:
+      clip_id: { description: "folder name under state/clips", required: true }
+      upload: { description: "upload to YouTube as private (needs YT secrets)", required: false, default: "true" }
+concurrency: { group: render-clip, cancel-in-progress: false }
+permissions: { contents: write }
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          pip install -q pillow numpy opencv-python-headless rembg onnxruntime
+          bash scripts/setup_workspace.sh
+      - name: Thumbnails (3 candidates)
+        env: { CF_API_TOKEN: "${{ secrets.CF_API_TOKEN }}" }
+        run: python3 scripts/package_clip.py "state/clips/${{ inputs.clip_id }}" --seeds 3 || echo "thumbnail step failed (continuing)"
+      - name: Render
+        env: { GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}" }
+        run: python3 scripts/render_clip.py "state/clips/${{ inputs.clip_id }}"
+      - name: Upload (private)
+        if: ${{ inputs.upload == 'true' && env.YT_REFRESH_TOKEN != '' }}
+        env:
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+        run: |
+          D="state/clips/${{ inputs.clip_id }}"; T=$(ls assets/final_thumbs/${{ inputs.clip_id }}_s1.jpg 2>/dev/null || true)
+          python3 scripts/yt_upload.py "$D/final.mp4" "$D/meta.json" $T | tee "$D/upload.log"
+      - name: Record result
+        run: |
+          git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
+          rm -rf "state/clips/${{ inputs.clip_id }}/work"; git add state/clips assets/final_thumbs assets/scenes_ai
+          git commit -m "clip rendered: ${{ inputs.clip_id }}" || echo "nothing to commit"; git pull --rebase -q || true; git push
