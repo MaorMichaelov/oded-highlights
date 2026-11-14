@@ -79,7 +79,7 @@ async function llm(env, messages) {
       const r = await env.AI.run(m, m.includes("gpt-oss") ? { input: messages.map((x) => ({ role: x.role, content: x.content })), reasoning: { effort: "low" }, max_output_tokens: 1500 } : { messages, max_tokens: 1200 });
       const t = r.response || (r.choices && r.choices[0] && r.choices[0].message && r.choices[0].message.content) || r.output_text ||
         (r.output && r.output.map((o) => (o.content || []).map((c) => c.text || "").join("")).join("")) || null;
-      if (t) return t;
+      if (t && !/(.)\1{12,}/.test(t)) return t;   // a degenerate repeated-character output counts as a failure: try the next model
     } catch (e) { /* try the next model */ }
   }
   return null;
