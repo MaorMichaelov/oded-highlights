@@ -85,7 +85,8 @@ lesson: לקח קבוע לבחירת נושאים. args: {text}
 instruction: הנחיה קבועה לצ'אט. args: {text}`;
 
 async function groq(key, messages) {   // primary LLM when the owner added a Groq key in the app settings (separate free quota from Cloudflare Workers AI)
-  const r = await fetch("https://api.groq.com/openai/v1/chat/completions", { method: "POST", headers: { authorization: "Bearer " + key, "content-type": "application/json" }, body: JSON.stringify({ model: "openai/gpt-oss-120b", messages, temperature: 0.3, max_tokens: 1500, reasoning_effort: "low" }) });
+  const go = () => fetch("https://api.groq.com/openai/v1/chat/completions", { method: "POST", headers: { authorization: "Bearer " + key, "content-type": "application/json" }, body: JSON.stringify({ model: "openai/gpt-oss-120b", messages, temperature: 0.3, max_tokens: 1500, reasoning_effort: "low" }) });
+  let r = await go(); if (r.status === 429) { await new Promise((x) => setTimeout(x, 4000)); r = await go(); }   // free tier: 8000 tokens/min, one short retry
   const j = await r.json(); if (!r.ok) throw new Error("groq " + r.status + ": " + JSON.stringify(j).slice(0, 140));
   return j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
 }
