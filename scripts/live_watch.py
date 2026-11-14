@@ -117,6 +117,9 @@ def main():
         shutil.rmtree(tmp, ignore_errors=True)
     cur["last_run"] = now; st[vid] = cur; st["_current_vod"] = vid
     st["_vod_base"] = base
+    try:
+        import calendar; st["_vod_start_epoch"] = calendar.timegm(time.strptime((v.get("start_time") or "")[:19], "%Y-%m-%d %H:%M:%S"))
+    except Exception: pass
     (STATE / "ingest_state.json").write_text(json.dumps(st, ensure_ascii=False, indent=1))
     print("ingested up to seg", cur["next_seg"], "of", len(segs))
     return 0

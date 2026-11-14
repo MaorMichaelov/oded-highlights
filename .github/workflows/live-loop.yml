@@ -33,6 +33,7 @@ jobs:
           ASR: ivrit
         run: |
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
+          nohup python3 scripts/chat_poll.py --seconds 20300 --poll 10 > /tmp/chat_poll.log 2>&1 &
           end=$((SECONDS+20400))
           while [ $SECONDS -lt $end ]; do
             [ -f state/PAUSE ] && { echo "PAUSE file present, stopping"; exit 0; }
