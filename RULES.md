@@ -21,3 +21,6 @@
 - THUMBNAIL BACKGROUNDS (approved by owner 14 Nov 2026): photorealistic people-free plates from Cloudflare Workers AI flux-2-klein-4b (scripts/cf_plates.py, assets/plates_ai/).
   Portrait = sharp AI portraits (assets from Grok, 8 expressions). Headline = scripts/thumb_maker.py. Never copy another channel's image files; learn their rules only.
   Cloudflare token is stored by the environment proxy; account id 3edbd7bb... is not secret. Daily free quota ~100 images; generate per-topic plates on demand (new seed/prompt).
+- APPROVED THUMBNAIL TEMPLATE (owner: "זה טוב", 14 Nov 2026): scripts/make_scene_thumb.py -> scene generated WITH Oded inside (Cloudflare klein + his sharp AI portraits as refs),
+  face very large on the left, strong expression/hand gesture, story prop + neon scene, headline top-right (white line + yellow/orange gradient line, thick black outline).
+  Always generate 3 seeds, LOOK at them before sending, pick the closest likeness, never send a thumbnail whose QA says overlap_ok=False.
