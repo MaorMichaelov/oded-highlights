@@ -11,6 +11,7 @@ concurrency:
 permissions:
   contents: write
   actions: write
+  issues: write
 jobs:
   loop:
     runs-on: ubuntu-latest
@@ -38,6 +39,7 @@ jobs:
           while [ $SECONDS -lt $end ]; do
             [ -f state/PAUSE ] && { echo "PAUSE file present, stopping"; exit 0; }
             python3 scripts/live_watch.py || echo "live_watch failed (continuing)"
+            python3 scripts/stations/live_alert.py || echo "alert failed (continuing)"
             git add state
             if ! git diff --cached --quiet; then
               git commit -q -m "state: live watch $(date -u +%FT%TZ)"
