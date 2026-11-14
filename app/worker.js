@@ -30,10 +30,10 @@ const clip = (t, n = 3500) => (t.length > n ? t.slice(0, n) + "…" : t);
 const mmss = (s) => `${Math.floor(s / 3600)}:${String(Math.floor((s % 3600) / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
 const TOOLS = {
-  async status(a, tok) {
+  async status(a, tok, env) {
     const [live, health, pick, pend, ing] = await Promise.all(["live_status.json", "health.json", "pick_state.json", "pending_candidates.json", "ingest_state.json"].map((f) => ghJson("state/" + f, tok)));
     const cat = (await ghRead("state/category.jsonl", tok) || "").trim().split("\n").slice(-1)[0];
-    return { live, last_category_change: cat ? JSON.parse(cat) : null, health, pick_state: pick, pending_candidates: (pend || []).length, current_vod: ing && ing._current_vod };
+    return { live, last_category_change: cat ? JSON.parse(cat) : null, health, watchdog: JSON.parse((await env.KV.get("wd_last")) || "null"), pick_state: pick, pending_candidates: (pend || []).length, current_vod: ing && ing._current_vod };
   },
   async skipped(a, tok) { return { pick_state: await ghJson("state/pick_state.json", tok), pending_candidates: await ghJson("state/pending_candidates.json", tok), lessons: ((await ghJson("state/lessons.json", tok)) || []).slice(-8) }; },
   async views(a, tok) {   // channel views gained in the last N hours, from our own hourly snapshots (state/yt_history.jsonl)
@@ -117,7 +117,7 @@ ${TOOL_DOC}
     let j = null; const mt = out.match(/\{[\s\S]*\}/); try { j = JSON.parse(mt ? mt[0] : out); } catch { return out.trim(); }
     if (j.reply) return j.reply;
     if (j.tool && TOOLS[j.tool]) {
-      let res; try { res = await TOOLS[j.tool](j.args || {}, tok); } catch (e) { res = "שגיאה: " + e.message; }
+      let res; try { res = await TOOLS[j.tool](j.args || {}, tok, env); } catch (e) { res = "שגיאה: " + e.message; }
       m.push({ role: "assistant", content: JSON.stringify(j) }, { role: "user", content: "תוצאת הכלי " + j.tool + ": " + clip(typeof res === "string" ? res : JSON.stringify(res)) });
     } else return out.trim();
   }
@@ -131,7 +131,17 @@ async function auth(req, env) {
   if ((await sha(salt + pw)) === h) return "ok";
   await env.KV.put(k, String(f + 1), { expirationTtl: 3600 }); return "bad";
 }
+async function watchdog(env) {   // Cloudflare cron every 5 min: GitHub's own schedules do not fire on this repo, so this keeps the live loop alive
+  const tok = await env.KV.get("gh"); if (!tok) return;
+  const h = { authorization: "Bearer " + tok, "user-agent": "oded-app", accept: "application/vnd.github+json" };
+  const paused = (await fetch(`https://api.github.com/repos/${REPO}/contents/state/PAUSE`, { headers: h })).status === 200; if (paused) return;
+  const r = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/live-loop.yml/runs?per_page=4`, { headers: h }); if (!r.ok) return;
+  const runs = (await r.json()).workflow_runs || []; const alive = runs.some((x) => ["in_progress", "queued", "waiting", "pending", "requested"].includes(x.status));
+  if (!alive) { const d = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/live-loop.yml/dispatches`, { method: "POST", headers: h, body: JSON.stringify({ ref: "main" }) }); await env.KV.put("wd_last", JSON.stringify({ t: new Date().toISOString(), restarted: d.status })); }
+  else await env.KV.put("wd_last", JSON.stringify({ t: new Date().toISOString(), alive: true }));
+}
 export default {
+  async scheduled(event, env, ctx) { ctx.waitUntil(watchdog(env)); },
   async fetch(req, env) {
     const u = new URL(req.url), p = u.pathname;
     if (p === "/" || p === "/index.html") return new Response(HTML, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" } });
@@ -146,6 +156,7 @@ export default {
     }
     const a = await auth(req, env); if (a !== "ok") return J({ error: a }, a === "locked" ? 429 : 401);
     const tok = req.headers.get("x-gh") || "";
+    if (p === "/api/token" && req.method === "POST") { if (tok) await env.KV.put("gh", tok); else await env.KV.delete("gh"); return J({ ok: true, watchdog: !!tok }); }
     if (p === "/api/feed") {
       const since = u.searchParams.get("since") || "1970"; const [live, ev] = await Promise.all([ghJson("state/live_status.json", tok), ghRead("state/events.jsonl", tok)]);
       const events = (ev || "").trim().split("\n").map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter((e) => e && e.t > since).slice(-10);

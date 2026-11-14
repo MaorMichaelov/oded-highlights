@@ -14,4 +14,5 @@ meta = {"main_module": "worker.js", "compatibility_date": "2025-11-01", "binding
 r = cf("PUT", f"/workers/scripts/{NAME}", F=["metadata=" + json.dumps(meta) + ";type=application/json", "worker.js=@/tmp/worker.bundle.js;type=application/javascript+module;filename=worker.js"])
 print("upload:", r.get("success"), r.get("errors"))
 print("subdomain:", cf("POST", f"/workers/scripts/{NAME}/subdomain", h=["Content-Type: application/json"], d=json.dumps({"enabled": True})).get("success"))
+print("cron:", cf("PUT", f"/workers/scripts/{NAME}/schedules", h=["Content-Type: application/json"], d=json.dumps([{"cron": "*/5 * * * *"}])).get("success"))
 print(f"URL: https://{NAME}.odedhl.workers.dev")

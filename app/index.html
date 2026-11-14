@@ -52,7 +52,7 @@ $('t').oninput=function(){this.style.height='auto';this.style.height=Math.min(th
 $('t').onkeydown=function(e){if(e.key==='Enter'&&!e.shiftKey&&window.innerWidth>700){e.preventDefault();$('f').requestSubmit()}};
 document.querySelectorAll('.chip').forEach(function(c){c.onclick=function(){send(c.textContent)}});
 $('gear').onclick=function(){$('gh').value=LS.gh||'';$('gq').value=LS.groq||'';$('dlg').showModal()};$('close').onclick=function(){$('dlg').close()};
-$('save').onclick=function(){LS.gh=$('gh').value.trim();LS.groq=$('gq').value.trim();$('dlg').close();add('bot','נשמר ✅')};
+$('save').onclick=function(){LS.gh=$('gh').value.trim();LS.groq=$('gq').value.trim();fetch('/api/token',{method:'POST',headers:hdr()});$('dlg').close();add('bot','נשמר ✅')};
 $('logout').onclick=function(){LS.removeItem('pw');location.reload()};
 $('notif').onclick=function(){if('Notification' in window)Notification.requestPermission().then(function(p){add('bot',p==='granted'?'התראות מאושרות ✅ (באייפון: רק אחרי הוספה למסך הבית)':'התראות לא אושרו')})};
 async function feed(){try{var since=LS.since||new Date(Date.now()-3600e3).toISOString();var j=await api('/api/feed?since='+encodeURIComponent(since));
