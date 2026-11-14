@@ -46,7 +46,7 @@ async function gate(setup){$('gate').style.display='flex';var st=setup===undefin
   var p=$('pw').value;$('gerr').textContent='';if(st.setup){var r=await fetch('/api/setup',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({password:p})});var j=await r.json();if(j.error){$('gerr').textContent=j.error;return}}
   LS.pw=p;var t=await fetch('/api/feed',{headers:hdr()});if(t.status!==200){$('gerr').textContent='סיסמה שגויה';return}$('gate').style.display='none';boot()}}
 async function send(txt){if(!txt.trim())return;add('me',txt);hist.push({role:'user',content:txt});var w=add('bot typing','…');
- try{var j=await api('/api/chat',{method:'POST',body:JSON.stringify({messages:hist})});w.className='m bot';w.innerHTML=lk(j.reply);hist.push({role:'assistant',content:j.reply});LS.hist=JSON.stringify(hist.slice(-20))}catch(e){w.className='m bot';w.textContent='שגיאת חיבור'}log.scrollTop=log.scrollHeight}
+ try{var j=await api('/api/chat',{method:'POST',body:JSON.stringify({messages:hist})});w.className='m bot';w.innerHTML=lk(j.reply)+(j.debug?'<div class="small" style="margin-top:6px;direction:ltr;text-align:left">'+esc(j.debug.join(' | ').slice(0,300))+'</div>':'');hist.push({role:'assistant',content:j.reply});LS.hist=JSON.stringify(hist.slice(-20))}catch(e){w.className='m bot';w.textContent='שגיאת חיבור'}log.scrollTop=log.scrollHeight}
 $('f').onsubmit=function(e){e.preventDefault();var v=$('t').value;$('t').value='';$('t').style.height='auto';send(v)};
 $('t').oninput=function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'};
 $('t').onkeydown=function(e){if(e.key==='Enter'&&!e.shiftKey&&window.innerWidth>700){e.preventDefault();$('f').requestSubmit()}};

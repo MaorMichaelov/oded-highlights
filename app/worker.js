@@ -113,7 +113,7 @@ ${TOOL_DOC}
 אל תמציא נתונים: אם צריך מידע, הפעל כלי. קליפ נחשב שהועלה רק אם uploaded=true. כללי נתונים: אסור לנחש, להעריך או לעגל מספרים. צטט רק מספרים מתוצאת כלי וציין עד מתי הנתון (as_of/fetched_at). אם הכלי אומר שהנתון חלקי או חסר, אמור את זה בגלוי. שאלה על צפיות בטווח זמן: הפעל views. אחרי תוצאת כלי, סכם בקצרה.${instr ? "\nהנחיות קבועות מהבעלים:\n" + instr : ""}`;
   const m = [{ role: "system", content: system }, ...msgs.slice(-12)];
   for (let i = 0; i < 5; i++) {
-    const out = await llm(env, m, gkey); if (!out) { const e = ERRS.join(" | "); return /neuron|limit|quota|capacity|3040|4006/i.test(e) ? "מכסת ה-AI היומית של Cloudflare נגמרה (מתאפסת בחצות UTC). פתרון קבוע: הוסף מפתח Groq בהגדרות האפליקציה (⚙), שזה מודל חינמי נפרד." : "המודל לא זמין כרגע (" + e.slice(0, 120) + "). נסה שוב בעוד דקה."; }
+    const out = await llm(env, m, gkey); if (!out) { const e = ERRS.join(" | "); if (gkey && /groq/i.test(e)) return "מפתח Groq לא עבד: " + e.split(" | ")[0].slice(0, 220) + (/401|invalid|Invalid/.test(e) ? "\nהמפתח שגוי. צור מפתח חדש והדבק שוב ב-⚙." : "\nאם זה חריגה ממכסה, נסה שוב בעוד דקה."); return /neuron|limit|quota|capacity|3040|4006/i.test(e) ? "מכסת ה-AI היומית של Cloudflare נגמרה (מתאפסת בחצות UTC). פתרון קבוע: הוסף מפתח Groq בהגדרות האפליקציה (⚙), שזה מודל חינמי נפרד." : "המודל לא זמין כרגע (" + e.slice(0, 120) + "). נסה שוב בעוד דקה."; }
     let j = null; const mt = out.match(/\{[\s\S]*\}/); try { j = JSON.parse(mt ? mt[0] : out); } catch { return out.trim(); }
     if (j.reply) return j.reply;
     if (j.tool && TOOLS[j.tool]) {
