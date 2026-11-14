@@ -26,7 +26,7 @@ async function ghDelete(path, msg, tok) {
   const cur = await fetch(u, { headers: h }); if (!cur.ok) return false;
   const r = await fetch(u, { method: "DELETE", headers: h, body: JSON.stringify({ message: msg, sha: (await cur.json()).sha, branch: "main" }) }); return r.ok;
 }
-const clip = (t, n = 3500) => (t.length > n ? t.slice(0, n) + "…" : t);
+const clip = (t, n = 2600) => (t.length > n ? t.slice(0, n) + "…" : t);
 const mmss = (s) => `${Math.floor(s / 3600)}:${String(Math.floor((s % 3600) / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
 const TOOLS = {
@@ -60,6 +60,7 @@ const TOOLS = {
     const v = rows.map((r) => r.viewers || 0); return { points: rows.length, from: rows[0] && rows[0].t, to: rows[rows.length - 1] && rows[rows.length - 1].t, min: Math.min(...v), max: Math.max(...v), last: v[v.length - 1], series: rows.map((r) => [r.t.slice(11, 16), r.viewers]) };
   },
   async runs(a, tok) {   // recent GitHub Actions runs = what the system did / failed
+    if (!tok) return "צריך מפתח GitHub בהגדרות כדי לקרוא את ההפעלות";
     const r = await fetch(`https://api.github.com/repos/${REPO}/actions/runs?per_page=${Number(a.n || 12)}`, { headers: { "user-agent": "oded-app", accept: "application/vnd.github+json", ...(tok ? { authorization: "Bearer " + tok } : {}) } });
     if (!r.ok) return "לא הצלחתי לקרוא את ההפעלות " + r.status; return ((await r.json()).workflow_runs || []).map((x) => ({ name: x.name, status: x.status, result: x.conclusion, at: x.created_at.slice(5, 16) }));
   },
@@ -116,11 +117,15 @@ pause / resume: עצירה והמשך של המערכת. args: {}
 lesson: לקח קבוע לבחירת נושאים. args: {text}
 instruction: הנחיה קבועה לצ'אט. args: {text}`;
 
-async function groq(key, messages) {   // primary LLM when the owner added a Groq key in the app settings (separate free quota from Cloudflare Workers AI)
-  const go = () => fetch("https://api.groq.com/openai/v1/chat/completions", { method: "POST", headers: { authorization: "Bearer " + key, "content-type": "application/json" }, body: JSON.stringify({ model: "openai/gpt-oss-120b", messages, temperature: 0.3, max_tokens: 1500, reasoning_effort: "low" }) });
-  let r = await go(); if (r.status === 429) { await new Promise((x) => setTimeout(x, 4000)); r = await go(); }   // free tier: 8000 tokens/min, one short retry
-  const j = await r.json(); if (!r.ok) throw new Error("groq " + r.status + ": " + JSON.stringify(j).slice(0, 140));
-  return j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+async function groq(key, messages) {   // Groq free tier has 8000 tokens/min PER MODEL: rotate models on 429 so a burst of questions still works
+  let last = "";
+  for (const model of ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b"]) {
+    const r = await fetch("https://api.groq.com/openai/v1/chat/completions", { method: "POST", headers: { authorization: "Bearer " + key, "content-type": "application/json" }, body: JSON.stringify({ model, messages, temperature: 0.3, max_tokens: 900, ...(model.includes("gpt-oss") ? { reasoning_effort: "low" } : {}) }) });
+    const j = await r.json().catch(() => ({}));
+    if (r.ok) { const t = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content; if (t) return t; last = model + ": empty"; continue; }
+    last = model + " " + r.status + ": " + JSON.stringify(j).slice(0, 120); if (r.status === 401) throw new Error("groq 401 invalid key");
+  }
+  throw new Error("groq " + last);
 }
 async function llm(env, messages, gkey) {
   ERRS.length = 0;
