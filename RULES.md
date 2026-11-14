@@ -24,3 +24,7 @@
 - APPROVED THUMBNAIL TEMPLATE (owner: "זה טוב", 14 Nov 2026): scripts/make_scene_thumb.py -> scene generated WITH Oded inside (Cloudflare klein + his sharp AI portraits as refs),
   face very large on the left, strong expression/hand gesture, story prop + neon scene, headline top-right (white line + yellow/orange gradient line, thick black outline).
   Always generate 3 seeds, LOOK at them before sending, pick the closest likeness, never send a thumbnail whose QA says overlap_ok=False.
+
+## Thumbnails: always TWO per video (owner, 14 Nov 2026)
+Every video gets two different thumbnails (A and B) for YouTube "Test & compare" (Studio only, the API cannot do it). The pipeline uploads A with the video and keeps B in the workflow artifact / assets/final_thumbs/<id>_s2.jpg.
+The props must match what happens in the topic (no money bills in a phone-call thumbnail). Owner called the 14 Nov phone-call thumbnails "very bad": generic AI guy, irrelevant money, random neon street.
