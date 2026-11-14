@@ -13,6 +13,26 @@ STATE = ROOT / "state"; (STATE / "transcripts").mkdir(parents=True, exist_ok=Tru
 QUALITY = os.environ.get("AUDIO_QUALITY", "480p30")   # measured: 160p audio=51 kbps (bad transcripts), 480p/720p=102 kbps (clearly better)
 MAX_SEGS_PER_RUN = int(os.environ.get("MAX_SEGS_PER_RUN", "90"))   # ~15 min of audio per run (Groq free: 7200 audio-sec/hour)
 GROQ_KEY = os.environ.get("GROQ_API_KEY", "")
+ASR = os.environ.get("ASR", "ivrit")          # ivrit = ivrit-ai/whisper-large-v3-turbo-ct2 on CPU (RTF ~0.4 on a 4-vCPU runner, no daily quota); groq = fallback
+_model = None
+def ivrit_transcribe(mp3):
+    """returns [(start,end,text)] relative to the file, or None if the engine is unavailable."""
+    global _model
+    try:
+        if _model is None:
+            from faster_whisper import WhisperModel
+            _model = WhisperModel("ivrit-ai/whisper-large-v3-turbo-ct2", device="cpu", compute_type="int8", cpu_threads=os.cpu_count() or 4)
+        segs, _ = _model.transcribe(str(mp3), language="he", beam_size=1, vad_filter=True, vad_parameters={"min_silence_duration_ms": 500, "threshold": 0.35},
+                                    condition_on_previous_text=False, no_speech_threshold=0.5, compression_ratio_threshold=2.2, hallucination_silence_threshold=2.0,
+                                    initial_prompt="עודד, ביגי, עמית שיבר, סנסיי, רונן, אוהד, קיק, סטרימר, פוקימון")
+        out = []
+        for sg in segs:
+            t = sg.text.strip()
+            if not t or (t in ("תודה רבה.", "תודה רבה", "תודה.") and (sg.end - sg.start) < 3.5): continue
+            out.append((sg.start, sg.end, t))
+        return out
+    except Exception as e:
+        print("ivrit engine unavailable:", repr(e)[:200]); return None
 
 def curl(url, out=None, timeout=40):
     cmd = ["curl", "-sS", "-A", UA, "-H", "Accept: application/json", "-m", str(timeout), "-w", "%{http_code}", "-o", out or "-", url]
@@ -63,8 +83,8 @@ def main():
     # leave the last 2 segments (may still be growing)
     if i0 + len(new) >= len(segs): new = new[:-2] if len(new) > 2 else []
     print(f"vod {vid}: total segs {len(segs)}, ingesting {len(new)} from {i0}")
-    if not new or not GROQ_KEY:
-        if not GROQ_KEY: print("GROQ_API_KEY not set: skipping transcription")
+    if not new or (not GROQ_KEY and ASR != "ivrit"):
+        if not GROQ_KEY and ASR != "ivrit": print("GROQ_API_KEY not set: skipping transcription")
         st[vid] = cur; st["_current_vod"] = vid; (STATE / "ingest_state.json").write_text(json.dumps(st, indent=1)); return 0
     if not shutil.which("ffmpeg"):
         subprocess.run("sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg", shell=True, check=False)
@@ -79,14 +99,18 @@ def main():
             mp3 = tmp / "w.mp3"
             subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", str(lst), "-vn", "-ac", "1", "-ar", "16000", "-b:a", "32k", str(mp3)])
             if not mp3.exists(): print("audio failed"); break
-            r = subprocess.run(["curl", "-sS", "-m", "180", "https://api.groq.com/openai/v1/audio/transcriptions", "-H", f"Authorization: Bearer {GROQ_KEY}", "-F", "model=whisper-large-v3-turbo", "-F", "language=he", "-F", "response_format=verbose_json", "-F", f"file=@{mp3}"], capture_output=True, text=True)
-            try: j = json.loads(r.stdout)
-            except Exception: print("bad groq response"); break
-            if "error" in j: print("groq error:", j["error"].get("message", "")[:120]); break
-            off = win[0][1]
+            off = win[0][1]; rows = None
+            if ASR == "ivrit": rows = ivrit_transcribe(mp3)
+            if rows is None and GROQ_KEY:
+                r = subprocess.run(["curl", "-sS", "-m", "180", "https://api.groq.com/openai/v1/audio/transcriptions", "-H", f"Authorization: Bearer {GROQ_KEY}", "-F", "model=whisper-large-v3", "-F", "language=he", "-F", "response_format=verbose_json", "-F", f"file=@{mp3}"], capture_output=True, text=True)
+                try: j = json.loads(r.stdout)
+                except Exception: print("bad groq response"); break
+                if "error" in j: print("groq error:", j["error"].get("message", "")[:120]); break
+                rows = [(sg["start"], sg["end"], sg["text"].strip()) for sg in j.get("segments", [])]
+            if rows is None: print("no ASR engine available"); break
             with open(STATE / "transcripts" / f"{vid}.jsonl", "a", encoding="utf-8") as fh:
-                for sg in j.get("segments", []):
-                    fh.write(json.dumps({"start": round(sg["start"] + off, 2), "end": round(sg["end"] + off, 2), "text": sg["text"].strip()}, ensure_ascii=False) + "\n")
+                for (a0, a1, tx) in rows:
+                    fh.write(json.dumps({"start": round(a0 + off, 2), "end": round(a1 + off, 2), "text": tx}, ensure_ascii=False) + "\n")
             cur["next_seg"] = i0 + k + len(win)
             mp3.unlink(missing_ok=True)
     finally:
