@@ -2,7 +2,8 @@
 const REPO = "MaorMichaelov/oded-highlights";
 const HTML = __HTML__;
 const ICON = "__ICON__";
-const MODELS = ["@cf/openai/gpt-oss-120b", "@cf/meta/llama-3.3-70b-instruct-fp8-fast"];
+const MODELS = ["@cf/openai/gpt-oss-120b", "@cf/meta/llama-3.3-70b-instruct-fp8-fast", "@cf/openai/gpt-oss-20b", "@cf/meta/llama-3.1-8b-instruct"];
+const ERRS = [];
 const J = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
 const hex = (b) => [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join("");
 const sha = async (t) => hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)));
@@ -35,6 +36,13 @@ const TOOLS = {
     return { live, last_category_change: cat ? JSON.parse(cat) : null, health, pick_state: pick, pending_candidates: (pend || []).length, current_vod: ing && ing._current_vod };
   },
   async skipped(a, tok) { return { pick_state: await ghJson("state/pick_state.json", tok), pending_candidates: await ghJson("state/pending_candidates.json", tok), lessons: ((await ghJson("state/lessons.json", tok)) || []).slice(-8) }; },
+  async views(a, tok) {   // channel views gained in the last N hours, from our own hourly snapshots (state/yt_history.jsonl)
+    const h = Number(a.hours || 48); const raw = await ghRead("state/yt_history.jsonl", tok); if (!raw) return { note: "אין עדיין היסטוריה. הנתונים מצטברים מעכשיו, כל חצי שעה." };
+    const rows = raw.trim().split("\n").map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean); const last = rows[rows.length - 1];
+    const tgt = Date.parse(last.t) - h * 3600e3; const base = rows.filter((r) => Date.parse(r.t) <= tgt).pop(); const first = rows[0];
+    const ref = base || first; const have = (Date.parse(last.t) - Date.parse(ref.t)) / 3600e3;
+    return { requested_hours: h, covered_hours: Math.round(have * 10) / 10, views_gained: last.views - ref.views, exact: !!base, channel_views_total: last.views, as_of: last.t, history_since: first.t, note: base ? "מדויק" : "ההיסטוריה שלנו קצרה מהחלון שביקשת: זה הגידול מאז " + first.t + " בלבד. לנתון מדויק ל-48 שעות צריך להפעיל את YouTube Analytics API." };
+  },
   async drafts(a, tok) { const i = (await ghJson("state/index.json", tok)) || []; return i.slice(-15).reverse().map((c) => ({ title: c.title, uploaded: !!c.draft, url: c.draft || null, uploaded_at: c.draft_at || null, note: c.draft ? "טיוטה פרטית ביוטיוב" : (c.quality_errors && c.quality_errors.length ? "נחסם בבדיקת איכות" : "לא הועלה (בדיקה או בתהליך)") })); },
   async stats(a, tok) { const s = await ghJson("state/yt_stats.json", tok); if (!s) return "אין עדיין נתוני יוטיוב"; const v = [...s.videos].sort((x, y) => y.views - x.views); return { channel: s.channel, fetched_at: s.fetched_at, top: v.slice(0, 8).map((x) => ({ title: x.title, views: x.views, likes: x.likes, privacy: x.privacy })), latest: [...s.videos].slice(0, 6).map((x) => ({ title: x.title, views: x.views, privacy: x.privacy })) }; },
   async transcript(a, tok) {   // search the current stream transcript by words and/or time window (seconds of the stream)
@@ -67,6 +75,7 @@ const TOOLS = {
 };
 const TOOL_DOC = `status: מצב הלייב והמערכת. args: {}
 skipped: מה המערכת פסלה ולמה (הערות תחנת הבחירה, מועמדים, לקחים). args: {}
+views: כמה צפיות הערוץ קיבל ב-N שעות אחרונות. args: {hours}
 drafts: רשימת הקליפים והטיוטות האחרונות עם קישורים. args: {}
 stats: נתוני יוטיוב (צפיות, לייקים, הכי חזקים). args: {}
 transcript: חיפוש בתמלול של השידור הנוכחי. args: {query?: "מילים", last_minutes?: n, from?: שניות, to?: שניות}
@@ -76,13 +85,14 @@ lesson: לקח קבוע לבחירת נושאים. args: {text}
 instruction: הנחיה קבועה לצ'אט. args: {text}`;
 
 async function llm(env, messages) {
+  ERRS.length = 0;
   for (const m of MODELS) {
     try {
       const r = await env.AI.run(m, m.includes("gpt-oss") ? { input: messages.map((x) => ({ role: x.role, content: x.content })), reasoning: { effort: "low" }, max_output_tokens: 1500 } : { messages, max_tokens: 1200 });
       const t = r.response || (r.choices && r.choices[0] && r.choices[0].message && r.choices[0].message.content) || r.output_text ||
         (r.output && r.output.map((o) => (o.content || []).map((c) => c.text || "").join("")).join("")) || null;
       if (t && !/(.)\1{12,}/.test(t)) return t;   // a degenerate repeated-character output counts as a failure: try the next model
-    } catch (e) { /* try the next model */ }
+    } catch (e) { ERRS.push(m + ": " + String(e && e.message || e).slice(0, 160)); }
   }
   return null;
 }
@@ -93,10 +103,10 @@ async function agent(env, msgs, tok) {
 כלים (קרא להם בפורמט JSON בלבד):
 ${TOOL_DOC}
 פורמט תשובה: או {"tool":"שם","args":{...}} כדי להפעיל כלי, או {"reply":"הטקסט למשתמש"} כדי לענות. החזר JSON בלבד, שורה אחת, בלי טקסט נוסף.
-אל תמציא נתונים: אם צריך מידע, הפעל כלי. קליפ נחשב שהועלה רק אם uploaded=true. אחרי תוצאת כלי, סכם בקצרה.${instr ? "\nהנחיות קבועות מהבעלים:\n" + instr : ""}`;
+אל תמציא נתונים: אם צריך מידע, הפעל כלי. קליפ נחשב שהועלה רק אם uploaded=true. כללי נתונים: אסור לנחש, להעריך או לעגל מספרים. צטט רק מספרים מתוצאת כלי וציין עד מתי הנתון (as_of/fetched_at). אם הכלי אומר שהנתון חלקי או חסר, אמור את זה בגלוי. שאלה על צפיות בטווח זמן: הפעל views. אחרי תוצאת כלי, סכם בקצרה.${instr ? "\nהנחיות קבועות מהבעלים:\n" + instr : ""}`;
   const m = [{ role: "system", content: system }, ...msgs.slice(-12)];
   for (let i = 0; i < 5; i++) {
-    const out = await llm(env, m); if (!out) return "המודל לא זמין כרגע, נסה שוב בעוד דקה.";
+    const out = await llm(env, m); if (!out) { const e = ERRS.join(" | "); return /neuron|limit|quota|capacity|3040|4006/i.test(e) ? "מכסת ה-AI היומית של Cloudflare נגמרה (היא מתאפסת בחצות UTC). אפשר עדיין לשאול נתונים בלחיצה על הכפתורים למעלה." : "המודל לא זמין כרגע (" + e.slice(0, 120) + "). נסה שוב בעוד דקה."; }
     let j = null; const mt = out.match(/\{[\s\S]*\}/); try { j = JSON.parse(mt ? mt[0] : out); } catch { return out.trim(); }
     if (j.reply) return j.reply;
     if (j.tool && TOOLS[j.tool]) {
@@ -134,7 +144,7 @@ export default {
       const events = (ev || "").trim().split("\n").map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter((e) => e && e.t > since).slice(-10);
       return J({ live: live && live.live, title: live && live.title, events, now: new Date().toISOString() });
     }
-    if (p === "/api/chat" && req.method === "POST") { const b = await req.json(); return J({ reply: await agent(env, b.messages || [], tok) }); }
+    if (p === "/api/chat" && req.method === "POST") { const b = await req.json(); const reply = await agent(env, b.messages || [], tok); return J({ reply, ...(ERRS.length ? { debug: ERRS } : {}) }); }
     return J({ error: "not found" }, 404);
   },
 };

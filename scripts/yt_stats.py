@@ -39,4 +39,6 @@ if len(pub) >= 8:
     for v in pub:
         if v["views"] < med * 0.4: lesson(f"סרטון חלש ({v['views']} צפיות מול חציון {med}): \"{v['title']}\". אל תבחר נושאים כאלה.", "weak_performance")
         if v["views"] > med * 2.5: lesson(f"סרטון חזק ({v['views']} צפיות מול חציון {med}): \"{v['title']}\". חפש יותר נושאים כאלה.", "strong_performance")
+hp = os.path.join(ST, "yt_history.jsonl")   # hourly snapshots: lets the app answer "views in the last N hours" exactly
+with open(hp, "a") as hf: hf.write(json.dumps({"t": out["fetched_at"], "views": out["channel"]["views"], "subs": out["channel"]["subscribers"]}) + "\n")
 json.dump(out, open(f, "w"), ensure_ascii=False, indent=1); print("stats:", len(vids), "videos")
