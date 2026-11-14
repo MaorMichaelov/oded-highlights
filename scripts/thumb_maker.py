@@ -276,10 +276,12 @@ def scene_mode(args):
     for part in (getattr(args, "avoid", "") or "").split(";"):    # extra no-cover zones (e.g. a phone screen)
         if part.strip(): big.append(tuple(float(v) for v in part.split(",")))
     # candidate areas (x0,x1) x vertical position x scale; first zero-overlap wins, else the least overlap
-    xs = [(36, W - 36), (36, 700), (580, W - 36), (36, 520), (760, W - 36), (300, 980)]
+    xs = [(36, W - 36), (36, 700), (580, W - 36), (36, 520), (760, W - 36), (300, 980), (390, 640), (400, 560), (380, 700)]
     ys = [14, 110, 230, 360, H - 250, H - 190]
     best = None
-    for sc in (1.3, 1.15, 1.0, 0.85, 0.7, 0.58):
+    if getattr(args, "hbox", ""):   # fixed headline placement (x0,x1,y0,scale), no search
+        hx0, hx1, hy0, hsc = (float(v) for v in args.hbox.split(",")); best = (0, (int(hx0), int(hx1)), int(hy0), hsc)
+    for sc in ((1.3, 1.15, 1.0, 0.85, 0.7, 0.58) if not best else ()):
         for (ax0, ax1) in xs:
             for y0 in ys:
                 probe = bg.copy(); box = headline_taklipu(probe, lines, (ax0, ax1), y0=y0, grad=gr, scale=sc, tilt=2.0)
@@ -289,7 +291,7 @@ def scene_mode(args):
                 if ov == 0: break
             if best and best[0] == 0: break
         if best and best[0] == 0: break
-    box = headline_taklipu(bg, lines, best[1], y0=best[2], grad=gr, scale=best[3], tilt=2.0)
+    box = headline_taklipu(bg, lines, best[1], y0=best[2], grad=gr, scale=best[3], tilt=2.0, ribbon=(210, 25, 25) if args.ribbon else None)
     inter = sum(overlap(box, f) for f in big); fa = max(1, sum((f[2] - f[0]) * (f[3] - f[1]) for f in big)) if big else 1
     ok = inter / fa < 0.02; q = 94
     while True:
@@ -405,7 +407,7 @@ def main_cli():
     ap.add_argument("--head", default=""); ap.add_argument("--accent", default=""); ap.add_argument("--theme", default="green", choices=THEMES)
     ap.add_argument("--out", required=True); ap.add_argument("--guest"); ap.add_argument("--guest-crop"); ap.add_argument("--prop"); ap.add_argument("--bg"); ap.add_argument("--art", action="store_true", help="use --bg as recognisable art (no blur/rays)")
     ap.add_argument("--hpos", default="top", choices=["top", "bottom"]); ap.add_argument("--grad", default="255,238,10:255,160,20"); ap.add_argument("--sign", default=""); ap.add_argument("--sign-box", dest="sign_box", default="760,60,360,110"); ap.add_argument("--sign-col", dest="sign_col", default="255,70,190")
-    ap.add_argument("--side", default="left", choices=["left", "right"]); ap.add_argument("--style", default="taklipu", choices=["taklipu", "classic"]); ap.add_argument("--avoid", default="", help="x0,y0,x1,y1;... zones the headline must not cover"); ap.add_argument("--ribbon", action="store_true", help="red torn ribbon behind the headline")
+    ap.add_argument("--side", default="left", choices=["left", "right"]); ap.add_argument("--style", default="taklipu", choices=["taklipu", "classic"]); ap.add_argument("--avoid", default="", help="x0,y0,x1,y1;... zones the headline must not cover"); ap.add_argument("--hbox", default="", help="x0,x1,y0,scale fixed headline placement"); ap.add_argument("--ribbon", action="store_true", help="red torn ribbon behind the headline")
     return make(ap.parse_args())
 
 if __name__ == "__main__":
