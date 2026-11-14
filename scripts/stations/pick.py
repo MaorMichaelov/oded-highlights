@@ -67,7 +67,7 @@ def main():
     user = (f"Transcript window {mmss(lo)} - {mmss(hi)} (stream seconds; each line starts with [h:mm:ss|seconds]). Only topics that END before {int(hi)} s are closed.\n"
             f"Category/title changes (recent): {json.dumps(cat, ensure_ascii=False)}\nRanges already cut (seconds): {done}\nRecent uploaded titles (do not repeat a topic): {json.dumps(recent, ensure_ascii=False)}\n\n"
             + "\n".join(lines(rows, lo, hi)) +
-            f"\n\nReturn JSON: {{\"clips\":[{{\"start\":sec,\"end\":sec,\"title\":\"Hebrew 40-55 chars ending ! or ?!\",\"description\":\"2-3 Hebrew sentences\",\"tags\":[...],\"preset\":one of {PRESETS},"
+            f"\n\nReturn JSON: {{\"clips\":[{{\"start\":sec,\"end\":sec,\"title\":\"Hebrew 40-70 chars: a short QUOTE from the clip in quotes ending with !, then who + what (names of the people)\",\"description\":\"2-3 Hebrew sentences\",\"tags\":[...],\"preset\":one of {PRESETS},"
             f"\"head\":\"<=2 Hebrew words\",\"accent\":\"<=2 Hebrew words ending !\",\"brief\":{{\"about\":\"\",\"who\":\"\",\"peak\":\"mm:ss + what\"}},\"exclude\":[[sec,sec]]}}],"
             f"\"next_cursor\":sec (start of the first topic that is still open or unclear; if everything up to {int(hi)} is decided put {int(hi)}),\"notes\":\"why skipped\"}}. "
             f"Each clip {MIN_LEN}-{MAX_LEN} s, ONE topic, no overlap with already cut ranges. Empty clips list is fine and common. Be strict: weak topics are skipped.")
