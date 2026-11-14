@@ -6,7 +6,7 @@ A topic is only considered CLOSED if it ended at least HOLD seconds before the e
 usage: topic_scan.py [--vod ID] [--hold 900] [--min 360] [--max 2400]"""
 import argparse, json, math, os, re, sys
 from collections import Counter
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); ST = os.path.join(ROOT, "state"); TD = os.path.join(ST, "topics"); os.makedirs(TD, exist_ok=True)
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); ST = os.path.join(ROOT, os.environ.get("STATE_DIR", "state")); TD = os.path.join(ST, "topics"); os.makedirs(TD, exist_ok=True)
 GTA_CUES = ["GTA","ג'י טי איי","גי טי איי","ויס סיטי","וייס סיטי","לוס סנטוס","לאוס","מיסיון","משימה","תוכנית השוד","הפשע","מרדף","משטרה","שוטרים","נכנסתי למשחק","יצא המשחק","פתחתי את המשחק"]
 FIRST_CUES = ["פעם ראשונה","בפעם הראשונה","הפעם הראשונה","סוף סוף","לא מאמין","אני בשוק","וואו"]
 CUES = ["דרמה","ריב","התפוצץ","פתח עליו","עבר כל גבול","דירוג","מדרג","טייר","אתגר","התערבנו","על כסף","טריוויה","נחש מי","חקיין","נמאס לי","עוזב","מודיע",

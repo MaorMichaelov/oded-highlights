@@ -9,7 +9,7 @@ from pathlib import Path
 CHANNEL = os.environ.get("CHANNEL", "odedsvr")
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 ROOT = Path(__file__).resolve().parent.parent
-STATE = ROOT / "state"; (STATE / "transcripts").mkdir(parents=True, exist_ok=True)
+STATE = ROOT / os.environ.get("STATE_DIR", "state"); (STATE / "transcripts").mkdir(parents=True, exist_ok=True)
 QUALITY = os.environ.get("AUDIO_QUALITY", "480p30")   # measured: 160p audio=51 kbps (bad transcripts), 480p/720p=102 kbps (clearly better)
 MAX_SEGS_PER_RUN = int(os.environ.get("MAX_SEGS_PER_RUN", "90"))   # ~15 min of audio per run (Groq free: 7200 audio-sec/hour)
 GROQ_KEY = os.environ.get("GROQ_API_KEY", "")

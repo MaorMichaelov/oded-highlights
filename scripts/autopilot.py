@@ -7,7 +7,7 @@
    (max FALLBACK_PER_DAY per day, never the same time range twice). Titles are generic and uploads are private, so the owner can rename before publishing.
 usage: autopilot.py [--dry-run]"""
 import argparse, json, os, re, subprocess, sys, time
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); ST = os.path.join(ROOT, "state")
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); ST = os.path.join(ROOT, os.environ.get("STATE_DIR", "state"))
 HOLD_FIRST = int(os.environ.get("HOLD_FIRST", "480")); FIRST_LEN = int(os.environ.get("FIRST_LEN", "780")); PRE = int(os.environ.get("FIRST_PRE", "90"))
 FALLBACK_HOURS = float(os.environ.get("FALLBACK_HOURS", "2.5")); FALLBACK_SCORE = float(os.environ.get("FALLBACK_SCORE", "22")); FALLBACK_PER_DAY = int(os.environ.get("FALLBACK_PER_DAY", "2"))
 GTA6 = re.compile(r"grand theft auto\s*(vi\b|6)|gta\s*(vi\b|6)|גי\s?טי\s?איי\s*(6|שש)|ג'י\s?טי\s?איי\s*(6|שש)", re.I)

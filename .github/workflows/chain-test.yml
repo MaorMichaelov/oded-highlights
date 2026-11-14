@@ -1,0 +1,57 @@
+name: chain-test
+# End-to-end test on a REAL Kick VOD (no live needed): ingest + ivrit transcription -> topic scan -> automatic pick -> render-clip (cut, opening, sting, popup) -> private draft upload.
+# Uses its own state dir (state_chaintest) so it never disturbs the live loop; only the picked clip is copied into state/clips.
+on:
+  workflow_dispatch:
+    inputs:
+      vod_index: { description: "index in /videos list (0 = newest)", required: false, default: "0" }
+      start_seg: { description: "first 10-s segment", required: false, default: "180" }
+      segs: { description: "number of segments (240 = 40 min)", required: false, default: "240" }
+concurrency:
+  group: chain-test
+  cancel-in-progress: false
+permissions:
+  contents: write
+  actions: write
+jobs:
+  chain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-ivrit-whisper-turbo-ct2-v1
+      - name: Install
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install -q faster-whisper "av==15.1.0"
+      - name: Chain
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STATE_DIR: state_chaintest
+          ASR: ivrit
+          FORCE_VOD: ${{ inputs.vod_index }}
+          START_SEG: ${{ inputs.start_seg }}
+          MAX_SEGS_PER_RUN: ${{ inputs.segs }}
+          FALLBACK_RENDER: "1"
+          FALLBACK_HOURS: "0"
+          FALLBACK_SCORE: "15"
+        run: |
+          git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
+          mkdir -p state_chaintest; T0=$(date +%s); echo "t0 $(date -u +%T)"
+          python3 scripts/live_watch.py; T1=$(date +%s); echo "ingest+transcribe done in $((T1-T0)) s"
+          python3 scripts/topic_scan.py --hold 300; T2=$(date +%s); echo "topic scan done in $((T2-T1)) s"
+          python3 scripts/autopilot.py --dry-run; T3=$(date +%s); echo "pick done in $((T3-T2)) s"
+          ls state_chaintest/clips 2>/dev/null || { echo "NO CLIP PICKED"; ls state_chaintest state_chaintest/topics; exit 1; }
+          CID=$(ls state_chaintest/clips | head -1)
+          mkdir -p state/clips && cp -r state_chaintest/clips/$CID state/clips/
+          python3 - <<PY
+          import json,os
+          s=json.load(open("state/clips/$CID/spec.json")); s["title"]="בדיקת שרשרת: "+s["title"]; json.dump(s,open("state/clips/$CID/spec.json","w"),ensure_ascii=False,indent=1)
+          PY
+          echo "{\"clip\":\"$CID\",\"ingest_s\":$((T1-T0)),\"scan_s\":$((T2-T1)),\"pick_s\":$((T3-T2)),\"started\":$T0}" > state/clips/$CID/chain_timing.json
+          git add state/clips/$CID; git commit -q -m "chain-test: picked $CID"; git pull --rebase -q; git push -q
+          gh workflow run render-clip.yml --ref main -f clip_id=$CID -f upload=true
+          echo "dispatched render-clip for $CID at $(date -u +%T)"
