@@ -275,7 +275,7 @@ def scene_mode(args):
     xs = [(36, W - 36), (36, 700), (580, W - 36), (36, 520), (760, W - 36), (300, 980)]
     ys = [14, 110, 230, 360, H - 250, H - 190]
     best = None
-    for sc in (1.0, 0.85, 0.7, 0.58):
+    for sc in (1.3, 1.15, 1.0, 0.85, 0.7, 0.58):
         for (ax0, ax1) in xs:
             for y0 in ys:
                 probe = bg.copy(); box = headline_taklipu(probe, lines, (ax0, ax1), y0=y0, grad=gr, scale=sc, tilt=2.0)
