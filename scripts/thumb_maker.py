@@ -40,7 +40,7 @@ def font(size):
     raise SystemExit("Heebo font not found (install fonts-google / download Heebo[wght].ttf)")
 
 _session = None
-def cutout(img_rgb):
+def cutout(img_rgb, fade_px=110):
     """person cut-out with soft, clean edges."""
     global _session
     from rembg import remove, new_session
@@ -48,8 +48,20 @@ def cutout(img_rgb):
     out = remove(img_rgb, session=_session, alpha_matting=False)
     a = np.array(out.split()[-1]).astype(np.float32) / 255.0
     a = np.clip((a - 0.12) / 0.76, 0, 1)                      # tighten the matte a little
-    a = np.array(Image.fromarray((a * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1.1)))
-    out.putalpha(Image.fromarray(a)); return out
+    a = np.array(Image.fromarray((a * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1.1))).astype(np.float32) / 255.0
+    a = fade_cut_edges(a, fade_px)
+    out.putalpha(Image.fromarray((a * 255).astype(np.uint8))); return out
+
+def fade_cut_edges(a, px=110):
+    """where the source portrait is cropped by its own frame (alpha touches the left/right/top border) fade the body out smoothly
+    instead of leaving a hard straight cut. The bottom edge is left alone (it bleeds off the thumbnail)."""
+    h, w = a.shape; band = max(4, px)
+    def touches(sl): return float(np.mean(sl > 0.5)) > 0.12
+    m = np.ones_like(a)
+    if touches(a[:, -3:]): m *= np.clip((w - 1 - np.arange(w)) / band, 0, 1)[None, :] ** 1.2
+    if touches(a[:, :3]): m *= np.clip(np.arange(w) / band, 0, 1)[None, :] ** 1.2
+    if touches(a[:3, :]): m *= np.clip(np.arange(h) / band, 0, 1)[:, None] ** 1.2
+    return a * m
 
 def enhance(img, target_h):
     """upscale + recover detail from a low-res facecam crop."""
