@@ -26,7 +26,7 @@ def lines(rows, a, b, step=30):
     if cur: out.append(f"[{mmss(t0)}|{int(t0)}] " + " ".join(cur))
     return out
 def ask(system, user):
-    body = json.dumps({"model": MODEL, "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}], "temperature": 0.3, "max_tokens": 6000, "reasoning_effort": "medium"}, ensure_ascii=False)
+    body = json.dumps({"model": MODEL, "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}], "temperature": 0.3, "max_tokens": 3000, "reasoning_effort": "low"}, ensure_ascii=False)
     hdr = ["-H", "Content-Type: application/json"] + (["-H", "Authorization: Bearer " + os.environ["GROQ_API_KEY"]] if os.environ.get("GROQ_API_KEY") else [])
     for attempt in range(3):
         r = subprocess.run(["curl", "-sS", "-m", "180", "https://api.groq.com/openai/v1/chat/completions"] + hdr + ["-d", body], capture_output=True, text=True)
@@ -54,6 +54,9 @@ def main():
         c = jf(os.path.join(clipsd, d, "cuts.json"))
         if c and c.get("vod") == vod: done += [(x, y) for p in c.get("pieces", []) for x, y in p.get("keep", [])]
     guide = open(os.path.join(ROOT, "docs", "TOPICS_TO_CLIP.md"), encoding="utf-8").read()
+    BUDGET = int(os.environ.get("PICK_TOKEN_BUDGET", "4300"))   # Groq free: 8000 tokens/min including max_tokens(3000)
+    est = lambda txt: len(txt) / 2.6
+    while hi - lo > 480 and est(guide) + est("\n".join(lines(rows, lo, hi))) + 900 > BUDGET: hi = lo + (hi - lo) * 0.8
     cat = [x for x in jl(os.path.join(ST, "category.jsonl"))][-6:]
     recent = [v["title"] for v in (jf(os.path.join(ROOT, "state", "yt_research", "own.json"), {}) or {}).get("videos", [])][:25]
     system = ("You are the topic editor of the YouTube channel ODED HIGHLIGHTS (clips of the Kick streamer OdedSVR, Hebrew). You get a transcript of a live stream "
