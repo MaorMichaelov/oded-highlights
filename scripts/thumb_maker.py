@@ -234,6 +234,27 @@ def finish(img, vignette=0.78, grain=2.2, s_curve=0.12, clarity=0.35):
     rng = np.random.default_rng(3); a = np.clip(a + rng.normal(0, grain / 255.0, a.shape[:2])[..., None], 0, 1)
     return Image.fromarray((a * 255).astype(np.uint8))
 
+def match_to_scene(person_rgba, scene_rgb, strength=0.28, rim=True, rim_px=7):
+    """Make a cut-out belong to its background: partial Lab colour transfer toward the scene (keeps skin warm), plus a coloured rim light
+    taken from the scene's dominant bright/saturated hue on the side facing the light."""
+    import cv2
+    rgb = np.asarray(person_rgba.convert("RGB")).copy(); a = np.asarray(person_rgba.split()[-1]).astype(np.float32) / 255.0
+    sc = cv2.cvtColor(np.asarray(scene_rgb.convert("RGB").resize((320, 180))), cv2.COLOR_RGB2LAB).reshape(-1, 3).astype(np.float32)
+    pl = cv2.cvtColor(rgb, cv2.COLOR_RGB2LAB).astype(np.float32); m = a > 0.5
+    for ch in (1, 2):                                   # transfer only chroma, partially
+        mu_s, sd_s = sc[:, ch].mean(), sc[:, ch].std() + 1e-3; mu_p, sd_p = pl[..., ch][m].mean(), pl[..., ch][m].std() + 1e-3
+        t = (pl[..., ch] - mu_p) * (sd_s / sd_p) * 0.35 + 0.65 * (pl[..., ch] - mu_p) + mu_s
+        pl[..., ch] = pl[..., ch] * (1 - strength) + t * strength
+    out = cv2.cvtColor(np.clip(pl, 0, 255).astype(np.uint8), cv2.COLOR_LAB2RGB).astype(np.float32)
+    if rim:
+        px = np.asarray(scene_rgb.convert("RGB").resize((160, 90))).reshape(-1, 3).astype(np.float32)
+        mx, mn = px.max(1), px.min(1); w = (mx - mn) * mx; idx = np.argsort(w)[-max(12, len(w) // 25):]
+        col = px[idx].mean(0); col = col / max(1.0, col.max()) * 255.0; col = np.clip(col * 1.05, 0, 255)
+        edge = a - cv2.erode(a, np.ones((rim_px, rim_px), np.uint8)); edge = cv2.GaussianBlur(edge, (0, 0), 2.2)
+        side = np.tile(np.linspace(0.35, 1.0, a.shape[1])[None, :], (a.shape[0], 1))       # stronger on the right (towards the scene)
+        k = np.clip(edge * side * 1.6, 0, 1)[..., None]; out = out * (1 - k) + col[None, None, :] * k
+    res = Image.fromarray(np.clip(out, 0, 255).astype(np.uint8)).convert("RGBA"); res.putalpha(person_rgba.split()[-1]); return res
+
 def overlap(a, b):
     x0, y0, x1, y1 = max(a[0], b[0]), max(a[1], b[1]), min(a[2], b[2]), min(a[3], b[3])
     return max(0, x1 - x0) * max(0, y1 - y0)
@@ -280,6 +301,7 @@ def react_mode(args):
     fr = Image.open(args.frame).convert("RGB")
     crop = fr.crop(tuple(map(int, args.crop.split(","))))
     person = cutout(enhance(crop, int(H * 1.0))); person = person.crop(person.split()[-1].getbbox())
+    person = match_to_scene(person, sub)
     k = min(1.0, H * 1.0 / person.height, W * 0.58 / person.width)
     if k < 1: person = person.resize((int(person.width * k), int(person.height * k)), Image.LANCZOS)
     px = -20 if left_face else W - person.width + 20; py = H - person.height + 24
