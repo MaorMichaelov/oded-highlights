@@ -40,7 +40,7 @@ for p in C["pieces"]:
             subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", inp, "-map", "0:v:0", "-map", "0:a:0",
               "-vf", f"trim=start={x:.3f}:duration={dur:.3f},setpts=PTS-STARTPTS,fps=60,format=yuv420p,setsar=1",
               "-af", f"atrim=start={x:.3f}:duration={dur:.3f},asetpts=PTS-STARTPTS,aresample=48000,afade=t=in:d=0.02,afade=t=out:st={max(0, dur-0.04):.3f}:d=0.04",
-              "-c:v", "libx264", "-preset", PRESET, "-crf", "18", "-g", "120", "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2", str(out)], check=True)
+              "-c:v", "libx264", "-preset", PRESET, "-b:v", "12M", "-maxrate", "16M", "-bufsize", "24M", "-g", "120", "-keyint_min", "120", "-sc_threshold", "0", "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2", str(out)], check=True)
         lst.append(out); t += dur
         print(f"part {i} done ({t:.0f}s so far)", flush=True)
 (work / "list.txt").write_text("".join(f"file '{x}'\n" for x in lst))

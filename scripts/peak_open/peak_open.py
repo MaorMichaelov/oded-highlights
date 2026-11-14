@@ -249,8 +249,8 @@ def main():
             ms=int(s*1000); fc.append(f'[c{k}]adelay={ms}|{ms}[cd{k}]'); sfx.append(f'[cd{k}]')
         ms=int((clickT[1]+0.05)*1000); fc.append(f'[5:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=0.7,adelay={ms}|{ms}[dd]'); sfx.append('[dd]')
     fc.append('[amain]'+''.join(sfx)+f'amix=inputs={1+len(sfx)}:normalize=0:duration=first[aout]')
-    args+=['-filter_complex',';'.join(fc),'-map','[vout]','-map','[aout]','-c:v','libx264','-preset',sp.get('preset','veryfast'),'-crf','20','-pix_fmt','yuv420p','-r','60',
-           '-c:a','aac','-b:a','160k','-movflags','+faststart',sp['out']]
+    args+=['-filter_complex',';'.join(fc),'-map','[vout]','-map','[aout]','-c:v','libx264','-preset',sp.get('preset','veryfast'),'-b:v','12M','-maxrate','16M','-bufsize','24M','-g','120','-keyint_min','120','-sc_threshold','0','-pix_fmt','yuv420p','-r','60','-ar','48000','-ac','2',
+           '-c:a','aac','-b:a','192k','-movflags','+faststart',sp['out']]
     subprocess.run(args,check=True)
     info={'montage_sec':M,'brand_sting':[M,M+I] if brand else None,'card':[M+I,M+I+CARD],
           'popup':None if oldsub else [M+I+CARD,M+I+CARD+POP],

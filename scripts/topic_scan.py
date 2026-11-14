@@ -60,7 +60,7 @@ def score(seg, lo, hi, spikes=None):
     s = min(gta, 10) * 1.4 + (6 if (gta and first) else 0) + chat + min(cue, 12) * 1.5 + min(names, 10) * 1.2 + min(density / 60.0, 2.0) * 3 + min(ex, 10) * 0.4 + min(d / 600.0, 2.0)
     return round(s, 2), dict(cues=cue, names=names, wpm=round(density), minutes=round(d / 60, 1), gta=gta, first=first, chat_spikes=len(sp), chat_max_z=(max(sp) if sp else 0))
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--vod"); ap.add_argument("--hold", type=int, default=900); ap.add_argument("--min", type=int, default=360); ap.add_argument("--max", type=int, default=2400); a = ap.parse_args()
+    ap = argparse.ArgumentParser(); ap.add_argument("--vod"); ap.add_argument("--hold", type=int, default=300); ap.add_argument("--min", type=int, default=360); ap.add_argument("--max", type=int, default=2400); a = ap.parse_args()
     ing = json.load(open(os.path.join(ST, "ingest_state.json"))) if os.path.exists(os.path.join(ST, "ingest_state.json")) else {}
     vod = a.vod or ing.get("_current_vod")
     if not vod: print("no vod"); return 0

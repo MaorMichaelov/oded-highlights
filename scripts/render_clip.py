@@ -17,7 +17,7 @@ def run(cmd, **kw):
     return r.stdout
 base = cuts.get("base") or json.load(open(os.path.join(ROOT, "state", "ingest_state.json")))["_vod_base"]
 if not os.path.exists(os.path.join(work, "body.mp4")):
-    print("building body ..."); run([sys.executable, os.path.join(HERE, "build_clip.py"), base, os.path.join(clip, "cuts.json"), work, "1080p60", "veryfast"])
+    print("building body ..."); run([sys.executable, os.path.join(HERE, "build_clip.py"), base, os.path.join(clip, "cuts.json"), work, "1080p60", "superfast"])
 lap("body built")
 body = os.path.join(work, "body.mp4"); chapters = json.load(open(os.path.join(work, "chapters.json")))
 dur = float(run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", body]).strip())
@@ -57,14 +57,31 @@ for h in sorted(hooks, key=lambda h: h["t"])[:3]:
     montage.append(dict(t=h["t"], d=h["d"], cap=" ".join(x[1] for x in ws) or h["cap"] or "...", words=ws, hl=h["hl"] or ([ws[-1][1]] if ws else [])))
 if len(montage) < 3: print("not enough hook moments (need 3)"); sys.exit(2)
 logo = "/workspace/oded_research/oded_highlights_logo.jpg"
-ospec = dict(body=body, body_dur=dur, work=os.path.join(work, "po"), res=[1920, 1080], montage=montage, premise=["-"], headshot=logo, popup_face=logo, sub_at=4.0)
+HEAD = 30.0   # only the first ~30 s of the body go through the opening/popup compositor; the rest is joined by stream copy (no second generation loss)
+head = os.path.join(work, "body_head.mp4"); rest = os.path.join(work, "body_rest.mp4")
+if dur > HEAD + 20:
+    segd = os.path.join(work, "split"); os.makedirs(segd, exist_ok=True)
+    run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", body, "-c", "copy", "-f", "segment", "-segment_times", str(HEAD), "-reset_timestamps", "1", os.path.join(segd, "s%d.mp4")])
+    os.replace(os.path.join(segd, "s0.mp4"), head); os.replace(os.path.join(segd, "s1.mp4"), rest)
+    hdur = float(run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", head]).strip())
+else: head, hdur, rest = body, dur, None
+ospec = dict(body=head, body_dur=hdur, work=os.path.join(work, "po"), res=[1920, 1080], montage=montage, premise=["-"], headshot=logo, popup_face=logo, sub_at=4.0)
 sp = os.path.join(work, "open_spec.json"); json.dump(ospec, open(sp, "w"), ensure_ascii=False, indent=1)
 final = os.path.join(clip, "final.mp4"); print("building opening ...")
-run([sys.executable, os.path.join(HERE, "peak_open", "nov13_open.py"), sp, final])
+fh = final if rest is None else os.path.join(work, "final_head.mp4")
+run([sys.executable, os.path.join(HERE, "peak_open", "nov13_open.py"), sp, fh])
+if rest is not None:
+    open(os.path.join(work, "join.txt"), "w").write(f"file '{fh}'\nfile '{rest}'\n")
+    run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", os.path.join(work, "join.txt"), "-c", "copy", "-movflags", "+faststart", final])
+    os.replace(fh + ".open.json", final + ".open.json")
 lap("opening built")
 def probe(f):
     o = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height,r_frame_rate:format=bit_rate", "-of", "json", f], capture_output=True, text=True).stdout
     j = json.loads(o); st = j["streams"][0]; n, d = st["r_frame_rate"].split("/"); return st["width"], st["height"], float(n) / float(d), int(j["format"]["bit_rate"]) / 1e6
+vd = float(run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=duration", "-of", "csv=p=0", final]).strip() or 0)
+ad = float(run(["ffprobe", "-v", "error", "-select_streams", "a:0", "-show_entries", "stream=duration", "-of", "csv=p=0", final]).strip() or 0)
+print(f"SYNC video {vd:.2f}s audio {ad:.2f}s diff {abs(vd - ad):.2f}s (body+opening, expected total ~{dur + 14:.0f}s)")
+if abs(vd - ad) > 0.5: print("SYNC FAIL"); sys.exit(4)
 w_, h_, fps_, mbps = probe(final); print(f"QUALITY {w_}x{h_} {fps_:.1f}fps {mbps:.1f} Mbps")
 if (w_, h_) != (1920, 1080) or abs(fps_ - 60) > 0.5: print("QUALITY FAIL: must be 1920x1080 60fps"); sys.exit(3)
 if mbps < 8:    # owner rule: > 8 Mbps
