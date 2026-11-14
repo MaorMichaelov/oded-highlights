@@ -15,6 +15,14 @@ for s in range(1, a.seeds + 1):
     if os.path.exists(f): cands.append(f)
 ok = [l for l in r.stdout.splitlines() if "overlap_ok=True" in l]
 print(f"{len(cands)} thumbnails, {len(ok)} passed QA")
+req = f"""בקשה לתמנל ל-ODED HIGHLIGHTS (שני תמנלים שונים: C ו-D)
+כותרת הסרטון: {spec['title']}
+כותרת על התמנל: שורה 1 "{spec['head']}" + שורה 2 "{spec.get('accent', '')}"
+סצנה לפי הנושא: סגנון {spec['preset']} (רקע חי, אובייקט גיבור אחד גדול ומפורט, עודד קרוב עם הבעה חזקה ותאורה בהירה על הפנים, בלי טקסט עברי בתמונה, מקום פנוי לכותרת).
+ייחוס: 3-5 פריימים אמיתיים של עודד מ-1080p, פנים נקיות.
+שמות קבצים: assets/thumbs_override/{cid}_c.jpg ו-{cid}_d.jpg (1280x720)
+"""
+open(os.path.join(a.clip, "grok_request.md"), "w").write(req)
 meta = {"title": spec["title"], "description": spec["description"], "tags": spec.get("tags", []), "privacy": "private"}
 json.dump(meta, open(os.path.join(a.clip, "meta.json"), "w"), ensure_ascii=False, indent=1)
 json.dump({"candidates": [os.path.relpath(c, ROOT) for c in cands], "status": "thumbnails_ready_pick_one"}, open(os.path.join(a.clip, "package.json"), "w"), indent=1)
