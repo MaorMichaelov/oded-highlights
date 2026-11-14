@@ -11,7 +11,7 @@ Source: the owner's / Grok Bot's topic guide (14 Nov 2026), merged with our rule
 
 ## Never cut (rejected, with reasons)
 - Starting Soon / waiting / BRB screens, long silent minutes (e.g. waiting for the GTA 6 preload).
-- Reactions to someone else's video where Oded barely talks (Dubai restaurants, extreme schools, Dudu Topaz): also a copyright problem.
+- Reactions to someone else's video where Oded barely talks (the video plays, he is silent): not a clip.
 - MIXED topics (a toast + a map + messages + a reaction in one clip): rejected. One topic per video.
 - Preparations before an event (connecting Discord, waiting for a guest).
 - Duplicates of a topic already uploaded (check scripts/yt_research.py own).
@@ -20,6 +20,9 @@ Source: the owner's / Grok Bot's topic guide (14 Nov 2026), merged with our rule
 - The Rob Run cheater angle (Oded and Ronen get wiped by a cheater) was rejected by the owner: do NOT repeat that angle.
 - Dead air / AFK, tech problems, repeated donation reading, the same moment twice, anything < 6 min or without an arc.
 - YouTube policy risks: sexual content, hate, graphic violence, private personal info (phones, addresses, private people's full names), minors in vulnerable situations, medical emergencies, loud copyrighted music.
+
+## REACTIONS TO SOMEONE ELSE'S VIDEO (owner decision 14 Nov: DO cut them, whoever made the video, e.g. Franzi)
+When Oded reacts to a video / clip of anyone, it is a clip topic. Conditions: Oded talks and reacts most of the time (commentary dominates; if the video plays in silence for minutes, cut those minutes out), one video per clip, 6-25 min. Title names the creator and what happens ("עודד מגיב לפרנזי ...!"). The description credits the original creator and video (name + link if visible). Copyright is the owner's risk decision; reduce it by keeping the other video's own audio short and the commentary long.
 
 ## How to recognise a good topic
 1. A story with beginning, middle and punchline, not just a moment.
