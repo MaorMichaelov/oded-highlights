@@ -11,6 +11,8 @@ Owner (14 Nov): "you decide which clips are worth uploading: dramas, GTA moments
 7. TALKS: Oded tells a story or rants about ONE subject for 6+ minutes (food, women, army, Israel-life stuff, creators, news) with strong opinions.
 8. REACTION VIDEOS / clips he watches and comments.
 
+9. GAME SESSIONS WITH SOMEONE (Rob Run, Pokemon, any game with Ronen / friends / guests / chat): one clip per session or per strong chapter of it (a heist, a wipe, a cheater, a win, a rage), from when they start until they stop or the story ends. Title names who plays and what happened ("עודד ורונן משחקים ברוב ראן ונמחקים מצ'יטר!"). A session without moments (silent grinding) is not cut.
+
 ## B. Cut only if strong (score >= 22 or chat reaction)
 challenge or bet without payoff yet, long shopping / customization, long driving with real conversation, interaction with chat Q&A that has a joke running.
 
