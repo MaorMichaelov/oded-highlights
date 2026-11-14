@@ -174,14 +174,14 @@ def detect_faces(rgb):
             m = int(0.15 * fw); out.append((x - m, y - m, x + fw + m, y + fh + m))
     return out
 
-def headline_taklipu(bg, lines, area, y0=14, ribbon=None, tilt=3.5, grad=((255, 238, 10), (255, 160, 20)), one_line_size=None):
+def headline_taklipu(bg, lines, area, y0=14, ribbon=None, tilt=3.5, grad=((255, 238, 10), (255, 160, 20)), one_line_size=None, scale=1.0):
     """Headline in the reference style: ultra-heavy Hebrew, sheared (italic), thick black outline, white line + yellow->orange gradient line,
     optional torn red ribbon behind. area=(x0,x1). Returns the bbox. lines: [(text, 'white'|'accent')]."""
     import random
     d0 = ImageDraw.Draw(bg); ax0, ax1 = area; y = y0; boxes = []
     layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     for i, (txt, kind) in enumerate(lines):
-        size = one_line_size or (112 if i == 0 else 180)   # calibrated to the approved thumbnails (line1 ~104-112, line2 ~140-190 on 1280 wide)
+        size = int((one_line_size or (112 if i == 0 else 180)) * scale)   # calibrated to the approved thumbnails (line1 ~104-112, line2 ~140-190 on 1280 wide)
         while True:
             f = font(size); w = d0.textlength(txt, font=f, direction="rtl")
             if w <= (ax1 - ax0) * 0.94 or size < 60: break
@@ -267,16 +267,26 @@ def scene_mode(args):
     bg = im.crop((l, t, l + W, t + H))
     faces = detect_faces(bg)
     lines = [(args.head, "white"), (args.accent, "accent")] if args.accent else [(args.head, "accent")]
-    # try candidate headline areas (top band split / top-left / top-right / top-center); keep the one with the least face overlap
-    cands = [(36, W - 36), (36, int(W * 0.62)), (int(W * 0.38), W - 36), (int(W * 0.2), int(W * 0.8))]
+    gr = tuple(tuple(map(int, c.split(","))) for c in args.grad.split(":"))
+    big = []                                                      # expand face boxes: headphones + hair + chin margin
+    for (x0, y0, x1, y1) in faces:
+        w, h = x1 - x0, y1 - y0; big.append((x0 - 0.45 * w, y0 - 0.75 * h, x1 + 0.45 * w, y1 + 0.35 * h))
+    # candidate areas (x0,x1) x vertical position x scale; first zero-overlap wins, else the least overlap
+    xs = [(36, W - 36), (36, 700), (580, W - 36), (36, 520), (760, W - 36), (300, 980)]
+    ys = [14, 110, 230, 360, H - 250, H - 190]
     best = None
-    for (ax0, ax1) in cands:
-        probe = bg.copy(); box = headline(probe, lines, th, "left", (0, 0, 0, 0), area=(ax0, ax1), y0=18)
-        ov = sum(overlap(box, f) for f in faces)
-        if best is None or ov < best[0]: best = (ov, (ax0, ax1), box)
-        if ov == 0: break
-    box = headline_taklipu(bg, lines, best[1], ribbon=(210, 25, 25) if args.ribbon else None) if args.style == "taklipu" else headline(bg, lines, th, "left", (0, 0, 0, 0), area=best[1], y0=18)
-    inter = sum(overlap(box, f) for f in faces); fa = max(1, sum((f[2] - f[0]) * (f[3] - f[1]) for f in faces)) if faces else 1
+    for sc in (1.0, 0.85, 0.7, 0.58):
+        for (ax0, ax1) in xs:
+            for y0 in ys:
+                probe = bg.copy(); box = headline_taklipu(probe, lines, (ax0, ax1), y0=y0, grad=gr, scale=sc, tilt=2.0)
+                if box[3] > H - 6 or box[1] < 0 or box[2] > W or box[0] < 0: continue
+                ov = sum(overlap(box, f) for f in big)
+                if best is None or ov < best[0]: best = (ov, (ax0, ax1), y0, sc)
+                if ov == 0: break
+            if best and best[0] == 0: break
+        if best and best[0] == 0: break
+    box = headline_taklipu(bg, lines, best[1], y0=best[2], grad=gr, scale=best[3], tilt=2.0)
+    inter = sum(overlap(box, f) for f in big); fa = max(1, sum((f[2] - f[0]) * (f[3] - f[1]) for f in big)) if big else 1
     ok = inter / fa < 0.02; q = 94
     while True:
         bg.save(args.out, quality=q, optimize=True, subsampling=0)
