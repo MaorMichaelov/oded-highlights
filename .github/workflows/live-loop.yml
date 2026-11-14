@@ -45,6 +45,8 @@ jobs:
               git push -q || true
             fi
             python3 scripts/autopilot.py || echo "autopilot failed (continuing)"
+            python3 scripts/stations/pick.py || echo "pick station failed (continuing)"
+            git add state; git diff --cached --quiet || { git commit -q -m "state: pick $(date -u +%FT%TZ)"; git pull --rebase -q || true; git push -q || true; }
             sleep 300
           done
           gh workflow run live-loop.yml --ref main
