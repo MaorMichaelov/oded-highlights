@@ -55,5 +55,6 @@ jobs:
       - name: Record result
         run: |
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
-          rm -rf "state/clips/${{ inputs.clip_id }}/work"; git add state/clips assets/final_thumbs assets/scenes_ai
+          python3 scripts/stations/index.py || true
+          rm -rf "state/clips/${{ inputs.clip_id }}/work"; git add state/index.json state/events.jsonl state/lessons.json 2>/dev/null; git add state/clips assets/final_thumbs assets/scenes_ai
           git commit -m "clip rendered: ${{ inputs.clip_id }}" || echo "nothing to commit"; git pull --rebase -q || true; git push

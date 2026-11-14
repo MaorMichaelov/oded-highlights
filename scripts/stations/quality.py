@@ -5,6 +5,7 @@ loudness not too quiet / not clipping, file decodes, source segments were 1080p6
 usage: quality.py state/clips/<id>"""
 import json, os, re, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE); from common import Timer
+from events import event, lesson
 clip = os.path.abspath(sys.argv[1]); f = os.path.join(clip, "final.mp4"); err, warn, info = [], [], {}
 def sh(c): r = subprocess.run(c, capture_output=True, text=True); return r.stdout + r.stderr
 def probe(sel, ent): return sh(["ffprobe", "-v", "error", "-select_streams", sel, "-show_entries", ent, "-of", "default=nw=1:nk=1", f]).split()
@@ -50,4 +51,6 @@ with Timer(clip, "quality"):
             if not sw.startswith("1920,1080"): err.append(f"source segment is {sw}, not 1080p")
     json.dump({"errors": err, "warnings": warn, "info": info}, open(os.path.join(clip, "quality.json"), "w"), indent=1, ensure_ascii=False)
     print("QUALITY", "FAIL" if err else "PASS", json.dumps(info), "errors:", err, "warnings:", warn)
-    if err: sys.exit(5)
+    if err:
+        event("quality_fail", f"קליפ {os.path.basename(clip)} נחסם בבדיקת איכות: {err[0]}", clip=os.path.basename(clip)); lesson(f"בדיקת איכות נכשלה: {err[0]}", "quality")
+        sys.exit(5)

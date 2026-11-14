@@ -59,6 +59,9 @@ def main():
     while hi - lo > 480 and est(guide) + est("\n".join(lines(rows, lo, hi))) + 900 > BUDGET: hi = lo + (hi - lo) * 0.8
     cat = [x for x in jl(os.path.join(ST, "category.jsonl"))][-6:]
     recent = [v["title"] for v in (jf(os.path.join(ROOT, "state", "yt_research", "own.json"), {}) or {}).get("videos", [])][:25]
+    L = (jf(os.path.join(ROOT, "state", "lessons.json"), []) or [])[-12:]
+    ins = open(os.path.join(ROOT, "state", "chat_instructions.md"), encoding="utf-8").read()[-1200:] if os.path.exists(os.path.join(ROOT, "state", "chat_instructions.md")) else ""
+    guide += ("\n\nLESSONS LEARNED (from deleted drafts, weak videos, quality failures; obey):\n" + "\n".join("- " + x["text"] for x in L) if L else "") + (("\n\nOWNER INSTRUCTIONS (from the app chat):\n" + ins) if ins.strip() else "")
     system = ("You are the topic editor of the YouTube channel ODED HIGHLIGHTS (clips of the Kick streamer OdedSVR, Hebrew). You get a transcript of a live stream "
               "(ivrit ASR, may contain errors) and decide which COMPLETE topics become long videos. Follow the guide strictly. Reply with JSON only.\n\nGUIDE:\n" + guide)
     user = (f"Transcript window {mmss(lo)} - {mmss(hi)} (stream seconds; each line starts with [h:mm:ss|seconds]). Only topics that END before {int(hi)} s are closed.\n"

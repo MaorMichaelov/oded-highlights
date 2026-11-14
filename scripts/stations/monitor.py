@@ -4,6 +4,7 @@ Checks: live loop running and state fresh (< 15 min), recent failed runs (render
 usage: monitor.py [--no-issue] [--no-restart]      needs GH_TOKEN (gh CLI) with actions:write and issues:write"""
 import argparse, datetime as dt, json, os, subprocess, sys, time
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))); ST = os.path.join(ROOT, "state")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from events import event
 REPO = os.environ.get("GITHUB_REPOSITORY", "MaorMichaelov/oded-highlights")
 def gh(*a):
     r = subprocess.run(["gh", *a], capture_output=True, text=True); return r.stdout if r.returncode == 0 else ""
@@ -33,6 +34,7 @@ if stuck: problems.append(f"clips without a draft after 90 min: {stuck[:5]}")
 info["pending_candidates"] = len(jf(os.path.join(ST, "pending_candidates.json"), []) or [])
 info["problems"] = problems; info["checked_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 json.dump(info, open(os.path.join(ST, "health.json"), "w"), ensure_ascii=False, indent=1); print(json.dumps(info, ensure_ascii=False, indent=1))
+for _p in problems: event("problem", "תקלה: " + _p)
 if problems and not a.no_issue and os.environ.get("GH_TOKEN"):
     title = "תקלה במערכת: " + problems[0][:70]
     if title not in gh("issue", "list", "--repo", REPO, "--state", "open", "--json", "title", "--jq", ".[].title"):

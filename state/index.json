@@ -1,0 +1,28 @@
+[
+ {
+  "id": "gta6_first_time",
+  "title": "עודד נכנס בפעם הראשונה ל-GTA 6 ומתפוצץ מהתרגשות!",
+  "brief": null,
+  "stages": {},
+  "draft": null,
+  "quality_errors": null,
+  "auto": false
+ },
+ {
+  "id": "test_shiber",
+  "title": "בדיקה (גרסה חדשה): עודד מחפש את המספר של ביגי ומתקשר לעמית שיבר!",
+  "brief": {
+   "about": "עודד מחפש בלייב את המספר של ביגי ומתקשר לעמית שיבר",
+   "who": "עודד, ביגי (בטלפון), עמית שיבר",
+   "peak": "רגע השיחה לעמית שיבר (לפי הפרקים בתיאור)"
+  },
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done"
+  },
+  "draft": null,
+  "quality_errors": [],
+  "auto": false
+ }
+]

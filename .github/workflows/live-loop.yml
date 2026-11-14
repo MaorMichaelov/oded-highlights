@@ -32,6 +32,9 @@ jobs:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GH_TOKEN: ${{ github.token }}
           ASR: ivrit
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
         run: |
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
           nohup python3 scripts/chat_poll.py --seconds 20300 --poll 10 > /tmp/chat_poll.log 2>&1 &
@@ -48,6 +51,8 @@ jobs:
             fi
             python3 scripts/autopilot.py || echo "autopilot failed (continuing)"
             python3 scripts/stations/pick.py || echo "pick station failed (continuing)"
+            python3 scripts/yt_stats.py || echo "stats failed (continuing)"
+            python3 scripts/stations/index.py || echo "index failed (continuing)"
             git add state; git diff --cached --quiet || { git commit -q -m "state: pick $(date -u +%FT%TZ)"; git pull --rebase -q || true; git push -q || true; }
             sleep 300
           done

@@ -3,6 +3,7 @@
 Never publishes. In: final.mp4 + meta.json   Out: upload.log, status.json {draft: url}     usage: draft.py state/clips/<id>"""
 import os, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE); from common import Timer, mark
+from events import event
 ROOT = os.path.dirname(os.path.dirname(HERE)); clip = os.path.abspath(sys.argv[1]); cid = os.path.basename(clip.rstrip("/"))
 thumb = os.path.join(ROOT, "assets", "thumbs_override", f"{cid}_c.jpg")
 with Timer(clip, "draft"):
@@ -11,3 +12,4 @@ with Timer(clip, "draft"):
     url = [l for l in r.stdout.splitlines() if l.startswith("https://youtu.be/")]
     if r.returncode or not url: sys.exit("upload failed: " + (r.stdout + r.stderr)[-400:])
     mark(clip, "draft", "done", url=url[-1])
+    import json as _j; _t = _j.load(open(os.path.join(clip, "meta.json")))["title"]; event("draft", f"עלתה טיוטה: {_t}", url=url[-1], clip=cid)
