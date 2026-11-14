@@ -88,6 +88,10 @@ if mbps < 8:    # owner rule: > 8 Mbps
     hi = final + ".hi.mp4"; run(["ffmpeg", "-y", "-i", final, "-c:v", "libx264", "-preset", "veryfast", "-b:v", "12M", "-maxrate", "16M", "-bufsize", "24M", "-pix_fmt", "yuv420p", "-c:a", "copy", hi]); os.replace(hi, final)
     print("re-encoded to higher bitrate:", probe(final))
 off = json.load(open(final + ".open.json"))["body_offset_in_out"]
+def dd(f): return float(run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", f]).strip())
+diag = dict(body=round(dur, 2), head_in=round(hdur, 2), opening_offset=round(off, 2), final=round(dd(final), 2), expected=round(dur + off, 2))
+if rest is not None: diag.update(final_head=round(dd(fh), 2), rest=round(dd(rest), 2))
+print("DURATIONS", json.dumps(diag)); json.dump(diag, open(os.path.join(clip, "durations.json"), "w"))
 def ts(s): s = int(round(s)); return f"{s//60:02d}:{s%60:02d}"
 lines = ["00:00 פתיחה"] + [f'{ts(c["t"] + off)} {c["ch"]}' for c in chapters]
 meta = json.load(open(os.path.join(clip, "meta.json"))) if os.path.exists(os.path.join(clip, "meta.json")) else {"title": spec["title"], "description": spec["description"], "tags": spec.get("tags", []), "privacy": "private"}

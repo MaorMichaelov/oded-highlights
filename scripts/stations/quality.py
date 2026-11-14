@@ -27,7 +27,9 @@ with Timer(clip, "quality"):
             if a[1] != "48000": warn.append(f"audio rate {a[1]}")
         cuts = json.load(open(os.path.join(clip, "cuts.json"))); body = sum(y - x for p in cuts["pieces"] for x, y in p["keep"])
         info["planned_body"] = round(body, 1)
-        if not (body + 5 <= dur <= body + 40): err.append(f"duration {dur:.0f}s does not match plan {body:.0f}s + opening")
+        dj = os.path.join(clip, "durations.json"); exp = json.load(open(dj))["expected"] if os.path.exists(dj) else body + 11
+        info["expected"] = round(exp, 1)
+        if abs(dur - exp) > 2.0: err.append(f"duration {dur:.1f}s but body+opening should be {exp:.1f}s (lost or duplicated {dur - exp:+.1f}s)")
         out = sh(["ffmpeg", "-nostats", "-hide_banner", "-vn", "-i", f, "-af", "silencedetect=n=-45dB:d=8,ebur128=peak=true", "-f", "null", "-"])
         sil = re.findall(r"silence_duration: ([\d.]+)", out)
         if sil: warn.append(f"{len(sil)} silence(s) >= 8 s (max {max(map(float, sil)):.0f}s)")
