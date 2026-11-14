@@ -38,3 +38,11 @@ Serious real photo of the streamer large on the left, topic image on the right, 
 - CAN: Hebrew headline in this style, face-aware placement, QA, 168x94 preview, theme colours (scripts/thumb_maker.py).
 - CANNOT (no image model of its own): generate the scene. Scene = AI-generated with reference faces (Grok Bot / Gemini / future free API), then headline added here.
 - Composite-from-video-frame thumbnails were rejected by the owner (twice). Do not ship them as final.
+
+## Layout rules measured by eye from ~40 reference thumbnails (14 Nov 2026)
+- Headline sits in the TOP band (about 80%): either a full-width bar across the top or a 2-line block top-right/top-left, above the heads, not on faces.
+- Headline colour is a PAIR: white+yellow, yellow+red or white+orange; the 2nd colour matches the scene's colour story. Black outline ~10% of letter height, optional thin white outer line.
+- Faces: 1 very large (45-60% of height) on the left/centre, bleeding off the bottom; eyes around the upper third; guests smaller on the opposite side.
+- ONE readable prop next to the face that tells the story. For calls/quizzes/chats they draw a UI mock (incoming-call screen, order list, quiz board).
+- One colour story per thumbnail (orange/green, purple/blue, gold, red/blue), dark vivid background with a glow behind the subject.
+- Built by scripts/thumb_call.py (phone-call topic) as the first template; scripts/thumb_maker.py --react for "face + thing he reacts to".
