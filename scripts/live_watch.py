@@ -64,6 +64,14 @@ def main():
     status["live"] = bool(ls)
     if ls: status.update({"title": ls.get("session_title"), "viewers": ls.get("viewer_count"), "started": ls.get("created_at") or ls.get("start_time"), "category": (ls.get("categories") or [{}])[0].get("name")})
     (STATE / "live_status.json").write_text(json.dumps(status, ensure_ascii=False, indent=1)); print("status:", status)
+    if ls:                                                         # category/title timeline (used to detect "entered GTA 6")
+        cf = STATE / "category.jsonl"; last = None
+        if cf.exists():
+            try: last = json.loads(cf.read_text().strip().splitlines()[-1])
+            except Exception: last = None
+        cur_c = {"cat": status.get("category"), "title": status.get("title")}
+        if not last or (last.get("cat"), last.get("title")) != (cur_c["cat"], cur_c["title"]):
+            with open(cf, "a", encoding="utf-8") as fh: fh.write(json.dumps({"t": int(time.time()), **cur_c, "viewers": status.get("viewers")}, ensure_ascii=False) + "\n")
     if not ls: return 0
     # newest VOD = the running stream
     code, vids = jget(f"https://kick.com/api/v2/channels/{CHANNEL}/videos")

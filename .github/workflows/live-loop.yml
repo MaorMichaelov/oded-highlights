@@ -44,6 +44,7 @@ jobs:
               git pull --rebase -q || true
               git push -q || true
             fi
+            python3 scripts/autopilot.py || echo "autopilot failed (continuing)"
             sleep 300
           done
           gh workflow run live-loop.yml --ref main

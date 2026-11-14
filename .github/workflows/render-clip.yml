@@ -6,6 +6,8 @@ on:
       clip_id: { description: "folder name under state/clips", required: true }
       upload: { description: "upload to YouTube as private (needs YT secrets)", required: false, default: "true" }
 concurrency: { group: render-clip, cancel-in-progress: false }
+env:
+  HAS_YT: ${{ secrets.YT_REFRESH_TOKEN != '' }}
 permissions: { contents: write }
 jobs:
   render:
@@ -25,7 +27,7 @@ jobs:
         env: { GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}" }
         run: python3 scripts/render_clip.py "state/clips/${{ inputs.clip_id }}"
       - name: Upload (private)
-        if: ${{ inputs.upload == 'true' && env.YT_REFRESH_TOKEN != '' }}
+        if: ${{ inputs.upload == 'true' && env.HAS_YT == 'true' }}
         env:
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
@@ -33,6 +35,16 @@ jobs:
         run: |
           D="state/clips/${{ inputs.clip_id }}"; T=$(ls assets/final_thumbs/${{ inputs.clip_id }}_s1.jpg 2>/dev/null || true)
           python3 scripts/yt_upload.py "$D/final.mp4" "$D/meta.json" $T | tee "$D/upload.log"
+      - name: Keep the rendered video (works even without YouTube secrets)
+        uses: actions/upload-artifact@v4
+        with:
+          name: clip-${{ inputs.clip_id }}
+          path: |
+            state/clips/${{ inputs.clip_id }}/final.mp4
+            state/clips/${{ inputs.clip_id }}/meta.json
+            assets/final_thumbs/${{ inputs.clip_id }}_s*.jpg
+          retention-days: 14
+          if-no-files-found: warn
       - name: Record result
         run: |
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
