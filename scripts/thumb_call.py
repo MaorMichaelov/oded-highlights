@@ -48,7 +48,7 @@ def shadowed(layer, off=(10, 14), blur=14, op=0.6):
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--face", required=True); ap.add_argument("--name", default="עמית שיבר")
-    ap.add_argument("--head", default="מתקשר"); ap.add_argument("--accent", default="לעמית שיבר!"); ap.add_argument("--out", required=True)
+    ap.add_argument("--head", default="מתקשר"); ap.add_argument("--accent", default="לעמית שיבר!"); ap.add_argument("--out", required=True); ap.add_argument("--bg", help="scene plate (16:9) without people; replaces the procedural background")
     a = ap.parse_args(); random.seed(5)
     # background: warm orange/red story with a green accent, dark vignette
     bg = Image.new("RGB", (W, H), (22, 8, 10)); d = ImageDraw.Draw(bg)
@@ -58,6 +58,13 @@ def main():
     glow = Image.new("RGB", (W, H), (0, 0, 0)); ImageDraw.Draw(glow).ellipse((520, 140, 1280, 760), fill=(255, 120, 20)); glow = glow.filter(ImageFilter.GaussianBlur(110))
     bg = ImageChops.add(bg, glow.point(lambda v: int(v * 0.8)))
     g2 = Image.new("RGB", (W, H), (0, 0, 0)); ImageDraw.Draw(g2).ellipse((-200, 300, 520, 900), fill=(30, 180, 70)); g2 = g2.filter(ImageFilter.GaussianBlur(120)); bg = ImageChops.add(bg, g2.point(lambda v: int(v * 0.35)))
+    if a.bg:
+        pl = Image.open(a.bg).convert("RGB"); r = max(W / pl.width, H / pl.height)
+        pl = pl.resize((int(pl.width * r) + 1, int(pl.height * r) + 1), Image.LANCZOS); l, t = (pl.width - W) // 2, (pl.height - H) // 2
+        pl = pl.crop((l, t, l + W, t + H)).filter(ImageFilter.UnsharpMask(radius=2, percent=80, threshold=2))
+        g = Image.new("L", (W, H), 0); gd = ImageDraw.Draw(g)
+        for x in range(W): gd.line([(x, 0), (x, H)], fill=int(150 * max(0.0, 1 - x / (W * 0.55))))      # darker behind the face side
+        bg = Image.composite(Image.new("RGB", (W, H), (10, 6, 14)), pl, g)
     bg = bg.convert("RGBA")
     # bills flying around the phone
     for i in range(11):
