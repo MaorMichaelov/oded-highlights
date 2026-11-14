@@ -48,3 +48,6 @@ Do NOT take: silent gameplay without talking, loading screens, downloads and upd
 
 ## Draft marking (brief)
 In spec.json: "brief": {"about": what the clip is about, "who": who appears, "peak": the strongest moment WITH a timestamp (mm:ss in the clip)} so the other bot makes a matching thumbnail. The draft description starts with "[טיוטה - למחוק לפני פרסום] על מה: ... | מופיעים: ... | הרגע החזק: ...".
+
+## Reference channels
+See docs/CLIP_STYLE.md (data from @taklipu, @ronenggpeak, @odedsvrlive). Reactions to other people videos are a TOP format on Taklipu; titles start with a quote.

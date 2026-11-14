@@ -8,7 +8,7 @@ usage: pick.py [--vod ID] [--dry-run] [--state DIR] [--hold 300]"""
 import argparse, json, os, re, subprocess, sys, time
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(os.path.dirname(HERE)); sys.path.insert(0, os.path.dirname(HERE))
 MODEL = os.environ.get("PICK_MODEL", "openai/gpt-oss-120b")
-MIN_LEN, MAX_LEN, PRE = 360, 1500, 3.0
+MIN_LEN, MAX_LEN, PRE = 360, 2700, 3.0
 PRESETS = ["game_launch", "phone_call", "heist", "lawsuit", "courtroom_ban", "airport_leave", "birthday", "quiz_game", "rant", "money", "ai_tech", "reaction_video", "date_show", "gaming_fail", "sleeping_drunk"]
 HARD = re.compile(r"היטלר|שואה|התאבד|אתיופ|נאצי|גז(?:ים)? יהוד")
 def jl(p):
@@ -37,7 +37,7 @@ def snap(rows, a, b):
     """snap start to a sentence start (<= a), end to a sentence end (>= b), 3 s pre-roll"""
     s = max([r["start"] for r in rows if r["start"] <= a], default=a); e = min([r["end"] for r in rows if r["end"] >= b], default=b)
     return max(0, s - PRE), e
-def valid_title(t): return 28 <= len(t) <= 60 and t.strip()[-1] in "!?"
+def valid_title(t): return 28 <= len(t) <= 75 and t.strip()[-1] in "!?"
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--vod"); ap.add_argument("--dry-run", action="store_true"); ap.add_argument("--state", default=os.environ.get("STATE_DIR", "state")); ap.add_argument("--hold", type=int, default=300); ap.add_argument("--window", type=int, default=4500); a = ap.parse_args()
     ST = os.path.join(ROOT, a.state)
@@ -53,7 +53,7 @@ def main():
     for d in (os.listdir(clipsd) if os.path.isdir(clipsd) else []):
         c = jf(os.path.join(clipsd, d, "cuts.json"))
         if c and c.get("vod") == vod: done += [(x, y) for p in c.get("pieces", []) for x, y in p.get("keep", [])]
-    guide = open(os.path.join(ROOT, "docs", "TOPICS_TO_CLIP.md"), encoding="utf-8").read()
+    guide = open(os.path.join(ROOT, "docs", "TOPICS_TO_CLIP.md"), encoding="utf-8").read() + "\n\nSTYLE (from the best channels): " + open(os.path.join(ROOT, "docs", "CLIP_STYLE.md"), encoding="utf-8").read().split("## Rules we take from it")[-1]
     BUDGET = int(os.environ.get("PICK_TOKEN_BUDGET", "4300"))   # Groq free: 8000 tokens/min including max_tokens(3000)
     est = lambda txt: len(txt) / 2.6
     while hi - lo > 480 and est(guide) + est("\n".join(lines(rows, lo, hi))) + 900 > BUDGET: hi = lo + (hi - lo) * 0.8
