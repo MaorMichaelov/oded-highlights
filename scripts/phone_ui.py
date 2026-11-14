@@ -34,6 +34,9 @@ def phone_layer(caller, w=330, h=560):
     sd.rounded_rectangle((sw // 2 - 50 * S, 14 * S, sw // 2 + 50 * S, 36 * S), 11 * S, fill=(0, 0, 0, 255))  # notch
     f1, f2 = _font(21 * S), _font(40 * S)
     sd.text((sw // 2, 70 * S), "שיחה נכנסת", font=f1, fill=(215, 205, 235, 255), anchor="mm", direction="rtl", language="he")
+    hs0 = handset(int(54 * S), (255, 255, 255, 255), 40); scr.paste(hs0, (int(sw / 2 - hs0.width / 2), int(195 * S - hs0.height / 2)), hs0)   # big call icon
+    for k, rr_ in enumerate((30, 46, 62)):   # ring waves
+        sd.arc((sw // 2 + 14 * S - rr_ * S, 170 * S - rr_ * S, sw // 2 + 14 * S + rr_ * S, 170 * S + rr_ * S), 280, 350, fill=(255, 255, 255, 255 - 60 * k), width=6 * S)
     sd.text((sw // 2, 330 * S), caller, font=_font(52 * S), fill=(255, 255, 255, 255), anchor="mm", direction="rtl", language="he")
     sd.text((sw // 2, 392 * S), "מתקשר...", font=f1, fill=(215, 205, 235, 255), anchor="mm", direction="rtl", language="he")
     by, br = sh - 86 * S, 44 * S  # buttons
@@ -48,6 +51,6 @@ def paste_phone(img, caller, xy=(820, 150), size=(330, 560), tilt=6):
     glow = Image.new("RGBA", img.size, (0, 0, 0, 0)); g = Image.new("RGBA", ph.size, (255, 130, 40, 255)); g.putalpha(ph.getchannel("A").filter(ImageFilter.MaxFilter(15)))
     glow.paste(g, xy, g); glow = glow.filter(ImageFilter.GaussianBlur(28))
     base = img.convert("RGBA"); base.alpha_composite(glow); base.alpha_composite(ph, xy)
-    return base.convert("RGB")
+    return base.convert("RGB"), (xy[0], xy[1], xy[0] + ph.width, xy[1] + ph.height)
 if __name__ == "__main__":
-    bg = Image.new("RGB", (1280, 720), (90, 40, 150)); paste_phone(bg, sys.argv[1] if len(sys.argv) > 1 else "ביגי").save(sys.argv[2] if len(sys.argv) > 2 else "/tmp/phone_ui_test.jpg")
+    bg = Image.new("RGB", (1280, 720), (90, 40, 150)); paste_phone(bg, sys.argv[1] if len(sys.argv) > 1 else "ביגי")[0].save(sys.argv[2] if len(sys.argv) > 2 else "/tmp/phone_ui_test.jpg")

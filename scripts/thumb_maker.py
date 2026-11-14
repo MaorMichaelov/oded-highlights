@@ -271,6 +271,8 @@ def scene_mode(args):
     big = []                                                      # expand face boxes: headphones + hair + chin margin
     for (x0, y0, x1, y1) in faces:
         w, h = x1 - x0, y1 - y0; big.append((x0 - 0.45 * w, y0 - 0.75 * h, x1 + 0.45 * w, y1 + 0.35 * h))
+    for part in (getattr(args, "avoid", "") or "").split(";"):    # extra no-cover zones (e.g. a phone screen)
+        if part.strip(): big.append(tuple(float(v) for v in part.split(",")))
     # candidate areas (x0,x1) x vertical position x scale; first zero-overlap wins, else the least overlap
     xs = [(36, W - 36), (36, 700), (580, W - 36), (36, 520), (760, W - 36), (300, 980)]
     ys = [14, 110, 230, 360, H - 250, H - 190]
@@ -401,7 +403,7 @@ def main_cli():
     ap.add_argument("--head", default=""); ap.add_argument("--accent", default=""); ap.add_argument("--theme", default="green", choices=THEMES)
     ap.add_argument("--out", required=True); ap.add_argument("--guest"); ap.add_argument("--guest-crop"); ap.add_argument("--prop"); ap.add_argument("--bg"); ap.add_argument("--art", action="store_true", help="use --bg as recognisable art (no blur/rays)")
     ap.add_argument("--hpos", default="top", choices=["top", "bottom"]); ap.add_argument("--grad", default="255,238,10:255,160,20"); ap.add_argument("--sign", default=""); ap.add_argument("--sign-box", dest="sign_box", default="760,60,360,110"); ap.add_argument("--sign-col", dest="sign_col", default="255,70,190")
-    ap.add_argument("--side", default="left", choices=["left", "right"]); ap.add_argument("--style", default="taklipu", choices=["taklipu", "classic"]); ap.add_argument("--ribbon", action="store_true", help="red torn ribbon behind the headline")
+    ap.add_argument("--side", default="left", choices=["left", "right"]); ap.add_argument("--style", default="taklipu", choices=["taklipu", "classic"]); ap.add_argument("--avoid", default="", help="x0,y0,x1,y1;... zones the headline must not cover"); ap.add_argument("--ribbon", action="store_true", help="red torn ribbon behind the headline")
     return make(ap.parse_args())
 
 if __name__ == "__main__":

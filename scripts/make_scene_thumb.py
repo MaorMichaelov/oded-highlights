@@ -7,12 +7,13 @@ import argparse, base64, json, os, subprocess, sys, tempfile
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 ACC = os.environ.get("CF_ACCOUNT_ID", "3edbd7bb8767f3894f5345e53d3fb0a6")
 BASE = ("Photorealistic cinematic YouTube thumbnail, 16:9, ultra sharp, vivid saturated colours. The man from the reference photos (keep his exact face, beard, dark hair "
-        "and black headphones, same identity, no changes) is the hero in the scene, face very large on the left half of the frame. No text, no logos, no watermarks, no extra fingers, one coherent scene. ")
+        "and black headphones, same identity, no changes) is the hero in the scene, face very large on the {side} half of the frame. No text, no logos, no watermarks, no extra fingers, one coherent scene. ")
 
 # ---- style presets per video type (vary the scene/costume/prop/colours with the topic) ----
 PRESETS = {
  "game_launch": dict(scene="neon tropical city boulevard at sunset, a red sports car, palm trees, pink and orange sky, glowing neon signs", expr="pure shock, mouth open, one hand on his cheek", grad="255,238,10:255,150,40"),
- "phone_call": dict(scene="in a vivid saturated purple and orange gradient background with bright neon rim light and glow, bold punchy high-contrast colours like a top YouTube thumbnail. He holds ONE smartphone against his ear with one hand: the phone screen is pressed against his ear so only the black BACK of the phone with its camera is visible to the viewer, the phone is NOT facing the camera. His other arm hangs down out of frame. He has exactly two hands and two arms in total, never three. The whole right 40 percent of the frame is empty glowing gradient background, nothing there, no objects, no money", expr="wide shocked eyes, mouth open, thrilled disbelief", grad="255,238,10:255,150,40", overlay="phone"),
+ "phone_call": dict(scene="in a vivid saturated purple and orange gradient background with bright neon rim light and glow, bold punchy high-contrast colours like a top YouTube thumbnail. He holds ONE smartphone against his ear with one hand: the phone screen is pressed against his ear so only the black BACK of the phone with its camera is visible to the viewer, the phone is NOT facing the camera. His other arm hangs down out of frame. He has exactly two hands and two arms in total, never three. The whole right 40 percent of the frame is empty glowing gradient background, nothing there, no objects, no money", expr="wide shocked eyes, mouth open, thrilled disbelief", grad="255,238,10:255,150,40", overlay="phone", box=(910, 285, 270, 440, 6), alt="phone_call_b"),
+ "phone_call_b": dict(scene="in a vivid saturated green background full of flying dollar bills and glowing golden light rays, bold punchy high-contrast colours like a top YouTube thumbnail. He is on the RIGHT half of the frame, laughing with huge excitement and looking down at a smartphone he holds in one hand, the phone is held in front of his chest with its BACK to the viewer. His other arm is down out of frame. Exactly two hands and arms in total, never three. The left 40 percent of the frame and the top 25 percent contain only green background and a few flying bills, nothing else", expr="huge excited laugh, mouth wide open, looking at his phone", side="right", refs="laugh,excited,smirk", grad="255,238,10:255,150,40", overlay="phone", box=(40, 270, 300, 430, -5)),
  "heist": dict(scene="wearing a black beanie and a tactical vest, clutching a heavy sack of cash in a wrecked luxury jewellery shop, broken glass, red and blue police lights through the window", expr="wide panicked eyes, nervous grin", grad="255,238,10:255,60,60"),
  "lawsuit": dict(scene="wearing a dark suit and red tie in a mahogany law office with bookshelves and brass scales, holding a giant official envelope with a red stamp and wax seal toward the camera, warm lamp light", expr="stern intimidating stare, one eyebrow raised", grad="255,238,10:255,120,30"),
  "courtroom_ban": dict(scene="wearing a black judge robe, slamming a huge wooden gavel with orange sparks in a dark wood courtroom, a glowing screen with red X marks behind", expr="furious, teeth clenched", grad="255,238,10:255,90,40"),
@@ -49,9 +50,14 @@ if __name__ == "__main__":
     if not a.scene: sys.exit("give --preset or --scene")
     os.makedirs(os.path.join(ROOT, "assets", "scenes_ai"), exist_ok=True); os.makedirs(os.path.join(ROOT, "assets", "final_thumbs"), exist_ok=True)
     tmp = tempfile.mkdtemp(); refs = refs_to_480(a.refs.split(","), tmp)
-    prompt = BASE + f"His expression: {a.expr}. Scene, props and lighting: {a.scene}. Top 25 percent of the frame is calm and darker."
+    base_pr = pr
     for seed in range(1, a.seeds + 1):
+        avoid = ""
+        pr = base_pr if seed == 1 or not base_pr.get("alt") else PRESETS[base_pr["alt"]]   # thumbnail B uses the alternative layout of the topic
+        prompt = BASE.replace("{side}", pr.get("side", "left")) + f"His expression: {pr.get('expr', a.expr)}. Scene, props and lighting: {pr.get('scene', a.scene)}. Top 25 percent of the frame is calm and darker."
         raw = None
+        if pr.get("refs"): refs = refs_to_480(pr["refs"].split(","), tmp)
+        elif seed > 1: refs = refs_to_480(a.refs.split(","), tmp)
         for retry in range(4):   # Cloudflare sometimes flags (3030) a random seed: try another
             raw = gen(prompt, refs, seed * 7 + retry * 101)
             if raw: break
@@ -59,7 +65,8 @@ if __name__ == "__main__":
         sp = os.path.join(ROOT, "assets", "scenes_ai", f"{a.slug}_s{seed}.jpg"); open(sp, "wb").write(raw)
         if pr.get("overlay") == "phone":   # clean drawn call screen (AI garbles phone UI): real details, correct orientation
             from PIL import Image; sys.path.insert(0, HERE); import phone_ui
-            phone_ui.paste_phone(Image.open(sp).convert("RGB"), a.caller, xy=(850, 150), size=(310, 520), tilt=6).save(sp, quality=95)
+            bx, by, bw, bh, tl = pr["box"]; im2, pbox = phone_ui.paste_phone(Image.open(sp).convert("RGB"), a.caller, xy=(bx, by), size=(bw, bh), tilt=tl); im2.save(sp, quality=95)
+            avoid = ",".join(str(v) for v in pbox)
         fp = os.path.join(ROOT, "assets", "final_thumbs", f"{a.slug}_s{seed}.jpg")
-        cmd = [sys.executable, os.path.join(HERE, "thumb_maker.py"), "--scene", sp, "--head", a.head, "--accent", a.accent, "--grad", a.grad, "--out", fp]
-        r = subprocess.run(cmd, capture_output=True, text=True); print(seed, [l for l in r.stdout.splitlines() if "QA" in l])
+        cmd = [sys.executable, os.path.join(HERE, "thumb_maker.py"), "--avoid", avoid, "--scene", sp, "--head", a.head, "--accent", a.accent, "--grad", a.grad, "--out", fp]
+        r = subprocess.run(cmd, capture_output=True, text=True); print(seed, [l for l in r.stdout.splitlines() if "QA" in l] or r.stderr[-300:])
