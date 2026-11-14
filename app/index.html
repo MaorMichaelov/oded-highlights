@@ -1,0 +1,69 @@
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>ODED HIGHLIGHTS</title><link rel="manifest" href="/manifest.webmanifest"><link rel="apple-touch-icon" href="/icon.png"><meta name="theme-color" content="#0b0f0d">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="ODED HL">
+<style>
+:root{--bg:#0b0f0d;--card:#151d18;--line:#25322a;--green:#78e628;--txt:#e9f3ec;--dim:#8ea195;--red:#e5322d}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--txt);font-family:Heebo,"Segoe UI",Arial,sans-serif;display:flex;flex-direction:column;height:100dvh}
+header{display:flex;align-items:center;gap:10px;padding:max(12px,env(safe-area-inset-top)) 16px 10px;border-bottom:1px solid var(--line);background:#0e1511}
+.logo{font-weight:800;color:var(--green);font-size:18px;letter-spacing:.3px}.sp{flex:1}
+.pill{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--dim);padding:5px 11px;border-radius:99px;background:var(--card)}
+.dot{width:10px;height:10px;border-radius:50%;background:#556;}.dot.on{background:var(--red);box-shadow:0 0 10px var(--red)}
+button{font:inherit;color:inherit}.ib{background:none;border:0;font-size:20px;padding:6px;color:var(--dim)}
+#log{flex:1;overflow-y:auto;padding:14px 14px 6px;display:flex;flex-direction:column;gap:8px;scroll-behavior:smooth}
+.m{max-width:85%;padding:10px 14px;border-radius:18px;line-height:1.55;font-size:15.5px;white-space:pre-wrap;word-break:break-word}
+.me{align-self:flex-start;background:var(--green);color:#0b1a07;border-bottom-right-radius:6px}.bot{align-self:flex-end;background:var(--card);border-bottom-left-radius:6px}
+.ev{align-self:center;background:#10201a;border:1px solid #1f3a2a;color:#bfe7c6;font-size:13.5px;border-radius:14px;max-width:92%}
+.m a{color:#9be85a}.typing{color:var(--dim)}
+.chips{display:flex;gap:8px;padding:6px 14px;overflow-x:auto}.chip{flex:none;border:1px solid var(--line);background:var(--card);border-radius:99px;padding:7px 13px;font-size:13.5px;color:var(--dim)}
+form{display:flex;gap:8px;padding:8px 12px max(12px,env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#0e1511}
+textarea{flex:1;resize:none;max-height:120px;background:var(--card);border:1px solid var(--line);border-radius:22px;color:var(--txt);padding:11px 16px;font:inherit;font-size:16px;outline:0}
+.send{width:46px;height:46px;border-radius:50%;border:0;background:var(--green);color:#0b1a07;font-size:20px;font-weight:800}
+dialog,.ov{border:1px solid var(--line);background:#111a15;color:var(--txt);border-radius:18px;padding:18px;width:min(92vw,420px)}dialog::backdrop{background:#000a}
+input{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;color:var(--txt);padding:12px;font:inherit;font-size:16px;margin:6px 0 12px;direction:ltr;text-align:left}
+label{font-size:13.5px;color:var(--dim)}.btn{background:var(--green);color:#0b1a07;border:0;border-radius:12px;padding:12px 18px;font-weight:800;width:100%}.btn.alt{background:var(--card);color:var(--txt);margin-top:8px}
+#gate{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;padding:24px;z-index:9}#gate>div{width:min(92vw,380px);text-align:center}
+.small{font-size:12.5px;color:var(--dim);line-height:1.6}
+</style></head><body>
+<header><div class="logo">ODED HIGHLIGHTS</div><div class="sp"></div><div class="pill"><span class="dot" id="dot"></span><span id="ls">...</span></div><button class="ib" id="gear" aria-label="הגדרות">⚙</button></header>
+<div id="log"></div>
+<div class="chips"><button class="chip">מה בלייב עכשיו?</button><button class="chip">מה עלה היום?</button><button class="chip">נתוני יוטיוב</button><button class="chip">מה נפסל ולמה?</button><button class="chip">עצור את המערכת</button></div>
+<form id="f"><textarea id="t" rows="1" placeholder="כתוב הודעה..." enterkeyhint="send"></textarea><button class="send" aria-label="שלח">➤</button></form>
+<div id="gate"><div><div class="logo" style="font-size:26px;margin-bottom:6px">ODED HIGHLIGHTS</div><div class="small" id="gmsg"></div><input id="pw" type="password" placeholder="סיסמה" autocomplete="current-password"><button class="btn" id="go">כניסה</button><div class="small" id="gerr" style="color:#ff8a80;margin-top:10px"></div></div></div>
+<dialog id="dlg"><div style="font-weight:800;font-size:17px;margin-bottom:10px">הגדרות</div>
+<label>מפתח GitHub (לפעולות: חיתוך, עצירה, לקחים)</label><input id="gh" type="password" placeholder="github_pat_..." autocomplete="off">
+<div class="small" style="margin:-6px 0 12px">נשמר רק בטלפון הזה. צור מפתח צר: GitHub ← Settings ← Developer settings ← Fine-grained tokens, למאגר oded-highlights בלבד, הרשאות Contents ו-Actions: Read and write.</div>
+<button class="btn" id="save">שמור</button><button class="btn alt" id="notif">אפשר התראות</button><button class="btn alt" id="logout">התנתק</button><button class="btn alt" id="close">סגור</button></dialog>
+<script>
+var $=function(i){return document.getElementById(i)},LS=localStorage,log=$('log'),hist=[];
+function esc(s){return s.replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
+function lk(s){return esc(s).replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>')}
+function add(cls,txt){var d=document.createElement('div');d.className='m '+cls;d.innerHTML=lk(txt);log.appendChild(d);log.scrollTop=log.scrollHeight;return d}
+function hdr(){return{'content-type':'application/json','x-pass':LS.pw||'','x-gh':LS.gh||''}}
+async function api(p,o){o=o||{};o.headers=hdr();var r=await fetch(p,o);if(r.status===401){gate();throw 0}return r.json()}
+async function gate(setup){$('gate').style.display='flex';var st=setup===undefined?await (await fetch('/api/state')).json():{setup:setup};
+ $('gmsg').textContent=st.setup?'פעם ראשונה: בחר סיסמה (לפחות 8 תווים). היא תשמש רק אותך.':'הכנס סיסמה';$('go').textContent=st.setup?'קבע סיסמה':'כניסה';$('go').onclick=async function(){
+  var p=$('pw').value;$('gerr').textContent='';if(st.setup){var r=await fetch('/api/setup',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({password:p})});var j=await r.json();if(j.error){$('gerr').textContent=j.error;return}}
+  LS.pw=p;var t=await fetch('/api/feed',{headers:hdr()});if(t.status!==200){$('gerr').textContent='סיסמה שגויה';return}$('gate').style.display='none';boot()}}
+async function send(txt){if(!txt.trim())return;add('me',txt);hist.push({role:'user',content:txt});var w=add('bot typing','…');
+ try{var j=await api('/api/chat',{method:'POST',body:JSON.stringify({messages:hist})});w.className='m bot';w.innerHTML=lk(j.reply);hist.push({role:'assistant',content:j.reply});LS.hist=JSON.stringify(hist.slice(-20))}catch(e){w.className='m bot';w.textContent='שגיאת חיבור'}log.scrollTop=log.scrollHeight}
+$('f').onsubmit=function(e){e.preventDefault();var v=$('t').value;$('t').value='';$('t').style.height='auto';send(v)};
+$('t').oninput=function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'};
+$('t').onkeydown=function(e){if(e.key==='Enter'&&!e.shiftKey&&window.innerWidth>700){e.preventDefault();$('f').requestSubmit()}};
+document.querySelectorAll('.chip').forEach(function(c){c.onclick=function(){send(c.textContent)}});
+$('gear').onclick=function(){$('gh').value=LS.gh||'';$('dlg').showModal()};$('close').onclick=function(){$('dlg').close()};
+$('save').onclick=function(){LS.gh=$('gh').value.trim();$('dlg').close();add('bot','נשמר ✅')};
+$('logout').onclick=function(){LS.removeItem('pw');location.reload()};
+$('notif').onclick=function(){if('Notification' in window)Notification.requestPermission().then(function(p){add('bot',p==='granted'?'התראות מאושרות ✅ (באייפון: רק אחרי הוספה למסך הבית)':'התראות לא אושרו')})};
+async function feed(){try{var since=LS.since||new Date(Date.now()-3600e3).toISOString();var j=await api('/api/feed?since='+encodeURIComponent(since));
+ $('dot').className='dot'+(j.live?' on':'');$('ls').textContent=j.live?('בלייב'+(j.title?' · '+j.title.slice(0,18):'')):'לא בלייב';
+ (j.events||[]).forEach(function(e){add('ev',(e.kind==='live_up'?'🔴 ':e.kind==='draft'?'✅ ':e.kind==='live_down'?'⚫ ':'⚠️ ')+e.text+(e.url?'\n'+e.url:''));
+  if(document.hidden&&Notification.permission==='granted')new Notification('ODED HIGHLIGHTS',{body:e.text,icon:'/icon.png'})});
+ LS.since=(j.events&&j.events.length?j.events[j.events.length-1].t:LS.since)||j.now}catch(e){}}
+function boot(){try{hist=JSON.parse(LS.hist||'[]')}catch(e){hist=[]}
+ if(!hist.length)add('bot','שלום 👋 אני העוזר של ODED HIGHLIGHTS. אפשר לשאול אותי מה בלייב, מה עלה, נתוני יוטיוב, או לבקש "תחתוך את הרגע ש...". אני מעדכן אותך לבד כשעודד עולה או כשעולה טיוטה.');
+ else hist.slice(-8).forEach(function(m){add(m.role==='user'?'me':'bot',m.content)});
+ feed();setInterval(feed,20000)}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');
+(async function(){if(!LS.pw)return gate();var t=await fetch('/api/feed',{headers:hdr()});if(t.status===200)boot();else gate(false)})();
+</script></body></html>

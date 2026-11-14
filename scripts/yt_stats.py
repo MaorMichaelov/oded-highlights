@@ -24,7 +24,11 @@ for i in range(0, len(ids), 50):
     for v in api("videos", part="snippet,statistics,status,contentDetails", id=",".join(ids[i:i + 50])).get("items", []):
         s = v["statistics"]; vids.append({"id": v["id"], "title": v["snippet"]["title"], "published": v["snippet"]["publishedAt"], "privacy": v["status"]["privacyStatus"], "duration": v["contentDetails"]["duration"],
                                           "views": int(s.get("viewCount", 0)), "likes": int(s.get("likeCount", 0)), "comments": int(s.get("commentCount", 0))})
-out = {"fetched_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "fetched_epoch": time.time(), "channel": {"title": ch["snippet"]["title"], "subscribers": int(ch["statistics"].get("subscriberCount", 0)), "views": int(ch["statistics"].get("viewCount", 0)), "videos": int(ch["statistics"].get("videoCount", 0))}, "videos": vids}
+mine = set()   # public repo: keep only public videos + our own pipeline drafts (not other private uploads of the owner)
+ip = os.path.join(ST, "index.json")
+if os.path.exists(ip): mine = {(c.get("draft") or "").rsplit("/", 1)[-1] for c in json.load(open(ip))}
+all_n = len(vids); vids = [v for v in vids if v["privacy"] == "public" or v["id"] in mine]
+out = {"fetched_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "fetched_epoch": time.time(), "channel": {"title": ch["snippet"]["title"], "subscribers": int(ch["statistics"].get("subscriberCount", 0)), "views": int(ch["statistics"].get("viewCount", 0)), "videos": int(ch["statistics"].get("videoCount", 0))}, "videos": vids, "total_uploads_incl_private": all_n}
 # learning: deleted drafts and weak performers
 now = {v["id"] for v in vids}
 for v in old.get("videos", []):
