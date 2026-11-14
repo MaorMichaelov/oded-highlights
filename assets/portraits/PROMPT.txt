@@ -1,0 +1,4 @@
+Base prompt (refs: 3 real 1080p Oded frames from thumb_assets/faces/oded, aspect 1:1):
+"YouTube thumbnail style head-and-shoulders portrait of the exact same man from the reference photos (keep his real face, hair, beard and identity precisely), <EXPRESSION + gesture>. Vibrant saturated colors, dramatic rim lighting, sharp focus, clean <COLOR> gradient background, photoreal, no text."
+Expressions: shock (hands on cheeks), laugh, angry (pointing), disgust, excited (fists up), cry, confused (scratching head), smirk (rubbing hands).
+Note: disgust.jpg has a fake "JJ Studios" print on the shirt - crop or regenerate.
