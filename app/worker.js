@@ -34,7 +34,7 @@ const TOOLS = {
     const cat = (await ghRead("state/category.jsonl", tok) || "").trim().split("\n").slice(-1)[0];
     return { live, last_category_change: cat ? JSON.parse(cat) : null, health, pick_state: pick, pending_candidates: (pend || []).length, current_vod: ing && ing._current_vod };
   },
-  async drafts(a, tok) { const i = (await ghJson("state/index.json", tok)) || []; return i.slice(-15).reverse(); },
+  async drafts(a, tok) { const i = (await ghJson("state/index.json", tok)) || []; return i.slice(-15).reverse().map((c) => ({ title: c.title, uploaded: !!c.draft, url: c.draft || null, uploaded_at: c.draft_at || null, note: c.draft ? "טיוטה פרטית ביוטיוב" : (c.quality_errors && c.quality_errors.length ? "נחסם בבדיקת איכות" : "לא הועלה (בדיקה או בתהליך)") })); },
   async stats(a, tok) { const s = await ghJson("state/yt_stats.json", tok); if (!s) return "אין עדיין נתוני יוטיוב"; const v = [...s.videos].sort((x, y) => y.views - x.views); return { channel: s.channel, fetched_at: s.fetched_at, top: v.slice(0, 8).map((x) => ({ title: x.title, views: x.views, likes: x.likes, privacy: x.privacy })), latest: [...s.videos].slice(0, 6).map((x) => ({ title: x.title, views: x.views, privacy: x.privacy })) }; },
   async transcript(a, tok) {   // search the current stream transcript by words and/or time window (seconds of the stream)
     const ing = await ghJson("state/ingest_state.json", tok); if (!ing || !ing._current_vod) return "אין שידור מתומלל";
@@ -91,7 +91,7 @@ async function agent(env, msgs, tok) {
 כלים (קרא להם בפורמט JSON בלבד):
 ${TOOL_DOC}
 פורמט תשובה: או {"tool":"שם","args":{...}} כדי להפעיל כלי, או {"reply":"הטקסט למשתמש"} כדי לענות. החזר JSON בלבד, שורה אחת, בלי טקסט נוסף.
-אל תמציא נתונים: אם צריך מידע, הפעל כלי. אחרי תוצאת כלי, סכם בקצרה.${instr ? "\nהנחיות קבועות מהבעלים:\n" + instr : ""}`;
+אל תמציא נתונים: אם צריך מידע, הפעל כלי. קליפ נחשב שהועלה רק אם uploaded=true. אחרי תוצאת כלי, סכם בקצרה.${instr ? "\nהנחיות קבועות מהבעלים:\n" + instr : ""}`;
   const m = [{ role: "system", content: system }, ...msgs.slice(-12)];
   for (let i = 0; i < 5; i++) {
     const out = await llm(env, m); if (!out) return "המודל לא זמין כרגע, נסה שוב בעוד דקה.";

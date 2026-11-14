@@ -7,5 +7,5 @@ for d in sorted(os.listdir(cd)) if os.path.isdir(cd) else []:
     jf = lambda n: json.load(open(os.path.join(cd, d, n))) if os.path.exists(os.path.join(cd, d, n)) else {}
     sp, stt, q = jf("spec.json"), jf("status.json"), jf("quality.json")
     if not sp: continue
-    out.append({"id": d, "title": sp.get("title"), "brief": sp.get("brief"), "stages": {k: v.get("state") for k, v in stt.items()}, "draft": (stt.get("draft") or {}).get("url"), "quality_errors": q.get("errors"), "auto": sp.get("auto", False)})
+    out.append({"id": d, "title": sp.get("title"), "brief": sp.get("brief"), "stages": {k: v.get("state") for k, v in stt.items()}, "draft": (stt.get("draft") or {}).get("url"), "draft_at": (stt.get("draft") or {}).get("at"), "quality_errors": q.get("errors"), "auto": sp.get("auto", False)})
 json.dump(out, open(os.path.join(ST, "index.json"), "w"), ensure_ascii=False, indent=1); print(len(out), "clips indexed")

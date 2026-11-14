@@ -5,6 +5,7 @@
   "brief": null,
   "stages": {},
   "draft": null,
+  "draft_at": null,
   "quality_errors": null,
   "auto": false
  },
@@ -22,6 +23,7 @@
    "quality": "done"
   },
   "draft": null,
+  "draft_at": null,
   "quality_errors": [],
   "auto": false
  }
