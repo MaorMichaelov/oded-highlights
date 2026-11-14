@@ -14,3 +14,9 @@ Each station is one script with a clear input/output, writes state/clips/<id>/st
 Run one station alone (example, on a clip folder that exists): `python3 scripts/stations/quality.py state/clips/<id>`.
 Different clips render in parallel (concurrency group per clip). Thumbnails and publishing belong to the other bot (drop files in assets/thumbs_override/).
 Rules enforced in code: 1080p60 only (build_clip refuses anything else), > 8 Mbps, no silence/black, nothing uploads except as PRIVATE drafts, heuristics never upload alone.
+
+## The chat app (phone)
+URL: https://oded-app.odedhl.workers.dev (PWA, add to home screen). Worker code: app/worker.js + app/index.html, deploy with `python3 app/deploy.py` (Cloudflare token, KV for the password, Workers AI binding for the LLM).
+Reads the GitHub state files (live_status, health, index.json, yt_stats.json, transcripts, events.jsonl); writes through the owner's GitHub token stored on the phone (cut, pause/resume, lessons, instructions).
+Learning: state/lessons.json (deleted drafts, weak/strong videos, quality failures, owner lessons) is read by the pick station; state/chat_instructions.md holds standing owner instructions.
+The app agent never publishes or deletes; code changes are done by the developer session, not by the agent.

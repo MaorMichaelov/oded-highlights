@@ -34,6 +34,7 @@ const TOOLS = {
     const cat = (await ghRead("state/category.jsonl", tok) || "").trim().split("\n").slice(-1)[0];
     return { live, last_category_change: cat ? JSON.parse(cat) : null, health, pick_state: pick, pending_candidates: (pend || []).length, current_vod: ing && ing._current_vod };
   },
+  async skipped(a, tok) { return { pick_state: await ghJson("state/pick_state.json", tok), pending_candidates: await ghJson("state/pending_candidates.json", tok), lessons: ((await ghJson("state/lessons.json", tok)) || []).slice(-8) }; },
   async drafts(a, tok) { const i = (await ghJson("state/index.json", tok)) || []; return i.slice(-15).reverse().map((c) => ({ title: c.title, uploaded: !!c.draft, url: c.draft || null, uploaded_at: c.draft_at || null, note: c.draft ? "טיוטה פרטית ביוטיוב" : (c.quality_errors && c.quality_errors.length ? "נחסם בבדיקת איכות" : "לא הועלה (בדיקה או בתהליך)") })); },
   async stats(a, tok) { const s = await ghJson("state/yt_stats.json", tok); if (!s) return "אין עדיין נתוני יוטיוב"; const v = [...s.videos].sort((x, y) => y.views - x.views); return { channel: s.channel, fetched_at: s.fetched_at, top: v.slice(0, 8).map((x) => ({ title: x.title, views: x.views, likes: x.likes, privacy: x.privacy })), latest: [...s.videos].slice(0, 6).map((x) => ({ title: x.title, views: x.views, privacy: x.privacy })) }; },
   async transcript(a, tok) {   // search the current stream transcript by words and/or time window (seconds of the stream)
@@ -65,6 +66,7 @@ const TOOLS = {
   async instruction(a, tok) { if (!tok) return "חסר מפתח GitHub"; const cur = (await ghRead("state/chat_instructions.md", tok)) || ""; return (await ghWrite("state/chat_instructions.md", (cur + "\n- " + a.text).slice(-4000), "app: instruction", tok)) ? "נוספה הנחיה קבועה" : "נכשל"; },
 };
 const TOOL_DOC = `status: מצב הלייב והמערכת. args: {}
+skipped: מה המערכת פסלה ולמה (הערות תחנת הבחירה, מועמדים, לקחים). args: {}
 drafts: רשימת הקליפים והטיוטות האחרונות עם קישורים. args: {}
 stats: נתוני יוטיוב (צפיות, לייקים, הכי חזקים). args: {}
 transcript: חיפוש בתמלול של השידור הנוכחי. args: {query?: "מילים", last_minutes?: n, from?: שניות, to?: שניות}
