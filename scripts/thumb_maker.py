@@ -367,9 +367,12 @@ def make(args):
     print(f"QA overlap_ok={ok_overlap} (text/face overlap {100*inter/max(1,face_area):.1f}%) | size={os.path.getsize(out)//1024} KB q={q} | headline box={tb}")
     return 0 if ok_overlap else 3
 
-if __name__ == "__main__":
+def main_cli():
     ap = argparse.ArgumentParser(); ap.add_argument("--frame"); ap.add_argument("--crop"); ap.add_argument("--react", help="image of the thing the streamer reacts to (art / video frame) shown on the other side"); ap.add_argument("--scene", help="finished AI scene image (full 16:9 art); only the Hebrew headline + QA are added")
     ap.add_argument("--head", default=""); ap.add_argument("--accent", default=""); ap.add_argument("--theme", default="green", choices=THEMES)
     ap.add_argument("--out", required=True); ap.add_argument("--guest"); ap.add_argument("--guest-crop"); ap.add_argument("--prop"); ap.add_argument("--bg"); ap.add_argument("--art", action="store_true", help="use --bg as recognisable art (no blur/rays)")
     ap.add_argument("--side", default="left", choices=["left", "right"]); ap.add_argument("--style", default="taklipu", choices=["taklipu", "classic"]); ap.add_argument("--ribbon", action="store_true", help="red torn ribbon behind the headline")
-    sys.exit(make(ap.parse_args()))
+    return make(ap.parse_args())
+
+if __name__ == "__main__":
+    sys.exit(main_cli())
