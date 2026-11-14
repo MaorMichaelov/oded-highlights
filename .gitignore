@@ -21,3 +21,4 @@ state/clips/test_shiber/final.mp4
 
 # keep the brand sound effects (small, required by the opening/sting)
 !assets/sfx/*.wav
+assets/real_faces/
