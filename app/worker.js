@@ -43,6 +43,31 @@ const TOOLS = {
     const ref = base || first; const have = (Date.parse(last.t) - Date.parse(ref.t)) / 3600e3;
     return { requested_hours: h, covered_hours: Math.round(have * 10) / 10, views_gained: last.views - ref.views, exact: !!base, channel_views_total: last.views, as_of: last.t, history_since: first.t, note: base ? "מדויק" : "ההיסטוריה שלנו קצרה מהחלון שביקשת: זה הגידול מאז " + first.t + " בלבד. לנתון מדויק ל-48 שעות צריך להפעיל את YouTube Analytics API." };
   },
+  async docs(a, tok) { const n = { rules: "RULES.md", stations: "docs/STATIONS.md", topics: "docs/TOPICS_TO_CLIP.md", readme: "README.md", issues: "docs/KNOWN_ISSUES.md" }[a.name || "stations"] || "docs/STATIONS.md"; return clip((await ghRead(n, tok)) || "אין מסמך", 3800); },
+  async clip(a, tok) {   // everything about one clip: plan, spec, stage status, quality, durations
+    const d = "state/clips/" + a.id; const [spec, cuts, stt, q, du] = await Promise.all(["spec.json", "cuts.json", "status.json", "quality.json", "durations.json"].map((f) => ghJson(d + "/" + f, tok)));
+    return { spec: spec && { title: spec.title, brief: spec.brief, picked_by: spec.picked_by }, plan_seconds: cuts && cuts.pieces && cuts.pieces.map((p) => p.keep), stages: stt, quality: q, durations: du };
+  },
+  async chat_activity(a, tok) {   // Kick chat activity (messages per 10 s buckets) for the last N minutes
+    const day = new Date().toISOString().slice(0, 10).replace(/-/g, ""); const raw = await ghRead(`state/chat/${day}.jsonl`, tok); if (!raw) return "אין נתוני צ'אט להיום";
+    const rows = raw.trim().split("\n").map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean); const mins = Number(a.minutes || 30); const since = Date.now() / 1000 - mins * 60;
+    const r = rows.filter((x) => x.t >= since); const n = r.reduce((s, x) => s + x.n, 0); const peak = r.slice().sort((x, y) => y.n - x.n).slice(0, 3).map((x) => ({ at: new Date(x.t * 1000).toISOString().slice(11, 19) + "Z", msgs_10s: x.n, chatters: x.u }));
+    return { minutes: mins, messages: n, per_minute: Math.round((n / mins) * 10) / 10, peaks: peak, note: r.length ? "" : "אין הודעות בטווח (אולי לא בלייב)" };
+  },
+  async viewers_trend(a, tok) {
+    const raw = await ghRead("state/live_history.jsonl", tok); if (!raw) return "אין עדיין היסטוריית צופים (נאספת בזמן לייב)";
+    const rows = raw.trim().split("\n").map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean).slice(-Number(a.points || 24));
+    const v = rows.map((r) => r.viewers || 0); return { points: rows.length, from: rows[0] && rows[0].t, to: rows[rows.length - 1] && rows[rows.length - 1].t, min: Math.min(...v), max: Math.max(...v), last: v[v.length - 1], series: rows.map((r) => [r.t.slice(11, 16), r.viewers]) };
+  },
+  async runs(a, tok) {   // recent GitHub Actions runs = what the system did / failed
+    const r = await fetch(`https://api.github.com/repos/${REPO}/actions/runs?per_page=${Number(a.n || 12)}`, { headers: { "user-agent": "oded-app", accept: "application/vnd.github+json", ...(tok ? { authorization: "Bearer " + tok } : {}) } });
+    if (!r.ok) return "לא הצלחתי לקרוא את ההפעלות " + r.status; return ((await r.json()).workflow_runs || []).map((x) => ({ name: x.name, status: x.status, result: x.conclusion, at: x.created_at.slice(5, 16) }));
+  },
+  async candidates(a, tok) { return { pending: await ghJson("state/pending_candidates.json", tok), pick_state: await ghJson("state/pick_state.json", tok) }; },
+  async update_draft(a, tok) {   // rename one of OUR private drafts (workflow yt-edit refuses public videos)
+    if (!tok) return "חסר מפתח GitHub"; const r = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/yt-edit.yml/dispatches`, { method: "POST", headers: { authorization: "Bearer " + tok, "user-agent": "oded-app", accept: "application/vnd.github+json" }, body: JSON.stringify({ ref: "main", inputs: { video_id: String(a.video_id), title: a.title || "", description: a.description || "" } }) });
+    return r.status === 204 ? "שליחתי עדכון לטיוטה. יתעדכן תוך כדקה." : "נכשל " + r.status;
+  },
   async drafts(a, tok) { const i = (await ghJson("state/index.json", tok)) || []; return i.slice(-15).reverse().map((c) => ({ title: c.title, uploaded: !!c.draft, url: c.draft || null, uploaded_at: c.draft_at || null, note: c.draft ? "טיוטה פרטית ביוטיוב" : (c.quality_errors && c.quality_errors.length ? "נחסם בבדיקת איכות" : "לא הועלה (בדיקה או בתהליך)") })); },
   async stats(a, tok) { const s = await ghJson("state/yt_stats.json", tok); if (!s) return "אין עדיין נתוני יוטיוב"; const v = [...s.videos].sort((x, y) => y.views - x.views); return { channel: s.channel, fetched_at: s.fetched_at, top: v.slice(0, 8).map((x) => ({ title: x.title, views: x.views, likes: x.likes, privacy: x.privacy })), latest: [...s.videos].slice(0, 6).map((x) => ({ title: x.title, views: x.views, privacy: x.privacy })) }; },
   async transcript(a, tok) {   // search the current stream transcript by words and/or time window (seconds of the stream)
@@ -76,6 +101,13 @@ const TOOLS = {
 const TOOL_DOC = `status: מצב הלייב והמערכת. args: {}
 skipped: מה המערכת פסלה ולמה (הערות תחנת הבחירה, מועמדים, לקחים). args: {}
 views: כמה צפיות הערוץ קיבל ב-N שעות אחרונות. args: {hours}
+docs: קריאת מסמכי המערכת. args: {name: rules|stations|topics|readme|issues}
+clip: כל המידע על קליפ אחד (תכנית, שלבים, איכות, זמנים). args: {id}
+chat_activity: פעילות הצ'אט של Kick בדקות האחרונות. args: {minutes}
+viewers_trend: מגמת צופים בלייב. args: {points}
+runs: הפעלות אחרונות של המערכת ב-GitHub (מה רץ, מה נכשל). args: {n}
+candidates: מועמדים שסומנו ומצב תחנת הבחירה. args: {}
+update_draft: שינוי כותרת/תיאור של טיוטה פרטית שלנו. args: {video_id, title?, description?}
 drafts: רשימת הקליפים והטיוטות האחרונות עם קישורים. args: {}
 stats: נתוני יוטיוב (צפיות, לייקים, הכי חזקים). args: {}
 transcript: חיפוש בתמלול של השידור הנוכחי. args: {query?: "מילים", last_minutes?: n, from?: שניות, to?: שניות}
@@ -106,7 +138,7 @@ async function llm(env, messages, gkey) {
 async function agent(env, msgs, tok, gkey) {
   const instr = (await ghRead("state/chat_instructions.md", tok)) || "";
   const system = `אתה העוזר של בעל הערוץ ODED HIGHLIGHTS (קליפים בעברית מהלייבים של הסטרימר עודד, kick.com/odedsvr). עונה בעברית, קצר וברור, כמו וואטסאפ. תאריך: ${new Date().toISOString()}.
-המערכת: GitHub מזהה לייב, מתמלל, בוחר נושאים, חותך, עורך ומעלה טיוטות פרטיות. אתה לא מפרסם ולא מוחק שום דבר.
+המערכת (תחנות): 1 צפייה והקלטה (בודקת לייב כל 5 דקות, מתמללת עברית, שומרת צ'אט), 2 בחירה (מודל חינמי בוחר נושאים סגורים לפי docs/TOPICS_TO_CLIP.md), 3 חיתוך (1080p60 בלבד), 4 עריכה (פתיחה עם כתוביות ירוקות, סטינג, פופאפ), 5 טיוטה (העלאה פרטית בלי תמנל; תמנלים ופרסום אצל Grok Bot), 6 מעקב, 7 איכות (חוסמת קליפ פגום). הכל רץ ב-GitHub Actions בחינם. הסאבתון של GTA 6 ביום חמישי 19.11. הקליפ הראשון הוא עודד נכנס ל-GTA 6. כללים: טיוטות פרטיות בלבד, אין זום, כתוביות ירוקות, סרטונים ארוכים בלבד (6+ דקות), נושא אחד לכל סרטון, אל תחזור על זווית הצ'יטר ברוב ראן. לשאלות על איך המערכת פועלת או מה הכללים הפעל docs. אתה לא מפרסם ולא מוחק שום דבר.
 כלים (קרא להם בפורמט JSON בלבד):
 ${TOOL_DOC}
 פורמט תשובה: או {"tool":"שם","args":{...}} כדי להפעיל כלי, או {"reply":"הטקסט למשתמש"} כדי לענות. החזר JSON בלבד, שורה אחת, בלי טקסט נוסף.

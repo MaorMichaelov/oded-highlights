@@ -54,6 +54,7 @@ jobs:
             python3 scripts/yt_stats.py || echo "stats failed (continuing)"
             python3 scripts/stations/monitor.py --no-restart || echo "monitor flagged a problem"
             python3 scripts/stations/index.py || echo "index failed (continuing)"
+            python3 scripts/stations/brief.py || echo "brief skipped"
             git add state; git diff --cached --quiet || { git commit -q -m "state: pick $(date -u +%FT%TZ)"; git pull --rebase -q || true; git push -q || true; }
             sleep 300
           done

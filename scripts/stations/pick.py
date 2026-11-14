@@ -71,6 +71,10 @@ def main():
             f"\"head\":\"<=2 Hebrew words\",\"accent\":\"<=2 Hebrew words ending !\",\"brief\":{{\"about\":\"\",\"who\":\"\",\"peak\":\"mm:ss + what\"}},\"exclude\":[[sec,sec]]}}],"
             f"\"next_cursor\":sec (start of the first topic that is still open or unclear; if everything up to {int(hi)} is decided put {int(hi)}),\"notes\":\"why skipped\"}}. "
             f"Each clip {MIN_LEN}-{MAX_LEN} s, ONE topic, no overlap with already cut ranges. Empty clips list is fine and common. Be strict: weak topics are skipped.")
+    try:
+        import topic_scan; sp = [(int(t), round(z, 1)) for t, z in topic_scan.chat_spikes(ing.get("_vod_start_epoch")) if lo <= t <= hi]
+        if sp: user += f"\nChat reaction spikes (stream second, z-score; strong = audience reacted): {sorted(sp, key=lambda x: -x[1])[:8]}"
+    except Exception as e: print("chat spikes unavailable:", e)
     out = ask(system, user)
     if not out: print("model unavailable: nothing picked"); return 1
     m = re.search(r"\{.*\}", out, re.S)

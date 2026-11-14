@@ -16,6 +16,6 @@ jobs:
           echo "setup: $(curl -s -X POST $U/api/setup -H 'content-type: application/json' -d "{\"password\":\"$PW\"}")"
           echo "feed-nopass: $(curl -s -o /dev/null -w '%{http_code}' $U/api/feed)"
           echo "feed: $(curl -s $U/api/feed -H "x-pass: $PW" | head -c 400)"
-          for q in "מה בלייב עכשיו?" "כמה צפיות היו לי ב-48 השעות האחרונות?" "איזה סרטון הכי חזק?" "מה עלה היום?" "מה נפסל ולמה?"; do
+          for q in "איזה הפעלות של המערכת רצו לאחרונה ומה נכשל?" "תן לי מידע מלא על הקליפ test_shiber" "מה הכללים של הפתיחה בסרטונים?" "כמה הודעות בצ'אט היו בחצי שעה האחרונה?" "מה מצב המערכת ומה המעקב אומר?"; do
             echo "--- Q: $q"; curl -s -m 120 -X POST $U/api/chat -H "x-pass: $PW" -H "x-groq: $GROQ_API_KEY" -H 'content-type: application/json' -d "{\"messages\":[{\"role\":\"user\",\"content\":\"$q\"}]}" | head -c 900; echo
           done

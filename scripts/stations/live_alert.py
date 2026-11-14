@@ -10,4 +10,7 @@ if ls.get("live") and not prev.get("live"):
     subprocess.run(["gh", "api", "-X", "POST", f"repos/{os.environ.get('GITHUB_REPOSITORY', 'MaorMichaelov/oded-highlights')}/issues/1/comments", "-f", f"body={body}"], check=False)
     event("live_up", body); print("live alert sent")
 elif prev.get("live") and not ls.get("live"): event("live_down", "עודד ירד מהלייב")
+import time as _t
+if ls.get("live"):   # viewer/title history for the app and the pick station
+    with open(os.path.join(ST, "live_history.jsonl"), "a") as hf: hf.write(json.dumps({"t": ls.get("checked_at"), "viewers": ls.get("viewers"), "title": ls.get("title"), "category": ls.get("category")}, ensure_ascii=False) + "\n")
 json.dump({"live": bool(ls.get("live"))}, open(af, "w"))
