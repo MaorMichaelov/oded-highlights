@@ -1,4 +1,8 @@
 {
- "candidates": [],
+ "candidates": [
+  "assets/final_thumbs/test_shiber_s1.jpg",
+  "assets/final_thumbs/test_shiber_s2.jpg",
+  "assets/final_thumbs/test_shiber_s3.jpg"
+ ],
  "status": "thumbnails_ready_pick_one"
 }
