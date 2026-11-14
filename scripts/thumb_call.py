@@ -65,21 +65,31 @@ def main():
         g = Image.new("L", (W, H), 0); gd = ImageDraw.Draw(g)
         for x in range(W): gd.line([(x, 0), (x, H)], fill=int(150 * max(0.0, 1 - x / (W * 0.55))))      # darker behind the face side
         bg = Image.composite(Image.new("RGB", (W, H), (10, 6, 14)), pl, g)
+    if not a.bg:
+        L1 = Image.new("RGB", (W, H), (0, 0, 0)); ImageDraw.Draw(L1).ellipse((-260, 60, 620, 900), fill=(255, 120, 30)); L1 = L1.filter(ImageFilter.GaussianBlur(130))
+        L2 = Image.new("RGB", (W, H), (0, 0, 0)); ImageDraw.Draw(L2).ellipse((640, -120, 1500, 700), fill=(20, 170, 255)); L2 = L2.filter(ImageFilter.GaussianBlur(130))
+        base = Image.new("RGB", (W, H), (10, 8, 24)); bg = ImageChops.add(ImageChops.add(base, L1.point(lambda v: int(v * 0.85))), L2.point(lambda v: int(v * 0.75)))
+        dd = ImageDraw.Draw(bg)
+        for i in range(34):                                  # light rays from the prop side
+            a0 = math.radians(200 + i * 4.2); a1 = a0 + math.radians(1.6); cx, cy = 1000, 400
+            dd.polygon([(cx, cy), (cx + 1600 * math.cos(a0), cy + 1600 * math.sin(a0)), (cx + 1600 * math.cos(a1), cy + 1600 * math.sin(a1))], fill=(30, 60, 110))
+        bg = ImageChops.add(bg, L2.point(lambda v: int(v * 0.35)))
     bg = bg.convert("RGBA")
     # bills flying around the phone
     for i in range(11):
         b = bill(random.randint(150, 230), random.randint(72, 110)); b = b.rotate(random.randint(-50, 50), expand=True, resample=Image.BICUBIC)
-        b = shadowed(b, blur=8, op=0.5); x = random.randint(540, 1120); y = random.randint(330, 650)
+        b = shadowed(b, blur=8, op=0.5); x = random.randint(640, 1100); y = random.randint(380, 660)
         bg.alpha_composite(b, (x, y))
     # phone
-    ph = phone(a.name, 290, 560).rotate(-9, expand=True, resample=Image.BICUBIC); ph = shadowed(ph, blur=20, op=0.7)
-    bg.alpha_composite(ph, (850, 165))
-    # portrait (sharp AI portrait) big on the left, bleeding off the bottom
+    ph = phone(a.name, 270, 520).rotate(-8, expand=True, resample=Image.BICUBIC); ph = shadowed(ph, blur=20, op=0.7)
+    PH = (880, 150)
+    # portrait (sharp AI portrait) big on the left, bleeding off the bottom (phone is drawn AFTER it)
     fr = Image.open(a.face).convert("RGB"); person = T.cutout(fr); person = person.crop(person.split()[-1].getbbox())
     k = min(1.0, (H * 1.04) / person.height, (W * 0.50) / person.width)
     person = person.resize((int(person.width * k), int(person.height * k)), Image.LANCZOS)
     stk, pad = T.sticker(person, dict(glow=(255, 150, 40), outline=(255, 255, 255)), outline_px=9, glow_px=34)
     bg.alpha_composite(stk, (-30 - pad + 30, H - stk.height + pad + 20))
+    bg.alpha_composite(ph, (PH[0] - 150, PH[1]))
     out = bg.convert("RGB")
     face_box = (0, H - person.height + 20, person.width, H)
     box = T.headline_taklipu(out, [(a.head, "white"), (a.accent, "accent")], (int(W * 0.42), W - 28), ribbon=None, tilt=3.0)
