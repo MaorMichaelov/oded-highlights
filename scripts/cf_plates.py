@@ -21,6 +21,9 @@ SCENES = {
  "casino": "casino floor with a roulette wheel and green felt table, neon signs in red and gold, scattered chips.",
  "election": "ballot box with a national emblem, papers flying in the air, yellow and blue burst light.",
  "horror_room": "dark room with an orange window light and a long creepy shadow of a hand on the wall.",
+ "gta_beach": "tropical neon beach boulevard at golden sunset, palm trees, pink and orange sky, a classic lowrider car parked at the curb, glowing neon signs, ocean in the distance.",
+ "gta_night_drive": "first-person view from inside a sports car driving at night through a neon city, glowing dashboard, wet road reflections, pink and cyan lights, skyscrapers.",
+ "gta_skyline": "huge neon city skyline at dusk seen from a rooftop, purple and pink gradient sky, helicopters, palm trees, glowing billboards.",
  "hotel_street": "hotel street at night with neon palm signs, purple lights, wet road, a hotel entrance.",
 }
 def gen(name, seed=7, w=1280, h=720, outdir="assets/plates_ai"):

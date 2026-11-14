@@ -174,14 +174,14 @@ def detect_faces(rgb):
             m = int(0.15 * fw); out.append((x - m, y - m, x + fw + m, y + fh + m))
     return out
 
-def headline_taklipu(bg, lines, area, y0=14, ribbon=None, tilt=3.5):
+def headline_taklipu(bg, lines, area, y0=14, ribbon=None, tilt=3.5, grad=((255, 238, 10), (255, 160, 20)), one_line_size=None):
     """Headline in the reference style: ultra-heavy Hebrew, sheared (italic), thick black outline, white line + yellow->orange gradient line,
     optional torn red ribbon behind. area=(x0,x1). Returns the bbox. lines: [(text, 'white'|'accent')]."""
     import random
     d0 = ImageDraw.Draw(bg); ax0, ax1 = area; y = y0; boxes = []
     layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     for i, (txt, kind) in enumerate(lines):
-        size = 112 if i == 0 else 180   # calibrated to the approved thumbnails (line1 ~104-112, line2 ~140-190 on 1280 wide)
+        size = one_line_size or (112 if i == 0 else 180)   # calibrated to the approved thumbnails (line1 ~104-112, line2 ~140-190 on 1280 wide)
         while True:
             f = font(size); w = d0.textlength(txt, font=f, direction="rtl")
             if w <= (ax1 - ax0) * 0.94 or size < 60: break
@@ -191,11 +191,11 @@ def headline_taklipu(bg, lines, area, y0=14, ribbon=None, tilt=3.5):
         td.text((pad, pad), txt, font=f, fill=(0, 0, 0, 255), stroke_width=st + 6, stroke_fill=(0, 0, 0, 255), direction="rtl", language="he")
         mask = Image.new("L", tl.size, 0); ImageDraw.Draw(mask).text((pad, pad), txt, font=f, fill=255, direction="rtl", language="he")
         if kind == "accent":
-            grad = Image.new("RGB", tl.size); gd = ImageDraw.Draw(grad)
+            gimg = Image.new("RGB", tl.size); gd = ImageDraw.Draw(gimg)
             for yy in range(tl.height):
                 t = min(1, max(0, (yy - pad) / max(1, asc + desc)))
-                gd.line([(0, yy), (tl.width, yy)], fill=(255, int(238 - 78 * t), int(10 + 10 * t)))
-            fill_img = grad
+                gd.line([(0, yy), (tl.width, yy)], fill=tuple(int(grad[0][k] * (1 - t) + grad[1][k] * t) for k in range(3)))
+            fill_img = gimg
         else: fill_img = Image.new("RGB", tl.size, (255, 255, 255))
         tl.paste(fill_img, (0, 0), mask)
         # inner dark edge for depth
@@ -286,6 +286,16 @@ def scene_mode(args):
     print(f"QA(scene) faces_found={len(faces)} overlap_ok={ok} size={os.path.getsize(args.out)//1024} KB headline box={box}")
     return 0 if ok else 3
 
+def neon_sign(img, text, box, col=(255, 70, 190), sub=None):
+    """in-scene neon/LED sign (like the game logo on the wall in the reference). box=(x,y,w,h)."""
+    x, y, w, h = box; lay = Image.new("RGBA", img.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    d.rounded_rectangle((x, y, x + w, y + h), 18, fill=(14, 8, 28, 235), outline=col + (255,), width=6)
+    f = font(int(h * 0.62))
+    while d.textlength(text, font=f) > w * 0.86 and f.size > 20: f = font(f.size - 4)
+    d.text((x + w / 2, y + h / 2), text, font=f, fill=(255, 255, 255, 255), anchor="mm", stroke_width=3, stroke_fill=col + (255,))
+    g = lay.filter(ImageFilter.GaussianBlur(14)); base = img.convert("RGBA"); base.alpha_composite(g); base.alpha_composite(g); base.alpha_composite(lay)
+    return base.convert("RGB")
+
 def react_mode(args):
     """Oded's own-channel style: sharp serious face LARGE on one side, the thing he reacts to (art/video frame) on the other."""
     th = THEMES[args.theme]; left_face = args.side == "left"
@@ -298,6 +308,8 @@ def react_mode(args):
         u = (1 - x / W) if left_face else (x / W)
         gd.line([(x, 0), (x, H)], fill=int(215 * max(0.0, min(1.0, (u - 0.30) / 0.45))))
     bg = Image.composite(Image.new("RGB", (W, H), th["dark"]), bg, g)
+    if getattr(args, "sign", ""):
+        sx, sy, sw, sh = map(int, args.sign_box.split(",")); bg = neon_sign(bg, args.sign, (sx, sy, sw, sh), col=tuple(map(int, args.sign_col.split(","))))
     fr = Image.open(args.frame).convert("RGB")
     crop = fr.crop(tuple(map(int, args.crop.split(","))))
     person = cutout(enhance(crop, int(H * 1.0))); person = person.crop(person.split()[-1].getbbox())
@@ -312,7 +324,14 @@ def react_mode(args):
     box = (0, 0, 0, 0); ok = True
     if args.head:
         ax = (int(W * 0.46), W - 30) if left_face else (30, int(W * 0.54))
-        box = headline_taklipu(bg, lines or [(args.head, "accent")], ax, ribbon=(210, 25, 25) if args.ribbon else None)
+        gr = tuple(tuple(map(int, c.split(","))) for c in args.grad.split(":"))
+        if args.hpos == "bottom":
+            sc = Image.new("RGBA", (W, 230), (0, 0, 0, 0)); gd = ImageDraw.Draw(sc)
+            for yy in range(230): gd.line([(0, yy), (W, yy)], fill=(0, 0, 0, int(190 * (yy / 230) ** 1.4)))
+            bg2 = bg.convert("RGBA"); bg2.alpha_composite(sc, (0, H - 230)); bg = bg2.convert("RGB")
+            box = headline_taklipu(bg, [((args.head + " " + args.accent).strip(), "accent")], (40, W - 40), y0=H - 176, grad=gr, one_line_size=128, tilt=-1.5)
+        else:
+            box = headline_taklipu(bg, lines or [(args.head, "accent")], ax, ribbon=(210, 25, 25) if args.ribbon else None, grad=gr)
         ok = overlap(box, face_box) / max(1, (face_box[2] - face_box[0]) * (face_box[3] - face_box[1])) < 0.02
     q = 94
     while True:
@@ -371,6 +390,7 @@ def main_cli():
     ap = argparse.ArgumentParser(); ap.add_argument("--frame"); ap.add_argument("--crop"); ap.add_argument("--react", help="image of the thing the streamer reacts to (art / video frame) shown on the other side"); ap.add_argument("--scene", help="finished AI scene image (full 16:9 art); only the Hebrew headline + QA are added")
     ap.add_argument("--head", default=""); ap.add_argument("--accent", default=""); ap.add_argument("--theme", default="green", choices=THEMES)
     ap.add_argument("--out", required=True); ap.add_argument("--guest"); ap.add_argument("--guest-crop"); ap.add_argument("--prop"); ap.add_argument("--bg"); ap.add_argument("--art", action="store_true", help="use --bg as recognisable art (no blur/rays)")
+    ap.add_argument("--hpos", default="top", choices=["top", "bottom"]); ap.add_argument("--grad", default="255,238,10:255,160,20"); ap.add_argument("--sign", default=""); ap.add_argument("--sign-box", dest="sign_box", default="760,60,360,110"); ap.add_argument("--sign-col", dest="sign_col", default="255,70,190")
     ap.add_argument("--side", default="left", choices=["left", "right"]); ap.add_argument("--style", default="taklipu", choices=["taklipu", "classic"]); ap.add_argument("--ribbon", action="store_true", help="red torn ribbon behind the headline")
     return make(ap.parse_args())
 
