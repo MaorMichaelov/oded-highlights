@@ -76,7 +76,7 @@ def main():
     out = bg.convert("RGB")
     face_box = (0, H - person.height + 20, person.width, H)
     box = T.headline_taklipu(out, [(a.head, "white"), (a.accent, "accent")], (int(W * 0.42), W - 28), ribbon=None, tilt=3.0)
-    out = ImageEnhance.Contrast(out).enhance(1.05)
+    out = T.finish(out)
     q = 94
     while True:
         out.save(a.out, quality=q, optimize=True, subsampling=0)

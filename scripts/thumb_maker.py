@@ -209,6 +209,19 @@ def headline_taklipu(bg, lines, area, y0=14, ribbon=None, tilt=3.5):
     bg.paste(shadow, (6, 10), shadow); bg.paste(layer, (0, 0), layer)
     return box
 
+def finish(img, vignette=0.78, grain=2.2, s_curve=0.12, clarity=0.35):
+    """final grade for the whole thumbnail: S-curve contrast, local contrast (clarity), vignette, fine grain, slight vibrance."""
+    a = np.asarray(img.convert("RGB")).astype(np.float32) / 255.0
+    a = a + s_curve * (a - 0.5) * (1 - np.abs(2 * a - 1)) * 2           # gentle S-curve
+    blur = np.asarray(img.convert("RGB").filter(ImageFilter.GaussianBlur(40))).astype(np.float32) / 255.0
+    a = np.clip(a + clarity * (a - blur) * 0.6, 0, 1)                    # clarity
+    mx, mn = a.max(2, keepdims=True), a.min(2, keepdims=True); sat = mx - mn
+    a = np.clip(a + (a - a.mean(2, keepdims=True)) * 0.25 * (1 - sat), 0, 1)   # vibrance: boost muted colours more
+    h, w = a.shape[:2]; yy, xx = np.mgrid[0:h, 0:w]; r = np.sqrt(((xx - w / 2) / (w / 2)) ** 2 + ((yy - h / 2) / (h / 2)) ** 2)
+    a = a * (1 - (1 - vignette) * np.clip((r - 0.55) / 0.9, 0, 1)[..., None])
+    rng = np.random.default_rng(3); a = np.clip(a + rng.normal(0, grain / 255.0, a.shape[:2])[..., None], 0, 1)
+    return Image.fromarray((a * 255).astype(np.uint8))
+
 def overlap(a, b):
     x0, y0, x1, y1 = max(a[0], b[0]), max(a[1], b[1]), min(a[2], b[2]), min(a[3], b[3])
     return max(0, x1 - x0) * max(0, y1 - y0)
