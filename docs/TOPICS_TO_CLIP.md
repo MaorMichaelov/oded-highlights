@@ -1,27 +1,47 @@
 # What to cut (topic judge: Claude session or the LLM stage)
-Owner (14 Nov): "you decide which clips are worth uploading: dramas, GTA moments, a talk about something, a launch". Every RELEVANT topic gets a clip, also when Ronen or friends are on Oded's stream. Long videos only (6-25 min). One complete topic = setup + build-up + payoff, ending at a natural conclusion.
+Source: the owner's / Grok Bot's topic guide (14 Nov 2026), merged with our rules. Every RELEVANT topic of the stream gets a clip (not only 2-3), also when Ronen or friends are on Oded's stream (that is still Oded's content). Long videos only (>= 6 min, no shorts). ONE topic per video.
 
-## A. Always cut (highest priority)
-1. FIRST TIME moments: first reaction to GTA 6, first car / chase / mission / heist / death / wanted level, first time with a new game, new gear, new guest.
-2. DRAMA: arguments, fights with chat or friends, a guest that changes the mood, a rumor / "who said what", a call with a named person (Eitan Nissim, Biggie, Amit Shiber...), apologies, bans, lawsuits.
-3. BIG REACTIONS: shock, rage, huge laugh, silence-then-explosion, the chat spikes (state/chat, chat_spikes>=3 or z>=4).
-4. MONEY / LUCK: big win or loss, gambling, packs openings, donations that change something.
-5. LAUNCHES / EVENTS: subathon start, goals (hours, subs, viewers record), announcements, giveaways, a new rule or bet, a visitor arrives.
-6. STORY GAMEPLAY: a GTA mission or chaos sequence with a clear arc (plan -> things go wrong -> result), a chase that ends, a funny fail chain.
-7. TALKS: Oded tells a story or rants about ONE subject for 6+ minutes (food, women, army, Israel-life stuff, creators, news) with strong opinions.
-8. REACTION VIDEOS / clips he watches and comments.
+## What worked so far (cut more of this)
+- Oded tells a funny personal story with a beginning and an end (the crazy night out with Ben and Ohad).
+- Guest moments (Sensei measures Oded's shirt live, Eitan Nissim as a guest, Inda and the shawarma).
+- Games with friends (Rob Run, ...), ranking / tier-list with strong opinions (animals).
+- Group challenge with energy: Oded, Sensei and Biggie open 36 Pokemon packs and drink (the strongest one).
+- A crazy real moment: Sensei falls asleep drunk, Oded and Biggie try to wake him.
+- A live phone call with a celebrity (Oded looks for Biggie's number and calls Amit Shiber).
 
-9. GAME SESSIONS WITH SOMEONE (Rob Run, Pokemon, any game with Ronen / friends / guests / chat): one clip per session or per strong chapter of it (a heist, a wipe, a cheater, a win, a rage), from when they start until they stop or the story ends. Title names who plays and what happened ("עודד ורונן משחקים ברוב ראן ונמחקים מצ'יטר!"). A session without moments (silent grinding) is not cut.
+## Never cut (rejected, with reasons)
+- Starting Soon / waiting / BRB screens, long silent minutes (e.g. waiting for the GTA 6 preload).
+- Reactions to someone else's video where Oded barely talks (Dubai restaurants, extreme schools, Dudu Topaz): also a copyright problem.
+- MIXED topics (a toast + a map + messages + a reaction in one clip): rejected. One topic per video.
+- Preparations before an event (connecting Discord, waiting for a guest).
+- Duplicates of a topic already uploaded (check scripts/yt_research.py own).
+- Drunk talk without a clear topic, and always cut out the hard lines (Ethiopians, Holocaust, Hitler, suicide, death). If a strong topic contains such lines, cut around them.
+- Gambling on the main screen.
+- The Rob Run cheater angle (Oded and Ronen get wiped by a cheater) was rejected by the owner: do NOT repeat that angle.
+- Dead air / AFK, tech problems, repeated donation reading, the same moment twice, anything < 6 min or without an arc.
+- YouTube policy risks: sexual content, hate, graphic violence, private personal info (phones, addresses, private people's full names), minors in vulnerable situations, medical emergencies, loud copyrighted music.
 
-## B. Cut only if strong (score >= 22 or chat reaction)
-challenge or bet without payoff yet, long shopping / customization, long driving with real conversation, interaction with chat Q&A that has a joke running.
+## How to recognise a good topic
+1. A story with beginning, middle and punchline, not just a moment.
+2. Oded talks and reacts strongly (laughter, shouting, shock).
+3. A guest or friends (Sensei, Biggie, Ronen, Amit Shiber, phone calls).
+4. Describable in ONE simple title with names ("עודד ו-X עושים Y!"), Hebrew 40-55 chars ending ! or ?!.
+5. Length >= 6 min (6-25 min), complete: setup -> build-up -> payoff, 3 s pre-roll, ends at the natural conclusion.
+6. Chat reaction supports it (state/chat spikes: chat_spikes>=3 or z>=4).
+7. Take every relevant topic, not just 2-3.
 
-## C. Never cut
-dead air / AFK / "brb", setup and tech problems, repeating donation reading, the same moment twice, less than 6 min or no arc, any moment already uploaded in the last 7 days (scripts/yt_research.py own).
-Safety (YouTube policy): no sexual content, hate, graphic violence, private personal info (phone numbers, addresses, full names of private people), minors in vulnerable situations, medical emergencies, loud copyrighted music; if a strong topic has a risky part, cut around it or skip.
+## GTA 6 subathon (release 18 Nov at midnight, subathon ~19 Nov, can last several days, 24/7)
+Cut continuously during the live, do not wait for the end: when a topic has been closed ~5 min it becomes a draft. Topics to look for:
+- Oded's FIRST entry into GTA 6: the excitement, the opening, the first impression. THE most important clip: it must come out first and fast.
+- First reactions to the graphics, the map (Vice City) and the characters Lucia and Jason.
+- The first mission, and funny / hard missions where Oded gets stuck.
+- Chaos: police chases, wanted levels, crashes, stupid deaths, funny bugs.
+- Oded compares to GTA 5 or ranks things in the game (cars, weapons, characters).
+- "Wow" moments: cutscenes, a big heist, buying a car or a house.
+- Guests and phone calls during the subathon.
+- Subathon milestones: timer extensions, sub goals, Oded tired or asleep after hours, reactions to BIG donations (only with a real moment, not dry reading).
+- "Oded despairs" and "Oded goes crazy": real outbursts of rage or laughter.
+Do NOT take: silent gameplay without talking, loading screens, downloads and updates, waiting-for-release screens, mixed topics. Night hours (2-8): usually calm, cut only real topics.
 
-## Subathon GTA 6 (19 Nov, 48 h, 24/7)
-Cut continuously, do not wait for the end of the stream: after a topic has been silent/closed for ~5 min it becomes a draft. Typical GTA clips: first reaction; first chase; first big crash; heist / robbery; a mission fail rage; a funny NPC moment; Oded vs a friend in the game; "he dies 10 times in a row". Night hours (2-8) usually mean calm talk: cut only real topics.
-
-## Title / brief
-Hebrew title 40-55 chars ending ! or ?!, names + the hook ("עודד ורונן שודדים ... ומרוויחים המון כסף!"). Brief in spec.json: about / who / peak (the strongest 10 seconds), so the thumbnail bot can match it.
+## Draft marking (brief)
+In spec.json: "brief": {"about": what the clip is about, "who": who appears, "peak": the strongest moment WITH a timestamp (mm:ss in the clip)} so the other bot makes a matching thumbnail. The draft description starts with "[טיוטה - למחוק לפני פרסום] על מה: ... | מופיעים: ... | הרגע החזק: ...".
