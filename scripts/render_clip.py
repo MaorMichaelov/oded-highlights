@@ -65,7 +65,7 @@ if dur > HEAD + 20:
     os.replace(os.path.join(segd, "s0.mp4"), head); os.replace(os.path.join(segd, "s1.mp4"), rest)
     hdur = float(run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", head]).strip())
 else: head, hdur, rest = body, dur, None
-ospec = dict(body=head, body_dur=hdur, work=os.path.join(work, "po"), res=[1920, 1080], montage=montage, premise=["-"], headshot=logo, popup_face=logo, sub_at=4.0)
+ospec = dict(body=head, montage_src=body, body_dur=hdur, work=os.path.join(work, "po"), res=[1920, 1080], montage=montage, premise=["-"], headshot=logo, popup_face=logo, sub_at=4.0)
 sp = os.path.join(work, "open_spec.json"); json.dump(ospec, open(sp, "w"), ensure_ascii=False, indent=1)
 final = os.path.join(clip, "final.mp4"); print("building opening ...")
 fh = final if rest is None else os.path.join(work, "final_head.mp4")

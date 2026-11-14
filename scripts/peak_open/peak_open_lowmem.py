@@ -375,7 +375,7 @@ def main():
     nul=['-f','lavfi','-t','0.1','-i',f'color=black:s={CW}x{CH}:r={FPS}']
     args=['ffmpeg','-y','-v','error','-i',body,'-framerate',str(FPS),'-i',str(capseq)]+(['-framerate',str(FPS),'-i',str(cardseq)] if cardseq else nul)+\
          (['-framerate',str(FPS),'-i',str(popseq)] if popseq else nul)+['-i',f'{SFX}/whoosh.wav','-i',f'{SFX}/ding.wav','-i',f'{SFX}/boing.wav']
-    for m in mon: args+=['-ss',f"{m['t']:.3f}",'-t',f"{m['d']+0.5:.3f}",'-i',body]
+    for m in mon: args+=['-ss',f"{m['t']:.3f}",'-t',f"{m['d']+0.5:.3f}",'-i',sp.get('montage_src',body)]  # montage shots come from anywhere in the FULL body, the main body input may be only its first seconds
     nx=7+len(mon); ix_intro=ix_sub=None
     if brand: args+=['-i',str(intro_mp4)]; ix_intro=nx; nx+=1
     if oldsub: args+=['-framerate',str(subfps),'-i',str(subseq)]; ix_sub=nx; nx+=1
