@@ -4,7 +4,9 @@ state/clips/<id>/cuts.json = {"vod": "...", "base": "<hls base url>", "pieces": 
 state/clips/<id>/spec.json = {title, description, tags, preset, head, accent, refs, hooks?: [{"t": vod_sec, "d": 2.8, "cap": "...", "hl": ["word"]}]}
 Steps: body (1080p60, trim filters, no zoom) -> Groq word timings -> 3-shot cold open (green captions) + green sting + subscribe popup -> final.mp4 + chapters in description.
 usage: render_clip.py state/clips/<id>"""
-import json, os, subprocess, sys
+import json, os, subprocess, sys, time
+T0 = time.time()
+def lap(n): print(f"TIMING {n}: {time.time() - T0:.0f}s since start", flush=True)
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 clip = os.path.abspath(sys.argv[1]); cid = os.path.basename(clip.rstrip("/"))
 cuts = json.load(open(os.path.join(clip, "cuts.json"))); spec = json.load(open(os.path.join(clip, "spec.json")))
@@ -16,6 +18,7 @@ def run(cmd, **kw):
 base = cuts.get("base") or json.load(open(os.path.join(ROOT, "state", "ingest_state.json")))["_vod_base"]
 if not os.path.exists(os.path.join(work, "body.mp4")):
     print("building body ..."); run([sys.executable, os.path.join(HERE, "build_clip.py"), base, os.path.join(clip, "cuts.json"), work, "1080p60", "veryfast"])
+lap("body built")
 body = os.path.join(work, "body.mp4"); chapters = json.load(open(os.path.join(work, "chapters.json")))
 dur = float(run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", body]).strip())
 # word timings via Groq
@@ -27,7 +30,7 @@ if not os.path.exists(wj):
     out = run(["curl", "-sS", "-m", "600", "https://api.groq.com/openai/v1/audio/transcriptions"] + key + ["-F", "model=whisper-large-v3", "-F", "language=he", "-F", "response_format=verbose_json",
               "-F", "timestamp_granularities[]=word", "-F", "timestamp_granularities[]=segment", "-F", f"prompt={prompt}", "-F", f"file=@{mp3}"])
     open(wj, "w").write(out)
-words = json.load(open(wj)).get("words", [])
+words = json.load(open(wj)).get("words", []); lap("word timings")
 # vod-time -> body-time
 def vod2body(t):
     acc = 0.0
@@ -58,6 +61,7 @@ ospec = dict(body=body, body_dur=dur, work=os.path.join(work, "po"), res=[1920, 
 sp = os.path.join(work, "open_spec.json"); json.dump(ospec, open(sp, "w"), ensure_ascii=False, indent=1)
 final = os.path.join(clip, "final.mp4"); print("building opening ...")
 run([sys.executable, os.path.join(HERE, "peak_open", "nov13_open.py"), sp, final])
+lap("opening built")
 def probe(f):
     o = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height,r_frame_rate:format=bit_rate", "-of", "json", f], capture_output=True, text=True).stdout
     j = json.loads(o); st = j["streams"][0]; n, d = st["r_frame_rate"].split("/"); return st["width"], st["height"], float(n) / float(d), int(j["format"]["bit_rate"]) / 1e6
