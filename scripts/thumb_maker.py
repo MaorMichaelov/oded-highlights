@@ -266,6 +266,8 @@ def scene_mode(args):
     im = im.resize((int(im.width * r) + 1, int(im.height * r) + 1), Image.LANCZOS); l, t = (im.width - W) // 2, (im.height - H) // 2
     bg = im.crop((l, t, l + W, t + H))
     faces = detect_faces(bg)
+    zones = [tuple(float(v) for v in part.split(",")) for part in (getattr(args, "avoid", "") or "").split(";") if part.strip()]
+    faces = [f for f in faces if not any(z[0] <= (f[0] + f[2]) / 2 <= z[2] and z[1] <= (f[1] + f[3]) / 2 <= z[3] for z in zones)]   # drawn props (phone icon) are not faces
     lines = [(args.head, "white"), (args.accent, "accent")] if args.accent else [(args.head, "accent")]
     gr = tuple(tuple(map(int, c.split(","))) for c in args.grad.split(":"))
     big = []                                                      # expand face boxes: headphones + hair + chin margin
