@@ -16,3 +16,5 @@
 - Keep the logo sting + subscribe popup; they should look closer to the Taklipu reference (animated wipe, logo bounce, cursor click) - improvement in progress.
 - Test uploads are Private and titled with "בדיקה:" until the owner approves. Never delete anything.
 - Transcription audio must come from the 480p30 rendition (102 kbps AAC), not 160p (51 kbps): measured on the same 150 s, 160p produced garbled phone-call text, 480p was readable.
+
+- NO red ribbon behind the headline (owner: it looks bad). Ribbon only if explicitly requested.
