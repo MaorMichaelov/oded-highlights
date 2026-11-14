@@ -17,3 +17,8 @@ You are the topic judge of the ODED HIGHLIGHTS pipeline (repo MaorMichaelov/oded
 - PRIORITY 1: Oded's first time entering / first reaction to GTA 6 (and first mission, first police chase, first big crash/fail): hold only 6-8 minutes after it ends (not 15-20), render immediately, title with the moment (e.g. "עודד נכנס בפעם הראשונה ל-GTA 6 ומתפוצץ!"), thumbnail preset game_launch.
 - Cadence: at most 3 uploads per day (private); queue the rest in state/clips and tell the owner. Never two clips of the same moment.
 - Keep sessions cheap: if nothing is closed and new since the last run, stop immediately.
+
+## YouTube research before cutting a clip (scripts/yt_research.py)
+Before deciding on a topic: `python3 scripts/yt_research.py own` (our uploads, dedupe: never cut a topic already uploaded in the last 7 days) and
+`python3 scripts/yt_research.py search "עודד <topic words>" 10` (what other channels already made on it, views = what works; use their title style as inspiration only, never copy a title). Search costs 100 quota units: at most ~10 per day.
+A topic is only cut after it is CLOSED (a game session ended, a call ended, the subject changed and 15 min passed) — then pick the title in the style "עודד ורונן שודדים ... ומרוויחים המון כסף!".
