@@ -84,8 +84,14 @@ pause / resume: עצירה והמשך של המערכת. args: {}
 lesson: לקח קבוע לבחירת נושאים. args: {text}
 instruction: הנחיה קבועה לצ'אט. args: {text}`;
 
-async function llm(env, messages) {
+async function groq(key, messages) {   // primary LLM when the owner added a Groq key in the app settings (separate free quota from Cloudflare Workers AI)
+  const r = await fetch("https://api.groq.com/openai/v1/chat/completions", { method: "POST", headers: { authorization: "Bearer " + key, "content-type": "application/json" }, body: JSON.stringify({ model: "openai/gpt-oss-120b", messages, temperature: 0.3, max_tokens: 1500, reasoning_effort: "low" }) });
+  const j = await r.json(); if (!r.ok) throw new Error("groq " + r.status + ": " + JSON.stringify(j).slice(0, 140));
+  return j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+}
+async function llm(env, messages, gkey) {
   ERRS.length = 0;
+  if (gkey) { try { const t = await groq(gkey, messages); if (t && !/(.)\1{12,}/.test(t)) return t; } catch (e) { ERRS.push(String(e.message).slice(0, 200)); } }
   for (const m of MODELS) {
     try {
       const r = await env.AI.run(m, m.includes("gpt-oss") ? { input: messages.map((x) => ({ role: x.role, content: x.content })), reasoning: { effort: "low" }, max_output_tokens: 1500 } : { messages, max_tokens: 1200 });
@@ -96,7 +102,7 @@ async function llm(env, messages) {
   }
   return null;
 }
-async function agent(env, msgs, tok) {
+async function agent(env, msgs, tok, gkey) {
   const instr = (await ghRead("state/chat_instructions.md", tok)) || "";
   const system = `אתה העוזר של בעל הערוץ ODED HIGHLIGHTS (קליפים בעברית מהלייבים של הסטרימר עודד, kick.com/odedsvr). עונה בעברית, קצר וברור, כמו וואטסאפ. תאריך: ${new Date().toISOString()}.
 המערכת: GitHub מזהה לייב, מתמלל, בוחר נושאים, חותך, עורך ומעלה טיוטות פרטיות. אתה לא מפרסם ולא מוחק שום דבר.
@@ -106,7 +112,7 @@ ${TOOL_DOC}
 אל תמציא נתונים: אם צריך מידע, הפעל כלי. קליפ נחשב שהועלה רק אם uploaded=true. כללי נתונים: אסור לנחש, להעריך או לעגל מספרים. צטט רק מספרים מתוצאת כלי וציין עד מתי הנתון (as_of/fetched_at). אם הכלי אומר שהנתון חלקי או חסר, אמור את זה בגלוי. שאלה על צפיות בטווח זמן: הפעל views. אחרי תוצאת כלי, סכם בקצרה.${instr ? "\nהנחיות קבועות מהבעלים:\n" + instr : ""}`;
   const m = [{ role: "system", content: system }, ...msgs.slice(-12)];
   for (let i = 0; i < 5; i++) {
-    const out = await llm(env, m); if (!out) { const e = ERRS.join(" | "); return /neuron|limit|quota|capacity|3040|4006/i.test(e) ? "מכסת ה-AI היומית של Cloudflare נגמרה (היא מתאפסת בחצות UTC). אפשר עדיין לשאול נתונים בלחיצה על הכפתורים למעלה." : "המודל לא זמין כרגע (" + e.slice(0, 120) + "). נסה שוב בעוד דקה."; }
+    const out = await llm(env, m, gkey); if (!out) { const e = ERRS.join(" | "); return /neuron|limit|quota|capacity|3040|4006/i.test(e) ? "מכסת ה-AI היומית של Cloudflare נגמרה (מתאפסת בחצות UTC). פתרון קבוע: הוסף מפתח Groq בהגדרות האפליקציה (⚙), שזה מודל חינמי נפרד." : "המודל לא זמין כרגע (" + e.slice(0, 120) + "). נסה שוב בעוד דקה."; }
     let j = null; const mt = out.match(/\{[\s\S]*\}/); try { j = JSON.parse(mt ? mt[0] : out); } catch { return out.trim(); }
     if (j.reply) return j.reply;
     if (j.tool && TOOLS[j.tool]) {
@@ -144,7 +150,7 @@ export default {
       const events = (ev || "").trim().split("\n").map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter((e) => e && e.t > since).slice(-10);
       return J({ live: live && live.live, title: live && live.title, events, now: new Date().toISOString() });
     }
-    if (p === "/api/chat" && req.method === "POST") { const b = await req.json(); const reply = await agent(env, b.messages || [], tok); return J({ reply, ...(ERRS.length ? { debug: ERRS } : {}) }); }
+    if (p === "/api/chat" && req.method === "POST") { const b = await req.json(); const reply = await agent(env, b.messages || [], tok, req.headers.get("x-groq") || ""); return J({ reply, ...(ERRS.length ? { debug: ERRS } : {}) }); }
     return J({ error: "not found" }, 404);
   },
 };

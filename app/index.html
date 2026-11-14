@@ -33,13 +33,13 @@ label{font-size:13.5px;color:var(--dim)}.btn{background:var(--green);color:#0b1a
 <dialog id="dlg"><div style="font-weight:800;font-size:17px;margin-bottom:10px">הגדרות</div>
 <label>מפתח GitHub (לפעולות: חיתוך, עצירה, לקחים)</label><input id="gh" type="password" placeholder="github_pat_..." autocomplete="off">
 <div class="small" style="margin:-6px 0 12px">נשמר רק בטלפון הזה. צור מפתח צר: GitHub ← Settings ← Developer settings ← Fine-grained tokens, למאגר oded-highlights בלבד, הרשאות Contents ו-Actions: Read and write.</div>
-<button class="btn" id="save">שמור</button><button class="btn alt" id="notif">אפשר התראות</button><button class="btn alt" id="logout">התנתק</button><button class="btn alt" id="close">סגור</button></dialog>
+<label>מפתח Groq (לצ'אט חכם ויציב, חינם)</label><input id="gq" type="password" placeholder="gsk_..." autocomplete="off"><div class="small" style="margin:-6px 0 12px">console.groq.com/keys ← Create API Key. נשמר רק בטלפון.</div><button class="btn" id="save">שמור</button><button class="btn alt" id="notif">אפשר התראות</button><button class="btn alt" id="logout">התנתק</button><button class="btn alt" id="close">סגור</button></dialog>
 <script>
 var $=function(i){return document.getElementById(i)},LS=localStorage,log=$('log'),hist=[];
 function esc(s){return s.replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
 function lk(s){return esc(s).replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>')}
 function add(cls,txt){var d=document.createElement('div');d.className='m '+cls;d.innerHTML=lk(txt);log.appendChild(d);log.scrollTop=log.scrollHeight;return d}
-function hdr(){return{'content-type':'application/json','x-pass':LS.pw||'','x-gh':LS.gh||''}}
+function hdr(){return{'content-type':'application/json','x-pass':LS.pw||'','x-gh':LS.gh||'','x-groq':LS.groq||''}}
 async function api(p,o){o=o||{};o.headers=hdr();var r=await fetch(p,o);if(r.status===401){gate();throw 0}return r.json()}
 async function gate(setup){$('gate').style.display='flex';var st=setup===undefined?await (await fetch('/api/state')).json():{setup:setup};
  $('gmsg').textContent=st.setup?'פעם ראשונה: בחר סיסמה (לפחות 8 תווים). היא תשמש רק אותך.':'הכנס סיסמה';$('go').textContent=st.setup?'קבע סיסמה':'כניסה';$('go').onclick=async function(){
@@ -51,8 +51,8 @@ $('f').onsubmit=function(e){e.preventDefault();var v=$('t').value;$('t').value='
 $('t').oninput=function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'};
 $('t').onkeydown=function(e){if(e.key==='Enter'&&!e.shiftKey&&window.innerWidth>700){e.preventDefault();$('f').requestSubmit()}};
 document.querySelectorAll('.chip').forEach(function(c){c.onclick=function(){send(c.textContent)}});
-$('gear').onclick=function(){$('gh').value=LS.gh||'';$('dlg').showModal()};$('close').onclick=function(){$('dlg').close()};
-$('save').onclick=function(){LS.gh=$('gh').value.trim();$('dlg').close();add('bot','נשמר ✅')};
+$('gear').onclick=function(){$('gh').value=LS.gh||'';$('gq').value=LS.groq||'';$('dlg').showModal()};$('close').onclick=function(){$('dlg').close()};
+$('save').onclick=function(){LS.gh=$('gh').value.trim();LS.groq=$('gq').value.trim();$('dlg').close();add('bot','נשמר ✅')};
 $('logout').onclick=function(){LS.removeItem('pw');location.reload()};
 $('notif').onclick=function(){if('Notification' in window)Notification.requestPermission().then(function(p){add('bot',p==='granted'?'התראות מאושרות ✅ (באייפון: רק אחרי הוספה למסך הבית)':'התראות לא אושרו')})};
 async function feed(){try{var since=LS.since||new Date(Date.now()-3600e3).toISOString();var j=await api('/api/feed?since='+encodeURIComponent(since));
