@@ -41,6 +41,9 @@ jobs:
           end=$((SECONDS+20400))
           while [ $SECONDS -lt $end ]; do
             [ -f state/PAUSE ] && { echo "PAUSE file present, stopping"; exit 0; }
+            LIVE_STATUS_ONLY=1 python3 scripts/live_watch.py || echo "status check failed (continuing)"
+            python3 scripts/stations/live_alert.py || echo "alert failed (continuing)"
+            git add state; git diff --cached --quiet || { git commit -q -m "state: status $(date -u +%FT%TZ)"; git pull --rebase -q || true; git push -q || true; }
             python3 scripts/live_watch.py || echo "live_watch failed (continuing)"
             python3 scripts/stations/live_alert.py || echo "alert failed (continuing)"
             git add state
@@ -57,6 +60,7 @@ jobs:
             python3 scripts/stations/brief.py || echo "brief skipped"
             git add state; git diff --cached --quiet || { git commit -q -m "state: pick $(date -u +%FT%TZ)"; git pull --rebase -q || true; git push -q || true; }
             B=$(python3 -c 'import json;print(json.load(open("state/ingest_state.json")).get("_behind_segs",0))' 2>/dev/null || echo 0)
-            if [ "${B:-0}" -gt 12 ]; then echo "transcription is $B segments behind: no sleep"; else sleep 300; fi
+            LIVE=$(python3 -c 'import json;print(json.load(open("state/live_status.json")).get("live"))' 2>/dev/null || echo False)
+            if [ "${B:-0}" -gt 12 ]; then echo "transcription is $B segments behind: no sleep"; elif [ "$LIVE" = "True" ]; then sleep 45; else sleep 300; fi
           done
           gh workflow run live-loop.yml --ref main

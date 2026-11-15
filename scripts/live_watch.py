@@ -73,7 +73,7 @@ def main():
         cur_c = {"cat": status.get("category"), "title": status.get("title")}
         if not last or (last.get("cat"), last.get("title")) != (cur_c["cat"], cur_c["title"]):
             with open(cf, "a", encoding="utf-8") as fh: fh.write(json.dumps({"t": int(time.time()), **cur_c, "viewers": status.get("viewers")}, ensure_ascii=False) + "\n")
-    if not ls: return 0
+    if not ls or os.environ.get("LIVE_STATUS_ONLY"): return 0   # status-only call: lets the loop publish "he is live" immediately, before the slow transcription
     # newest VOD = the running stream
     code, vids = jget(f"https://kick.com/api/v2/channels/{CHANNEL}/videos")
     if not vids: print("videos list unavailable", code); return 0
