@@ -1,6 +1,6 @@
 {
  "live_loop_running": true,
- "state_age_min": 0.1,
+ "state_age_min": 0.0,
  "live": null,
  "recent_failed_renders": 0,
  "stuck_clips": [],
@@ -8,5 +8,5 @@
  "problems": [
   "Kick API problem: http=403 note=channel api not reachable"
  ],
- "checked_at": "2026-11-15T23:32:34Z"
+ "checked_at": "2026-11-15T23:32:39Z"
 }
