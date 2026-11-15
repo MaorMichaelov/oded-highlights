@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-15T17:57:58Z",
- "fetched_epoch": 1794765478.893663,
+ "fetched_at": "2026-11-15T18:31:06Z",
+ "fetched_epoch": 1794767466.1262274,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1860,
@@ -34,8 +34,8 @@
    "published": "2026-11-15T17:05:45Z",
    "privacy": "public",
    "duration": "PT5M19S",
-   "views": 40,
-   "likes": 5,
+   "views": 98,
+   "likes": 12,
    "comments": 0
   },
   {
@@ -54,7 +54,7 @@
    "published": "2026-11-15T16:30:12Z",
    "privacy": "private",
    "duration": "PT7M",
-   "views": 0,
+   "views": 1,
    "likes": 0,
    "comments": 0
   },
@@ -94,8 +94,8 @@
    "published": "2026-11-13T09:00:02Z",
    "privacy": "public",
    "duration": "PT9M37S",
-   "views": 2760,
-   "likes": 24,
+   "views": 2807,
+   "likes": 25,
    "comments": 0
   },
   {
@@ -104,9 +104,9 @@
    "published": "2026-11-13T08:00:35Z",
    "privacy": "public",
    "duration": "PT15M2S",
-   "views": 988,
+   "views": 1010,
    "likes": 16,
-   "comments": 0
+   "comments": 1
   },
   {
    "id": "rjv_nijAREA",
@@ -124,7 +124,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 3123,
+   "views": 3118,
    "likes": 17,
    "comments": 0
   },
@@ -134,7 +134,7 @@
    "published": "2026-11-12T12:34:00Z",
    "privacy": "public",
    "duration": "PT6M",
-   "views": 62,
+   "views": 63,
    "likes": 2,
    "comments": 0
   },
@@ -144,8 +144,8 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 2616,
-   "likes": 32,
+   "views": 2684,
+   "likes": 34,
    "comments": 3
   },
   {
@@ -154,7 +154,7 @@
    "published": "2026-11-11T17:52:12Z",
    "privacy": "public",
    "duration": "PT14M5S",
-   "views": 126,
+   "views": 136,
    "likes": 6,
    "comments": 0
   },
@@ -164,7 +164,7 @@
    "published": "2026-11-11T17:18:07Z",
    "privacy": "public",
    "duration": "PT9M44S",
-   "views": 26,
+   "views": 27,
    "likes": 4,
    "comments": 0
   },
