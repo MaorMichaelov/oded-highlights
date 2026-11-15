@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-15T06:09:02Z",
- "fetched_epoch": 1794722942.1521623,
+ "fetched_at": "2026-11-15T06:39:41Z",
+ "fetched_epoch": 1794724781.0449088,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1860,
@@ -44,7 +44,7 @@
    "published": "2026-11-13T08:00:35Z",
    "privacy": "public",
    "duration": "PT15M2S",
-   "views": 872,
+   "views": 883,
    "likes": 15,
    "comments": 0
   },
