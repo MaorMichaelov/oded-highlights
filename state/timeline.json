@@ -36,6 +36,14 @@
   "8": {
    "label": "בישול פסטה עם נקניקיות",
    "kind": "cooking"
+  },
+  "9": {
+   "label": "הכנת פסטה ומרינדה",
+   "kind": "cooking"
+  },
+  "10": {
+   "label": "הכנת פסטה ושיחה עם הצופים",
+   "kind": "cooking"
   }
  },
  "timeline": [
@@ -80,8 +88,20 @@
    "to": 2700,
    "label": "בישול פסטה עם נקניקיות",
    "kind": "cooking"
+  },
+  {
+   "from": 2700,
+   "to": 3000,
+   "label": "הכנת פסטה ומרינדה",
+   "kind": "cooking"
+  },
+  {
+   "from": 3000,
+   "to": 3300,
+   "label": "הכנת פסטה ושיחה עם הצופים",
+   "kind": "cooking"
   }
  ],
- "transcript_end": 2895,
- "updated": "2026-11-15T15:29:02Z"
+ "transcript_end": 3375,
+ "updated": "2026-11-15T15:35:23Z"
 }
