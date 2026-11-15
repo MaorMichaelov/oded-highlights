@@ -51,6 +51,39 @@ for i in range(0, len(todo), 3):
         for pl in (l.get("plans") or [])[:3]:   # what he says he will do / react to / play: remembered for next lives and shown in the app
             if isinstance(pl, str) and len(pl) > 6: add_plan(pl.strip(), int(l["chunk"]))
     time.sleep(1)
+def react_scan(T, max_calls=2):
+    """Owner (15 Nov): 'he reacted to more videos, the system must find them itself'. The labeller above cannot tell that a stretch is Oded WATCHING someone's video/article (the video's voice is in the transcript too), so every talk/chat/idle chunk is checked once, more carefully, with the question only about watching/reacting. A positive chunk becomes kind=reaction (label 'מגיב ל...')."""
+    hdr = ["-H", "Content-Type: application/json"] + (["-H", "Authorization: Bearer " + os.environ["GROQ_API_KEY"]] if os.environ.get("GROQ_API_KEY") else [])
+    todo = [int(k) for k, x in T["chunks"].items() if x.get("rv", 0) < 1 and x.get("kind") in ("talk", "chat", "idle")]
+    todo = sorted(todo)[:max_calls * 3]; changed = False
+    for i in range(0, len(todo), 3):
+        grp = todo[i:i + 3]; parts = []
+        for c in grp:
+            txt = " ".join(r["text"] for r in rows if c * CH <= r["start"] < (c + 1) * CH)[:2800]
+            parts.append(f"### chunk {c} ({c * 5}-{c * 5 + 5} min)\n{txt}")
+        prompt = ("אלו קטעי תמלול של 5 דקות מלייב של סטרימר ישראלי (עודד). התמלול אוטומטי ומלא שגיאות, וכשהוא צופה בסרטון או כתבה גם הקול של הסרטון נכנס לתמלול (קריינות, חדשות, יוצר אחר מדבר רצוף) לצד התגובות של עודד. "
+                  "לכל קטע קבע האם עודד *צופה ומגיב* לתוכן של מישהו אחר (סרטון יוטיוב של יוצר, כתבה/חדשות, טריילר, קליפ, סטרימר אחר, דרמה): watching=true רק אם יש הקראה/קריינות/דיבור רצוף של תוכן חיצוני ועודד מגיב לזה. שיחה עם הצ'אט, בישול, תרומות = false. "
+                  "אם true: what = על מה/איזה סרטון או כתבה (עברית, ספציפי: 'כתבה על GTA 6 והמחירים בישראל'), who = שם היוצר או ערוץ אם נשמע. החזר JSON בלבד: {\"r\":[{\"chunk\":n,\"watching\":false,\"what\":\"\",\"who\":\"\"}]}\n\n" + "\n\n".join(parts))
+        got = None
+        for model in ("openai/gpt-oss-120b", "openai/gpt-oss-20b"):
+            out = subprocess.run(["curl", "-sS", "-m", "120", "https://api.groq.com/openai/v1/chat/completions"] + hdr + ["-d", json.dumps({"model": model, "messages": [{"role": "user", "content": prompt}], "max_tokens": 900, "reasoning_effort": "low"}, ensure_ascii=False)], capture_output=True, text=True).stdout
+            try: got = json.loads(re.search(r"\{.*\}", json.loads(out)["choices"][0]["message"]["content"], re.S).group(0))["r"]; break
+            except Exception as e: print("react_scan model", model, "failed:", str(e)[:80], out[:100])
+        if got is None: continue
+        seen = set()
+        for x in got:
+            try: c = int(x["chunk"])
+            except Exception: continue
+            if str(c) not in T["chunks"] or c not in grp: continue
+            seen.add(c); ch = T["chunks"][str(c)]; ch["rv"] = 1
+            if x.get("watching") is True and x.get("what"):
+                ch["kind"] = "reaction"; ch["label"] = ("מגיב ל" + str(x["what"]).strip() + (" של " + str(x["who"]).strip() if x.get("who") else ""))[:80]; ch["react"] = {"what": x.get("what"), "who": x.get("who", "")}; changed = True
+                print("REACTION chunk", c, ch["label"])
+        time.sleep(15)
+    return changed
+try:
+    if react_scan(T): T["spans"] = []   # re-segment so the new reaction chunks become spans
+except Exception as e: print("react_scan failed:", str(e)[:120])
 def segment(T, nchunks):
     """LLM groups consecutive chunk labels into topic SPANS (what a clip would be). Incremental: re-segments from the start of the last open span."""
     spans = T.get("spans", []); last_chunk = max(map(int, T["chunks"]), default=-1)
