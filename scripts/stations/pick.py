@@ -73,7 +73,7 @@ def span_meta(rows, keep, title, kind):
     ls = [(r["start"], r["text"]) for r in rows if any(x <= r["start"] < y for x, y in keep)]
     step = max(1, len(ls) // 45); sample = [f"[{t:.0f}] {x[:130]}" for t, x in ls[::step]][:50]
     q = (f"Context: the streamer is ODED (a man, Israeli, Hebrew, Kick streamer OdedSVR); he is live from his home, his wife is sometimes next to him, chat questions are read aloud, the transcript is automatic and contains errors (names/words may be wrong, speakers are not labelled). Write all names in HEBREW letters (עודד, not Oded). Do NOT invent a person (no 'chef', no 'broadcaster'): the main person is Oded and the people he mentions. Clip of Oded's live: activity '{title}' ({kind}). Transcript samples (evenly spread over the whole clip; [second] text):\n" + "\n".join(sample)[:5200] +
-         "\n\nReturn JSON only: {\"title\":\"Hebrew 40-70 chars: a short QUOTE from the clip in quotes ending with !, then who + what actually happens (be ACCURATE: only what is really in the clip)\",\"description\":\"2-3 Hebrew sentences, accurate\",\"tags\":[...],\"preset\":\"one of "
+         "\n\nReturn JSON only: {\"title\":\"Hebrew 40-70 chars: a short QUOTE from the clip in quotes ending with !, then who + what actually happens (be ACCURATE: only what is really in the clip)\",\"description\":\"2-3 Hebrew sentences with SPECIFICS (who, what they do, key moments); accurate, like: עודד, סנסי וחברים עוברים לשרת חדש ברוב ראן ומתחילים מאפס: פורצים לבתים, גונבים קרגו ובונים מארב על הגשר.\",\"seo_line\":\"one line: עודד SVR משחק/עושה X | X in English | 2-3 keywords\",\"hashtags\":[\"#עודד\",\"#OdedSVR\", ...3-6 more: game / people / topic in Hebrew and English],\"tags\":[...],\"preset\":\"one of "
          + ",".join(PRESETS) + "\",\"head\":\"<=2 Hebrew words\",\"accent\":\"<=2 Hebrew words ending !\",\"about\":\"one Hebrew sentence: what the clip is about\",\"who\":\"Hebrew names of who appears (e.g. his wife, chat)\",\"peak_second\":n (a [second] from the samples that is the strongest moment)}")
     out = ask("You are the topic editor of an Israeli streamer-highlights YouTube channel. Titles must describe the real content. JSON only.", q)
     try: return json.loads(re.search(r"\{.*\}", out, re.S).group(0))
@@ -147,7 +147,9 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
                 if x <= float(meta.get("peak_second", -1)) <= y: pv = acc + (float(meta["peak_second"]) - x) + 11.2
                 acc += y - x
             peak = f"{int(pv // 60):02d}:{int(pv % 60):02d}" if pv is not None else ""
-            desc = meta.get("description", "").strip() + "\n\nהרגעים הכי טובים מהלייב של עודד בקיק | ODED HIGHLIGHTS\n\nהקטע מתוך הלייב של עודד בקיק: https://kick.com/odedsvr\n\n#עודד #OdedSVR #עודדהיילייטס #קיק"
+            hs = [h for h in (meta.get("hashtags") or []) if isinstance(h, str) and h.startswith("#")][:8]
+            hs = list(dict.fromkeys(hs + ["#עודד", "#OdedSVR", "#עודדהיילייטס", "#ODEDHIGHLIGHTS", "#קיק", "#Kick", "#סטרימרישראלי"]))   # the channel's own best-performing description format
+            desc = meta.get("description", "").strip() + ("\n" + meta["seo_line"].strip() if meta.get("seo_line") else "") + "\nהרגעים הכי טובים מהלייב של עודד בקיק | ODED HIGHLIGHTS\n\nהקטע מתוך הלייב של עודד בקיק: https://kick.com/odedsvr\n\n" + " ".join(hs)
             aff = os.path.join(ROOT, "config", "affiliate.txt")
             if os.path.exists(aff): desc += "\n\n" + open(aff, encoding="utf-8").read().strip()
             json.dump({"title": title, "description": desc, "tags": (meta.get("tags") or []) + ["עודד", "OdedSVR", "ODED HIGHLIGHTS"], "preset": meta.get("preset") if meta.get("preset") in PRESETS else "reaction_video",
