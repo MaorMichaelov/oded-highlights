@@ -1,0 +1,15 @@
+{
+ "vod": "137995265",
+ "base": "https://stream.kick.com/3c81249a5ce0/ivs/v1/196233775518/4JGobkvk5q8T/2026/11/15/14/34/eE3yDSmGcNR8/media/hls",
+ "pieces": [
+  {
+   "keep": [
+    [
+     1338.14,
+     1750.76
+    ]
+   ],
+   "ch": "תכנון סבתון GTA 6 – פרסים, תקציב, לוח זמ"
+  }
+ ]
+}
