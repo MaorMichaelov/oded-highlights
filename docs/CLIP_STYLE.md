@@ -10,7 +10,7 @@ Channels: Taklipu | תקליפו (@taklipu, 1.3K subs, clips of Oded), RonenGG P
 ## Rules we take from it
 1. REACTIONS to other people's videos / pranks / dates are among the best Taklipu videos: cut them (owner decision 14 Nov), when Oded talks over them.
 2. Titles: a QUOTE from the clip first, in quotation marks, with ! (the funniest or most shocked line), then who + what: "\"זה לא דייט!\" עודד מגיב לדייט של ...", "\"מיכאל הורג בכוונה!\" עודד, מיכאל וסנסיי משחקים Rob Run". Real names of the people involved in the title.
-3. Length: 10-25 min is the sweet spot; a strong continuous story or game session with friends may run up to 40-60 min (Rob Run 59 min = 10.6K).
+3. Length (owner rule 15 Nov): 15-40 minutes, complete topics. (Reference: 10-25 min sweet spot, strong game sessions up to 59 min.)
 4. Volume: Taklipu uploads many videos a day; do not hold back strong topics.
 5. Weak: topics about third parties (Dubai restaurants, Dudu Topaz) with little Oded energy.
 6. BIG ISRAELI CLIP CHANNELS (Inde Game 1.1M, Cycnic 478K, TheCoki_edits 145K, Dushy 112K, Sensei Inde 46K, Redex 41K; their top 6 each): most of their top views are SHORTS (under 1 min, emoji titles). Their strongest LONG videos are: a DUEL between two named streamers ("רונן נגד פרנזי בסיאס - מי יותר טוב? (רונן התעצבן)" 21 min, 80K), a long conversation with a notable guest ("רונן ג'יג'י ועדן בשיחה עם חן בסט על הכל!" 54 min, 91K), DRAMA/gossip reactions ("ניק מגיב לבגידה של רומי ברונן ג'יג'י" 19 min, 77K), a hide-and-seek / survival CHALLENGE session ("אינדה נכנס למשחק המחבואים החדש!! (תפסו אותו?!)" 18 min, 170K; "99 לילות ביער" 85K), meeting strangers online, and CHAOS events during a live ("הזמינו לרונן משטרה לבית באמצע לייב" 5 min, 66K).

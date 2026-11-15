@@ -1,5 +1,5 @@
 # What to cut (topic judge: Claude session or the LLM stage)
-Source: the owner's / Grok Bot's topic guide (14 Nov 2026), merged with our rules. Every RELEVANT topic of the stream gets a clip (not only 2-3), also when Ronen or friends are on Oded's stream (that is still Oded's content). Long videos only (>= 6 min, no shorts). ONE topic per video.
+Source: the owner's / Grok Bot's topic guide (14 Nov 2026), merged with our rules. Every RELEVANT topic of the stream gets a clip (not only 2-3), also when Ronen or friends are on Oded's stream (that is still Oded's content). Long videos only: EVERY clip is a COMPLETE topic of 15-40 minutes (owner, 15 Nov; no shorts). ONE topic per video. Cooking with the wife, a full game session, a full conversation: take the whole activity, not a fragment.
 
 ## What worked so far (cut more of this)
 - Oded tells a funny personal story with a beginning and an end (the crazy night out with Ben and Ohad).
@@ -29,7 +29,7 @@ When Oded reacts to a video / clip of anyone, it is a clip topic. Conditions: Od
 2. Oded talks and reacts strongly (laughter, shouting, shock).
 3. A guest or friends (Sensei, Biggie, Ronen, Amit Shiber, phone calls).
 4. Describable in ONE simple title with names ("עודד ו-X עושים Y!"), Hebrew 40-55 chars ending ! or ?!.
-5. Length >= 6 min (6-25 min), complete: setup -> build-up -> payoff, 3 s pre-roll, ends at the natural conclusion.
+5. Length 15-40 min, complete: setup -> build-up -> payoff, 3 s pre-roll, ends at the natural conclusion.
 6. Chat reaction supports it (state/chat spikes: chat_spikes>=3 or z>=4).
 7. Take every relevant topic, not just 2-3.
 

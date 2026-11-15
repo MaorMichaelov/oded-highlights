@@ -8,7 +8,7 @@ usage: pick.py [--vod ID] [--dry-run] [--state DIR] [--hold 300]"""
 import argparse, json, os, re, subprocess, sys, time
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(os.path.dirname(HERE)); sys.path.insert(0, os.path.dirname(HERE))
 MODEL = os.environ.get("PICK_MODEL", "openai/gpt-oss-120b")
-MIN_LEN, MAX_LEN, PRE = 360, 2700, 3.0
+MIN_LEN, MAX_LEN, PRE = 900, 2400, 3.0   # owner rule (15 Nov): every clip 15-40 minutes, a COMPLETE topic
 PRESETS = ["game_launch", "phone_call", "heist", "lawsuit", "courtroom_ban", "airport_leave", "birthday", "quiz_game", "rant", "money", "ai_tech", "reaction_video", "date_show", "gaming_fail", "sleeping_drunk"]
 DONATION = re.compile(r"תרם |תרמת |תרמו |דונ(?:ייט|יישן|ציה)|גיפט|\d+ דולר|(?:שלושה|חמישה|עשרה|עשרים|חמישים) דולר|קיקס ")   # donation reading (owner rule: never in a clip)
 HARD = re.compile(r"היטלר|שואה|התאבד|אתיופ|נאצי|גז(?:ים)? יהוד")
@@ -56,6 +56,97 @@ def trim_dead_air(rows, keep, gap=5.0, pad_a=0.6, pad_b=0.8, min_seg=12.0):
     return out
 def valid_title(t): return 28 <= len(t) <= 75 and t.strip()[-1] in "!?"
 LANG = os.environ.get("PICK_LANG", "he"); CREDIT = os.environ.get("CHANNEL_CREDIT", "עודד (OdedSVR)"); SLUG = os.environ.get("CHANNEL", "odedsvr")
+
+def refine(rows, lo, hi, title, which):
+    """exact second where the activity really starts (which='start') or ends ('end') inside a 6-minute edge window, sentence boundary."""
+    a, b = (lo - 60, lo + 300) if which == "start" else (hi - 300, hi + 60)
+    ls = [f"[{r['start']:.0f}] {r['text'][:140]}" for r in rows if a <= r["start"] <= b]
+    if not ls: return lo if which == "start" else hi
+    q = (f"Stream transcript lines [second] text. The activity/topic is: '{title}'. Find the second where it really " + ("BEGINS (first sentence that belongs to it; skip waiting, technical issues, unrelated chatter before it)" if which == "start" else "ENDS (last sentence that belongs to it; do not include unrelated talk after it)") +
+         ". Reply JSON only: {\"second\": n}\n\n" + "\n".join(ls)[:5000])
+    out = ask("You find exact boundaries in a stream transcript. JSON only.", q)
+    try:
+        sec = float(json.loads(re.search(r"\{.*\}", out, re.S).group(0))["second"])
+        return sec if a - 5 <= sec <= b + 5 else (lo if which == "start" else hi)
+    except Exception: return lo if which == "start" else hi
+def span_meta(rows, keep, title, kind):
+    ls = [(r["start"], r["text"]) for r in rows if any(x <= r["start"] < y for x, y in keep)]
+    step = max(1, len(ls) // 45); sample = [f"[{t:.0f}] {x[:130]}" for t, x in ls[::step]][:50]
+    q = (f"Context: the streamer is ODED (a man, Israeli, Hebrew, Kick streamer OdedSVR); he is live from his home, his wife is sometimes next to him, chat questions are read aloud, the transcript is automatic and contains errors (names/words may be wrong, speakers are not labelled). Write all names in HEBREW letters (עודד, not Oded). Do NOT invent a person (no 'chef', no 'broadcaster'): the main person is Oded and the people he mentions. Clip of Oded's live: activity '{title}' ({kind}). Transcript samples (evenly spread over the whole clip; [second] text):\n" + "\n".join(sample)[:5200] +
+         "\n\nReturn JSON only: {\"title\":\"Hebrew 40-70 chars: a short QUOTE from the clip in quotes ending with !, then who + what actually happens (be ACCURATE: only what is really in the clip)\",\"description\":\"2-3 Hebrew sentences, accurate\",\"tags\":[...],\"preset\":\"one of "
+         + ",".join(PRESETS) + "\",\"head\":\"<=2 Hebrew words\",\"accent\":\"<=2 Hebrew words ending !\",\"about\":\"one Hebrew sentence: what the clip is about\",\"who\":\"Hebrew names of who appears (e.g. his wife, chat)\",\"peak_second\":n (a [second] from the samples that is the strongest moment)}")
+    out = ask("You are the topic editor of an Israeli streamer-highlights YouTube channel. Titles must describe the real content. JSON only.", q)
+    try: return json.loads(re.search(r"\{.*\}", out, re.S).group(0))
+    except Exception: return None
+def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
+    tf = os.path.join(ST, "timeline.json"); T = jf(tf)
+    if not T or T.get("vod") != vod or not T.get("spans"): return None
+    seen = ps.setdefault(vod, {}).setdefault("spans_done", []); made = []
+    for sp in sorted(T["spans"], key=lambda x: x["from"]):
+        key = f"{sp['from']}-{sp['to']}"
+        if key in seen or not sp.get("closed") or not sp.get("clip_worthy") or sp["to"] > closed: continue
+        dur = sp["to"] - sp["from"]
+        if dur < 840: seen.append(key); continue
+        if sum(max(0, min(sp["to"], y) - max(sp["from"], x)) for x, y in done) > 0.3 * dur: seen.append(key); print("span overlaps existing clips, skipped:", sp["title"]); continue
+        a = refine(rows, sp["from"], sp["to"], sp["title"], "start"); b = refine(rows, sp["from"], sp["to"], sp["title"], "end")
+        if b - a < 840: a, b = sp["from"], sp["to"]
+        parts = max(1, -(-int(b - a) // MAX_LEN)); step = (b - a) / parts; got = False
+        for i in range(parts):
+            lo, hi = a + i * step, a + (i + 1) * step
+            rs = [r for r in rows if r["start"] >= lo and r["end"] <= hi + 2]
+            if not rs: continue
+            s0, e0 = max(0.0, rs[0]["start"] - PRE), rs[-1]["end"]; keep = [[s0, e0]]
+            text = " ".join(r["text"] for r in rs); ex = []
+            for m_ in list(HARD.finditer(text)) + list(DONATION.finditer(text)):
+                acc = 0
+                for r in rs:
+                    acc += len(r["text"]) + 1
+                    if acc > m_.start(): ex.append([r["start"] - 0.4, r["end"] + 0.4]); break
+            for x, y in sorted(ex):
+                nk = []
+                for p0, q0 in keep:
+                    if y <= p0 or x >= q0: nk.append([p0, q0])
+                    else:
+                        if x - p0 > 5: nk.append([p0, x])
+                        if q0 - y > 5: nk.append([y, q0])
+                keep = nk
+            keep = trim_dead_air(rows, keep, gap=7.0, min_seg=10.0); tot = sum(q0 - p0 for p0, q0 in keep)
+            if tot < 900: print(f"span '{sp['title']}' only {int(tot)} s after cleaning (<15 min): skipped"); __import__("events").event("pick_skip", f"🔎 הנושא \"{sp['title']}\" ({int(dur / 60)} דק׳) יצא {int(tot / 60)} דק׳ אחרי ניקוי שקטים ודונייטים, פחות מ-15: לא נחתך."); continue
+            meta = None
+            for _try in range(3):
+                m_ = span_meta(rows, keep, sp["title"], sp["kind"])
+                if m_ and m_.get("title"):
+                    t_ = m_["title"].strip()
+                    if t_[-1] not in "!?": t_ += "!"
+                    m_["title"] = t_
+                    if valid_title(t_): meta = m_; break
+                    print("title rejected:", len(t_), t_[:80])
+            if not meta: print("meta/title failed for", sp["title"]); continue
+            title = meta["title"].strip() + (f" (חלק {i + 1}/{parts})" if parts > 1 else "")
+            cid = f"{vod}_{int(s0)}"; d = os.path.join(clipsd, cid)
+            if os.path.exists(os.path.join(d, "spec.json")): continue
+            os.makedirs(d, exist_ok=True)
+            json.dump({"vod": vod, "base": ing.get("_vod_base"), "pieces": [{"keep": [[round(x, 2), round(y, 2)] for x, y in keep], "ch": (meta.get("about") or sp["title"])[:40]}]}, open(os.path.join(d, "cuts.json"), "w"), ensure_ascii=False, indent=1)
+            acc, pv = 0.0, None
+            for x, y in keep:
+                if x <= float(meta.get("peak_second", -1)) <= y: pv = acc + (float(meta["peak_second"]) - x) + 11.2
+                acc += y - x
+            peak = f"{int(pv // 60):02d}:{int(pv % 60):02d}" if pv is not None else ""
+            desc = meta.get("description", "").strip() + "\n\nהרגעים הכי טובים מהלייב של עודד בקיק | ODED HIGHLIGHTS\n\nהקטע מתוך הלייב של עודד בקיק: https://kick.com/odedsvr\n\n#עודד #OdedSVR #עודדהיילייטס #קיק"
+            aff = os.path.join(ROOT, "config", "affiliate.txt")
+            if os.path.exists(aff): desc += "\n\n" + open(aff, encoding="utf-8").read().strip()
+            json.dump({"title": title, "description": desc, "tags": (meta.get("tags") or []) + ["עודד", "OdedSVR", "ODED HIGHLIGHTS"], "preset": meta.get("preset") if meta.get("preset") in PRESETS else "reaction_video",
+                       "head": meta.get("head", ""), "accent": meta.get("accent", ""), "refs": "shock,excited,smirk", "brief": {"about": meta.get("about", ""), "who": meta.get("who", "עודד"), "peak": peak}, "lang": LANG, "auto": True, "picked_by": "span:" + MODEL, "span": sp["title"]},
+                      open(os.path.join(d, "spec.json"), "w"), ensure_ascii=False, indent=1)
+            made.append(cid); got = True; done.append((s0, e0))
+            __import__("events").event("pick", f"נבחר נושא לקליפ: {title} ({int(tot / 60)} דק׳, מתוך {sp['title']}). רינדור בדרך.", clip=cid); print(f"PICKED {cid}: {title} ({int(tot / 60)} min)")
+        seen.append(key)
+    ps[vod]["last_run"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    if not dry: json.dump(ps, open(os.path.join(ST, "pick_state.json"), "w"), indent=1)
+    if made and not dry and not os.environ.get("NO_DISPATCH"):
+        from autopilot import publish
+        for cid in made: publish(cid, f"pick: {cid}", False)
+    return made
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--vod"); ap.add_argument("--dry-run", action="store_true"); ap.add_argument("--state", default=os.environ.get("STATE_DIR", "state")); ap.add_argument("--hold", type=int, default=300); ap.add_argument("--window", type=int, default=4500); a = ap.parse_args()
     ST = os.path.join(ROOT, a.state)
@@ -66,6 +157,12 @@ def main():
     if not rows: print("no transcript"); return 0
     pf = os.path.join(ST, "pick_state.json"); ps = jf(pf, {}) or {}; cursor = ps.get(vod, {}).get("cursor", rows[0]["start"])
     end = rows[-1]["end"]; closed = end - a.hold; lo = cursor; hi = min(closed, cursor + a.window)
+    clipsd = os.path.join(ST, "clips"); done = []
+    for d_ in (os.listdir(clipsd) if os.path.isdir(clipsd) else []):
+        c_ = jf(os.path.join(clipsd, d_, "cuts.json"))
+        if c_ and c_.get("vod") == vod: done += [(x, y) for p_ in c_.get("pieces", []) for x, y in p_.get("keep", [])]
+    _r = span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, a.dry_run)   # topic-span picker (15-40 min complete topics); None = no timeline yet -> old window picker
+    if _r is not None: print("span picker done:", len(_r), "clip(s)"); return 0
     if hi - lo < 480: print(f"not enough closed new content ({int(hi - lo)} s)"); return 0
     clipsd = os.path.join(ST, "clips"); done = []
     for d in (os.listdir(clipsd) if os.path.isdir(clipsd) else []):

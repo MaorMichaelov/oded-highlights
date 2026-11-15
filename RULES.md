@@ -44,3 +44,6 @@ GROK BOT'S INSTRUCTIONS (owner pasted 14 Nov): drafts = private + full Hebrew ti
 - Time stamps in the description (chapters, "הרגע החזק") must match the video: the strongest moment is computed from the real cut.
 - Long videos only, NO Shorts (render-clip shorts input defaults to false). 1080p60.
 - Never upload duplicates of the same clip: one clip = one render. If a clip is corrected, re-render once; the owner deletes the old draft (the system never deletes on YouTube).
+
+- LENGTH (owner, 15 Nov): every clip 15-40 min and a COMPLETE topic (e.g. the whole cooking with his wife). Short fragments of 4-6 min are wrong. The topic-span picker (timeline spans -> pick) enforces it; clips under 15 min after cleaning are skipped.
+- ACCURACY: titles/descriptions/brief must describe what is really in the clip; names in Hebrew; peak time computed from the real cut.
