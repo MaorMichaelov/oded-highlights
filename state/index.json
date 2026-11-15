@@ -121,10 +121,15 @@
    "who": "עודד, צ'אט",
    "peak": "01:51"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/79rednRcgCU",
+  "draft_at": "2026-11-15T19:49:19Z",
+  "quality_errors": [],
   "auto": true
  },
  {
