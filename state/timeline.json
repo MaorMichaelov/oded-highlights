@@ -818,6 +818,19 @@
     "what": "reactions to an external video stream",
     "who": ""
    }
+  },
+  "76": {
+   "label": "דיבר על אירועים קודמים ותחזיות",
+   "kind": "talk",
+   "kw": [
+    "שיחה",
+    "אירועים",
+    "תחזיות",
+    "מוכנות",
+    "יום"
+   ],
+   "v": 2,
+   "rv": 1
   }
  },
  "timeline": [
@@ -1264,10 +1277,16 @@
    "to": 22800,
    "label": "מגיב לreactions to an external video stream",
    "kind": "reaction"
+  },
+  {
+   "from": 22800,
+   "to": 23100,
+   "label": "דיבר על אירועים קודמים ותחזיות",
+   "kind": "talk"
   }
  ],
- "transcript_end": 22906,
- "updated": "2026-11-15T22:43:23Z",
+ "transcript_end": 23259,
+ "updated": "2026-11-15T22:52:53Z",
  "spans": [
   {
    "from": 0,
@@ -1304,6 +1323,150 @@
    "clip_worthy": true,
    "why": "130 דקות של משחקים, תקלות, הדגמות, תחרויות והדגמות עם קהילת Chat.",
    "closed": true
+  },
+  {
+   "from": 18000,
+   "to": 18600,
+   "title": "שיח על משחק ותגובות",
+   "kind": "game",
+   "clip_worthy": true,
+   "why": "שיח משמעותי עם צופים כולל הדגמה של משחק",
+   "closed": true
+  },
+  {
+   "from": 18600,
+   "to": 18900,
+   "title": "דיבורים על מיסים ו-TTS",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "נושאים רציניים וערכיים",
+   "closed": true
+  },
+  {
+   "from": 18900,
+   "to": 19200,
+   "title": "פיקוח עובדים ותמיכה",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "שיחה מקצועית",
+   "closed": true
+  },
+  {
+   "from": 19200,
+   "to": 19500,
+   "title": "שכר עובדים ותמריצים",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "דון בתשואות והטבות",
+   "closed": true
+  },
+  {
+   "from": 19500,
+   "to": 19800,
+   "title": "מבצעים במכירת קלפי פוקימון",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "שיח על מכירות ואסטרטגיה",
+   "closed": true
+  },
+  {
+   "from": 19800,
+   "to": 20100,
+   "title": "חבילות, קופונים ומבצעים",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "הדגמת מבצעים",
+   "closed": true
+  },
+  {
+   "from": 20100,
+   "to": 20400,
+   "title": "שותפויות ותשלומים עם וולט",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "דון בשיתוף פעולה",
+   "closed": true
+  },
+  {
+   "from": 20400,
+   "to": 20700,
+   "title": "דיבור חופשי עם צ'אט",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "שיח חופשי",
+   "closed": true
+  },
+  {
+   "from": 20700,
+   "to": 21000,
+   "title": "שיחות תזוזה וטריביות",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "שיחה מהירה וקלילה",
+   "closed": true
+  },
+  {
+   "from": 21000,
+   "to": 21300,
+   "title": "דיבור על כסף, משחקים ואוכל",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "הקשר בין נושאים",
+   "closed": true
+  },
+  {
+   "from": 21300,
+   "to": 21600,
+   "title": "שיחה על סרטון מטורף",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "תוכן מרתק",
+   "closed": true
+  },
+  {
+   "from": 21600,
+   "to": 21900,
+   "title": "אירועים וסרטונים ללא פעילות מוגדרת",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "שיח רחב",
+   "closed": true
+  },
+  {
+   "from": 21900,
+   "to": 22200,
+   "title": "תקלות ובלבול בשיחה",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "תקלות טכניות",
+   "closed": true
+  },
+  {
+   "from": 22200,
+   "to": 22500,
+   "title": "הזנחה של נושא ושיחות מקבילות",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "שיחה מורכבת",
+   "closed": true
+  },
+  {
+   "from": 22500,
+   "to": 22800,
+   "title": "התגובה ל-Video Stream חיצוני",
+   "kind": "reaction",
+   "clip_worthy": true,
+   "why": "תגובה למדיום חיצוני",
+   "closed": true
+  },
+  {
+   "from": 22800,
+   "to": 23100,
+   "title": "אירועים קודמים ותחזיות",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "שיח על אירועים",
+   "closed": false
   }
  ],
  "seg_v": 4
