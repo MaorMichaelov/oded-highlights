@@ -1,9 +1,6 @@
 {
- "checked_at": "2026-11-15T23:20:09Z",
- "http": "200",
- "live": true,
- "title": "סאבתון 19.11 + משחקים חדשים + גניבה בריחה + לחיים מלך הדגדגנים",
- "viewers": 3186,
- "started": "2026-11-15 14:34:53",
- "category": "Rob Run"
+ "checked_at": "2026-11-15T23:30:31Z",
+ "http": "403",
+ "live": null,
+ "note": "channel api not reachable"
 }
