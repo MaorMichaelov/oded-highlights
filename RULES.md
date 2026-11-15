@@ -55,3 +55,5 @@ GROK BOT'S INSTRUCTIONS (owner pasted 14 Nov): drafts = private + full Hebrew ti
 - BIG LIVE EVENTS ARE ONE LONG VIDEO (owner, 15 Nov): e.g. in the subathon (Thu 19 Nov) he brings a dog and buys everything for it live: that is ONE video of about 1 hour (up to 75 min kept whole), not 15-min pieces. Same for any IRL / shopping / challenge / pack-opening event.
 
 - REACTION CONTENT (owner, 15 Nov): the video he reacts to can be in English / by any creator. While reacting he asks the chat about the video or talks about it: that is part of the reaction and STAYS in the clip (do not cut it as a digression). Reactions need few cuts, only here and there.
+
+- CHANNEL DISCLAIMER (Oded himself commented, 15 Nov): every description says where the clips come from (Oded's Kick live) and that this is NOT the official channel (an unofficial fan channel); links to kick.com/odedsvr and his official YouTube channel @OdedSVRLive.

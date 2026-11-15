@@ -57,7 +57,7 @@ def first_reaction(ing, dry):
     a = max(0, t0 - PRE); b = snap_end(rows, min(vod_end, t0 + FIRST_LEN)); a = max(0, min(a, b - 360))
     base = ing.get("_vod_base"); os.makedirs(d, exist_ok=True)
     json.dump({"vod": vod, "base": base, "pieces": [{"keep": [[round(a, 2), round(b, 2)]], "ch": "עודד נכנס ל-GTA 6"}]}, open(os.path.join(d, "cuts.json"), "w"), ensure_ascii=False, indent=1)
-    json.dump({"title": "עודד נכנס ומגיב בפעם הראשונה ל-GTA 6!", "description": "הרגע שעודד נכנס בפעם הראשונה ל-GTA 6 בסבתון, והתגובה שלו.\n\nהרגעים הכי טובים מהלייב של עודד בקיק | ODED HIGHLIGHTS\n\nהקטע מתוך הלייב של עודד בקיק: https://kick.com/odedsvr\n\n#עודד #OdedSVR #GTA6 #סבתון #עודדהיילייטס #קיק #Kick",
+    json.dump({"title": "עודד נכנס ומגיב בפעם הראשונה ל-GTA 6!", "description": "הרגע שעודד נכנס בפעם הראשונה ל-GTA 6 בסבתון, והתגובה שלו.\n\nהרגעים הכי טובים מהלייב של עודד בקיק | ODED HIGHLIGHTS\n\nהקטע מתוך הלייב של עודד בקיק: https://kick.com/odedsvr\nערוץ מעריצים לא רשמי: כל הקטעים נלקחו מהשידורים של עודד (OdedSVR) בקיק, וזה אינו הערוץ הרשמי של עודד. הערוץ הרשמי: https://www.youtube.com/@OdedSVRLive\n\n#עודד #OdedSVR #GTA6 #סבתון #עודדהיילייטס #קיק #Kick",
                "tags": ["עודד", "OdedSVR", "GTA 6", "GTA VI", "סבתון", "עודד קיק", "ODED HIGHLIGHTS", "פעם ראשונה"], "preset": "game_launch", "head": "פעם ראשונה", "accent": "ב-GTA 6!", "refs": "shock,excited,smirk", "auto": True},
               open(os.path.join(d, "spec.json"), "w"), ensure_ascii=False, indent=1)
     print(f"FIRST REACTION clip created: VOD {int(a)}-{int(b)} ({int((b - a) / 60)} min)"); publish(cid, f"autopilot: {cid} ({int(a)}-{int(b)})", dry); return True
@@ -83,7 +83,7 @@ def fallback(ing, dry):
         cid = f"auto_{today}_{time.strftime('%H%M', time.gmtime())}"; d = os.path.join(clips, cid); os.makedirs(d, exist_ok=True)
         json.dump({"vod": vod, "base": ing.get("_vod_base"), "pieces": [{"keep": [[c["a"], c["b"]]], "ch": "הרגע המרכזי"}]}, open(os.path.join(d, "cuts.json"), "w"), ensure_ascii=False, indent=1)
         gta = c.get("info", {}).get("gta", 0) > 2
-        json.dump({"title": "בדיקה: רגע מהסבתון של עודד (לשנות כותרת לפני פרסום)", "description": "רגע מהלייב של עודד בקיק.\n\nהרגעים הכי טובים מהלייב של עודד בקיק | ODED HIGHLIGHTS\n\nהקטע מתוך הלייב של עודד בקיק: https://kick.com/odedsvr\n\n#עודד #OdedSVR #סבתון #עודדהיילייטס #קיק",
+        json.dump({"title": "בדיקה: רגע מהסבתון של עודד (לשנות כותרת לפני פרסום)", "description": "רגע מהלייב של עודד בקיק.\n\nהרגעים הכי טובים מהלייב של עודד בקיק | ODED HIGHLIGHTS\n\nהקטע מתוך הלייב של עודד בקיק: https://kick.com/odedsvr\nערוץ מעריצים לא רשמי: כל הקטעים נלקחו מהשידורים של עודד (OdedSVR) בקיק, וזה אינו הערוץ הרשמי של עודד. הערוץ הרשמי: https://www.youtube.com/@OdedSVRLive\n\n#עודד #OdedSVR #סבתון #עודדהיילייטס #קיק",
                    "tags": ["עודד", "OdedSVR", "סבתון", "ODED HIGHLIGHTS"], "preset": "game_launch" if gta else "reaction_video", "head": "הרגע" , "accent": "הכי מטורף!", "refs": "shock,excited,smirk", "auto": True, "needs_title": True,
                    "preview": c.get("preview", "")}, open(os.path.join(d, "spec.json"), "w"), ensure_ascii=False, indent=1)
         print(f"FALLBACK clip {cid}: VOD {c['a']}-{c['b']} score {c['score']}"); publish(cid, f"autopilot fallback: {cid}", dry); return True

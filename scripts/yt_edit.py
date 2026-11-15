@@ -9,7 +9,10 @@ v = json.loads(sh(["curl", "-sS", f"https://www.googleapis.com/youtube/v3/videos
 if not v: sys.exit("video not found")
 v = v[0]
 if v["status"]["privacyStatus"] != "private": sys.exit("refused: only private drafts can be edited from the app")
-sn = v["snippet"]; sn["title"] = title or sn["title"]; sn["description"] = desc or sn["description"]
+sn = v["snippet"]; sn["title"] = title or sn["title"]
+if desc.startswith("+"):   # append to the existing description (once)
+    if desc[1:].strip() not in sn["description"]: sn["description"] = sn["description"].rstrip() + "\n\n" + desc[1:].strip()
+else: sn["description"] = desc or sn["description"]
 r = sh(["curl", "-sS", "-X", "PUT", "https://www.googleapis.com/youtube/v3/videos?part=snippet", "-H", "Content-Type: application/json"] + H + ["-d", json.dumps({"id": vid, "snippet": {"title": sn["title"], "description": sn["description"], "categoryId": sn.get("categoryId", "24"), "tags": sn.get("tags", []), "defaultLanguage": sn.get("defaultLanguage", "he")}}, ensure_ascii=False)])
 print("edited" if '"id"' in r else "FAILED " + r[:300])
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "stations")); from events import event

@@ -180,7 +180,7 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
             peak = f"{int(pv // 60):02d}:{int(pv % 60):02d}" if pv is not None else ""
             hs = [h for h in (meta.get("hashtags") or []) if isinstance(h, str) and h.startswith("#")][:8]
             hs = list(dict.fromkeys(hs + ["#עודד", "#OdedSVR", "#עודדהיילייטס", "#ODEDHIGHLIGHTS", "#קיק", "#Kick", "#סטרימרישראלי"]))   # the channel's own best-performing description format
-            desc = meta.get("description", "").strip() + ("\n" + meta["seo_line"].strip() if meta.get("seo_line") else "") + "\nהרגעים הכי טובים מהלייב של עודד בקיק | ODED HIGHLIGHTS\n\nהקטע מתוך הלייב של עודד בקיק: https://kick.com/odedsvr\n\n" + " ".join(hs)
+            desc = meta.get("description", "").strip() + ("\n" + meta["seo_line"].strip() if meta.get("seo_line") else "") + "\nהרגעים הכי טובים מהלייב של עודד בקיק | ODED HIGHLIGHTS\n\nהקטע מתוך הלייב של עודד בקיק: https://kick.com/odedsvr\nערוץ מעריצים לא רשמי: כל הקטעים נלקחו מהשידורים של עודד (OdedSVR) בקיק, וזה אינו הערוץ הרשמי של עודד. הערוץ הרשמי: https://www.youtube.com/@OdedSVRLive\n\n" + " ".join(hs)
             desc = "\n".join(" ".join(x_ for x_ in re.split(r"(?<=[.!?])\s+", ln_) if not BAN_WORDS.search(x_)) for ln_ in desc.split("\n"))
             aff = os.path.join(ROOT, "config", "affiliate.txt")
             if os.path.exists(aff): desc += "\n\n" + open(aff, encoding="utf-8").read().strip()
@@ -275,7 +275,7 @@ def main():
         if os.path.exists(os.path.join(d, "spec.json")): continue
         os.makedirs(d, exist_ok=True)
         json.dump({"vod": vod, "base": ing.get("_vod_base"), "pieces": [{"keep": keep, "ch": c.get("brief", {}).get("about", "הנושא")[:40] or "הנושא"}]}, open(os.path.join(d, "cuts.json"), "w"), ensure_ascii=False, indent=1)
-        desc = c.get("description", "").strip() + (f"\n\nClip from {CREDIT}'s live on Kick: https://kick.com/{SLUG}\n\n#{SLUG} #kick #streamer #highlights" if LANG == "en" else "\n\nהרגעים הכי טובים מהלייב של עודד בקיק | ODED HIGHLIGHTS\n\nהקטע מתוך הלייב של עודד בקיק: https://kick.com/odedsvr\n\n#עודד #OdedSVR #עודדהיילייטס #קיק")
+        desc = c.get("description", "").strip() + (f"\n\nClip from {CREDIT}'s live on Kick: https://kick.com/{SLUG}\n\n#{SLUG} #kick #streamer #highlights" if LANG == "en" else "\n\nהרגעים הכי טובים מהלייב של עודד בקיק | ODED HIGHLIGHTS\n\nהקטע מתוך הלייב של עודד בקיק: https://kick.com/odedsvr\nערוץ מעריצים לא רשמי: כל הקטעים נלקחו מהשידורים של עודד (OdedSVR) בקיק, וזה אינו הערוץ הרשמי של עודד. הערוץ הרשמי: https://www.youtube.com/@OdedSVRLive\n\n#עודד #OdedSVR #עודדהיילייטס #קיק")
         aff = os.path.join(ROOT, "config", "affiliate.txt")
         if os.path.exists(aff): desc += "\n\n" + open(aff, encoding="utf-8").read().strip()
         json.dump({"title": c["title"].strip(), "description": desc, "tags": (c.get("tags") or []) + ["עודד", "OdedSVR", "ODED HIGHLIGHTS"], "preset": c.get("preset") if c.get("preset") in PRESETS else "reaction_video",
