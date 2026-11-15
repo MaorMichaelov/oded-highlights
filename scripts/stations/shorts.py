@@ -18,7 +18,7 @@ def pick_moments(words, spec, n, dur):
         if w["end"] - t0 >= 5: lines.append(f"[{t0:.1f}] " + " ".join(cur)); cur, t0 = [], None
     if cur: lines.append(f"[{t0:.1f}] " + " ".join(cur))
     lang = spec.get("lang", "he"); body = "\n".join(lines)[:9000]
-    prompt = (f"You pick viral YouTube Shorts from a streamer clip transcript (language: {lang}). Clip title: {spec.get('title')}. Lines start with [seconds]. "
+    prompt = (f"Names used by this streamer scene (the transcript often misspells them, write them correctly in titles): עודד, ביגי, עמית שיבר, סנסיי, רונן, אינדה, איתן ניסים, אוהד, מיכאל. Use the clip title as the reference for names and topic. You pick viral YouTube Shorts from a streamer clip transcript (language: {lang}). Clip title: {spec.get('title')}. Lines start with [seconds]. "
               f"Choose up to {n} NON-overlapping moments of 25-55 seconds each: strongest punchline/reaction/drama; the first 3 seconds must hook; start at the beginning of a sentence, end right after the punchline. "
               "Return JSON only: {\"shorts\":[{\"start\":sec,\"end\":sec,\"title\":\"punchy title <=60 chars in the clip language, ending with ! or ?!\",\"why\":\"\"}]}\n\n" + body)
     key = os.environ.get("GROQ_API_KEY")

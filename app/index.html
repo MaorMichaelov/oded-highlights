@@ -54,7 +54,11 @@ document.querySelectorAll('.chip').forEach(function(c){c.onclick=function(){send
 $('gear').onclick=function(){$('gh').value=LS.gh||'';$('gq').value=LS.groq||'';$('dlg').showModal()};$('close').onclick=function(){$('dlg').close()};
 $('save').onclick=function(){LS.gh=$('gh').value.trim();LS.groq=$('gq').value.trim();fetch('/api/token',{method:'POST',headers:hdr()});$('dlg').close();add('bot','נשמר ✅')};
 $('logout').onclick=function(){LS.removeItem('pw');location.reload()};
-$('notif').onclick=function(){if('Notification' in window)Notification.requestPermission().then(function(p){add('bot',p==='granted'?'התראות מאושרות ✅ (באייפון: רק אחרי הוספה למסך הבית)':'התראות לא אושרו')})};
+$('notif').onclick=async function(){try{if(!('Notification' in window)||!('serviceWorker' in navigator)||!('PushManager' in window)){add('bot','הדפדפן הזה לא תומך בהתראות. באייפון: הוסף למסך הבית קודם.');return}
+ var p=await Notification.requestPermission();if(p!=='granted'){add('bot','התראות לא אושרו');return}
+ var reg=await navigator.serviceWorker.ready;var k=(await api('/api/push/key')).key;var pad='='.repeat((4-k.length%4)%4);var raw=atob((k+pad).replace(/-/g,'+').replace(/_/g,'/'));var arr=new Uint8Array(raw.length);for(var i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);
+ var sub=await reg.pushManager.getSubscription()||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:arr});
+ var r=await api('/api/push/sub',{method:'POST',body:JSON.stringify(sub.toJSON())});add('bot','התראות פעילות ✅ תקבל הודעה גם כשהאפליקציה סגורה (עד כ-5 דקות עיכוב) כשעודד עולה, כשעולה טיוטה או כשיש תקלה.')}catch(e){add('bot','לא הצלחתי להפעיל התראות: '+e)}};
 async function feed(){try{var since=LS.since||new Date(Date.now()-3600e3).toISOString();var j=await api('/api/feed?since='+encodeURIComponent(since));
  $('dot').className='dot'+(j.live?' on':'');$('ls').textContent=j.live?('בלייב'+(j.title?' · '+j.title.slice(0,18):'')):'לא בלייב';
  (j.events||[]).forEach(function(e){add('ev',(e.kind==='live_up'?'🔴 ':e.kind==='draft'?'✅ ':e.kind==='live_down'?'⚫ ':'⚠️ ')+e.text+(e.url?'\n'+e.url:''));

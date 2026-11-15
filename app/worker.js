@@ -168,6 +168,35 @@ async function auth(req, env) {
   if ((await sha(salt + pw)) === h) return "ok";
   await env.KV.put(k, String(f + 1), { expirationTtl: 3600 }); return "bad";
 }
+
+// ---- Web Push (no payload: the service worker fetches /api/push/latest). VAPID keys live in KV.
+const b64u = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const b64uToBytes = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
+async function vapid(env) {
+  let v = await env.KV.get("vapid", "json");
+  if (!v) { const k = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]); v = { priv: await crypto.subtle.exportKey("jwk", k.privateKey), pub: b64u(await crypto.subtle.exportKey("raw", k.publicKey)) }; await env.KV.put("vapid", JSON.stringify(v)); }
+  return v;
+}
+async function vapidHeader(env, endpoint) {
+  const v = await vapid(env); const key = await crypto.subtle.importKey("jwk", v.priv, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
+  const enc = (o) => b64u(new TextEncoder().encode(JSON.stringify(o))); const head = enc({ typ: "JWT", alg: "ES256" }), body = enc({ aud: new URL(endpoint).origin, exp: Math.floor(Date.now() / 1000) + 12 * 3600, sub: "https://oded-app.odedhl.workers.dev" });
+  const sig = b64u(await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, key, new TextEncoder().encode(head + "." + body)));
+  return `vapid t=${head}.${body}.${sig}, k=${v.pub}`;
+}
+async function eventsSince(env, since) {
+  const raw = (await ghRead("state/events.jsonl", await env.KV.get("gh"))) || ""; const ev = raw.trim().split("\n").map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+  return ev.filter((e) => e.t > since && ["live_up", "draft", "quality_fail", "problem", "brief", "edit"].includes(e.kind));
+}
+async function pushEvents(env) {
+  const subs = (await env.KV.get("subs", "json")) || []; const since = (await env.KV.get("push_since")) || new Date(Date.now() - 600e3).toISOString();
+  const ev = await eventsSince(env, since); if (!ev.length) return; await env.KV.put("push_since", ev[ev.length - 1].t);
+  await env.KV.put("push_latest", JSON.stringify({ text: ev[ev.length - 1].text.slice(0, 160), count: ev.length, url: ev[ev.length - 1].url || null, t: ev[ev.length - 1].t }));
+  const keep = [];
+  for (const s of subs) {
+    try { const r = await fetch(s.endpoint, { method: "POST", headers: { authorization: await vapidHeader(env, s.endpoint), ttl: "3600", urgency: "high", "content-length": "0" } }); if (r.status !== 404 && r.status !== 410) keep.push(s); } catch { keep.push(s); }
+  }
+  if (keep.length !== subs.length) await env.KV.put("subs", JSON.stringify(keep));
+}
 async function watchdog(env) {   // Cloudflare cron every 5 min: GitHub's own schedules do not fire on this repo, so this keeps the live loop alive
   const tok = await env.KV.get("gh"); if (!tok) return;
   const h = { authorization: "Bearer " + tok, "user-agent": "oded-app", accept: "application/vnd.github+json" };
@@ -178,13 +207,17 @@ async function watchdog(env) {   // Cloudflare cron every 5 min: GitHub's own sc
   else await env.KV.put("wd_last", JSON.stringify({ t: new Date().toISOString(), alive: true }));
 }
 export default {
-  async scheduled(event, env, ctx) { ctx.waitUntil(watchdog(env)); },
+  async scheduled(event, env, ctx) { ctx.waitUntil(Promise.all([watchdog(env).catch(() => 0), pushEvents(env).catch(() => 0)])); },
   async fetch(req, env) {
     const u = new URL(req.url), p = u.pathname;
     if (p === "/" || p === "/index.html") return new Response(HTML, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" } });
     if (p === "/manifest.webmanifest") return J({ name: "ODED HIGHLIGHTS", short_name: "ODED HL", start_url: "/", display: "standalone", background_color: "#0b0f0d", theme_color: "#0b0f0d", lang: "he", dir: "rtl", icons: [{ src: "/icon.png", sizes: "192x192", type: "image/png", purpose: "any maskable" }] });
     if (p === "/icon.png") return new Response(Uint8Array.from(atob(ICON), (c) => c.charCodeAt(0)), { headers: { "content-type": "image/png", "cache-control": "public, max-age=86400" } });
-    if (p === "/sw.js") return new Response("self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('fetch',()=>{});", { headers: { "content-type": "application/javascript" } });
+    if (p === "/sw.js") return new Response(`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(clients.claim()));self.addEventListener('fetch',()=>{});
+self.addEventListener('push',e=>{e.waitUntil((async()=>{let t='יש עדכון חדש';try{const j=await (await fetch('/api/push/latest',{cache:'no-store'})).json();if(j&&j.text)t=j.text+(j.count>1?' (+'+(j.count-1)+' עדכונים)':'')}catch(x){}
+await self.registration.showNotification('ODED HIGHLIGHTS',{body:t,icon:'/icon.png',badge:'/icon.png',tag:'oded-update',renotify:true})})())});
+self.addEventListener('notificationclick',e=>{e.notification.close();e.waitUntil(clients.matchAll({type:'window'}).then(w=>{for(const c of w)if('focus' in c)return c.focus();return clients.openWindow('/')}))});`, { headers: { "content-type": "application/javascript" } });
+    if (p === "/api/push/latest") return new Response((await env.KV.get("push_latest")) || "{}", { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
     if (p === "/api/state") return J({ setup: !(await env.KV.get("pw")) });
     if (p === "/api/setup" && req.method === "POST") {
       if (await env.KV.get("pw")) return J({ error: "already set" }, 403);
@@ -193,6 +226,8 @@ export default {
     }
     const a = await auth(req, env); if (a !== "ok") return J({ error: a }, a === "locked" ? 429 : 401);
     const tok = req.headers.get("x-gh") || "";
+    if (p === "/api/push/key") return J({ key: (await vapid(env)).pub });
+    if (p === "/api/push/sub" && req.method === "POST") { const sub = await req.json(); if (!sub || !sub.endpoint) return J({ error: "bad" }, 400); const subs = ((await env.KV.get("subs", "json")) || []).filter((x) => x.endpoint !== sub.endpoint); subs.push({ endpoint: sub.endpoint }); await env.KV.put("subs", JSON.stringify(subs.slice(-5))); return J({ ok: true, devices: subs.length }); }
     if (p === "/api/token" && req.method === "POST") { if (tok) await env.KV.put("gh", tok); else await env.KV.delete("gh"); return J({ ok: true, watchdog: !!tok }); }
     if (p === "/api/feed") {
       const since = u.searchParams.get("since") || "1970"; const [live, ev] = await Promise.all([ghJson("state/live_status.json", tok), ghRead("state/events.jsonl", tok)]);
