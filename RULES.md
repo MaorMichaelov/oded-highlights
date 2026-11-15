@@ -53,3 +53,5 @@ GROK BOT'S INSTRUCTIONS (owner pasted 14 Nov): drafts = private + full Hebrew ti
 - REACTIONS ARE SHORT-OK (owner, 15 Nov): a reaction to articles / videos / trailers of other creators is cut even at 6-8 min, with few cuts (kept continuous); the 15-min minimum does not apply to kind=reaction. Reaction to GTA 6 content is a priority topic.
 
 - BIG LIVE EVENTS ARE ONE LONG VIDEO (owner, 15 Nov): e.g. in the subathon (Thu 19 Nov) he brings a dog and buys everything for it live: that is ONE video of about 1 hour (up to 75 min kept whole), not 15-min pieces. Same for any IRL / shopping / challenge / pack-opening event.
+
+- REACTION CONTENT (owner, 15 Nov): the video he reacts to can be in English / by any creator. While reacting he asks the chat about the video or talks about it: that is part of the reaction and STAYS in the clip (do not cut it as a digression). Reactions need few cuts, only here and there.
