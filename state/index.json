@@ -78,10 +78,15 @@
    "who": "עודד, אשתו, צ'אט",
    "peak": "05:02"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/ykvH_5gsaSE",
+  "draft_at": "2026-11-15T17:43:56Z",
+  "quality_errors": [],
   "auto": true
  },
  {
