@@ -37,7 +37,7 @@ jobs:
         continue-on-error: true
         run: |
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
-          git add state/events.jsonl 2>/dev/null; git diff --cached --quiet || { git commit -q -m "events: progress"; git pull --rebase -q || true; git push -q || true; }
+          git add state/events.jsonl 2>/dev/null; git diff --cached --quiet || { git commit -q -m "events: progress"; (git pull --rebase -q && git push -q) || git rebase --abort 2>/dev/null || true; }
       - name: "Station 4 - EDIT (opening, sting, popup, quality gate)"
         env: { GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}" }
         run: python3 scripts/stations/edit.py "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}"
@@ -46,7 +46,7 @@ jobs:
         continue-on-error: true
         run: |
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
-          git add state/events.jsonl 2>/dev/null; git diff --cached --quiet || { git commit -q -m "events: progress"; git pull --rebase -q || true; git push -q || true; }
+          git add state/events.jsonl 2>/dev/null; git diff --cached --quiet || { git commit -q -m "events: progress"; (git pull --rebase -q && git push -q) || git rebase --abort 2>/dev/null || true; }
       - name: "Station 7 - QUALITY gate (1080p60, > 8 Mbps, sync, dead air, loudness)"
         run: python3 scripts/stations/quality.py "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}"
       - name: Publish progress
@@ -54,7 +54,7 @@ jobs:
         continue-on-error: true
         run: |
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
-          git add state/events.jsonl 2>/dev/null; git diff --cached --quiet || { git commit -q -m "events: progress"; git pull --rebase -q || true; git push -q || true; }
+          git add state/events.jsonl 2>/dev/null; git diff --cached --quiet || { git commit -q -m "events: progress"; (git pull --rebase -q && git push -q) || git rebase --abort 2>/dev/null || true; }
       - name: "Station 5 - DRAFT (private upload)"
         if: ${{ inputs.upload == 'true' && env.HAS_YT == 'true' }}
         env:
@@ -87,4 +87,4 @@ jobs:
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
           python3 scripts/stations/index.py || true
           rm -rf "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}/work"; git add state/index.json state/events.jsonl state/lessons.json 2>/dev/null; git add ${{ inputs.state_dir }}/clips assets/final_thumbs assets/scenes_ai
-          git commit -m "clip rendered: ${{ inputs.clip_id }}" || echo "nothing to commit"; git pull --rebase -q || true; git push
+          git commit -m "clip rendered: ${{ inputs.clip_id }}" || echo "nothing to commit"; for i in 1 2 3 4; do git rebase --abort 2>/dev/null || true; git pull --rebase -q && git push -q && break; sleep 3; done; git status -sb | head -2

@@ -46,7 +46,9 @@ if stuck: problems.append(f"clips without a draft after 90 min: {stuck[:5]}")
 info["pending_candidates"] = len(jf(os.path.join(ST, "pending_candidates.json"), []) or [])
 info["problems"] = problems; info["checked_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 json.dump(info, open(os.path.join(ST, "health.json"), "w"), ensure_ascii=False, indent=1); print(json.dumps(info, ensure_ascii=False, indent=1))
-for _p in problems: event("problem", "תקלה: " + _p)
+_last = (jf(os.path.join(ST, "health.json"), {}) or {}).get("problems", [])
+for _p in problems:
+    if _p not in _last: event("problem", "תקלה: " + _p)
 if problems and not a.no_issue and os.environ.get("GH_TOKEN"):
     title = "תקלה במערכת: " + problems[0][:70]
     if title not in gh("issue", "list", "--repo", REPO, "--state", "open", "--json", "title", "--jq", ".[].title"):

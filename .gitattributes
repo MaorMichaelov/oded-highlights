@@ -1,0 +1,3 @@
+state/events.jsonl merge=union
+state/live_history.jsonl merge=union
+state/yt_history.jsonl merge=union

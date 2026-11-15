@@ -10,6 +10,7 @@ HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(os.pat
 MODEL = os.environ.get("PICK_MODEL", "openai/gpt-oss-120b")
 MIN_LEN, MAX_LEN, PRE = 360, 2700, 3.0
 PRESETS = ["game_launch", "phone_call", "heist", "lawsuit", "courtroom_ban", "airport_leave", "birthday", "quiz_game", "rant", "money", "ai_tech", "reaction_video", "date_show", "gaming_fail", "sleeping_drunk"]
+DONATION = re.compile(r"תרם |תרמת |תרמו |דונ(?:ייט|יישן|ציה)|גיפט|\d+ דולר|(?:שלושה|חמישה|עשרה|עשרים|חמישים) דולר|קיקס ")   # donation reading (owner rule: never in a clip)
 HARD = re.compile(r"היטלר|שואה|התאבד|אתיופ|נאצי|גז(?:ים)? יהוד")
 def jl(p):
     return [json.loads(l) for l in open(p, encoding="utf-8") if l.strip()] if os.path.exists(p) else []
@@ -106,7 +107,7 @@ def main():
         keep = [[s0, e0]]
         text = " ".join(r["text"] for r in rows if r["start"] >= s0 and r["end"] <= e0)
         ex = [list(map(float, x)) for x in c.get("exclude", []) if len(x) == 2]
-        for m_ in HARD.finditer(text):   # hard lines: cut the sentence out
+        for m_ in list(HARD.finditer(text)) + list(DONATION.finditer(text)):   # hard lines: cut the sentence out
             pos = m_.start(); acc = 0; 
             for r in rows:
                 if r["start"] >= s0 and r["end"] <= e0:
