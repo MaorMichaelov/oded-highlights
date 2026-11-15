@@ -114,7 +114,7 @@ def main():
         if os.path.exists(aff): desc += "\n\n" + open(aff, encoding="utf-8").read().strip()
         json.dump({"title": c["title"].strip(), "description": desc, "tags": (c.get("tags") or []) + ["עודד", "OdedSVR", "ODED HIGHLIGHTS"], "preset": c.get("preset") if c.get("preset") in PRESETS else "reaction_video",
                    "head": c.get("head", ""), "accent": c.get("accent", ""), "refs": "shock,excited,smirk", "brief": c.get("brief", {}), "lang": LANG, "auto": True, "picked_by": MODEL}, open(os.path.join(d, "spec.json"), "w"), ensure_ascii=False, indent=1)
-        made.append(cid); print(f"PICKED {cid}: {c['title']} ({int(s0)}-{int(e0)}, {int((e0 - s0) / 60)} min)")
+        made.append(cid); (__import__("events").event("pick", f"נבחר נושא לקליפ: {c['title']} ({int((e0 - s0) / 60)} דק׳). רינדור בדרך." , clip=cid)); print(f"PICKED {cid}: {c['title']} ({int(s0)}-{int(e0)}, {int((e0 - s0) / 60)} min)")
     ps[vod] = {"cursor": max(lo, min(float(res.get("next_cursor", hi) or hi), hi)), "last_run": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "notes": res.get("notes", "")[:300]}
     if not a.dry_run: json.dump(ps, open(pf, "w"), indent=1)
     if made and not a.dry_run and not os.environ.get("NO_DISPATCH"):

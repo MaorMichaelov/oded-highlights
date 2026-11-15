@@ -10,7 +10,7 @@ def gh(*a):
     r = subprocess.run(["gh", *a], capture_output=True, text=True); return r.stdout if r.returncode == 0 else ""
 def jf(p, d=None): return json.load(open(p)) if os.path.exists(p) else d
 def age_min(iso): return (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(iso.replace("Z", "+00:00"))).total_seconds() / 60
-ap = argparse.ArgumentParser(); ap.add_argument("--no-issue", action="store_true"); ap.add_argument("--no-restart", action="store_true"); a = ap.parse_args()
+ap = argparse.ArgumentParser(); ap.add_argument("--no-issue", action="store_true"); ap.add_argument("--no-restart", action="store_true"); ap.add_argument("--no-restart-renders", action="store_true"); a = ap.parse_args()
 problems, info = [], {}
 runs = json.loads(gh("run", "list", "--repo", REPO, "--limit", "30", "--json", "workflowName,status,conclusion,createdAt,databaseId") or "[]")
 loop = [r for r in runs if r["workflowName"] == "live-loop"]; running = [r for r in loop if r["status"] in ("in_progress", "queued")]
@@ -30,6 +30,18 @@ for d in (os.listdir(cd) if os.path.isdir(cd) else []):
     sp, up = os.path.join(cd, d, "spec.json"), os.path.join(cd, d, "status.json"); st = jf(up, {}) or {}
     if os.path.exists(sp) and not (st.get("draft") or {}).get("url") and not d.startswith(("test", "gta6_first_time")) and (time.time() - os.path.getmtime(sp)) > 90 * 60 and not os.path.exists(os.path.join(cd, d, "upload.log")): stuck.append(d)
 info["stuck_clips"] = stuck
+rf = os.path.join(ST, "retries.json"); retries = jf(rf, {}) or {}
+busy = any(r["workflowName"] == "render-clip" and r["status"] in ("in_progress", "queued", "waiting", "pending") for r in runs)
+if os.environ.get("GH_TOKEN") and not a.no_restart_renders and not busy:   # self-heal: a clip with no draft 25 min-24 h after it was picked gets its render re-dispatched (max 2 times)
+    for d in (os.listdir(cd) if os.path.isdir(cd) else []):
+        sd = os.path.join(cd, d)
+        if d.startswith(("test", "gta6_first_time")) or not os.path.exists(os.path.join(sd, "spec.json")) or ((jf(os.path.join(sd, "status.json"), {}) or {}).get("draft") or {}).get("url") or os.path.exists(os.path.join(sd, "upload.log")): continue
+        ct = subprocess.run(["git", "log", "-1", "--format=%ct", "--", os.path.join("state", "clips", d, "spec.json")], capture_output=True, text=True, cwd=ROOT).stdout.strip()
+        age = (time.time() - int(ct)) / 60 if ct else 0
+        if 25 < age < 1440 and retries.get(d, 0) < 2:
+            gh("workflow", "run", "render-clip.yml", "--repo", REPO, "--ref", "main", "-f", f"clip_id={d}", "-f", "upload=true"); retries[d] = retries.get(d, 0) + 1; event("retry", f"הרינדור של {d} לא הסתיים בטיוטה ונשלח שוב (ניסיון {retries[d]})")
+json.dump(retries, open(rf, "w"))
+if ls.get("http") not in (None, "200", 200) or ls.get("live") is None: problems.append(f"Kick API problem: http={ls.get('http')} note={ls.get('note')}")
 if stuck: problems.append(f"clips without a draft after 90 min: {stuck[:5]}")
 info["pending_candidates"] = len(jf(os.path.join(ST, "pending_candidates.json"), []) or [])
 info["problems"] = problems; info["checked_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
