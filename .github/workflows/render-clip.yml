@@ -7,6 +7,7 @@ on:
       upload: { description: "upload to YouTube as private (needs YT secrets)", required: false, default: "true" }
       state_dir: { description: "state folder of the channel (state, state/xqc, ...)", required: false, default: "state" }
       yt: { description: "which YouTube channel: main or en", required: false, default: "main" }
+      shorts: { description: "also cut vertical Shorts from the strongest moments (true/false)", required: false, default: "true" }
       thumbs: { description: "also generate auto thumbnails (slow; drafts go up without a thumbnail, the other bot makes thumbnails)", required: false, default: "false" }
 concurrency: { group: "render-${{ inputs.state_dir }}-${{ inputs.clip_id }}", cancel-in-progress: false }   # different clips render in parallel
 env:
@@ -43,6 +44,15 @@ jobs:
           YT_CLIENT_ID: ${{ inputs.yt == 'en' && secrets.YT2_CLIENT_ID || secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ inputs.yt == 'en' && secrets.YT2_CLIENT_SECRET || secrets.YT_CLIENT_SECRET }}
         run: python3 scripts/stations/draft.py "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}"
+      - name: "Station 8 - SHORTS (vertical, from the strongest moments)"
+        if: ${{ inputs.shorts != 'false' }}
+        continue-on-error: true
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          YT_REFRESH_TOKEN: ${{ inputs.yt == 'en' && secrets.YT2_REFRESH_TOKEN || secrets.YT_REFRESH_TOKEN }}
+          YT_CLIENT_ID: ${{ inputs.yt == 'en' && secrets.YT2_CLIENT_ID || secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ inputs.yt == 'en' && secrets.YT2_CLIENT_SECRET || secrets.YT_CLIENT_SECRET }}
+        run: python3 scripts/stations/shorts.py "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}" ${{ (inputs.upload == 'true' && env.HAS_YT == 'true') && '--upload' || '' }}
       - name: Keep the rendered video (works even without YouTube secrets)
         if: always()
         uses: actions/upload-artifact@v4

@@ -9,6 +9,7 @@ Each station is one script with a clear input/output, writes state/clips/<id>/st
 | 4 | EDIT | scripts/stations/edit.py (render_clip.py, peak_open/) | body.mp4 -> final.mp4 (opening, sting, popup, stream-copy join) | render-clip.yml |
 | 7 | QUALITY | scripts/stations/quality.py | final.mp4 -> quality.json, exit 5 blocks the draft | render-clip.yml |
 | 5 | DRAFT | scripts/stations/draft.py (yt_upload.py) | final.mp4 -> private YouTube draft (no thumbnail) | render-clip.yml |
+| 8 | SHORTS | scripts/stations/shorts.py | work/body.mp4 + words.json -> 1-2 vertical Shorts (1080x1920, 25-58 s, green captions, blurred background), private drafts | render-clip.yml (after the draft, never blocks it) |
 | 6 | MONITOR | scripts/stations/monitor.py | runs/state -> state/health.json, GitHub issue on problems, restarts the live loop | .github/workflows/monitor.yml (every 20 min) |
 
 Run one station alone (example, on a clip folder that exists): `python3 scripts/stations/quality.py state/clips/<id>`.
