@@ -62,14 +62,18 @@ def segment(T, nchunks):
     cs = [c for c in range(start_c, last_chunk + 1) if str(c) in T["chunks"]][:60]
     if len(cs) < 2: return spans
     lines = "\n".join(f"{c * 5}-{c * 5 + 5} [{T['chunks'][str(c)]['kind']}] (קטגוריה: {cat_at(c) or '?'}) {T['chunks'][str(c)]['label']} ({', '.join(T['chunks'][str(c)].get('kw', [])[:4])})" for c in cs)
-    prompt = ("אלו תוויות של קטעי 5 דקות ברצף מלייב של סטרימר ישראלי (דקות מתחילת השידור). קבץ קטעים רצופים לנושאים (spans) שכל אחד הוא פעילות/נושא אחד שלם: למשל בישול עם אשתו, שיחה על הסבתון, משחק. "
-              "לכל span: from/to בדקות (כפולות של 5), title בעברית קצר, kind, clip_worthy=true לכל נושא קוהרנטי של 15 דקות ומעלה שיש בו תוכן אמיתי: סיפור, דעה חזקה, הומור, תכניות או הכנות לסבתון, פעילות בבית כמו בישול, אורח, משחק, ריאקשן או דרמה. false רק לשיחת צ'אט כללית בלי נושא, תקלות, המתנה או פטפוט מפוזר, why=סיבה קצרה. "
-              "כשקטגוריית Kick היא משחק (לא Just Chatting) והוא משחק, זה span מסוג game ושווה קליפ ברגע שהוא נמשך 15 דקות ומעלה. אל תפצל פעילות אחת לכמה spans, ואל תאחד נושאים שונים. סשן רציף של ריאקשנים (הוא צופה/קורא כמה כתבות או סרטונים ברצף ומגיב) הוא span אחד מסוג reaction ושווה קליפ, עם כותרת כמו 'מגיב לכתבות וחדשות על GTA 6'. החזר JSON בלבד: {\"spans\":[{\"from\":m,\"to\":m,\"title\":\"\",\"kind\":\"\",\"clip_worthy\":true,\"why\":\"\"}]}\n\n" + lines)
+    prompt = ("אלו תוויות של קטעי 5 דקות ברצף מלייב של סטרימר ישראלי. קבץ קטעים רצופים לנושאים (spans), כך שכל הלייב מכוסה מההתחלה עד הסוף. לכל span: from/to בדקות, title בעברית קצר, "
+              "kind (talk/game/cooking/guest/call/reaction/chat/idle), clip_worthy=true לכל נושא קוהרנטי של 15 דקות ומעלה עם תוכן אמיתי (סיפור, דעה, הומור, הכנות לסבתון, פעילות בבית, אורח, משחק, ריאקשן שרציף גם על כמה כתבות/סרטונים) "
+              "ו-false רק לצ'אט כללי, תקלות או המתנה. כשקטגוריית Kick היא משחק והוא משחק: kind=game. החזר JSON בלבד: {\"spans\":[{\"from\":m,\"to\":m,\"title\":\"\",\"kind\":\"\",\"clip_worthy\":true,\"why\":\"\"}]}\n\n" + lines)
     hdr = ["-H", "Content-Type: application/json"] + (["-H", "Authorization: Bearer " + os.environ["GROQ_API_KEY"]] if os.environ.get("GROQ_API_KEY") else [])
     for model in ("openai/gpt-oss-120b", "openai/gpt-oss-20b"):
-        out = subprocess.run(["curl", "-sS", "-m", "120", "https://api.groq.com/openai/v1/chat/completions"] + hdr + ["-d", json.dumps({"model": model, "messages": [{"role": "user", "content": prompt}], "max_tokens": 1500, "reasoning_effort": "low"}, ensure_ascii=False)], capture_output=True, text=True).stdout
+        out = subprocess.run(["curl", "-sS", "-m", "120", "https://api.groq.com/openai/v1/chat/completions"] + hdr + ["-d", json.dumps({"model": model, "messages": [{"role": "user", "content": prompt}], "max_tokens": 3500, "reasoning_effort": "low"}, ensure_ascii=False)], capture_output=True, text=True).stdout
         try:
-            new = json.loads(re.search(r"\{.*\}", json.loads(out)["choices"][0]["message"]["content"], re.S).group(0))["spans"]
+            _c = json.loads(out)["choices"][0]["message"]["content"]
+            if os.environ.get("TL_DEBUG"): print("SEGMENT RAW:", _c[:1800])
+            try: new = json.loads(re.search(r"\{.*\}", _c, re.S).group(0))["spans"]
+            except Exception: new = [json.loads(m_) for m_ in re.findall(r"\{[^{}]*\"from\"[^{}]*\}", _c)]   # truncated JSON: keep the complete span objects
+            if not new: raise ValueError("no spans in model output")
             for x in new:
                 x["from"], x["to"] = int(x["from"]) * 60, int(x["to"]) * 60; x["closed"] = x["to"] <= (last_chunk - 0) * CH   # a span is closed once at least one later chunk exists after it
             merged = []
