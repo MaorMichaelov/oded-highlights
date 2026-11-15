@@ -6,9 +6,9 @@
   "height": 1080,
   "fps": 60.0,
   "mbps": 11.9,
-  "duration": 282.1,
+  "duration": 282.3,
   "planned_body": 271.1,
-  "expected": 282.1,
+  "expected": 282.3,
   "lufs": -17.1,
   "source": "1920,1080,60/1\n\n1920,1080,60/1"
  }
