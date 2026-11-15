@@ -56,6 +56,10 @@
   "13": {
    "label": "אי-בהירות",
    "kind": "idle"
+  },
+  "14": {
+   "label": "שיח מבלבל ללא קודקוד",
+   "kind": "idle"
   }
  },
  "timeline": [
@@ -130,8 +134,14 @@
    "to": 4200,
    "label": "אי-בהירות",
    "kind": "idle"
+  },
+  {
+   "from": 4200,
+   "to": 4500,
+   "label": "שיח מבלבל ללא קודקוד",
+   "kind": "idle"
   }
  ],
- "transcript_end": 4367,
- "updated": "2026-11-15T15:51:01Z"
+ "transcript_end": 4578,
+ "updated": "2026-11-15T15:53:42Z"
 }
