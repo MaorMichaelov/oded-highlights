@@ -15,3 +15,7 @@
 {"t": "2026-11-15T15:50:58Z", "kind": "pick_skip", "text": "🔎 בדקתי את דקות 58-65 בשידור: לא נבחר נושא. The segment contains unfocused rambling about personal topics (wife, dog names, random comments) without a cle"}
 {"t": "2026-11-15T15:51:00Z", "kind": "problem", "text": "תקלה: 3 render-clip run(s) failed in the last 3 h (ids [43730241375, 43730104524, 43729436851])"}
 {"t": "2026-11-15T15:53:41Z", "kind": "problem", "text": "תקלה: 3 render-clip run(s) failed in the last 3 h (ids [43730241375, 43730104524, 43729436851])"}
+{"t": "2026-11-15T15:57:43Z", "kind": "pick_skip", "text": "🔎 בדקתי את דקות 65-72 בשידור: לא נבחר נושא. The segment contains incoherent banter with potential policy‑risk language (references to Hamas, crude remarks"}
+{"t": "2026-11-15T15:57:46Z", "kind": "retry", "text": "הרינדור של 137995265_772 לא הסתיים בטיוטה ונשלח שוב (ניסיון 1)"}
+{"t": "2026-11-15T15:57:47Z", "kind": "retry", "text": "הרינדור של 137995265_1338 לא הסתיים בטיוטה ונשלח שוב (ניסיון 1)"}
+{"t": "2026-11-15T15:57:47Z", "kind": "problem", "text": "תקלה: 3 render-clip run(s) failed in the last 3 h (ids [43730241375, 43730104524, 43729436851])"}
