@@ -63,7 +63,7 @@ def segment(T, nchunks):
     if len(cs) < 2: return spans
     lines = "\n".join(f"{c * 5}-{c * 5 + 5} [{T['chunks'][str(c)]['kind']}] (קטגוריה: {cat_at(c) or '?'}) {T['chunks'][str(c)]['label']} ({', '.join(T['chunks'][str(c)].get('kw', [])[:4])})" for c in cs)
     prompt = ("אלו תוויות של קטעי 5 דקות ברצף מלייב של סטרימר ישראלי. קבץ קטעים רצופים לנושאים (spans), כך שכל הלייב מכוסה מההתחלה עד הסוף. לכל span: from/to בדקות, title בעברית קצר, "
-              "kind (talk/game/cooking/guest/call/reaction/event/chat/idle; כשמוקראת כתבה/סרטון/טריילר/חדשות (בעיקר על GTA 6) והוא מגיב לזה = reaction, גם אם הטקסט מעורבב בצ'אט ותרומות), clip_worthy=true לכל נושא קוהרנטי של 15 דקות ומעלה עם תוכן אמיתי (סיפור, דעה, הומור, הכנות לסבתון, פעילות בבית, אורח, משחק, ריאקשן שרציף גם על כמה כתבות/סרטונים) "
+              "kind (talk/game/cooking/guest/call/reaction/event/chat/idle; כשמוקראת כתבה/סרטון/טריילר/חדשות (בעיקר על GTA 6) והוא מגיב לזה = reaction, גם אם הטקסט מעורבב בצ'אט ותרומות), clip_worthy=true לכל נושא קוהרנטי של 15 דקות ומעלה עם תוכן אמיתי, וגם לכל ריאקשן (kind=reaction) לכתבות/סרטונים/יוצרים אחרים של 6 דקות ומעלה (סיפור, דעה, הומור, הכנות לסבתון, פעילות בבית, אורח, משחק, ריאקשן שרציף גם על כמה כתבות/סרטונים) "
               "ו-false רק לצ'אט כללי, תקלות או המתנה. כשקטגוריית Kick היא משחק והוא משחק: kind=game. החזר JSON בלבד: {\"spans\":[{\"from\":m,\"to\":m,\"title\":\"\",\"kind\":\"\",\"clip_worthy\":true,\"why\":\"\"}]}\n\n" + lines)
     hdr = ["-H", "Content-Type: application/json"] + (["-H", "Authorization: Bearer " + os.environ["GROQ_API_KEY"]] if os.environ.get("GROQ_API_KEY") else [])
     for model in ("openai/gpt-oss-120b", "openai/gpt-oss-20b"):
@@ -84,7 +84,7 @@ def segment(T, nchunks):
             return spans + merged
         except Exception as e: print("segment model", model, "failed:", str(e)[:80], out[:120])
     return spans
-if T.get("seg_v") != 3: T["spans"] = []; T["seg_v"] = 3   # segmentation criteria changed (more inclusive): re-evaluate the whole stream once
+if T.get("seg_v") != 4: T["spans"] = []; T["seg_v"] = 4   # segmentation criteria changed (more inclusive): re-evaluate the whole stream once
 T["spans"] = segment(T, 0)
 tl = []
 for c in sorted(map(int, T["chunks"])):

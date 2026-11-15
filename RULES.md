@@ -49,3 +49,5 @@ GROK BOT'S INSTRUCTIONS (owner pasted 14 Nov): drafts = private + full Hebrew ti
 - ACCURACY: titles/descriptions/brief must describe what is really in the clip; names in Hebrew; peak time computed from the real cut.
 
 - GREAT SESSIONS ARE LONG (owner, 15 Nov, from a viewer comment on the 36-pokemon-packs video: "15 minutes can't summarise all this fun, watch the live"): a strong session (pack opening, game session, challenge, event, big guest) is kept WHOLE, 30-35 min at least and up to 60 min; the 15-min minimum is only for ordinary topics.
+
+- REACTIONS ARE SHORT-OK (owner, 15 Nov): a reaction to articles / videos / trailers of other creators is cut even at 6-8 min, with few cuts (kept continuous); the 15-min minimum does not apply to kind=reaction. Reaction to GTA 6 content is a priority topic.
