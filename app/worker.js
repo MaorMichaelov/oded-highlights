@@ -43,6 +43,7 @@ const TOOLS = {
     const ref = base || first; const have = (Date.parse(last.t) - Date.parse(ref.t)) / 3600e3;
     return { requested_hours: h, covered_hours: Math.round(have * 10) / 10, views_gained: last.views - ref.views, exact: !!base, channel_views_total: last.views, as_of: last.t, history_since: first.t, note: base ? "מדויק" : "ההיסטוריה שלנו קצרה מהחלון שביקשת: זה הגידול מאז " + first.t + " בלבד. לנתון מדויק ל-48 שעות צריך להפעיל את YouTube Analytics API." };
   },
+  async timeline(a, tok) { const t = await ghJson("state/timeline.json", tok); if (!t || !t.timeline) return "אין עדיין ציר זמן"; return { transcript_end: mmss(t.transcript_end || 0), updated: t.updated, topics: t.timeline.map((x) => `${mmss(x.from)}-${mmss(x.to)} [${x.kind}] ${x.label}`) }; },
   async docs(a, tok) { const n = { rules: "RULES.md", stations: "docs/STATIONS.md", topics: "docs/TOPICS_TO_CLIP.md", readme: "README.md", issues: "docs/KNOWN_ISSUES.md" }[a.name || "stations"] || "docs/STATIONS.md"; return clip((await ghRead(n, tok)) || "אין מסמך", 3800); },
   async clip(a, tok) {   // everything about one clip: plan, spec, stage status, quality, durations
     const d = "state/clips/" + a.id; const [spec, cuts, stt, q, du] = await Promise.all(["spec.json", "cuts.json", "status.json", "quality.json", "durations.json"].map((f) => ghJson(d + "/" + f, tok)));
@@ -76,11 +77,14 @@ const TOOLS = {
     const raw = await ghRead(`state/transcripts/${ing._current_vod}.jsonl`, tok); if (!raw) return "אין תמלול";
     let rows = raw.trim().split("\n").map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
     const end = rows.length ? rows[rows.length - 1].end : 0;
+    const m2s = (m) => Number(m) * 60; let beyond = "";
+    if (a.around_minute != null) { const c = m2s(a.around_minute), w = m2s(a.window_minutes || 4); a.from = Math.max(0, c - w); a.to = c + w; if (c > end) beyond = `התמלול עדיין לא הגיע לדקה ${a.around_minute} (הוא מגיע עד ${mmss(end)} ומתעדכן כל כמה דקות). נסה שוב עוד מעט.`; }
+    if (a.from_minute != null) a.from = m2s(a.from_minute); if (a.to_minute != null) a.to = m2s(a.to_minute);
     if (a.last_minutes) rows = rows.filter((r) => r.start >= end - a.last_minutes * 60);
     if (a.from != null) rows = rows.filter((r) => r.start >= a.from);
     if (a.to != null) rows = rows.filter((r) => r.end <= a.to);
     if (a.query) { const q = String(a.query).split(/\s+/).filter(Boolean); rows = rows.filter((r) => q.some((w) => r.text.includes(w))); }
-    return { vod: ing._current_vod, transcript_end: mmss(end), matches: rows.slice(-40).map((r) => `[${mmss(r.start)}|${Math.round(r.start)}] ${r.text}`) };
+    return { vod: ing._current_vod, transcript_end: mmss(end), ...(beyond ? { warning: beyond } : {}), matches: rows.slice(-60).map((r) => `[${mmss(r.start)}|${Math.round(r.start)}] ${r.text}`) };
   },
   async cut(a, tok) {
     if (!tok) return "חסר מפתח GitHub בהגדרות האפליקציה";
@@ -111,7 +115,8 @@ candidates: מועמדים שסומנו ומצב תחנת הבחירה. args: {}
 update_draft: שינוי כותרת/תיאור של טיוטה פרטית שלנו. args: {video_id, title?, description?}
 drafts: רשימת הקליפים והטיוטות האחרונות עם קישורים. args: {}
 stats: נתוני יוטיוב (צפיות, לייקים, הכי חזקים). args: {}
-transcript: חיפוש בתמלול של השידור הנוכחי. args: {query?: "מילים", last_minutes?: n, from?: שניות, to?: שניות}
+timeline: ציר זמן של הלייב: מה קרה ומתי (נושאים לפי טווחי דקות, מתעדכן כל כמה דקות). args: {}
+transcript: קריאה/חיפוש בתמלול של השידור הנוכחי. args: {around_minute?: n (דקה בשידור, מחזיר ±4 דקות), window_minutes?, from_minute?, to_minute?, query?: "מילים", last_minutes?: n}
 cut: חיתוך קליפ והעלאה כטיוטה פרטית. args: {start: שניות, end: שניות, title: "40-55 תווים בעברית שמסתיים ב-! או ?!", description: "...", brief: {about, who, peak}}  (לפני חיתוך מצא את הזמנים עם transcript; אם הבקשה לא ברורה שאל)
 pause / resume: עצירה והמשך של המערכת. args: {}
 lesson: לקח קבוע לבחירת נושאים. args: {text}
@@ -147,7 +152,7 @@ async function agent(env, msgs, tok, gkey) {
 כלים (קרא להם בפורמט JSON בלבד):
 ${TOOL_DOC}
 פורמט תשובה: או {"tool":"שם","args":{...}} כדי להפעיל כלי, או {"reply":"הטקסט למשתמש"} כדי לענות. החזר JSON בלבד, שורה אחת, בלי טקסט נוסף.
-אל תמציא נתונים: אם צריך מידע, הפעל כלי. קליפ נחשב שהועלה רק אם uploaded=true. כללי נתונים: אסור לנחש, להעריך או לעגל מספרים. צטט רק מספרים מתוצאת כלי וציין עד מתי הנתון (as_of/fetched_at). אם הכלי אומר שהנתון חלקי או חסר, אמור את זה בגלוי. שאלה על צפיות בטווח זמן: הפעל views. אחרי תוצאת כלי, סכם בקצרה.${instr ? "\nהנחיות קבועות מהבעלים:\n" + instr : ""}`;
+כשמבקשים למצוא רגע ('הבישול', 'הקטע עם X', 'דקה 36'): קודם timeline כדי לראות טווחים, אחר כך transcript סביב הדקה (around_minute) כדי למצוא את המשפט הראשון והאחרון של הרגע. אם התמלול עוד לא הגיע לשם, תגיד זאת (השדה warning) ותציע לנסות שוב בעוד כמה דקות. אל תגיד 'לא מצאתי' לפני שבדקת את הטווח לפי הדקה והטווח לפי תוכן. אל תמציא נתונים: אם צריך מידע, הפעל כלי. קליפ נחשב שהועלה רק אם uploaded=true. כללי נתונים: אסור לנחש, להעריך או לעגל מספרים. צטט רק מספרים מתוצאת כלי וציין עד מתי הנתון (as_of/fetched_at). אם הכלי אומר שהנתון חלקי או חסר, אמור את זה בגלוי. שאלה על צפיות בטווח זמן: הפעל views. אחרי תוצאת כלי, סכם בקצרה.${instr ? "\nהנחיות קבועות מהבעלים:\n" + instr : ""}`;
   const m = [{ role: "system", content: system }, ...msgs.slice(-12)];
   for (let i = 0; i < 5; i++) {
     const out = await llm(env, m, gkey); if (!out) { const e = ERRS.join(" | "); if (gkey && /groq/i.test(e)) return "מפתח Groq לא עבד: " + e.split(" | ")[0].slice(0, 220) + (/401|invalid|Invalid/.test(e) ? "\nהמפתח שגוי. צור מפתח חדש והדבק שוב ב-⚙." : "\nאם זה חריגה ממכסה, נסה שוב בעוד דקה."); return /neuron|limit|quota|capacity|3040|4006/i.test(e) ? "מכסת ה-AI היומית של Cloudflare נגמרה (מתאפסת בחצות UTC). פתרון קבוע: הוסף מפתח Groq בהגדרות האפליקציה (⚙), שזה מודל חינמי נפרד." : "המודל לא זמין כרגע (" + e.slice(0, 120) + "). נסה שוב בעוד דקה."; }
