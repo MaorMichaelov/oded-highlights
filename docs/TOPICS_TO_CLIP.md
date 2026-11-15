@@ -51,3 +51,6 @@ In spec.json: "brief": {"about": what the clip is about, "who": who appears, "pe
 
 ## Reference channels
 See docs/CLIP_STYLE.md (data from @taklipu, @ronenggpeak, @odedsvrlive). Reactions to other people videos are a TOP format on Taklipu; titles start with a quote.
+
+## Games and reactions are CONTINUOUS (owner 15 Nov)
+A game session (e.g. Rob Run today) or a reaction session is ONE long continuous clip with few cuts: no transcript-based trimming, only silences >= 25 s are removed, donation/hard-line sentences are cut out. Rob Run: do not repeat the 'cheater wipes us' angle as the main story.

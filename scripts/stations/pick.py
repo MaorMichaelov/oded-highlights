@@ -110,7 +110,7 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
                         if x - p0 > 5: nk.append([p0, x])
                         if q0 - y > 5: nk.append([y, q0])
                 keep = nk
-            if sp.get("kind") != "reaction": keep = trim_dead_air(rows, keep, gap=10.0, min_seg=10.0)   # reactions: his silence is the video he watches; real silence is removed from the audio in the cut station
+            if sp.get("kind") not in ("reaction", "game"): keep = trim_dead_air(rows, keep, gap=10.0, min_seg=10.0)   # reactions: his silence is the video he watches; real silence is removed from the audio in the cut station
             tot = sum(q0 - p0 for p0, q0 in keep)
             if tot < 900: print(f"span '{sp['title']}' only {int(tot)} s after cleaning (<15 min): skipped"); __import__("events").event("pick_skip", f"🔎 הנושא \"{sp['title']}\" ({int(dur / 60)} דק׳) יצא {int(tot / 60)} דק׳ אחרי ניקוי שקטים ודונייטים, פחות מ-15: לא נחתך."); continue
             meta = None
@@ -141,7 +141,7 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
                 if pieces and (pieces[-1]["ch"] == lab or sum(y - x for x, y in sub) < 25): pieces[-1]["keep"] += sub   # same topic (or a tiny tail) stays in the previous chapter
                 else: pieces.append({"keep": sub, "ch": lab})
             if len(pieces) < 3: pieces = [{"keep": keep, "ch": (meta.get("about") or sp["title"])[:40]}]
-            json.dump({"vod": vod, "base": ing.get("_vod_base"), "pieces": [{"keep": [[round(x, 2), round(y, 2)] for x, y in pc["keep"]], "ch": pc["ch"]} for pc in pieces]}, open(os.path.join(d, "cuts.json"), "w"), ensure_ascii=False, indent=1)
+            json.dump({"vod": vod, "base": ing.get("_vod_base"), **({"silence": [25]} if sp.get("kind") in ("game", "reaction") else {}), "pieces": [{"keep": [[round(x, 2), round(y, 2)] for x, y in pc["keep"]], "ch": pc["ch"]} for pc in pieces]}, open(os.path.join(d, "cuts.json"), "w"), ensure_ascii=False, indent=1)   # games/reactions: continuous, only silences >= 25 s are removed
             acc, pv = 0.0, None
             for x, y in keep:
                 if x <= float(meta.get("peak_second", -1)) <= y: pv = acc + (float(meta["peak_second"]) - x) + 11.2

@@ -61,7 +61,7 @@ def trim_ranges(keep, thr_s):
     return res
 # remove REAL silences from the audio; adaptive so a long clip never drops below ~14 min
 all_keep = [r for p_ in C["pieces"] for r in p_["keep"]]; before = sum(b - a for a, b in all_keep)
-for thr_s in (6, 10, 18, None):
+for thr_s in (*(C.get("silence") or [6, 10, 18]), None):   # games / reactions: only very long silences (>= 25 s), continuous video
     if thr_s is None: print("silence trimming skipped (clip would become too short)"); break
     trial = [trim_ranges(p_["keep"], thr_s) for p_ in C["pieces"]]; after = sum(b - a for k in trial for a, b in k)
     print(f"silence trim >= {thr_s}s: {before / 60:.1f} -> {after / 60:.1f} min", flush=True)
