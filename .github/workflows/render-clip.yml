@@ -5,8 +5,10 @@ on:
     inputs:
       clip_id: { description: "folder name under state/clips", required: true }
       upload: { description: "upload to YouTube as private (needs YT secrets)", required: false, default: "true" }
+      state_dir: { description: "state folder of the channel (state, state/xqc, ...)", required: false, default: "state" }
+      yt: { description: "which YouTube channel: main or en", required: false, default: "main" }
       thumbs: { description: "also generate auto thumbnails (slow; drafts go up without a thumbnail, the other bot makes thumbnails)", required: false, default: "false" }
-concurrency: { group: "render-${{ inputs.clip_id }}", cancel-in-progress: false }   # different clips render in parallel
+concurrency: { group: "render-${{ inputs.state_dir }}-${{ inputs.clip_id }}", cancel-in-progress: false }   # different clips render in parallel
 env:
   HAS_YT: ${{ secrets.YT_REFRESH_TOKEN != '' }}
 permissions: { contents: write }
@@ -26,29 +28,29 @@ jobs:
         env: { CF_API_TOKEN: "${{ secrets.CF_API_TOKEN }}" }
         run: |
           pip install -q rembg onnxruntime
-          python3 scripts/package_clip.py "state/clips/${{ inputs.clip_id }}" --seeds 2 || echo "thumbnail step failed (continuing)"
+          python3 scripts/package_clip.py "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}" --seeds 2 || echo "thumbnail step failed (continuing)"
       - name: "Station 3 - CUT (1080p60 download + exact trim)"
-        run: python3 scripts/stations/cut.py "state/clips/${{ inputs.clip_id }}"
+        run: python3 scripts/stations/cut.py "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}"
       - name: "Station 4 - EDIT (opening, sting, popup, quality gate)"
         env: { GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}" }
-        run: python3 scripts/stations/edit.py "state/clips/${{ inputs.clip_id }}"
+        run: python3 scripts/stations/edit.py "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}"
       - name: "Station 7 - QUALITY gate (1080p60, > 8 Mbps, sync, dead air, loudness)"
-        run: python3 scripts/stations/quality.py "state/clips/${{ inputs.clip_id }}"
+        run: python3 scripts/stations/quality.py "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}"
       - name: "Station 5 - DRAFT (private upload)"
         if: ${{ inputs.upload == 'true' && env.HAS_YT == 'true' }}
         env:
-          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
-          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
-          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
-        run: python3 scripts/stations/draft.py "state/clips/${{ inputs.clip_id }}"
+          YT_REFRESH_TOKEN: ${{ inputs.yt == 'en' && secrets.YT2_REFRESH_TOKEN || secrets.YT_REFRESH_TOKEN }}
+          YT_CLIENT_ID: ${{ inputs.yt == 'en' && secrets.YT2_CLIENT_ID || secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ inputs.yt == 'en' && secrets.YT2_CLIENT_SECRET || secrets.YT_CLIENT_SECRET }}
+        run: python3 scripts/stations/draft.py "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}"
       - name: Keep the rendered video (works even without YouTube secrets)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: clip-${{ inputs.clip_id }}
           path: |
-            state/clips/${{ inputs.clip_id }}/final.mp4
-            state/clips/${{ inputs.clip_id }}/meta.json
+            ${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}/final.mp4
+            ${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}/meta.json
             assets/final_thumbs/${{ inputs.clip_id }}_s*.jpg
           retention-days: 14
           if-no-files-found: warn
@@ -56,5 +58,5 @@ jobs:
         run: |
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
           python3 scripts/stations/index.py || true
-          rm -rf "state/clips/${{ inputs.clip_id }}/work"; git add state/index.json state/events.jsonl state/lessons.json 2>/dev/null; git add state/clips assets/final_thumbs assets/scenes_ai
+          rm -rf "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}/work"; git add state/index.json state/events.jsonl state/lessons.json 2>/dev/null; git add ${{ inputs.state_dir }}/clips assets/final_thumbs assets/scenes_ai
           git commit -m "clip rendered: ${{ inputs.clip_id }}" || echo "nothing to commit"; git pull --rebase -q || true; git push

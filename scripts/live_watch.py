@@ -13,6 +13,7 @@ STATE = ROOT / os.environ.get("STATE_DIR", "state"); (STATE / "transcripts").mkd
 QUALITY = os.environ.get("AUDIO_QUALITY", "480p30")   # measured: 160p audio=51 kbps (bad transcripts), 480p/720p=102 kbps (clearly better)
 MAX_SEGS_PER_RUN = int(os.environ.get("MAX_SEGS_PER_RUN", "120"))   # ~15 min of audio per run (Groq free: 7200 audio-sec/hour)
 GROQ_KEY = os.environ.get("GROQ_API_KEY", "")
+ASR_LANG = os.environ.get("ASR_LANG", "he")   # "en" for English streamers
 ASR = os.environ.get("ASR", "ivrit")          # ivrit = ivrit-ai/whisper-large-v3-turbo-ct2 on CPU (RTF ~0.4 on a 4-vCPU runner, no daily quota); groq = fallback
 _model = None
 def ivrit_transcribe(mp3):
@@ -21,10 +22,10 @@ def ivrit_transcribe(mp3):
     try:
         if _model is None:
             from faster_whisper import WhisperModel
-            _model = WhisperModel("ivrit-ai/whisper-large-v3-turbo-ct2", device="cpu", compute_type="int8", cpu_threads=os.cpu_count() or 4)
-        segs, _ = _model.transcribe(str(mp3), language="he", beam_size=1, vad_filter=True, vad_parameters={"min_silence_duration_ms": 500, "threshold": 0.35},
+            _model = WhisperModel("ivrit-ai/whisper-large-v3-turbo-ct2" if ASR_LANG == "he" else "deepdml/faster-whisper-large-v3-turbo-ct2", device="cpu", compute_type="int8", cpu_threads=os.cpu_count() or 4)
+        segs, _ = _model.transcribe(str(mp3), language=ASR_LANG, beam_size=1, vad_filter=True, vad_parameters={"min_silence_duration_ms": 500, "threshold": 0.35},
                                     condition_on_previous_text=False, no_speech_threshold=0.5, compression_ratio_threshold=2.2, hallucination_silence_threshold=2.0,
-                                    initial_prompt="עודד, ביגי, עמית שיבר, סנסיי, רונן, אוהד, קיק, סטרימר, פוקימון")
+                                    initial_prompt=("עודד, ביגי, עמית שיבר, סנסיי, רונן, אוהד, קיק, סטרימר, פוקימון" if ASR_LANG == "he" else None))
         out = []
         for sg in segs:
             t = sg.text.strip()

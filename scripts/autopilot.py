@@ -29,7 +29,7 @@ def publish(cid, msg, dry):
     sh(["git", "add", "state"], dry); sh(["git", "commit", "-q", "-m", msg], dry)
     for _ in range(3):
         if sh(["git", "pull", "--rebase", "-q"], dry) == 0 and sh(["git", "push", "-q"], dry) == 0: break
-    if os.environ.get("GH_TOKEN") or dry: sh(["gh", "workflow", "run", "render-clip.yml", "--ref", "main", "-f", f"clip_id={cid}", "-f", "upload=true"], dry)
+    if os.environ.get("GH_TOKEN") or dry: sh(["gh", "workflow", "run", "render-clip.yml", "--ref", "main", "-f", f"clip_id={cid}", "-f", "upload=true", "-f", "state_dir=" + os.environ.get("STATE_DIR", "state"), "-f", "yt=" + os.environ.get("CHANNEL_YT", "main")], dry)
 def snap_end(rows, t):
     """end of the sentence that contains/precedes t"""
     best = None

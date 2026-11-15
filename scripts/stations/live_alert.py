@@ -6,7 +6,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 ls = json.load(open(os.path.join(ST, "live_status.json"))); af = os.path.join(ST, "alert_state.json")
 prev = json.load(open(af)) if os.path.exists(af) else {"live": False}
 if ls.get("live") and not prev.get("live"):
-    body = f"🔴 עודד עלה ללייב: {ls.get('title') or ''} | קטגוריה: {ls.get('category') or '-'} | צופים: {ls.get('viewers')} | {ls.get('checked_at')}"
+    body = f"🔴 {os.environ.get('CHANNEL', 'odedsvr')} עלה ללייב: {ls.get('title') or ''} | קטגוריה: {ls.get('category') or '-'} | צופים: {ls.get('viewers')} | {ls.get('checked_at')}"
     subprocess.run(["gh", "api", "-X", "POST", f"repos/{os.environ.get('GITHUB_REPOSITORY', 'MaorMichaelov/oded-highlights')}/issues/1/comments", "-f", f"body={body}"], check=False)
     event("live_up", body); print("live alert sent")
 elif prev.get("live") and not ls.get("live"): event("live_down", "עודד ירד מהלייב")

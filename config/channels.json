@@ -1,0 +1,9 @@
+{
+  "_doc": "Channels the system watches. odedsvr runs in live-loop.yml (state/). Others run in live-loop-channel.yml with their own state dir. yt = which YouTube channel the drafts go to (main = ODED HIGHLIGHTS secrets YT_*, en = the English channel secrets YT2_*).",
+  "channels": [
+    {"slug": "odedsvr", "kick_id": "7685090", "lang": "he", "state": "state", "yt": "main", "credit": "עודד (OdedSVR)", "enabled": true},
+    {"slug": "adinross", "kick_id": "", "lang": "en", "state": "state/adinross", "yt": "en", "credit": "Adin Ross", "enabled": false},
+    {"slug": "xqc", "kick_id": "", "lang": "en", "state": "state/xqc", "yt": "en", "credit": "xQc", "enabled": false},
+    {"slug": "trainwreckstv", "kick_id": "", "lang": "en", "state": "state/trainwreckstv", "yt": "en", "credit": "Trainwreck", "enabled": false}
+  ]
+}

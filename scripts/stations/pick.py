@@ -38,6 +38,7 @@ def snap(rows, a, b):
     s = max([r["start"] for r in rows if r["start"] <= a], default=a); e = min([r["end"] for r in rows if r["end"] >= b], default=b)
     return max(0, s - PRE), e
 def valid_title(t): return 28 <= len(t) <= 75 and t.strip()[-1] in "!?"
+LANG = os.environ.get("PICK_LANG", "he"); CREDIT = os.environ.get("CHANNEL_CREDIT", "עודד (OdedSVR)"); SLUG = os.environ.get("CHANNEL", "odedsvr")
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--vod"); ap.add_argument("--dry-run", action="store_true"); ap.add_argument("--state", default=os.environ.get("STATE_DIR", "state")); ap.add_argument("--hold", type=int, default=300); ap.add_argument("--window", type=int, default=4500); a = ap.parse_args()
     ST = os.path.join(ROOT, a.state)
@@ -62,12 +63,12 @@ def main():
     L = (jf(os.path.join(ROOT, "state", "lessons.json"), []) or [])[-12:]
     ins = open(os.path.join(ROOT, "state", "chat_instructions.md"), encoding="utf-8").read()[-1200:] if os.path.exists(os.path.join(ROOT, "state", "chat_instructions.md")) else ""
     guide += ("\n\nLESSONS LEARNED (from deleted drafts, weak videos, quality failures; obey):\n" + "\n".join("- " + x["text"] for x in L) if L else "") + (("\n\nOWNER INSTRUCTIONS (from the app chat):\n" + ins) if ins.strip() else "")
-    system = ("You are the topic editor of the YouTube channel ODED HIGHLIGHTS (clips of the Kick streamer OdedSVR, Hebrew). You get a transcript of a live stream "
+    system = (f"You are the topic editor of a YouTube clips channel (clips of the Kick streamer {SLUG}; language: {LANG}). " + ("Write ALL titles and descriptions in ENGLISH. " if LANG == "en" else "") + "You get a transcript of a live stream "
               "(ivrit ASR, may contain errors) and decide which COMPLETE topics become long videos. Follow the guide strictly. Reply with JSON only.\n\nGUIDE:\n" + guide)
     user = (f"Transcript window {mmss(lo)} - {mmss(hi)} (stream seconds; each line starts with [h:mm:ss|seconds]). Only topics that END before {int(hi)} s are closed.\n"
             f"Category/title changes (recent): {json.dumps(cat, ensure_ascii=False)}\nRanges already cut (seconds): {done}\nRecent uploaded titles (do not repeat a topic): {json.dumps(recent, ensure_ascii=False)}\n\n"
             + "\n".join(lines(rows, lo, hi)) +
-            f"\n\nReturn JSON: {{\"clips\":[{{\"start\":sec,\"end\":sec,\"title\":\"Hebrew 40-70 chars: a short QUOTE from the clip in quotes ending with !, then who + what (names of the people)\",\"description\":\"2-3 Hebrew sentences\",\"tags\":[...],\"preset\":one of {PRESETS},"
+            f"\n\nReturn JSON: {{\"clips\":[{{\"start\":sec,\"end\":sec,\"title\":\"" + ("English" if LANG == "en" else "Hebrew") + " 40-70 chars: a short QUOTE from the clip in quotes ending with !, then who + what (names of the people)\",\"description\":\"2-3 Hebrew sentences\",\"tags\":[...],\"preset\":one of {PRESETS},"
             f"\"head\":\"<=2 Hebrew words\",\"accent\":\"<=2 Hebrew words ending !\",\"brief\":{{\"about\":\"\",\"who\":\"\",\"peak\":\"mm:ss + what\"}},\"exclude\":[[sec,sec]]}}],"
             f"\"next_cursor\":sec (start of the first topic that is still open or unclear; if everything up to {int(hi)} is decided put {int(hi)}),\"notes\":\"why skipped\"}}. "
             f"Each clip {MIN_LEN}-{MAX_LEN} s, ONE topic, no overlap with already cut ranges. Empty clips list is fine and common. Be strict: weak topics are skipped.")
@@ -108,9 +109,11 @@ def main():
         if os.path.exists(os.path.join(d, "spec.json")): continue
         os.makedirs(d, exist_ok=True)
         json.dump({"vod": vod, "base": ing.get("_vod_base"), "pieces": [{"keep": keep, "ch": c.get("brief", {}).get("about", "הנושא")[:40] or "הנושא"}]}, open(os.path.join(d, "cuts.json"), "w"), ensure_ascii=False, indent=1)
-        desc = c.get("description", "").strip() + "\n\nהרגעים הכי טובים מהלייב של עודד בקיק | ODED HIGHLIGHTS\n\nהקטע מתוך הלייב של עודד בקיק: https://kick.com/odedsvr\n\n#עודד #OdedSVR #עודדהיילייטס #קיק"
+        desc = c.get("description", "").strip() + (f"\n\nClip from {CREDIT}'s live on Kick: https://kick.com/{SLUG}\n\n#{SLUG} #kick #streamer #highlights" if LANG == "en" else "\n\nהרגעים הכי טובים מהלייב של עודד בקיק | ODED HIGHLIGHTS\n\nהקטע מתוך הלייב של עודד בקיק: https://kick.com/odedsvr\n\n#עודד #OdedSVR #עודדהיילייטס #קיק")
+        aff = os.path.join(ROOT, "config", "affiliate.txt")
+        if os.path.exists(aff): desc += "\n\n" + open(aff, encoding="utf-8").read().strip()
         json.dump({"title": c["title"].strip(), "description": desc, "tags": (c.get("tags") or []) + ["עודד", "OdedSVR", "ODED HIGHLIGHTS"], "preset": c.get("preset") if c.get("preset") in PRESETS else "reaction_video",
-                   "head": c.get("head", ""), "accent": c.get("accent", ""), "refs": "shock,excited,smirk", "brief": c.get("brief", {}), "auto": True, "picked_by": MODEL}, open(os.path.join(d, "spec.json"), "w"), ensure_ascii=False, indent=1)
+                   "head": c.get("head", ""), "accent": c.get("accent", ""), "refs": "shock,excited,smirk", "brief": c.get("brief", {}), "lang": LANG, "auto": True, "picked_by": MODEL}, open(os.path.join(d, "spec.json"), "w"), ensure_ascii=False, indent=1)
         made.append(cid); print(f"PICKED {cid}: {c['title']} ({int(s0)}-{int(e0)}, {int((e0 - s0) / 60)} min)")
     ps[vod] = {"cursor": max(lo, min(float(res.get("next_cursor", hi) or hi), hi)), "last_run": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "notes": res.get("notes", "")[:300]}
     if not a.dry_run: json.dump(ps, open(pf, "w"), indent=1)

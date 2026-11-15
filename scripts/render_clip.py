@@ -27,7 +27,7 @@ if not os.path.exists(wj):
     mp3 = os.path.join(work, "body.mp3"); run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", body, "-vn", "-ac", "1", "-ar", "16000", "-b:a", "48k", mp3])
     key = ["-H", "Authorization: Bearer " + os.environ["GROQ_API_KEY"]] if os.environ.get("GROQ_API_KEY") else []
     prompt = spec.get("asr_prompt", "עודד, ביגי, עמית שיבר, סנסיי, רונן, קיק, סטרימר, פוקימון, GTA")
-    out = run(["curl", "-sS", "-m", "600", "https://api.groq.com/openai/v1/audio/transcriptions"] + key + ["-F", "model=whisper-large-v3", "-F", "language=he", "-F", "response_format=verbose_json",
+    out = run(["curl", "-sS", "-m", "600", "https://api.groq.com/openai/v1/audio/transcriptions"] + key + ["-F", "model=whisper-large-v3", "-F", "language=" + spec.get("lang", "he"), "-F", "response_format=verbose_json",
               "-F", "timestamp_granularities[]=word", "-F", "timestamp_granularities[]=segment", "-F", f"prompt={prompt}", "-F", f"file=@{mp3}"])
     open(wj, "w").write(out)
 words = json.load(open(wj)).get("words", []); lap("word timings")
