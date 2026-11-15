@@ -8,7 +8,8 @@ usage: pick.py [--vod ID] [--dry-run] [--state DIR] [--hold 300]"""
 import argparse, json, os, re, subprocess, sys, time
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(os.path.dirname(HERE)); sys.path.insert(0, os.path.dirname(HERE))
 MODEL = os.environ.get("PICK_MODEL", "openai/gpt-oss-120b")
-MIN_LEN, MAX_LEN, PRE = 900, 2400, 3.0   # owner rule (15 Nov): every clip 15-40 minutes, a COMPLETE topic
+MIN_LEN, MAX_LEN, PRE = 900, 2400, 3.0
+MAX_SESSION = 3600   # a great SESSION (game, challenge, pack opening, event, guest) is kept whole up to 60 min: viewers ask for the full thing (owner, 15 Nov)   # owner rule (15 Nov): every clip 15-40 minutes, a COMPLETE topic
 PRESETS = ["game_launch", "phone_call", "heist", "lawsuit", "courtroom_ban", "airport_leave", "birthday", "quiz_game", "rant", "money", "ai_tech", "reaction_video", "date_show", "gaming_fail", "sleeping_drunk"]
 DONATION = re.compile(r"תרם |תרמת |תרמו |דונ(?:ייט|יישן|ציה)|גיפט|\d+ דולר|(?:שלושה|חמישה|עשרה|עשרים|חמישים) דולר|קיקס ")   # donation reading (owner rule: never in a clip)
 HARD = re.compile(r"היטלר|שואה|התאבד|אתיופ|נאצי|גז(?:ים)? יהוד")
@@ -92,7 +93,8 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
         if sum(max(0, min(sp["to"], y) - max(sp["from"], x)) for x, y in done) > 0.3 * dur: seen.append(key); print("span overlaps existing clips, skipped:", sp["title"]); continue
         a = refine(rows, sp["from"], sp["to"], sp["title"], "start"); b = refine(rows, sp["from"], sp["to"], sp["title"], "end")
         if b - a < 840: a, b = sp["from"], sp["to"]
-        parts = max(1, -(-int(b - a) // MAX_LEN)); step = (b - a) / parts; got = False
+        mx = MAX_SESSION if sp.get("kind") in ("game", "event", "guest", "call", "reaction") else MAX_LEN
+        parts = max(1, -(-int(b - a) // mx)); step = (b - a) / parts; got = False
         for i in range(parts):
             lo, hi = a + i * step, a + (i + 1) * step
             rs = [r for r in rows if r["start"] >= lo and r["end"] <= hi + 2]
@@ -112,14 +114,14 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
                         if x - p0 > 5: nk.append([p0, x])
                         if q0 - y > 5: nk.append([y, q0])
                 keep = nk
-            if sp.get("kind") not in ("reaction", "game"): keep = trim_dead_air(rows, keep, gap=10.0, min_seg=10.0)   # reactions: his silence is the video he watches; real silence is removed from the audio in the cut station
+            if sp.get("kind") not in ("reaction", "game", "event"): keep = trim_dead_air(rows, keep, gap=10.0, min_seg=10.0)   # reactions: his silence is the video he watches; real silence is removed from the audio in the cut station
             tot = sum(q0 - p0 for p0, q0 in keep)
             if tot < 900: print(f"span '{sp['title']}' only {int(tot)} s after cleaning (<15 min): skipped"); __import__("events").event("pick_skip", f"🔎 הנושא \"{sp['title']}\" ({int(dur / 60)} דק׳) יצא {int(tot / 60)} דק׳ אחרי ניקוי שקטים ודונייטים, פחות מ-15: לא נחתך."); continue
             try:
                 sys.path.insert(0, os.path.dirname(HERE)); import topic_scan as _ts
                 sps = [t_ for t_, z_ in _ts.chat_spikes(ing.get("_vod_start_epoch")) if z_ >= 2.3 and any(x_ <= t_ <= y_ for x_, y_ in keep)]
             except Exception: sps = None
-            if sps is not None and not sps and sp.get("kind") not in ("game", "reaction", "guest", "call"):   # review rule: a clip needs a PEAK (the audience reacted somewhere), no raw stretches
+            if sps is not None and not sps and sp.get("kind") not in ("game", "reaction", "guest", "call", "event"):   # review rule: a clip needs a PEAK (the audience reacted somewhere), no raw stretches
                 print(f"span '{sp['title']}' has no chat peak: skipped"); __import__("events").event("pick_skip", f"🔎 הנושא \"{sp['title']}\" ({int(tot / 60)} דק׳) בלי שיא בצ'אט (שום רגע שהקהל הגיב אליו): לא נחתך, כדי לא להעלות סטרים גולמי."); continue
             funny = [(r["start"], r["text"]) for r in rows if sps and any(abs(r["start"] - t_) <= 6 for t_ in sps) and any(x_ <= r["start"] <= y_ for x_, y_ in keep)]
             meta = None
@@ -150,7 +152,7 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
                 if pieces and (pieces[-1]["ch"] == lab or sum(y - x for x, y in sub) < 25): pieces[-1]["keep"] += sub   # same topic (or a tiny tail) stays in the previous chapter
                 else: pieces.append({"keep": sub, "ch": lab})
             if len(pieces) < 3: pieces = [{"keep": keep, "ch": (meta.get("about") or sp["title"])[:40]}]
-            json.dump({"vod": vod, "base": ing.get("_vod_base"), **({"silence": [25]} if sp.get("kind") in ("game", "reaction") else {}), "pieces": [{"keep": [[round(x, 2), round(y, 2)] for x, y in pc["keep"]], "ch": pc["ch"]} for pc in pieces]}, open(os.path.join(d, "cuts.json"), "w"), ensure_ascii=False, indent=1)   # games/reactions: continuous, only silences >= 25 s are removed
+            json.dump({"vod": vod, "base": ing.get("_vod_base"), **({"silence": [25]} if sp.get("kind") in ("game", "reaction", "event") else {}), "pieces": [{"keep": [[round(x, 2), round(y, 2)] for x, y in pc["keep"]], "ch": pc["ch"]} for pc in pieces]}, open(os.path.join(d, "cuts.json"), "w"), ensure_ascii=False, indent=1)   # games/reactions: continuous, only silences >= 25 s are removed
             acc, pv = 0.0, None
             for x, y in keep:
                 if x <= float(meta.get("peak_second", -1)) <= y: pv = acc + (float(meta["peak_second"]) - x) + 11.2

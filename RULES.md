@@ -47,3 +47,5 @@ GROK BOT'S INSTRUCTIONS (owner pasted 14 Nov): drafts = private + full Hebrew ti
 
 - LENGTH (owner, 15 Nov): every clip 15-40 min and a COMPLETE topic (e.g. the whole cooking with his wife). Short fragments of 4-6 min are wrong. The topic-span picker (timeline spans -> pick) enforces it; clips under 15 min after cleaning are skipped.
 - ACCURACY: titles/descriptions/brief must describe what is really in the clip; names in Hebrew; peak time computed from the real cut.
+
+- GREAT SESSIONS ARE LONG (owner, 15 Nov, from a viewer comment on the 36-pokemon-packs video: "15 minutes can't summarise all this fun, watch the live"): a strong session (pack opening, game session, challenge, event, big guest) is kept WHOLE, 30-35 min at least and up to 60 min; the 15-min minimum is only for ordinary topics.

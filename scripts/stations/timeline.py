@@ -37,7 +37,7 @@ def label(chs):
         txt = " ".join(r["text"] for r in rows if c * CH <= r["start"] < (c + 1) * CH)[:3000]
         parts.append(f"### chunk {c} ({c * 5}-{c * 5 + 5} min) | קטגוריית Kick באותו זמן: {cat_at(c) or 'לא ידוע'}\n{txt}")
     prompt = ("לכל קטע תמלול של 5 דקות מלייב של סטרימר ישראלי (התמלול האוטומטי מלא שגיאות, אל תתייאש), תן: label = משפט קצר בעברית על מה קורה בפועל (4-10 מילים, ספציפי: 'מבשל פסטה עם אשתו ועונה לצ'אט', 'מספר על חרדות לפני הסבתון', 'משחק רוב ראן עם חברים'), "
-              "keywords = 3-6 מילות מפתח, plans = רשימה (0-3) של דברים שהוא אומר במפורש שהוא מתכנן לעשות/לצפות/לשחק/להגיב עליהם בהמשך (בשידור הזה או בשידורים הבאים; משפט קצר בעברית, למשל 'להגיב לסרטון של פרנזי'), רק אם נאמר בפירוש, kind אחד מ: talk,game,cooking,guest,call,reaction,chat,idle (reaction = הוא צופה/קורא כתבה, סרטון או חדשות (למשל על GTA 6) ומגיב עליהם בקול; ציין על מה). idle רק אם כמעט אין דיבור. אסור לכתוב 'לא ברור'. "
+              "keywords = 3-6 מילות מפתח, plans = רשימה (0-3) של דברים שהוא אומר במפורש שהוא מתכנן לעשות/לצפות/לשחק/להגיב עליהם בהמשך (בשידור הזה או בשידורים הבאים; משפט קצר בעברית, למשל 'להגיב לסרטון של פרנזי'), רק אם נאמר בפירוש, kind אחד מ: talk,game,cooking,guest,call,reaction,event,chat,idle (event = אירוע/אתגר קבוצתי/פתיחת חבילות/הגרלה שיש בה התרחשות רציפה; reaction = הוא צופה/קורא כתבה, סרטון או חדשות (למשל על GTA 6) ומגיב עליהם בקול; ציין על מה). idle רק אם כמעט אין דיבור. אסור לכתוב 'לא ברור'. "
               "החזר JSON בלבד: {\"labels\":[{\"chunk\":n,\"label\":\"...\",\"keywords\":[...],\"plans\":[...],\"kind\":\"...\"}]}\n\n" + "\n\n".join(parts))
     hdr = ["-H", "Content-Type: application/json"] + (["-H", "Authorization: Bearer " + os.environ["GROQ_API_KEY"]] if os.environ.get("GROQ_API_KEY") else [])
     for model in ("openai/gpt-oss-120b", "openai/gpt-oss-20b"):
@@ -63,7 +63,7 @@ def segment(T, nchunks):
     if len(cs) < 2: return spans
     lines = "\n".join(f"{c * 5}-{c * 5 + 5} [{T['chunks'][str(c)]['kind']}] (קטגוריה: {cat_at(c) or '?'}) {T['chunks'][str(c)]['label']} ({', '.join(T['chunks'][str(c)].get('kw', [])[:4])})" for c in cs)
     prompt = ("אלו תוויות של קטעי 5 דקות ברצף מלייב של סטרימר ישראלי. קבץ קטעים רצופים לנושאים (spans), כך שכל הלייב מכוסה מההתחלה עד הסוף. לכל span: from/to בדקות, title בעברית קצר, "
-              "kind (talk/game/cooking/guest/call/reaction/chat/idle), clip_worthy=true לכל נושא קוהרנטי של 15 דקות ומעלה עם תוכן אמיתי (סיפור, דעה, הומור, הכנות לסבתון, פעילות בבית, אורח, משחק, ריאקשן שרציף גם על כמה כתבות/סרטונים) "
+              "kind (talk/game/cooking/guest/call/reaction/event/chat/idle), clip_worthy=true לכל נושא קוהרנטי של 15 דקות ומעלה עם תוכן אמיתי (סיפור, דעה, הומור, הכנות לסבתון, פעילות בבית, אורח, משחק, ריאקשן שרציף גם על כמה כתבות/סרטונים) "
               "ו-false רק לצ'אט כללי, תקלות או המתנה. כשקטגוריית Kick היא משחק והוא משחק: kind=game. החזר JSON בלבד: {\"spans\":[{\"from\":m,\"to\":m,\"title\":\"\",\"kind\":\"\",\"clip_worthy\":true,\"why\":\"\"}]}\n\n" + lines)
     hdr = ["-H", "Content-Type: application/json"] + (["-H", "Authorization: Bearer " + os.environ["GROQ_API_KEY"]] if os.environ.get("GROQ_API_KEY") else [])
     for model in ("openai/gpt-oss-120b", "openai/gpt-oss-20b"):
@@ -78,7 +78,7 @@ def segment(T, nchunks):
                 x["from"], x["to"] = int(x["from"]) * 60, int(x["to"]) * 60; x["closed"] = x["to"] <= (last_chunk - 0) * CH   # a span is closed once at least one later chunk exists after it
             merged = []
             for x in sorted((x for x in new if x["to"] > x["from"]), key=lambda x: x["from"]):   # one activity = one span: merge adjacent spans of the same activity kind
-                if merged and merged[-1]["to"] == x["from"] and x["kind"] == merged[-1]["kind"] and x["kind"] in ("cooking", "game", "guest", "call", "reaction"):
+                if merged and merged[-1]["to"] == x["from"] and x["kind"] == merged[-1]["kind"] and x["kind"] in ("cooking", "game", "guest", "call", "reaction", "event"):
                     merged[-1]["to"] = x["to"]; merged[-1]["closed"] = x["closed"]; merged[-1]["clip_worthy"] = merged[-1]["clip_worthy"] or x["clip_worthy"]
                 else: merged.append(x)
             return spans + merged

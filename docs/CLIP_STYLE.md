@@ -21,3 +21,5 @@ Channels: Taklipu | תקליפו (@taklipu, 1.3K subs, clips of Oded), RonenGG P
 11 public videos, 4-30 min, 7-20 chapters each. Best: "עודד וסנסי מתחילים מאפס בשרת חדש ברוב ראן!" (30 min, 3.1K views, 9 chapters, a continuous session), then sensei-asleep (9 min), Eitan Nissim call (11 min), Rob Run with Ronen (14 min), Pokemon packs (15 min). Weakest (27-63 views): short or generic topics (shawarma reaction 6 min, a call 4 min, pet ranking).
 Description format of the best video: 2-3 sentence summary with specifics (names, what they do) + one SEO line ("עודד SVR משחק רוב ראן | Rob Run | שוד, מארב וכסף מאפס") + channel credit line + kick link + "פרקים:" (00:00 hook line, then a chapter every ~3-5 min with a descriptive label, last chapter repeats the hook) + hashtags (#עודד #OdedSVR #רובראן #RobRun + people + #עודדהיילייטס #קיק).
 Rule: a long session is ONE continuous clip with chapters; many small cuts only where a boring stretch must be dropped.
+
+Viewer feedback (comment on the 36 packs video): "15 minutes cannot summarise all this fun". Strong sessions must be 30-35+ min, complete.
