@@ -63,7 +63,7 @@ def segment(T, nchunks):
     if len(cs) < 2: return spans
     lines = "\n".join(f"{c * 5}-{c * 5 + 5} [{T['chunks'][str(c)]['kind']}] (קטגוריה: {cat_at(c) or '?'}) {T['chunks'][str(c)]['label']} ({', '.join(T['chunks'][str(c)].get('kw', [])[:4])})" for c in cs)
     prompt = ("אלו תוויות של קטעי 5 דקות ברצף מלייב של סטרימר ישראלי (דקות מתחילת השידור). קבץ קטעים רצופים לנושאים (spans) שכל אחד הוא פעילות/נושא אחד שלם: למשל בישול עם אשתו, שיחה על הסבתון, משחק. "
-              "לכל span: from/to בדקות (כפולות של 5), title בעברית קצר, kind, clip_worthy=true רק אם זה נושא שווה סרטון (סיפור, פעילות בבית כמו בישול, אורח, משחק עם חברים, ריאקשן, דרמה) ולא שיחת צ'אט כללית/המתנה, why=סיבה קצרה. "
+              "לכל span: from/to בדקות (כפולות של 5), title בעברית קצר, kind, clip_worthy=true לכל נושא קוהרנטי של 15 דקות ומעלה שיש בו תוכן אמיתי: סיפור, דעה חזקה, הומור, תכניות או הכנות לסבתון, פעילות בבית כמו בישול, אורח, משחק, ריאקשן או דרמה. false רק לשיחת צ'אט כללית בלי נושא, תקלות, המתנה או פטפוט מפוזר, why=סיבה קצרה. "
               "כשקטגוריית Kick היא משחק (לא Just Chatting) והוא משחק, זה span מסוג game ושווה קליפ ברגע שהוא נמשך 15 דקות ומעלה. אל תפצל פעילות אחת לכמה spans, ואל תאחד נושאים שונים. סשן רציף של ריאקשנים (הוא צופה/קורא כמה כתבות או סרטונים ברצף ומגיב) הוא span אחד מסוג reaction ושווה קליפ, עם כותרת כמו 'מגיב לכתבות וחדשות על GTA 6'. החזר JSON בלבד: {\"spans\":[{\"from\":m,\"to\":m,\"title\":\"\",\"kind\":\"\",\"clip_worthy\":true,\"why\":\"\"}]}\n\n" + lines)
     hdr = ["-H", "Content-Type: application/json"] + (["-H", "Authorization: Bearer " + os.environ["GROQ_API_KEY"]] if os.environ.get("GROQ_API_KEY") else [])
     for model in ("openai/gpt-oss-120b", "openai/gpt-oss-20b"):
@@ -80,6 +80,7 @@ def segment(T, nchunks):
             return spans + merged
         except Exception as e: print("segment model", model, "failed:", str(e)[:80], out[:120])
     return spans
+if T.get("seg_v") != 3: T["spans"] = []; T["seg_v"] = 3   # segmentation criteria changed (more inclusive): re-evaluate the whole stream once
 T["spans"] = segment(T, 0)
 tl = []
 for c in sorted(map(int, T["chunks"])):

@@ -81,7 +81,8 @@ def span_meta(rows, keep, title, kind):
 def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
     tf = os.path.join(ST, "timeline.json"); T = jf(tf)
     if not T or T.get("vod") != vod or not T.get("spans"): return None
-    seen = ps.setdefault(vod, {}).setdefault("spans_done", []); made = []
+    if ps.setdefault(vod, {}).get("seg_v") != T.get("seg_v"): ps[vod]["spans_done"] = []; ps[vod]["seg_v"] = T.get("seg_v")   # re-evaluate spans after the criteria changed (overlap with existing clips is still checked)
+    seen = ps[vod].setdefault("spans_done", []); made = []
     for sp in sorted(T["spans"], key=lambda x: x["from"]):
         key = f"{sp['from']}-{sp['to']}"
         if key in seen or not sp.get("closed") or not sp.get("clip_worthy") or sp["to"] > closed: continue
