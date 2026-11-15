@@ -112,7 +112,7 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
         if mx == MAX_LEN and b - a < 1100:   # cleaning (silence/donations) shaves 10-20%: a 14-18 min topic used to fall under 15 min and be skipped, so give it the missing tail (the stream continues) instead of losing the clip
             b2 = min(closed, b + (1100 - (b - a)))
             if not any(a < y and x < b2 for x, y in done): b = b2
-        parts = max(1, -(-int(b - a) // mx)); step = (b - a) / parts; got = False
+        parts = max(1, -(-int(b - a) // mx)); step = (b - a) / parts; got = False; failed = False
         for i in range(parts):
             lo, hi = a + i * step, a + (i + 1) * step
             rs = [r for r in rows if r["start"] >= lo and r["end"] <= hi + 2]
@@ -157,7 +157,7 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
                         rest = _re.sub(r"^[\s–\-]+", "", t_.replace(q_.group(0), "", 1)).strip(); print("quote not in transcript, dropped:", q_.group(1)); t_ = rest if rest[-1:] in "!?" else rest + "!"; m_["title"] = t_
                     if valid_title(t_): meta = m_; break
                     print("title rejected:", len(t_), t_[:80])
-            if not meta: print("meta/title failed for", sp["title"]); continue
+            if not meta: print("meta/title failed for", sp["title"]); failed = True; continue
             title = meta["title"].strip() + (f" (חלק {i + 1}/{parts})" if parts > 1 else "")
             cid = f"{vod}_{int(s0)}"; d = os.path.join(clipsd, cid)
             if os.path.exists(os.path.join(d, "spec.json")): continue
@@ -186,7 +186,9 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
                       open(os.path.join(d, "spec.json"), "w"), ensure_ascii=False, indent=1)
             made.append(cid); got = True; done.append((s0, e0))
             __import__("events").event("pick", f"נבחר נושא לקליפ: {title} ({int(tot / 60)} דק׳, מתוך {sp['title']}). רינדור בדרך.", clip=cid); print(f"PICKED {cid}: {title} ({int(tot / 60)} min)")
-        seen.append(key)
+        rt = ps[vod].setdefault("retry", {}); rt[key] = rt.get(key, 0) + (1 if failed else 0)
+        if not failed or rt[key] >= 4: seen.append(key)   # a part whose title/meta failed is retried (max 4 times) instead of being lost silently: the other parts of the session were cut, this one must not vanish
+        elif failed: print("will retry span", key, rt[key])
     ps[vod]["last_run"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     if not dry: json.dump(ps, open(os.path.join(ST, "pick_state.json"), "w"), indent=1)
     if made and not dry and not os.environ.get("NO_DISPATCH"):
