@@ -9,7 +9,7 @@ import argparse, json, os, re, subprocess, sys, time
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(os.path.dirname(HERE)); sys.path.insert(0, os.path.dirname(HERE))
 MODEL = os.environ.get("PICK_MODEL", "openai/gpt-oss-120b")
 MIN_LEN, MAX_LEN, PRE = 900, 2400, 3.0
-MAX_SESSION = 5400   # a great SESSION (game, challenge, pack opening, event, guest) is kept whole up to 60 min: viewers ask for the full thing (owner, 15 Nov)   # owner rule (15 Nov): every clip 15-40 minutes, a COMPLETE topic
+MAX_SESSION = 7200   # a great SESSION (game, challenge, pack opening, event, guest) is kept whole up to 60 min: viewers ask for the full thing (owner, 15 Nov)   # owner rule (15 Nov): every clip 15-40 minutes, a COMPLETE topic
 PRESETS = ["game_launch", "phone_call", "heist", "lawsuit", "courtroom_ban", "airport_leave", "birthday", "quiz_game", "rant", "money", "ai_tech", "reaction_video", "date_show", "gaming_fail", "sleeping_drunk"]
 DONATION = re.compile(r"תרם |תרמת |תרמו |דונ(?:ייט|יישן|ציה)|גיפט|\d+ דולר|(?:שלושה|חמישה|עשרה|עשרים|חמישים) דולר|קיקס ")   # donation reading (owner rule: never in a clip)
 HARD = re.compile(r"היטלר|שואה|התאבד|אתיופ|נאצי|גז(?:ים)? יהוד")
@@ -105,7 +105,7 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
         if key in seen or not sp.get("closed") or not sp.get("clip_worthy") or sp["to"] > closed: continue
         dur = sp["to"] - sp["from"]; mn = sp.get("min") or (360 if sp.get("kind") == "reaction" else 900)   # owner (15 Nov): a reaction to articles/videos of other creators is wanted even at 6-8 min, few cuts
         if dur < mn - 60: seen.append(key); continue
-        if sum(max(0, min(sp["to"], y) - max(sp["from"], x)) for x, y in done) > 0.3 * dur: seen.append(key); print("span overlaps existing clips, skipped:", sp["title"]); continue
+        if not sp.get("forced") and sum(max(0, min(sp["to"], y) - max(sp["from"], x)) for x, y in done) > 0.3 * dur: seen.append(key); print("span overlaps existing clips, skipped:", sp["title"]); continue
         a, b = (sp["from"], sp["to"]) if sp.get("forced") else (refine(rows, sp["from"], sp["to"], sp["title"], "start"), refine(rows, sp["from"], sp["to"], sp["title"], "end"))
         if b - a < mn - 60: a, b = sp["from"], sp["to"]
         mx = MAX_SESSION if sp.get("kind") in ("game", "event", "guest", "call", "reaction") else MAX_LEN
@@ -132,7 +132,8 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
                         if x - p0 > 5: nk.append([p0, x])
                         if q0 - y > 5: nk.append([y, q0])
                 keep = nk
-            if sp.get("kind") not in ("reaction", "game", "event"): keep = trim_dead_air(rows, keep, gap=10.0, min_seg=10.0)   # reactions: his silence is the video he watches; real silence is removed from the audio in the cut station
+            if sp.get("kind") not in ("reaction", "game", "event"): keep = trim_dead_air(rows, keep, gap=10.0, min_seg=10.0)
+            elif sp.get("kind") in ("game", "event"): keep = trim_dead_air(rows, keep, gap=45.0, min_seg=30.0)   # one game session = ONE video; only long (45 s+) speechless stretches (stuck game, waiting) are cut (Grok/owner review, 15 Nov)   # reactions: his silence is the video he watches; real silence is removed from the audio in the cut station
             tot = sum(q0 - p0 for p0, q0 in keep)
             if tot < mn: print(f"span '{sp['title']}' only {int(tot)} s after cleaning (<15 min): skipped"); __import__("events").event("pick_skip", f"🔎 הנושא \"{sp['title']}\" ({int(dur / 60)} דק׳) יצא {int(tot / 60)} דק׳ אחרי ניקוי שקטים ודונייטים, פחות מ-15: לא נחתך."); continue
             try:
