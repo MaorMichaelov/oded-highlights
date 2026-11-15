@@ -29,3 +29,8 @@ Viewer feedback (comment on the 36 packs video): "15 minutes cannot summarise al
 - Game sessions: `<strong judgement/quote>! (<Game name>)`, 35-95 min (Can Em All 54 min, Alias 69 min, Grain Rot 82 min, A way out 93 min).
 - Typical video: 17-45 min; best views are 16-69 min videos. Shorter than ~12 min is rare.
 - So: when he watches ONE video, cut the whole session (typically 20-40 min); a reaction of only 6-8 min is acceptable only when that is all there is (owner).
+
+### Numbers from the streamer's own channel (config/channel_style.json, 200 videos, 15 Nov)
+- Reactions (54): median 36 min, 90% between 16 and 54 min, max 75. Games (42): median 49 min, 24-86 min. Other/talk/IRL (104): median 34 min, 17-82 min.
+- Views by length: 10-20 min ~11k, 20-60 min ~17-19k (best band), 80+ min lower. Sweet spot: 20-60 min.
+- Not known: how many cuts inside his edited videos (YouTube blocks bots from downloading them). Owner: reactions = only the part where he reacts, few cuts, "here and there".
