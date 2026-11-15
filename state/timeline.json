@@ -80,6 +80,10 @@
   "19": {
    "label": "שיחה לא מובנת",
    "kind": "talk"
+  },
+  "20": {
+   "label": "שיחות מבלבלות",
+   "kind": "idle"
   }
  },
  "timeline": [
@@ -184,8 +188,14 @@
    "to": 6000,
    "label": "שיחה לא מובנת",
    "kind": "talk"
+  },
+  {
+   "from": 6000,
+   "to": 6300,
+   "label": "שיחות מבלבלות",
+   "kind": "idle"
   }
  ],
- "transcript_end": 6279,
- "updated": "2026-11-15T16:23:56Z"
+ "transcript_end": 6549,
+ "updated": "2026-11-15T16:29:11Z"
 }
