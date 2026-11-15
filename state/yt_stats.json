@@ -1,20 +1,40 @@
 {
- "fetched_at": "2026-11-15T16:34:35Z",
- "fetched_epoch": 1794760475.506965,
+ "fetched_at": "2026-11-15T17:24:03Z",
+ "fetched_epoch": 1794763443.9421942,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1860,
   "views": 9782,
-  "videos": 10
+  "videos": 11
  },
  "videos": [
+  {
+   "id": "3H3rP1V0mLQ",
+   "title": "עודד מבקש מהצופים שלו לא לראות GTA 6 אצל סטרימרים אחרים!",
+   "published": "2026-11-15T17:05:45Z",
+   "privacy": "public",
+   "duration": "PT5M19S",
+   "views": 12,
+   "likes": 3,
+   "comments": 0
+  },
+  {
+   "id": "WQJhCHcuTSE",
+   "title": "\"זה הפלפלה שחור!\" – עודד מבשל פסטה עם נקניקיות!",
+   "published": "2026-11-15T17:02:29Z",
+   "privacy": "private",
+   "duration": "PT16M14S",
+   "views": 1,
+   "likes": 0,
+   "comments": 0
+  },
   {
    "id": "2DmQJZzvpmQ",
    "title": "\"זה האב טיפוס הראשוני של לוז!\" עודד מדבר על החולצה החדשה עם אור!",
    "published": "2026-11-15T16:30:12Z",
    "privacy": "private",
    "duration": "PT7M",
-   "views": 0,
+   "views": 1,
    "likes": 0,
    "comments": 0
   },
@@ -24,16 +44,6 @@
    "published": "2026-11-15T16:19:12Z",
    "privacy": "private",
    "duration": "PT4M7S",
-   "views": 0,
-   "likes": 0,
-   "comments": 0
-  },
-  {
-   "id": "3H3rP1V0mLQ",
-   "title": "\"אל תצפו באחרים!\" עודד מבקש מהצ'אט לא לצפות לפני ה‑GTA 6!",
-   "published": "2026-11-15T16:19:09Z",
-   "privacy": "private",
-   "duration": "PT5M19S",
    "views": 0,
    "likes": 0,
    "comments": 0
@@ -54,7 +64,7 @@
    "published": "2026-11-13T09:30:26Z",
    "privacy": "public",
    "duration": "PT14M55S",
-   "views": 1717,
+   "views": 1850,
    "likes": 13,
    "comments": 0
   },
@@ -64,7 +74,7 @@
    "published": "2026-11-13T09:00:02Z",
    "privacy": "public",
    "duration": "PT9M37S",
-   "views": 2413,
+   "views": 2687,
    "likes": 23,
    "comments": 0
   },
@@ -74,7 +84,7 @@
    "published": "2026-11-13T08:00:35Z",
    "privacy": "public",
    "duration": "PT15M2S",
-   "views": 988,
+   "views": 997,
    "likes": 16,
    "comments": 0
   },
@@ -94,7 +104,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 3123,
+   "views": 3112,
    "likes": 17,
    "comments": 0
   },
@@ -104,7 +114,7 @@
    "published": "2026-11-12T12:34:00Z",
    "privacy": "public",
    "duration": "PT6M",
-   "views": 62,
+   "views": 63,
    "likes": 2,
    "comments": 0
   },
@@ -114,8 +124,8 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 2455,
-   "likes": 30,
+   "views": 2564,
+   "likes": 32,
    "comments": 3
   },
   {
@@ -124,7 +134,7 @@
    "published": "2026-11-11T17:52:12Z",
    "privacy": "public",
    "duration": "PT14M5S",
-   "views": 126,
+   "views": 134,
    "likes": 6,
    "comments": 0
   },
@@ -134,7 +144,7 @@
    "published": "2026-11-11T17:18:07Z",
    "privacy": "public",
    "duration": "PT9M44S",
-   "views": 26,
+   "views": 27,
    "likes": 4,
    "comments": 0
   },
@@ -149,5 +159,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 77
+ "total_uploads_incl_private": 78
 }
