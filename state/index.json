@@ -7,10 +7,15 @@
    "who": "עודד (עם אזכורים של רונן ואיתן ניסים)",
    "peak": "01:52"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/riHgpZ1wJmA",
+  "draft_at": "2026-11-15T16:19:22Z",
+  "quality_errors": [],
   "auto": true
  },
  {
