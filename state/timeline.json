@@ -801,6 +801,23 @@
    ],
    "v": 2,
    "rv": 1
+  },
+  "75": {
+   "label": "מגיב לreactions to an external video stream",
+   "kind": "reaction",
+   "kw": [
+    "סטרימר",
+    "כוחות",
+    "משחק",
+    "פרסים",
+    "קמפיין"
+   ],
+   "v": 2,
+   "rv": 1,
+   "react": {
+    "what": "reactions to an external video stream",
+    "who": ""
+   }
   }
  },
  "timeline": [
@@ -1241,253 +1258,52 @@
    "to": 22500,
    "label": "הזנחה של נושא ושיחות מקבילות",
    "kind": "talk"
+  },
+  {
+   "from": 22500,
+   "to": 22800,
+   "label": "מגיב לreactions to an external video stream",
+   "kind": "reaction"
   }
  ],
- "transcript_end": 22513,
- "updated": "2026-11-15T22:39:26Z",
+ "transcript_end": 22906,
+ "updated": "2026-11-15T22:43:23Z",
  "spans": [
   {
    "from": 0,
-   "to": 900,
-   "title": "ברוכים הבאים & שיחה ראשונית",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "שיחה רציפה עם הצופים, קבלת קהל",
-   "closed": true
-  },
-  {
-   "from": 900,
    "to": 2100,
-   "title": "שיחות על GTA וסבתון",
+   "title": "התחלת השידור ושיחות כלליות",
    "kind": "talk",
    "clip_worthy": true,
-   "why": "שיחה מעמיקה על משחקים ותרומות",
+   "why": "משך 35 דקות עם שיח עקבי, שיחות עם הצופים והפניה ל‑GTA סבתון.",
    "closed": true
   },
   {
    "from": 2100,
    "to": 3600,
-   "title": "בישול פסטה ומרינדה",
+   "title": "בישול פסטה והכנת מרינדה",
    "kind": "cooking",
    "clip_worthy": true,
-   "why": "שיעור בישול עם שיחה מהירה",
+   "why": "25 דקות של פעילות בישול רציפה עם תיאורים, שיחה עם הצופים ומבוא למרינדה.",
    "closed": true
   },
   {
    "from": 3600,
-   "to": 4200,
-   "title": "שיחה על חיי היום-יום",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "10 דקות בלבד",
-   "closed": true
-  },
-  {
-   "from": 4200,
-   "to": 4800,
-   "title": "שיחות אישיות ותרומות",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "10 דקות בלבד",
-   "closed": true
-  },
-  {
-   "from": 4800,
-   "to": 5100,
-   "title": "שיחה עם הצופים",
-   "kind": "chat",
-   "clip_worthy": false,
-   "why": "צ׳אט בלבד",
-   "closed": true
-  },
-  {
-   "from": 5100,
-   "to": 6300,
-   "title": "שיחות על צבעים והצבעה",
+   "to": 10200,
+   "title": "שיחות מתמשכות ו‑IRL",
    "kind": "talk",
    "clip_worthy": true,
-   "why": "20 דקות של שיחות שונות",
+   "why": "110 דקות של שיח רציף, דיונים על סבתון, בישול, דמויות, חוויות אישיות והצעות צ'אט.",
    "closed": true
   },
   {
-   "from": 6300,
-   "to": 6600,
-   "title": "שיחה עם הצופים",
-   "kind": "chat",
-   "clip_worthy": false,
-   "why": "צ׳אט בלבד",
-   "closed": true
-  },
-  {
-   "from": 6600,
-   "to": 7500,
-   "title": "שיחה על סבתון ותחרויות",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "15 דקות של נושא משותף",
-   "closed": true
-  },
-  {
-   "from": 7500,
-   "to": 7800,
-   "title": "שיחה על GTA ו-Gear",
-   "kind": "game",
-   "clip_worthy": false,
-   "why": "5 דקות בלבד",
-   "closed": true
-  },
-  {
-   "from": 7800,
-   "to": 8400,
-   "title": "שיחה על מאצ'ה ותקלות",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "10 דקות בלבד",
-   "closed": true
-  },
-  {
-   "from": 8400,
-   "to": 9000,
-   "title": "דיסק ו-GTA6",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "10 דקות בלבד",
-   "closed": true
-  },
-  {
-   "from": 9000,
-   "to": 9900,
-   "title": "שיחה על GTA6 ופריסות",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "15 דקות רצופות",
-   "closed": true
-  },
-  {
-   "from": 9900,
-   "to": 15900,
-   "title": "שיחה על משחקים ומחשבים",
-   "kind": "game",
-   "clip_worthy": true,
-   "why": "5 דקות בלבד",
-   "closed": true
-  },
-  {
-   "from": 15900,
-   "to": 16500,
-   "title": "שיח על תכנון משחק",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "10 דקות בלבד",
-   "closed": true
-  },
-  {
-   "from": 16500,
+   "from": 10200,
    "to": 18000,
-   "title": "משחק בקבוצת Kick – תקלות",
-   "kind": "game",
-   "clip_worthy": false,
-   "why": "10 דקות בלבד",
-   "closed": true
-  },
-  {
-   "from": 18000,
-   "to": 18600,
-   "title": "שיח עם צופים על משחק",
+   "title": "משחקים, תקלות ו‑Kick",
    "kind": "game",
    "clip_worthy": true,
-   "why": "משך 5 דקות, משחק קיים, שיח מעניין עם צופים",
+   "why": "130 דקות של משחקים, תקלות, הדגמות, תחרויות והדגמות עם קהילת Chat.",
    "closed": true
-  },
-  {
-   "from": 18600,
-   "to": 18900,
-   "title": "מיסים ו-TTS",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "שיחה קצרה על מיסים, TTS וקטעים – 5 דקות בלבד",
-   "closed": true
-  },
-  {
-   "from": 18900,
-   "to": 19200,
-   "title": "פיקוח עובדים",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "דיון על פיקוח עובדים ותמיכה – 5 דקות",
-   "closed": true
-  },
-  {
-   "from": 19200,
-   "to": 19500,
-   "title": "שכר עובדים",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "שיחה על שכר ותמריצים – 5 דקות",
-   "closed": true
-  },
-  {
-   "from": 19500,
-   "to": 19800,
-   "title": "מבצעים בפוקימון",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "סיפור על מבצעים ומכירות קלפי – 5 דקות",
-   "closed": true
-  },
-  {
-   "from": 19800,
-   "to": 20100,
-   "title": "דיבר על חבילות, קופונים ומבצעים",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "קטע קצר של 5 דקות ב‑Just Chatting",
-   "closed": true
-  },
-  {
-   "from": 20100,
-   "to": 20400,
-   "title": "שיתוף פעולה עם וולט",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "שיחה קצרה על שותפויות ותשלומים",
-   "closed": true
-  },
-  {
-   "from": 20400,
-   "to": 20700,
-   "title": "שיחות מקומיות עם הצ'אט",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "דיבורים כלליים עם הצ'אט",
-   "closed": true
-  },
-  {
-   "from": 20700,
-   "to": 21000,
-   "title": "טבלאות וטריביות",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "שיחות תרבותיות והומוריות",
-   "closed": true
-  },
-  {
-   "from": 21000,
-   "to": 21300,
-   "title": "כסף, משחקים ואוכל",
-   "kind": "chat",
-   "clip_worthy": false,
-   "why": "דיבורים על כסף, משחקים ופסטה",
-   "closed": true
-  },
-  {
-   "from": 21300,
-   "to": 22500,
-   "title": "שיחה כללית על סרטונים, אירועים ותקלות",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "משך של 20 דקות של שיחה קוהרנטית עם תוכן אמיתי על סרטונים, אירועים ותקלות, מתאים לקליפ של יותר מ‑15 דקות",
-   "closed": false
   }
  ],
  "seg_v": 4
