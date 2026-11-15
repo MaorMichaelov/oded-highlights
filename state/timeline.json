@@ -76,6 +76,10 @@
   "18": {
    "label": "שיחה כללית",
    "kind": "idle"
+  },
+  "19": {
+   "label": "שיחה לא מובנת",
+   "kind": "talk"
   }
  },
  "timeline": [
@@ -174,8 +178,14 @@
    "to": 5700,
    "label": "שיחה כללית",
    "kind": "idle"
+  },
+  {
+   "from": 5700,
+   "to": 6000,
+   "label": "שיחה לא מובנת",
+   "kind": "talk"
   }
  ],
- "transcript_end": 5803,
- "updated": "2026-11-15T16:19:32Z"
+ "transcript_end": 6279,
+ "updated": "2026-11-15T16:23:56Z"
 }
