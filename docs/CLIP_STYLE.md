@@ -23,3 +23,9 @@ Description format of the best video: 2-3 sentence summary with specifics (names
 Rule: a long session is ONE continuous clip with chapters; many small cuts only where a boring stretch must be dropped.
 
 Viewer feedback (comment on the 36 packs video): "15 minutes cannot summarise all this fun". Strong sessions must be 30-35+ min, complete.
+
+## What the streamer's OWN channel (OdedSVR Live) does - owner examples, 15 Nov (yt-dlp flat list, ~60 videos)
+- Reactions to other creators' videos: titled `עודד מגיב ל"<video name>" של <creator>`; lengths 26 min (Wh6M_2TKwqE, rLpzMaXeUCE), 37 min (dMqyq7CqIaY), 54 min (H2hMGUxGuxs), 72 min (2OYGznr2G4c): the WHOLE watching session of that one video, continuous.
+- Game sessions: `<strong judgement/quote>! (<Game name>)`, 35-95 min (Can Em All 54 min, Alias 69 min, Grain Rot 82 min, A way out 93 min).
+- Typical video: 17-45 min; best views are 16-69 min videos. Shorter than ~12 min is rare.
+- So: when he watches ONE video, cut the whole session (typically 20-40 min); a reaction of only 6-8 min is acceptable only when that is all there is (owner).
