@@ -51,7 +51,7 @@ for i in range(0, len(todo), 3):
         for pl in (l.get("plans") or [])[:3]:   # what he says he will do / react to / play: remembered for next lives and shown in the app
             if isinstance(pl, str) and len(pl) > 6: add_plan(pl.strip(), int(l["chunk"]))
     time.sleep(1)
-def react_scan(T, max_calls=2):
+def react_scan(T, max_calls=4):
     """Owner (15 Nov): 'he reacted to more videos, the system must find them itself'. The labeller above cannot tell that a stretch is Oded WATCHING someone's video/article (the video's voice is in the transcript too), so every talk/chat/idle chunk is checked once, more carefully, with the question only about watching/reacting. A positive chunk becomes kind=reaction (label 'מגיב ל...')."""
     hdr = ["-H", "Content-Type: application/json"] + (["-H", "Authorization: Bearer " + os.environ["GROQ_API_KEY"]] if os.environ.get("GROQ_API_KEY") else [])
     todo = [int(k) for k, x in T["chunks"].items() if x.get("rv", 0) < 1 and x.get("kind") in ("talk", "chat", "idle")]
