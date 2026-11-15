@@ -7,10 +7,15 @@
    "who": "עודד, סנסי, הצ'אט",
    "peak": "25:41"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/kAzlE23SLH0",
+  "draft_at": "2026-11-15T21:14:11Z",
+  "quality_errors": [],
   "auto": true
  },
  {
