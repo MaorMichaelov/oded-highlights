@@ -51,8 +51,7 @@ def trim_dead_air(rows, keep, gap=5.0, pad_a=0.6, pad_b=0.8, min_seg=12.0):
         for x, y in segs:
             x, y = max(a, x - pad_a), min(b, y + pad_b)
             if out and x - out[-1][1] < 1.5: out[-1][1] = y   # keep adjacent pieces joined
-            elif y - x >= min_seg or not out: out.append([x, y])
-            elif out: out[-1][1] = out[-1][1]
+            elif y - x >= min_seg: out.append([x, y])   # a short fragment (a few words) is dropped
     return out
 def valid_title(t): return 28 <= len(t) <= 75 and t.strip()[-1] in "!?"
 LANG = os.environ.get("PICK_LANG", "he"); CREDIT = os.environ.get("CHANNEL_CREDIT", "עודד (OdedSVR)"); SLUG = os.environ.get("CHANNEL", "odedsvr")
