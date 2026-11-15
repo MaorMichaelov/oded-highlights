@@ -77,7 +77,16 @@ def main():
     # newest VOD = the running stream
     code, vids = jget(f"https://kick.com/api/v2/channels/{CHANNEL}/videos")
     if not vids: print("videos list unavailable", code); return 0
-    v = vids[int(os.environ.get("FORCE_VOD", "0"))] if os.environ.get("FORCE_VOD") else vids[0]; vid = str(v["id"]); src = v.get("source")
+    if os.environ.get("FORCE_VOD"): v = vids[int(os.environ["FORCE_VOD"])]
+    else:   # the VOD of the CURRENT live: same id as the livestream; right after the stream starts Kick may still list only older VODs: then wait (never ingest an old stream)
+        lid = str(ls.get("id")); v = next((x for x in vids if str(x["id"]) == lid), None)
+        if v is None:
+            try:
+                import calendar; t0 = calendar.timegm(time.strptime((ls.get("start_time") or ls.get("created_at") or "")[:19], "%Y-%m-%d %H:%M:%S"))
+                v = next((x for x in vids if abs(calendar.timegm(time.strptime((x.get("start_time") or "")[:19], "%Y-%m-%d %H:%M:%S")) - t0) < 900), None)
+            except Exception: v = None
+        if v is None: print("live VOD not listed yet (newest listed:", vids[0].get("id"), ") - waiting"); return 0
+    vid = str(v["id"]); src = v.get("source")
     if not src: print("no source yet"); return 0
     base = src.rsplit("/master.m3u8", 1)[0]
     code, pl = curl(f"{base}/{QUALITY}/playlist.m3u8")
