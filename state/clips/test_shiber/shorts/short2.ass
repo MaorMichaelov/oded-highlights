@@ -1,0 +1,49 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding
+Style: Cap,Heebo Black,104,&H0028E678,&H0028E678,&H00000000,&H64000000,1,0,0,0,100,100,0,0,1,9,3,2,60,60,520,1
+
+[Events]
+Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
+Dialogue: 0,0:00:00.93,0:00:00.25,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}דברתי עם כתרה
+Dialogue: 0,0:00:00.25,0:00:01.72,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}זה היה מטח
+Dialogue: 0,0:00:02.25,0:00:04.27,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}ביי אני
+Dialogue: 0,0:00:04.27,0:00:04.33,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}מת על עמית
+Dialogue: 0,0:00:04.33,0:00:04.35,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}שט,
+Dialogue: 0,0:00:04.35,0:00:04.61,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}אני מת על
+Dialogue: 0,0:00:04.61,0:00:06.59,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}עמית ניגי!
+Dialogue: 0,0:00:06.59,0:00:07.25,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}מה איתך?
+Dialogue: 0,0:00:07.25,0:00:08.25,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}חיים של אבא
+Dialogue: 0,0:00:08.25,0:00:08.85,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}מה איתך,
+Dialogue: 0,0:00:08.85,0:00:09.22,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}אח שלי?
+Dialogue: 0,0:00:10.25,0:00:10.31,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}מתי אתה עולה
+Dialogue: 0,0:00:10.31,0:00:11.10,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}היום?
+Dialogue: 0,0:00:12.25,0:00:12.35,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}אני עכשיו בבידי
+Dialogue: 0,0:00:12.35,0:00:13.01,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}פרנם גדים,
+Dialogue: 0,0:00:13.01,0:00:13.17,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}אחי,
+Dialogue: 0,0:00:13.17,0:00:14.25,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}אני מתי עולה?
+Dialogue: 0,0:00:14.25,0:00:14.65,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}מתי?
+Dialogue: 0,0:00:14.65,0:00:15.67,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}מתי?
+Dialogue: 0,0:00:15.67,0:00:16.37,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}קונה בגדים,
+Dialogue: 0,0:00:16.37,0:00:17.03,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}קונה אוהלים,
+Dialogue: 0,0:00:17.03,0:00:17.57,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}תגיד אני קונה
+Dialogue: 0,0:00:17.57,0:00:20.19,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}אוהל וואלה,
+Dialogue: 0,0:00:20.19,0:00:20.43,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}אתה יודע איך
+Dialogue: 0,0:00:20.43,0:00:21.09,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}אני הולך בצילומים
+Dialogue: 0,0:00:21.09,0:00:21.29,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}אחי,
+Dialogue: 0,0:00:21.29,0:00:22.48,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}מה חוצה שלך?
+Dialogue: 0,0:00:24.37,0:00:24.75,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}אה,
+Dialogue: 0,0:00:24.75,0:00:25.65,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}אפשר להפקה איתמול
+Dialogue: 0,0:00:25.65,0:00:28.76,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}אחי כן
+Dialogue: 0,0:00:29.55,0:00:29.79,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}לא,
+Dialogue: 0,0:00:29.79,0:00:30.37,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}אפשר להפקה,
+Dialogue: 0,0:00:30.37,0:00:30.55,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}וואלה,
+Dialogue: 0,0:00:30.55,0:00:31.07,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}בוא תעצור עליי
+Dialogue: 0,0:00:31.07,0:00:34.65,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}אחי אה,
+Dialogue: 0,0:00:34.65,0:00:35.71,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}שאלון כאלה,
+Dialogue: 0,0:00:35.71,0:00:36.38,Cap,,0,0,0,,{\fscx80\fscy80\t(0,110,\fscx100\fscy100)}כמו סטיבה

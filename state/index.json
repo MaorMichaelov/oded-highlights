@@ -20,7 +20,8 @@
   "stages": {
    "cut": "done",
    "edit": "done",
-   "quality": "done"
+   "quality": "done",
+   "shorts": "done"
   },
   "draft": null,
   "draft_at": null,

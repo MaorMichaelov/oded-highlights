@@ -1,17 +1,22 @@
 {
  "cut": {
   "state": "done",
-  "at": "2026-11-15T14:24:30Z",
-  "seconds": 105.1
+  "at": "2026-11-15T14:38:54Z",
+  "seconds": 109.4
  },
  "edit": {
   "state": "done",
-  "at": "2026-11-15T14:26:03Z",
-  "seconds": 92.9
+  "at": "2026-11-15T14:40:28Z",
+  "seconds": 94.9
  },
  "quality": {
   "state": "done",
-  "at": "2026-11-15T14:26:09Z",
-  "seconds": 5.8
+  "at": "2026-11-15T14:40:35Z",
+  "seconds": 6.4
+ },
+ "shorts": {
+  "state": "done",
+  "at": "2026-11-15T14:42:29Z",
+  "seconds": 114.0
  }
 }
