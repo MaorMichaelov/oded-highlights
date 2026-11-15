@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-15T17:24:03Z",
- "fetched_epoch": 1794763443.9421942,
+ "fetched_at": "2026-11-15T17:57:58Z",
+ "fetched_epoch": 1794765478.893663,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1860,
@@ -9,13 +9,33 @@
  },
  "videos": [
   {
+   "id": "hNxA9RGgrwk",
+   "title": "\"זה לא דבר שיש מה להפסיד, חבר'ה!\" – עודד מדבר עם הצ'אט בזמן בישול ושטויות!",
+   "published": "2026-11-15T17:45:58Z",
+   "privacy": "private",
+   "duration": "PT21M17S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
+  {
+   "id": "ykvH_5gsaSE",
+   "title": "\"אני בחרדות!\" – עודד מדבר על סבתון ותחרות בישול, אשתו מצטרפת וצ'אט שואל!",
+   "published": "2026-11-15T17:43:32Z",
+   "privacy": "private",
+   "duration": "PT15M41S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
+  {
    "id": "3H3rP1V0mLQ",
    "title": "עודד מבקש מהצופים שלו לא לראות GTA 6 אצל סטרימרים אחרים!",
    "published": "2026-11-15T17:05:45Z",
    "privacy": "public",
    "duration": "PT5M19S",
-   "views": 12,
-   "likes": 3,
+   "views": 40,
+   "likes": 5,
    "comments": 0
   },
   {
@@ -34,7 +54,7 @@
    "published": "2026-11-15T16:30:12Z",
    "privacy": "private",
    "duration": "PT7M",
-   "views": 1,
+   "views": 0,
    "likes": 0,
    "comments": 0
   },
@@ -74,8 +94,8 @@
    "published": "2026-11-13T09:00:02Z",
    "privacy": "public",
    "duration": "PT9M37S",
-   "views": 2687,
-   "likes": 23,
+   "views": 2760,
+   "likes": 24,
    "comments": 0
   },
   {
@@ -84,7 +104,7 @@
    "published": "2026-11-13T08:00:35Z",
    "privacy": "public",
    "duration": "PT15M2S",
-   "views": 997,
+   "views": 988,
    "likes": 16,
    "comments": 0
   },
@@ -104,7 +124,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 3112,
+   "views": 3123,
    "likes": 17,
    "comments": 0
   },
@@ -114,7 +134,7 @@
    "published": "2026-11-12T12:34:00Z",
    "privacy": "public",
    "duration": "PT6M",
-   "views": 63,
+   "views": 62,
    "likes": 2,
    "comments": 0
   },
@@ -124,7 +144,7 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 2564,
+   "views": 2616,
    "likes": 32,
    "comments": 3
   },
@@ -134,7 +154,7 @@
    "published": "2026-11-11T17:52:12Z",
    "privacy": "public",
    "duration": "PT14M5S",
-   "views": 134,
+   "views": 126,
    "likes": 6,
    "comments": 0
   },
@@ -144,7 +164,7 @@
    "published": "2026-11-11T17:18:07Z",
    "privacy": "public",
    "duration": "PT9M44S",
-   "views": 27,
+   "views": 26,
    "likes": 4,
    "comments": 0
   },
@@ -159,5 +179,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 78
+ "total_uploads_incl_private": 80
 }
