@@ -94,14 +94,18 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
             if j >= 0 and mg[j]["kind"] == x["kind"]:
                 mg[j] = dict(mg[j], to=x["to"], closed=x.get("closed"), clip_worthy=True, title=mg[j]["title"]); del mg[j + 1:]; continue
         mg.append(dict(x))
+    try:   # spans forced by the owner/by me (state/forced_spans.json: [{"vod":..,"from":s,"to":s,"kind":..,"title":..,"min":s}]): a topic the owner asked for is cut even when shorter than 15 min
+        for f_ in json.load(open(os.path.join(ST, "forced_spans.json"))):
+            if str(f_.get("vod")) == str(vod): mg.append(dict(f_, closed=True, clip_worthy=True, forced=True))
+    except Exception: pass
     for sp in mg:
         key = f"{sp['from']}-{sp['to']}"
         if key in seen or not sp.get("closed") or not sp.get("clip_worthy") or sp["to"] > closed: continue
         dur = sp["to"] - sp["from"]
-        if dur < 840: seen.append(key); continue
+        if dur < sp.get("min", 840) - 60: seen.append(key); continue
         if sum(max(0, min(sp["to"], y) - max(sp["from"], x)) for x, y in done) > 0.3 * dur: seen.append(key); print("span overlaps existing clips, skipped:", sp["title"]); continue
-        a = refine(rows, sp["from"], sp["to"], sp["title"], "start"); b = refine(rows, sp["from"], sp["to"], sp["title"], "end")
-        if b - a < 840: a, b = sp["from"], sp["to"]
+        a, b = (sp["from"], sp["to"]) if sp.get("forced") else (refine(rows, sp["from"], sp["to"], sp["title"], "start"), refine(rows, sp["from"], sp["to"], sp["title"], "end"))
+        if b - a < sp.get("min", 840): a, b = sp["from"], sp["to"]
         mx = MAX_SESSION if sp.get("kind") in ("game", "event", "guest", "call", "reaction") else MAX_LEN
         if mx == MAX_LEN and b - a < 1100:   # cleaning (silence/donations) shaves 10-20%: a 14-18 min topic used to fall under 15 min and be skipped, so give it the missing tail (the stream continues) instead of losing the clip
             b2 = min(closed, b + (1100 - (b - a)))
@@ -128,7 +132,7 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
                 keep = nk
             if sp.get("kind") not in ("reaction", "game", "event"): keep = trim_dead_air(rows, keep, gap=10.0, min_seg=10.0)   # reactions: his silence is the video he watches; real silence is removed from the audio in the cut station
             tot = sum(q0 - p0 for p0, q0 in keep)
-            if tot < 900: print(f"span '{sp['title']}' only {int(tot)} s after cleaning (<15 min): skipped"); __import__("events").event("pick_skip", f"🔎 הנושא \"{sp['title']}\" ({int(dur / 60)} דק׳) יצא {int(tot / 60)} דק׳ אחרי ניקוי שקטים ודונייטים, פחות מ-15: לא נחתך."); continue
+            if tot < sp.get("min", 900): print(f"span '{sp['title']}' only {int(tot)} s after cleaning (<15 min): skipped"); __import__("events").event("pick_skip", f"🔎 הנושא \"{sp['title']}\" ({int(dur / 60)} דק׳) יצא {int(tot / 60)} דק׳ אחרי ניקוי שקטים ודונייטים, פחות מ-15: לא נחתך."); continue
             try:
                 sys.path.insert(0, os.path.dirname(HERE)); import topic_scan as _ts
                 sps = [t_ for t_, z_ in _ts.chat_spikes(ing.get("_vod_start_epoch")) if z_ >= 2.3 and any(x_ <= t_ <= y_ for x_, y_ in keep)]
