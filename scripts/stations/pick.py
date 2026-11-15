@@ -94,6 +94,9 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
         a = refine(rows, sp["from"], sp["to"], sp["title"], "start"); b = refine(rows, sp["from"], sp["to"], sp["title"], "end")
         if b - a < 840: a, b = sp["from"], sp["to"]
         mx = MAX_SESSION if sp.get("kind") in ("game", "event", "guest", "call", "reaction") else MAX_LEN
+        if mx == MAX_LEN and b - a < 1100:   # cleaning (silence/donations) shaves 10-20%: a 14-18 min topic used to fall under 15 min and be skipped, so give it the missing tail (the stream continues) instead of losing the clip
+            b2 = min(closed, b + (1100 - (b - a)))
+            if not any(a < y and x < b2 for x, y in done): b = b2
         parts = max(1, -(-int(b - a) // mx)); step = (b - a) / parts; got = False
         for i in range(parts):
             lo, hi = a + i * step, a + (i + 1) * step
