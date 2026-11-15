@@ -1,6 +1,6 @@
 {
  "live_loop_running": true,
- "state_age_min": 3.3,
+ "state_age_min": 5.0,
  "live": true,
  "recent_failed_renders": 3,
  "stuck_clips": [],
@@ -8,5 +8,5 @@
  "problems": [
   "3 render-clip run(s) failed in the last 3 h (ids [43730241375, 43730104524, 43729436851])"
  ],
- "checked_at": "2026-11-15T15:57:47Z"
+ "checked_at": "2026-11-15T16:03:35Z"
 }
