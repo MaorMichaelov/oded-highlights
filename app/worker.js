@@ -44,6 +44,7 @@ const TOOLS = {
     return { requested_hours: h, covered_hours: Math.round(have * 10) / 10, views_gained: last.views - ref.views, exact: !!base, channel_views_total: last.views, as_of: last.t, history_since: first.t, note: base ? "מדויק" : "ההיסטוריה שלנו קצרה מהחלון שביקשת: זה הגידול מאז " + first.t + " בלבד. לנתון מדויק ל-48 שעות צריך להפעיל את YouTube Analytics API." };
   },
   async timeline(a, tok) { const t = await ghJson("state/timeline.json", tok); if (!t || !t.timeline) return "אין עדיין ציר זמן"; return { transcript_end: mmss(t.transcript_end || 0), updated: t.updated, topics: t.timeline.map((x) => `${mmss(x.from)}-${mmss(x.to)} [${x.kind}] ${x.label}`), spans: (t.spans || []).map((x) => `${mmss(x.from)}-${mmss(x.to)} ${x.closed ? "נסגר" : "פתוח"} ${x.clip_worthy ? "שווה קליפ" : "לא נבחר"}: ${x.title}`) }; },
+  async plans(a, tok) { const P = (await ghJson("state/plans.json", tok)) || []; return P.length ? P.slice(-15).map((x) => `${x.t.slice(0, 16).replace("T", " ")} (דקה ${x.at_min}): ${x.text}`) : "עוד לא תועד שעודד תכנן משהו"; },
   async docs(a, tok) { const n = { rules: "RULES.md", stations: "docs/STATIONS.md", topics: "docs/TOPICS_TO_CLIP.md", readme: "README.md", issues: "docs/KNOWN_ISSUES.md" }[a.name || "stations"] || "docs/STATIONS.md"; return clip((await ghRead(n, tok)) || "אין מסמך", 3800); },
   async clip(a, tok) {   // everything about one clip: plan, spec, stage status, quality, durations
     const d = "state/clips/" + a.id; const [spec, cuts, stt, q, du] = await Promise.all(["spec.json", "cuts.json", "status.json", "quality.json", "durations.json"].map((f) => ghJson(d + "/" + f, tok)));
@@ -107,6 +108,7 @@ const TOOLS = {
 const TOOL_DOC = `status: מצב הלייב והמערכת. args: {}
 skipped: מה המערכת פסלה ולמה (הערות תחנת הבחירה, מועמדים, לקחים). args: {}
 views: כמה צפיות הערוץ קיבל ב-N שעות אחרונות. args: {hours}
+plans: מה עודד אמר שהוא מתכנן לעשות/לצפות/לשחק/להגיב בהמשך (גם לשידורים הבאים). args: {}
 docs: קריאת מסמכי המערכת. args: {name: rules|stations|topics|readme|issues}
 clip: כל המידע על קליפ אחד (תכנית, שלבים, איכות, זמנים). args: {id}
 chat_activity: פעילות הצ'אט של Kick בדקות האחרונות. args: {minutes}
