@@ -6,18 +6,21 @@
  },
  "137995265": {
   "cursor": 6922.0,
-  "last_run": "2026-11-15T20:45:52Z",
+  "last_run": "2026-11-15T21:11:18Z",
   "notes": "The segment contains fragmented rambling about \"\u05e1\u05d1\u05ea\u05d5\u05df\" and a brief cooking invitation to Mor Cohen, but no complete story or topic lasting 15\u201140 minutes. No eligible clip found.",
   "spans_done": [
-   "900-1800",
-   "2100-3300",
-   "3300-4800",
-   "5700-6900",
-   "11400-11700",
-   "7800-8700",
-   "8700-9600",
-   "9040-9685"
+   "0-900",
+   "900-2100",
+   "2100-3600",
+   "5100-6300",
+   "6600-7500",
+   "9900-15900"
   ],
-  "seg_v": 3
+  "seg_v": 4,
+  "retry": {
+   "0-900": 0,
+   "9000-9900": 1,
+   "9040-9685": 1
+  }
  }
 }
