@@ -191,7 +191,7 @@ async function vapidHeader(env, endpoint) {
 }
 async function eventsSince(env, since) {
   const raw = (await ghRead("state/events.jsonl", await env.KV.get("gh"))) || ""; const ev = raw.trim().split("\n").map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
-  return ev.filter((e) => e.t > since && ["live_up", "draft", "quality_fail", "problem", "brief", "edit"].includes(e.kind));
+  return ev.filter((e) => e.t > since && ["live_up", "draft", "quality_fail", "problem", "brief", "edit", "pick"].includes(e.kind));
 }
 async function pushEvents(env) {
   const subs = (await env.KV.get("subs", "json")) || []; const since = (await env.KV.get("push_since")) || new Date(Date.now() - 600e3).toISOString();
@@ -237,7 +237,7 @@ self.addEventListener('notificationclick',e=>{e.notification.close();e.waitUntil
     if (p === "/api/token" && req.method === "POST") { if (tok) await env.KV.put("gh", tok); else await env.KV.delete("gh"); return J({ ok: true, watchdog: !!tok }); }
     if (p === "/api/feed") {
       const since = u.searchParams.get("since") || "1970"; const [live, ev] = await Promise.all([ghJson("state/live_status.json", tok), ghRead("state/events.jsonl", tok)]);
-      const events = (ev || "").trim().split("\n").map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter((e) => e && e.t > since).slice(-10);
+      const events = (ev || "").trim().split("\n").map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter((e) => e && e.t > since).slice(-25);
       return J({ live: live && live.live, title: live && live.title, events, now: new Date().toISOString() });
     }
     if (p === "/api/chat" && req.method === "POST") { const b = await req.json(); const reply = await agent(env, b.messages || [], tok, req.headers.get("x-groq") || ""); return J({ reply, ...(ERRS.length ? { debug: ERRS } : {}) }); }

@@ -4,7 +4,9 @@ the rest is joined by stream copy (no second encode), then quality gate (1920x10
 In : work/body.mp4 (from cut) + spec.json   Out: final.mp4 + meta.json (chapters, draft brief)     usage: edit.py state/clips/<id>"""
 import os, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE); from common import Timer
+from events import event
 clip = os.path.abspath(sys.argv[1])
 if not os.path.exists(os.path.join(clip, "work", "body.mp4")): sys.exit("cut station has not produced work/body.mp4")
 with Timer(clip, "edit"):
     subprocess.run([sys.executable, os.path.join(os.path.dirname(HERE), "render_clip.py"), clip]).check_returncode()
+    import json as _j; event("stage", "🎬 נערך: נוספו פתיחה, כתוביות ירוקות, סטינג ופופאפ הרשמה", clip=os.path.basename(clip.rstrip("/")))

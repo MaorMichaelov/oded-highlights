@@ -117,6 +117,7 @@ def main():
         made.append(cid); (__import__("events").event("pick", f"נבחר נושא לקליפ: {c['title']} ({int((e0 - s0) / 60)} דק׳). רינדור בדרך." , clip=cid)); print(f"PICKED {cid}: {c['title']} ({int(s0)}-{int(e0)}, {int((e0 - s0) / 60)} min)")
     ps[vod] = {"cursor": max(lo, min(float(res.get("next_cursor", hi) or hi), hi)), "last_run": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "notes": res.get("notes", "")[:300]}
     if not a.dry_run: json.dump(ps, open(pf, "w"), indent=1)
+    if not made and not a.dry_run and res.get("notes"): __import__("events").event("pick_skip", f"🔎 בדקתי את דקות {int(lo // 60)}-{int(hi // 60)} בשידור: לא נבחר נושא. {str(res.get('notes'))[:110]}")
     if made and not a.dry_run and not os.environ.get("NO_DISPATCH"):
         from autopilot import publish
         for cid in made: publish(cid, f"pick: {cid}", False)

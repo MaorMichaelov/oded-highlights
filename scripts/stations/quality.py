@@ -50,6 +50,7 @@ with Timer(clip, "quality"):
             info["source"] = sw
             if not sw.startswith("1920,1080"): err.append(f"source segment is {sw}, not 1080p")
     json.dump({"errors": err, "warnings": warn, "info": info}, open(os.path.join(clip, "quality.json"), "w"), indent=1, ensure_ascii=False)
+    if not err: event("stage", f"✅ עבר בדיקת איכות: {info.get('width')}x{info.get('height')} {info.get('fps')}fps, {info.get('mbps')}Mbps, {int(info.get('duration', 0) // 60)}:{int(info.get('duration', 0) % 60):02d} דק׳", clip=os.path.basename(clip))
     print("QUALITY", "FAIL" if err else "PASS", json.dumps(info), "errors:", err, "warnings:", warn)
     if err:
         event("quality_fail", f"קליפ {os.path.basename(clip)} נחסם בבדיקת איכות: {err[0]}", clip=os.path.basename(clip)); lesson(f"בדיקת איכות נכשלה: {err[0]}", "quality")

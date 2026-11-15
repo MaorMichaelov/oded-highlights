@@ -61,7 +61,7 @@ $('notif').onclick=async function(){try{if(!('Notification' in window)||!('servi
  var r=await api('/api/push/sub',{method:'POST',body:JSON.stringify(sub.toJSON())});add('bot','התראות פעילות ✅ תקבל הודעה גם כשהאפליקציה סגורה (עד כ-5 דקות עיכוב) כשעודד עולה, כשעולה טיוטה או כשיש תקלה.')}catch(e){add('bot','לא הצלחתי להפעיל התראות: '+e)}};
 async function feed(){try{var since=LS.since||new Date(Date.now()-3600e3).toISOString();var j=await api('/api/feed?since='+encodeURIComponent(since));
  $('dot').className='dot'+(j.live?' on':'');$('ls').textContent=j.live?('בלייב'+(j.title?' · '+j.title.slice(0,18):'')):'לא בלייב';
- (j.events||[]).forEach(function(e){add('ev',(e.kind==='live_up'?'🔴 ':e.kind==='draft'?'✅ ':e.kind==='live_down'?'⚫ ':'⚠️ ')+e.text+(e.url?'\n'+e.url:''));
+ (j.events||[]).forEach(function(e){add('ev',(e.kind==='live_up'?'🔴 ':e.kind==='draft'?'✅ ':e.kind==='live_down'?'⚫ ':e.kind==='pick'?'🎯 ':e.kind==='pick_skip'||e.kind==='stage'?'':e.kind==='retry'?'🔁 ':e.kind==='brief'?'':'⚠️ ')+e.text+(e.url?'\n'+e.url:''));
   if(document.hidden&&Notification.permission==='granted')new Notification('ODED HIGHLIGHTS',{body:e.text,icon:'/icon.png'})});
  LS.since=(j.events&&j.events.length?j.events[j.events.length-1].t:LS.since)||j.now}catch(e){}}
 function boot(){try{hist=JSON.parse(LS.hist||'[]')}catch(e){hist=[]}
