@@ -935,6 +935,33 @@
    ],
    "v": 2,
    "rv": 1
+  },
+  "85": {
+   "label": "דיבר על שבבי זיכרון ו-GTA 6",
+   "kind": "talk",
+   "kw": [
+    "שבב",
+    "זיכרון",
+    "GTA 6",
+    "DRAM",
+    "פאנל",
+    "הדלת"
+   ],
+   "v": 2,
+   "rv": 1
+  },
+  "86": {
+   "label": "הכרז על הגרלה ומשא ומתן עם TTS",
+   "kind": "talk",
+   "kw": [
+    "גרלה",
+    "TTS",
+    "הדלת",
+    "קולות",
+    "אוזניות"
+   ],
+   "v": 2,
+   "rv": 1
   }
  },
  "timeline": [
@@ -1429,10 +1456,22 @@
    "to": 25500,
    "label": "שיח חופשי עם צ'אט ודיון על משחקים",
    "kind": "chat"
+  },
+  {
+   "from": 25500,
+   "to": 25800,
+   "label": "דיבר על שבבי זיכרון ו-GTA 6",
+   "kind": "talk"
+  },
+  {
+   "from": 25800,
+   "to": 26100,
+   "label": "הכרז על הגרלה ומשא ומתן עם TTS",
+   "kind": "talk"
   }
  ],
- "transcript_end": 25738,
- "updated": "2026-11-15T23:48:45Z",
+ "transcript_end": 26198,
+ "updated": "2026-11-15T23:52:25Z",
  "spans": [
   {
    "from": 0,
@@ -1678,12 +1717,39 @@
    "closed": true
   },
   {
+   "from": 0,
+   "to": 25200,
+   "title": "מזג אוויר וסקירה קלה",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "",
+   "closed": true
+  },
+  {
    "from": 25200,
    "to": 25500,
-   "title": "שיח חופשי עם הצ׳אט",
+   "title": "שיחה עם צ'אט",
    "kind": "chat",
    "clip_worthy": false,
-   "why": "קטע של 5 דקות שיחה חופשית עם הצ׳אט בלבד, ללא אירוע משמעותי",
+   "why": "",
+   "closed": true
+  },
+  {
+   "from": 25500,
+   "to": 25800,
+   "title": "דיבר על זיכרון וGTA 6",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "",
+   "closed": true
+  },
+  {
+   "from": 25800,
+   "to": 26100,
+   "title": "הכרזת הגרלה וTTS",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "",
    "closed": false
   }
  ],
