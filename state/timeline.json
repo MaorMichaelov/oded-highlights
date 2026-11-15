@@ -326,8 +326,8 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 8140,
- "updated": "2026-11-15T16:52:00Z",
+ "transcript_end": 8235,
+ "updated": "2026-11-15T16:53:28Z",
  "spans": [
   {
    "from": 900,
@@ -382,15 +382,6 @@
    "clip_worthy": true,
    "why": "דבר על משחק GTA והחולצה, נושא מושך לצפייה",
    "closed": true
-  },
-  {
-   "from": 7800,
-   "to": 8100,
-   "title": "מאצ'ה ותקלות הקלטה",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "שיחה טכנית על הקלטה, פחות מתאימה לסרטון",
-   "closed": false
   }
  ]
 }
