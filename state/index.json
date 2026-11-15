@@ -5,7 +5,7 @@
   "brief": {
    "about": "תכנון סבתון GTA 6 – פרסים, תקציב, לוח זמנים והזמנה לצופים להשתתף.",
    "who": "עודד (עם אזכורים של רונן ואיתן ניסים)",
-   "peak": "04:21 – \"זה יהיה פסיכי!\""
+   "peak": "01:52"
   },
   "stages": {},
   "draft": null,
@@ -19,12 +19,17 @@
   "brief": {
    "about": "עודד מבקש מהצ'אט לא לצפות במשחקי אחרים לפני שהוא יתחיל לשחק ב‑GTA 6, ומדבר על רעיון ה‑Hardcore של מייקל.",
    "who": "עודד (הצופה), צ'אט",
-   "peak": "19:30 – הצגת רעיון ה‑Hardcore של מייקל"
+   "peak": "01:46"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/3H3rP1V0mLQ",
+  "draft_at": "2026-11-15T16:19:14Z",
+  "quality_errors": [],
   "auto": true
  },
  {
