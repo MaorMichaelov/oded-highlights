@@ -69,10 +69,11 @@ def refine(rows, lo, hi, title, which):
         sec = float(json.loads(re.search(r"\{.*\}", out, re.S).group(0))["second"])
         return sec if a - 5 <= sec <= b + 5 else (lo if which == "start" else hi)
     except Exception: return lo if which == "start" else hi
-def span_meta(rows, keep, title, kind):
+def span_meta(rows, keep, title, kind, funny=()):
     ls = [(r["start"], r["text"]) for r in rows if any(x <= r["start"] < y for x, y in keep)]
     step = max(1, len(ls) // 45); sample = [f"[{t:.0f}] {x[:130]}" for t, x in ls[::step]][:50]
-    q = (f"Context: the streamer is ODED (a man, Israeli, Hebrew, Kick streamer OdedSVR); he is live from his home, his wife is sometimes next to him, chat questions are read aloud, the transcript is automatic and contains errors (names/words may be wrong, speakers are not labelled). Write all names in HEBREW letters (עודד, not Oded). Do NOT invent a person (no 'chef', no 'broadcaster'): the main person is Oded and the people he mentions. Clip of Oded's live: activity '{title}' ({kind}). Transcript samples (evenly spread over the whole clip; [second] text):\n" + "\n".join(sample)[:5200] +
+    fl = [f"[{t:.0f}] {x[:130]}" for t, x in funny][:8]
+    q = (("FUNNIEST MOMENTS (the chat exploded right after these lines; the title QUOTE and peak_second must come from these if one is a complete, meaningful, funny or dramatic sentence; otherwise NO quote, a descriptive title only):\n" + "\n".join(fl) + "\n\n" if fl else "") + f"Context: the streamer is ODED (a man, Israeli, Hebrew, Kick streamer OdedSVR); he is live from his home, his wife is sometimes next to him, chat questions are read aloud, the transcript is automatic and contains errors (names/words may be wrong, speakers are not labelled). Write all names in HEBREW letters (עודד, not Oded). Do NOT invent a person (no 'chef', no 'broadcaster'): the main person is Oded and the people he mentions. Clip of Oded's live: activity '{title}' ({kind}). Transcript samples (evenly spread over the whole clip; [second] text):\n" + "\n".join(sample)[:5200] +
          "\n\nReturn JSON only: {\"title\":\"Hebrew 40-70 chars: a short QUOTE from the clip in quotes ending with !, then who + what actually happens (be ACCURATE: only what is really in the clip)\",\"description\":\"2-3 Hebrew sentences with SPECIFICS (who, what they do, key moments); accurate, like: עודד, סנסי וחברים עוברים לשרת חדש ברוב ראן ומתחילים מאפס: פורצים לבתים, גונבים קרגו ובונים מארב על הגשר.\",\"seo_line\":\"one line: עודד SVR משחק/עושה X | X in English | 2-3 keywords\",\"hashtags\":[\"#עודד\",\"#OdedSVR\", ...3-6 more: game / people / topic in Hebrew and English],\"tags\":[...],\"preset\":\"one of "
          + ",".join(PRESETS) + "\",\"head\":\"<=2 Hebrew words\",\"accent\":\"<=2 Hebrew words ending !\",\"about\":\"one Hebrew sentence: what the clip is about\",\"who\":\"Hebrew names of who appears (e.g. his wife, chat)\",\"peak_second\":n (a [second] from the samples that is the strongest moment)}")
     out = ask("You are the topic editor of an Israeli streamer-highlights YouTube channel. Titles must describe the real content. JSON only.", q)
@@ -114,9 +115,16 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
             if sp.get("kind") not in ("reaction", "game"): keep = trim_dead_air(rows, keep, gap=10.0, min_seg=10.0)   # reactions: his silence is the video he watches; real silence is removed from the audio in the cut station
             tot = sum(q0 - p0 for p0, q0 in keep)
             if tot < 900: print(f"span '{sp['title']}' only {int(tot)} s after cleaning (<15 min): skipped"); __import__("events").event("pick_skip", f"🔎 הנושא \"{sp['title']}\" ({int(dur / 60)} דק׳) יצא {int(tot / 60)} דק׳ אחרי ניקוי שקטים ודונייטים, פחות מ-15: לא נחתך."); continue
+            try:
+                sys.path.insert(0, os.path.dirname(HERE)); import topic_scan as _ts
+                sps = [t_ for t_, z_ in _ts.chat_spikes(ing.get("_vod_start_epoch")) if z_ >= 2.3 and any(x_ <= t_ <= y_ for x_, y_ in keep)]
+            except Exception: sps = None
+            if sps is not None and not sps and sp.get("kind") not in ("game", "reaction", "guest", "call"):   # review rule: a clip needs a PEAK (the audience reacted somewhere), no raw stretches
+                print(f"span '{sp['title']}' has no chat peak: skipped"); __import__("events").event("pick_skip", f"🔎 הנושא \"{sp['title']}\" ({int(tot / 60)} דק׳) בלי שיא בצ'אט (שום רגע שהקהל הגיב אליו): לא נחתך, כדי לא להעלות סטרים גולמי."); continue
+            funny = [(r["start"], r["text"]) for r in rows if sps and any(abs(r["start"] - t_) <= 6 for t_ in sps) and any(x_ <= r["start"] <= y_ for x_, y_ in keep)]
             meta = None
             for _try in range(3):
-                m_ = span_meta(rows, keep, sp["title"], sp["kind"])
+                m_ = span_meta(rows, keep, sp["title"], sp["kind"], funny)
                 if m_ and m_.get("title"):
                     t_ = m_["title"].strip()
                     if t_[-1] not in "!?": t_ += "!"
