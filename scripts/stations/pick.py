@@ -85,7 +85,16 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
     if not T or T.get("vod") != vod or not T.get("spans"): return None
     if ps.setdefault(vod, {}).get("seg_v") != T.get("seg_v"): ps[vod]["spans_done"] = []; ps[vod]["seg_v"] = T.get("seg_v")   # re-evaluate spans after the criteria changed (overlap with existing clips is still checked)
     seen = ps[vod].setdefault("spans_done", []); made = []
-    for sp in sorted(T["spans"], key=lambda x: x["from"]):
+    SESS = ("game", "event", "guest", "call", "reaction")
+    sp_all = sorted(T["spans"], key=lambda x: x["from"]); mg = []
+    for x in sp_all:   # one game / event / guest session = ONE video: join its consecutive spans (the segmenter cuts every ~15 min), bridging short chat/idle gaps (owner, 15 Nov: 1.5 h of game must be 40+ min clips, not 15)
+        if mg and x["kind"] in SESS:
+            j = len(mg) - 1
+            while j >= 0 and mg[j]["kind"] in ("chat", "idle") and mg[j]["to"] - mg[j]["from"] <= 360: j -= 1
+            if j >= 0 and mg[j]["kind"] == x["kind"]:
+                mg[j] = dict(mg[j], to=x["to"], closed=x.get("closed"), clip_worthy=True, title=mg[j]["title"]); del mg[j + 1:]; continue
+        mg.append(dict(x))
+    for sp in mg:
         key = f"{sp['from']}-{sp['to']}"
         if key in seen or not sp.get("closed") or not sp.get("clip_worthy") or sp["to"] > closed: continue
         dur = sp["to"] - sp["from"]
