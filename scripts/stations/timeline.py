@@ -25,7 +25,7 @@ def label(chs):
         txt = " ".join(r["text"] for r in rows if c * CH <= r["start"] < (c + 1) * CH)[:3000]
         parts.append(f"### chunk {c} ({c * 5}-{c * 5 + 5} min)\n{txt}")
     prompt = ("לכל קטע תמלול של 5 דקות מלייב של סטרימר ישראלי (התמלול האוטומטי מלא שגיאות, אל תתייאש), תן: label = משפט קצר בעברית על מה קורה בפועל (4-10 מילים, ספציפי: 'מבשל פסטה עם אשתו ועונה לצ'אט', 'מספר על חרדות לפני הסבתון', 'משחק רוב ראן עם חברים'), "
-              "keywords = 3-6 מילות מפתח, kind אחד מ: talk,game,cooking,guest,call,reaction,chat,idle. idle רק אם כמעט אין דיבור. אסור לכתוב 'לא ברור'. "
+              "keywords = 3-6 מילות מפתח, kind אחד מ: talk,game,cooking,guest,call,reaction,chat,idle (reaction = הוא צופה/קורא כתבה, סרטון או חדשות (למשל על GTA 6) ומגיב עליהם בקול; ציין על מה). idle רק אם כמעט אין דיבור. אסור לכתוב 'לא ברור'. "
               "החזר JSON בלבד: {\"labels\":[{\"chunk\":n,\"label\":\"...\",\"keywords\":[...],\"kind\":\"...\"}]}\n\n" + "\n\n".join(parts))
     hdr = ["-H", "Content-Type: application/json"] + (["-H", "Authorization: Bearer " + os.environ["GROQ_API_KEY"]] if os.environ.get("GROQ_API_KEY") else [])
     for model in ("openai/gpt-oss-120b", "openai/gpt-oss-20b"):
@@ -49,7 +49,7 @@ def segment(T, nchunks):
     lines = "\n".join(f"{c * 5}-{c * 5 + 5} [{T['chunks'][str(c)]['kind']}] {T['chunks'][str(c)]['label']} ({', '.join(T['chunks'][str(c)].get('kw', [])[:4])})" for c in cs)
     prompt = ("אלו תוויות של קטעי 5 דקות ברצף מלייב של סטרימר ישראלי (דקות מתחילת השידור). קבץ קטעים רצופים לנושאים (spans) שכל אחד הוא פעילות/נושא אחד שלם: למשל בישול עם אשתו, שיחה על הסבתון, משחק. "
               "לכל span: from/to בדקות (כפולות של 5), title בעברית קצר, kind, clip_worthy=true רק אם זה נושא שווה סרטון (סיפור, פעילות בבית כמו בישול, אורח, משחק עם חברים, ריאקשן, דרמה) ולא שיחת צ'אט כללית/המתנה, why=סיבה קצרה. "
-              "אל תפצל פעילות אחת לכמה spans, ואל תאחד נושאים שונים. החזר JSON בלבד: {\"spans\":[{\"from\":m,\"to\":m,\"title\":\"\",\"kind\":\"\",\"clip_worthy\":true,\"why\":\"\"}]}\n\n" + lines)
+              "אל תפצל פעילות אחת לכמה spans, ואל תאחד נושאים שונים. סשן רציף של ריאקשנים (הוא צופה/קורא כמה כתבות או סרטונים ברצף ומגיב) הוא span אחד מסוג reaction ושווה קליפ, עם כותרת כמו 'מגיב לכתבות וחדשות על GTA 6'. החזר JSON בלבד: {\"spans\":[{\"from\":m,\"to\":m,\"title\":\"\",\"kind\":\"\",\"clip_worthy\":true,\"why\":\"\"}]}\n\n" + lines)
     hdr = ["-H", "Content-Type: application/json"] + (["-H", "Authorization: Bearer " + os.environ["GROQ_API_KEY"]] if os.environ.get("GROQ_API_KEY") else [])
     for model in ("openai/gpt-oss-120b", "openai/gpt-oss-20b"):
         out = subprocess.run(["curl", "-sS", "-m", "120", "https://api.groq.com/openai/v1/chat/completions"] + hdr + ["-d", json.dumps({"model": model, "messages": [{"role": "user", "content": prompt}], "max_tokens": 1500, "reasoning_effort": "low"}, ensure_ascii=False)], capture_output=True, text=True).stdout
