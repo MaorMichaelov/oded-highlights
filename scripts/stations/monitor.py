@@ -35,7 +35,16 @@ busy = any(r["workflowName"] == "render-clip" and r["status"] in ("in_progress",
 if os.environ.get("GH_TOKEN") and not a.no_restart_renders and not busy:   # self-heal: a clip with no draft 25 min-24 h after it was picked gets its render re-dispatched (max 2 times)
     for d in (os.listdir(cd) if os.path.isdir(cd) else []):
         sd = os.path.join(cd, d)
-        if d.startswith(("test", "gta6_first_time")) or not os.path.exists(os.path.join(sd, "spec.json")) or ((jf(os.path.join(sd, "status.json"), {}) or {}).get("draft") or {}).get("url") or os.path.exists(os.path.join(sd, "upload.log")): continue
+        dr = (jf(os.path.join(sd, "status.json"), {}) or {}).get("draft") or {}
+        if dr.get("state") == "quota_wait":   # upload quota ran out: re-render + upload once the daily quota has reset (08:00 UTC = midnight Pacific), at most 3 times
+            try:
+                at = dt.datetime.fromisoformat(dr["at"].replace("Z", "+00:00")); reset = at.replace(hour=8, minute=10, second=0, microsecond=0)
+                if reset <= at: reset += dt.timedelta(days=1)
+                if dt.datetime.now(dt.timezone.utc) > reset and retries.get(d + "_q", 0) < 3:
+                    gh("workflow", "run", "render-clip.yml", "--repo", REPO, "--ref", "main", "-f", f"clip_id={d}", "-f", "upload=true"); retries[d + "_q"] = retries.get(d + "_q", 0) + 1; event("retry", f"המכסה של YouTube התאפסה: {d} נשלח שוב להעלאה"); break
+            except Exception as e: print("quota retry check failed:", e)
+            continue
+        if d.startswith(("test", "gta6_first_time")) or not os.path.exists(os.path.join(sd, "spec.json")) or dr.get("url") or os.path.exists(os.path.join(sd, "upload.log")): continue
         ct = subprocess.run(["git", "log", "-1", "--format=%ct", "--", os.path.join("state", "clips", d, "spec.json")], capture_output=True, text=True, cwd=ROOT).stdout.strip()
         age = (time.time() - int(ct)) / 60 if ct else 0
         if 25 < age < 1440 and retries.get(d, 0) < 2:
