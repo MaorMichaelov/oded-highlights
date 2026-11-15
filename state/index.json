@@ -153,16 +153,21 @@
  },
  {
   "id": "137995265_9037",
-  "title": "\"זה מרגיש לי אוטיזם, אחי!\" – עודד מגיב על חדשות GTA 6 וההזמנה המוקדמת!",
+  "title": "\"עשר דקות, אחי!\" עודד מגיב לכתבות ולסרטוני GTA 6!",
   "brief": {
    "about": "הקלטה של עודד מגיב על כתבה וסרטונים סביב GTA 6.",
    "who": "עודד, אופיר, דן, הצ'אט",
    "peak": "05:20"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/mO6e9-5Bw_A",
+  "draft_at": "2026-11-15T21:33:57Z",
+  "quality_errors": [],
   "auto": true
  },
  {
