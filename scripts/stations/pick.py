@@ -110,7 +110,7 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
                         if x - p0 > 5: nk.append([p0, x])
                         if q0 - y > 5: nk.append([y, q0])
                 keep = nk
-            keep = trim_dead_air(rows, keep, gap=7.0, min_seg=10.0); tot = sum(q0 - p0 for p0, q0 in keep)
+            keep = trim_dead_air(rows, keep, gap=10.0, min_seg=10.0); tot = sum(q0 - p0 for p0, q0 in keep)
             if tot < 900: print(f"span '{sp['title']}' only {int(tot)} s after cleaning (<15 min): skipped"); __import__("events").event("pick_skip", f"🔎 הנושא \"{sp['title']}\" ({int(dur / 60)} דק׳) יצא {int(tot / 60)} דק׳ אחרי ניקוי שקטים ודונייטים, פחות מ-15: לא נחתך."); continue
             meta = None
             for _try in range(3):
@@ -119,6 +119,12 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
                     t_ = m_["title"].strip()
                     if t_[-1] not in "!?": t_ += "!"
                     m_["title"] = t_
+                    import re as _re
+                    q_ = _re.search(r"[\"“”״]([^\"“”״]{4,60})[\"“”״]", t_)
+                    norm = lambda z: _re.sub(r"[^\u0590-\u05FFa-zA-Z0-9 ]", "", z).strip()
+                    full = norm(" ".join(r["text"] for r in rs))
+                    if q_ and norm(q_.group(1)) not in full:   # the quoted phrase is not in the clip (ASR/LLM invention): drop it, keep who + what
+                        rest = _re.sub(r"^[\s–\-]+", "", t_.replace(q_.group(0), "", 1)).strip(); print("quote not in transcript, dropped:", q_.group(1)); t_ = rest if rest[-1:] in "!?" else rest + "!"; m_["title"] = t_
                     if valid_title(t_): meta = m_; break
                     print("title rejected:", len(t_), t_[:80])
             if not meta: print("meta/title failed for", sp["title"]); continue
@@ -126,7 +132,15 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
             cid = f"{vod}_{int(s0)}"; d = os.path.join(clipsd, cid)
             if os.path.exists(os.path.join(d, "spec.json")): continue
             os.makedirs(d, exist_ok=True)
-            json.dump({"vod": vod, "base": ing.get("_vod_base"), "pieces": [{"keep": [[round(x, 2), round(y, 2)] for x, y in keep], "ch": (meta.get("about") or sp["title"])[:40]}]}, open(os.path.join(d, "cuts.json"), "w"), ensure_ascii=False, indent=1)
+            pieces = []; chs = (T.get("chunks") or {})
+            for c_ in range(int(keep[0][0] // 300), int(keep[-1][1] // 300) + 1):
+                sub = [[max(x, c_ * 300), min(y, (c_ + 1) * 300)] for x, y in keep if min(y, (c_ + 1) * 300) - max(x, c_ * 300) > 0.5]
+                if not sub: continue
+                lab = (chs.get(str(c_), {}).get("label") or meta.get("about") or sp["title"])[:40]
+                if pieces and (pieces[-1]["ch"] == lab or sum(y - x for x, y in sub) < 25): pieces[-1]["keep"] += sub   # same topic (or a tiny tail) stays in the previous chapter
+                else: pieces.append({"keep": sub, "ch": lab})
+            if len(pieces) < 3: pieces = [{"keep": keep, "ch": (meta.get("about") or sp["title"])[:40]}]
+            json.dump({"vod": vod, "base": ing.get("_vod_base"), "pieces": [{"keep": [[round(x, 2), round(y, 2)] for x, y in pc["keep"]], "ch": pc["ch"]} for pc in pieces]}, open(os.path.join(d, "cuts.json"), "w"), ensure_ascii=False, indent=1)
             acc, pv = 0.0, None
             for x, y in keep:
                 if x <= float(meta.get("peak_second", -1)) <= y: pv = acc + (float(meta["peak_second"]) - x) + 11.2
