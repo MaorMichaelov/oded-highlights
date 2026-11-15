@@ -12,7 +12,7 @@ MIN_LEN, MAX_LEN, PRE = 900, 2400, 3.0
 MAX_SESSION = 7200   # a great SESSION (game, challenge, pack opening, event, guest) is kept whole up to 60 min: viewers ask for the full thing (owner, 15 Nov)   # owner rule (15 Nov): every clip 15-40 minutes, a COMPLETE topic
 PRESETS = ["game_launch", "phone_call", "heist", "lawsuit", "courtroom_ban", "airport_leave", "birthday", "quiz_game", "rant", "money", "ai_tech", "reaction_video", "date_show", "gaming_fail", "sleeping_drunk"]
 DONATION = re.compile(r"תרם |תרמת |תרמו |דונ(?:ייט|יישן|ציה)|גיפט|\d+ דולר|(?:שלושה|חמישה|עשרה|עשרים|חמישים) דולר|קיקס ")   # donation reading (owner rule: never in a clip)
-HARD = re.compile(r"היטלר|שואה|התאבד|אתיופ|נאצי|גז(?:ים)? יהוד")
+HARD = re.compile(r"היטלר|שואה|התאבד|אתיופ|נאצי|גז(?:ים)? יהוד|יותר שחורים|כושי|בית זונות|שרמוט|יכול לי למות|לך למות")   # + lines Grok flagged in the GTA 6 reaction review (15 Nov)
 def jl(p):
     return [json.loads(l) for l in open(p, encoding="utf-8") if l.strip()] if os.path.exists(p) else []
 def jf(p, d=None):
@@ -71,6 +71,19 @@ def refine(rows, lo, hi, title, which):
         sec = float(json.loads(re.search(r"\{.*\}", out, re.S).group(0))["second"])
         return sec if a - 5 <= sec <= b + 5 else (lo if which == "start" else hi)
     except Exception: return lo if which == "start" else hi
+def offtopic_cuts(rows, keep, title):
+    """Reaction clips must contain ONLY the reaction (Grok review, 15 Nov: drama with a viewer, IRL/dog/shirt chatter and a 100 s dead stretch inside a GTA 6 reaction got the draft rejected). One cheap LLM pass lists the stretches (>=20 s) that are NOT about reacting to the video/article; they are cut, at most 40% of the clip."""
+    ls = [f"[{r['start']:.0f}] {r['text'][:90]}" for r in rows if any(x <= r["start"] < y for x, y in keep)]
+    if len(ls) < 12: return []
+    step = max(1, len(ls) // 110)
+    q = (f"Transcript lines [second] of a stream stretch where the streamer reacts to: '{title}'. List the stretches of at least 20 seconds that are NOT part of the reaction to that video/article/trailer: personal drama with a specific viewer, IRL / shopping / pets / shirt-sale chatter, donation thanks, technical problems. "
+         "Never include a stretch that is a funny comment about the video. Reply JSON only: {\"cut\":[[from_second,to_second],...]} (empty list if the whole thing is on topic)\n\n" + "\n".join(ls[::step])[:7500])
+    out = ask("You are a strict video editor. JSON only.", q)
+    try:
+        cs = [[float(a), float(b)] for a, b in json.loads(re.search(r"\{.*\}", out, re.S).group(0))["cut"] if float(b) - float(a) >= 20]
+    except Exception: return []
+    tot = sum(y - x for x, y in keep)
+    return cs if sum(b - a for a, b in cs) <= 0.4 * tot else []
 def span_meta(rows, keep, title, kind, funny=()):
     ls = [(r["start"], r["text"]) for r in rows if any(x <= r["start"] < y for x, y in keep)]
     step = max(1, len(ls) // 45); sample = [f"[{t:.0f}] {x[:130]}" for t, x in ls[::step]][:50]
@@ -125,6 +138,8 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
                 for r in rs:
                     acc += len(r["text"]) + 1
                     if acc > m_.start(): ex.append([r["start"] - 0.4, r["end"] + 0.4]); break
+            if sp.get("kind") == "reaction" and not sp.get("forced"):
+                ex += [[a_, b_] for a_, b_ in offtopic_cuts(rows, keep, sp["title"])]   # remove drama/IRL/chatter inside the reaction
             for x, y in sorted(ex):
                 nk = []
                 for p0, q0 in keep:
