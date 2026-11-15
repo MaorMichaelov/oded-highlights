@@ -31,6 +31,34 @@ def dl(s):
     subprocess.run(["curl", "-sS", "-A", UA, "-m", "120", "--retry", "3", "-o", str(f), f"{base}/{Q}/{s[0]}"])
 print(f"downloading {len(need)} segments ({Q})", flush=True)
 with ThreadPoolExecutor(8) as ex: list(ex.map(dl, need.values()))
+import re as _re
+def true_silences(a, b, thr_s):
+    """real audio silences (>= thr_s seconds, below -42 dB) inside [a, b] of the VOD (works for reactions: the video he watches is NOT silence)"""
+    fs = files(a, b); s0 = fs[0][1]; x = a - s0
+    inp = "concat:" + "|".join(str(work / "seg" / n) for n, _, _ in fs)
+    r = subprocess.run(["ffmpeg", "-nostats", "-hide_banner", "-v", "info", "-i", inp, "-vn", "-af", f"atrim=start={x:.3f}:duration={b - a:.3f},asetpts=PTS-STARTPTS,silencedetect=n=-42dB:d={thr_s}", "-f", "null", "-"], capture_output=True, text=True).stderr
+    st = [float(v) for v in _re.findall(r"silence_start: ([\d.]+)", r)]; en = [float(v) for v in _re.findall(r"silence_end: ([\d.]+)", r)]
+    out = []
+    for i_, sv in enumerate(st): out.append((sv, en[i_] if i_ < len(en) else b - a))
+    return out
+def trim_ranges(keep, thr_s):
+    res = []
+    for a, b in keep:
+        cur = a
+        for sv, ev in true_silences(a, b, thr_s):
+            if sv - (cur - a) > 2.0: res.append([cur, a + sv + 0.5])
+            cur = a + ev - 0.5
+        if b - cur > 2.0: res.append([cur, b])
+    return res
+# remove REAL silences from the audio; adaptive so a long clip never drops below ~14 min
+all_keep = [r for p_ in C["pieces"] for r in p_["keep"]]; before = sum(b - a for a, b in all_keep)
+for thr_s in (6, 10, 18, None):
+    if thr_s is None: print("silence trimming skipped (clip would become too short)"); break
+    trial = [trim_ranges(p_["keep"], thr_s) for p_ in C["pieces"]]; after = sum(b - a for k in trial for a, b in k)
+    print(f"silence trim >= {thr_s}s: {before / 60:.1f} -> {after / 60:.1f} min", flush=True)
+    if before < 840 or after >= 840:   # short clips (old rules) are trimmed fully; long ones must stay >= 14 min
+        for p_, k in zip(C["pieces"], trial): p_["keep"] = k if k else p_["keep"]
+        break
 lst = []; i = 0; t = 0.0; chapters = []
 for p in C["pieces"]:
     if p.get("ch"): chapters.append({"t": round(t, 2), "ch": p["ch"]})

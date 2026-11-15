@@ -110,7 +110,8 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
                         if x - p0 > 5: nk.append([p0, x])
                         if q0 - y > 5: nk.append([y, q0])
                 keep = nk
-            keep = trim_dead_air(rows, keep, gap=10.0, min_seg=10.0); tot = sum(q0 - p0 for p0, q0 in keep)
+            if sp.get("kind") != "reaction": keep = trim_dead_air(rows, keep, gap=10.0, min_seg=10.0)   # reactions: his silence is the video he watches; real silence is removed from the audio in the cut station
+            tot = sum(q0 - p0 for p0, q0 in keep)
             if tot < 900: print(f"span '{sp['title']}' only {int(tot)} s after cleaning (<15 min): skipped"); __import__("events").event("pick_skip", f"🔎 הנושא \"{sp['title']}\" ({int(dur / 60)} דק׳) יצא {int(tot / 60)} דק׳ אחרי ניקוי שקטים ודונייטים, פחות מ-15: לא נחתך."); continue
             meta = None
             for _try in range(3):
