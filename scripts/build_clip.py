@@ -32,6 +32,13 @@ def dl(s):
 print(f"downloading {len(need)} segments ({Q})", flush=True)
 with ThreadPoolExecutor(8) as ex: list(ex.map(dl, need.values()))
 import re as _re
+SPIKES = []
+try:   # chat reaction spikes = funny / big moments: a pause right before or around them is a comedic pause, never trimmed
+    sys.path.insert(0, str(Path(__file__).resolve().parent)); import topic_scan
+    _ing = json.load(open(Path(__file__).resolve().parent.parent / "state" / "ingest_state.json"))
+    if str(C.get("vod")) == str(_ing.get("_current_vod")): SPIKES = [t for t, z in topic_scan.chat_spikes(_ing.get("_vod_start_epoch")) if z >= 2.3]
+    print("protected funny moments (chat spikes):", len(SPIKES), flush=True)
+except Exception as _e: print("chat spikes unavailable:", _e)
 def true_silences(a, b, thr_s):
     """real audio silences (>= thr_s seconds, below -42 dB) inside [a, b] of the VOD (works for reactions: the video he watches is NOT silence)"""
     fs = files(a, b); s0 = fs[0][1]; x = a - s0
@@ -39,7 +46,9 @@ def true_silences(a, b, thr_s):
     r = subprocess.run(["ffmpeg", "-nostats", "-hide_banner", "-v", "info", "-i", inp, "-vn", "-af", f"atrim=start={x:.3f}:duration={b - a:.3f},asetpts=PTS-STARTPTS,silencedetect=n=-42dB:d={thr_s}", "-f", "null", "-"], capture_output=True, text=True).stderr
     st = [float(v) for v in _re.findall(r"silence_start: ([\d.]+)", r)]; en = [float(v) for v in _re.findall(r"silence_end: ([\d.]+)", r)]
     out = []
-    for i_, sv in enumerate(st): out.append((sv, en[i_] if i_ < len(en) else b - a))
+    for i_, sv in enumerate(st):
+        ev = en[i_] if i_ < len(en) else b - a
+        if not any(a + sv <= sp_ + 5 and a + ev >= sp_ - 15 for sp_ in SPIKES): out.append((sv, ev))   # keep silences around funny moments
     return out
 def trim_ranges(keep, thr_s):
     res = []

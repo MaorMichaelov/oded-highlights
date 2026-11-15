@@ -44,6 +44,18 @@ if spec.get("hooks"):
     for h in spec["hooks"]:
         bt = vod2body(h["t"]);  
         if bt is not None: hooks.append(dict(t=round(bt, 2), d=h.get("d", 2.8), cap=h.get("cap", ""), hl=h.get("hl", [])))
+if len(hooks) < 3:   # funniest moments first: chat reaction spikes mapped into the clip (the owner: funny reaction moments are the best content)
+    try:
+        sys.path.insert(0, HERE); import topic_scan
+        _ing = json.load(open(os.path.join(ROOT, "state", "ingest_state.json")))
+        if str(cuts.get("vod")) == str(_ing.get("_current_vod")):
+            sp = sorted(((z, vod2body(t - 1.0)) for t, z in topic_scan.chat_spikes(_ing.get("_vod_start_epoch")) if z >= 2.3), reverse=True)
+            for z, bt in sp:
+                if bt is not None and 12 <= bt <= dur - 6 and all(abs(bt - h["t"]) >= 25 for h in hooks) and sum(1 for w in words if bt <= w["start"] < bt + 2.8) >= 2:
+                    hooks.append(dict(t=round(bt, 2), d=2.8, cap="", hl=[]))
+                if len(hooks) >= 3: break
+            print("hooks from chat spikes:", len(hooks), flush=True)
+    except Exception as _e: print("spike hooks unavailable:", _e)
 if len(hooks) < 3:                                    # auto: densest 2.8 s windows (not in the first 12 s), spaced >= 25 s apart
     cand = []
     for t in range(12, int(dur) - 6):
