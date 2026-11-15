@@ -37,6 +37,23 @@ def snap(rows, a, b):
     """snap start to a sentence start (<= a), end to a sentence end (>= b), 3 s pre-roll"""
     s = max([r["start"] for r in rows if r["start"] <= a], default=a); e = min([r["end"] for r in rows if r["end"] >= b], default=b)
     return max(0, s - PRE), e
+def trim_dead_air(rows, keep, gap=5.0, pad_a=0.6, pad_b=0.8, min_seg=12.0):
+    """Remove silent gaps (> gap s without speech) from the keep ranges: owner/quality rule = no dead air. Returns the new keep list."""
+    out = []
+    for a, b in keep:
+        rs = [r for r in rows if r["end"] > a and r["start"] < b]
+        if not rs: continue
+        segs = []; cs, ce = rs[0]["start"], rs[0]["end"]
+        for r in rs[1:]:
+            if r["start"] - ce > gap: segs.append([cs, ce]); cs = r["start"]
+            ce = max(ce, r["end"])
+        segs.append([cs, ce])
+        for x, y in segs:
+            x, y = max(a, x - pad_a), min(b, y + pad_b)
+            if out and x - out[-1][1] < 1.5: out[-1][1] = y   # keep adjacent pieces joined
+            elif y - x >= min_seg or not out: out.append([x, y])
+            elif out: out[-1][1] = out[-1][1]
+    return out
 def valid_title(t): return 28 <= len(t) <= 75 and t.strip()[-1] in "!?"
 LANG = os.environ.get("PICK_LANG", "he"); CREDIT = os.environ.get("CHANNEL_CREDIT", "עודד (OdedSVR)"); SLUG = os.environ.get("CHANNEL", "odedsvr")
 def main():
@@ -104,7 +121,8 @@ def main():
                     if x - p > 20: nk.append([p, x])
                     if q - y > 20: nk.append([y, q])
             keep = nk
-        if sum(q - p for p, q in keep) < MIN_LEN: print("too short after exclusions:", c["title"]); continue
+        keep = trim_dead_air(rows, keep)
+        if sum(q - p for p, q in keep) < 300: print("too short after exclusions / dead air:", c["title"]); continue
         cid = f"{vod}_{int(s0)}"; d = os.path.join(clipsd, cid)
         if os.path.exists(os.path.join(d, "spec.json")): continue
         os.makedirs(d, exist_ok=True)
