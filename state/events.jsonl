@@ -20,3 +20,7 @@
 {"t": "2026-11-15T15:57:47Z", "kind": "retry", "text": "הרינדור של 137995265_1338 לא הסתיים בטיוטה ונשלח שוב (ניסיון 1)"}
 {"t": "2026-11-15T15:57:47Z", "kind": "problem", "text": "תקלה: 3 render-clip run(s) failed in the last 3 h (ids [43730241375, 43730104524, 43729436851])"}
 {"t": "2026-11-15T16:03:35Z", "kind": "problem", "text": "תקלה: 3 render-clip run(s) failed in the last 3 h (ids [43730241375, 43730104524, 43729436851])"}
+{"t": "2026-11-15T16:11:03Z", "kind": "pick_skip", "text": "🔎 בדקתי את דקות 72-79 בשידור: לא נבחר נושא. The segment contains incoherent monologue without clear story, guests, or strong audience spikes. No eligible "}
+{"t": "2026-11-15T16:11:06Z", "kind": "retry", "text": "הרינדור של 137995265_772 לא הסתיים בטיוטה ונשלח שוב (ניסיון 2)"}
+{"t": "2026-11-15T16:11:07Z", "kind": "retry", "text": "הרינדור של 137995265_1338 לא הסתיים בטיוטה ונשלח שוב (ניסיון 2)"}
+{"t": "2026-11-15T16:11:07Z", "kind": "problem", "text": "תקלה: 5 render-clip run(s) failed in the last 3 h (ids [43732763154, 43732761312, 43730241375])"}

@@ -64,6 +64,10 @@
   "15": {
    "label": "שיחה לא ברורה",
    "kind": "idle"
+  },
+  "16": {
+   "label": "שיחה עם הצופים",
+   "kind": "chat"
   }
  },
  "timeline": [
@@ -150,8 +154,14 @@
    "to": 4800,
    "label": "שיחה לא ברורה",
    "kind": "idle"
+  },
+  {
+   "from": 4800,
+   "to": 5100,
+   "label": "שיחה עם הצופים",
+   "kind": "chat"
   }
  ],
- "transcript_end": 4998,
- "updated": "2026-11-15T16:03:37Z"
+ "transcript_end": 5327,
+ "updated": "2026-11-15T16:11:10Z"
 }
