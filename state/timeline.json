@@ -68,6 +68,14 @@
   "16": {
    "label": "שיחה עם הצופים",
    "kind": "chat"
+  },
+  "17": {
+   "label": "שיחה כללית",
+   "kind": "idle"
+  },
+  "18": {
+   "label": "שיחה כללית",
+   "kind": "idle"
   }
  },
  "timeline": [
@@ -160,8 +168,14 @@
    "to": 5100,
    "label": "שיחה עם הצופים",
    "kind": "chat"
+  },
+  {
+   "from": 5100,
+   "to": 5700,
+   "label": "שיחה כללית",
+   "kind": "idle"
   }
  ],
- "transcript_end": 5327,
- "updated": "2026-11-15T16:11:10Z"
+ "transcript_end": 5803,
+ "updated": "2026-11-15T16:19:32Z"
 }
