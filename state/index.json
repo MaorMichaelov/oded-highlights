@@ -26,10 +26,15 @@
    "who": "עודד, אור (האמנית)",
    "peak": "01:32:30 | עודד מציג את החולצה ומסביר את איכות ההדפסה"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/2DmQJZzvpmQ",
+  "draft_at": "2026-11-15T16:30:18Z",
+  "quality_errors": [],
   "auto": true
  },
  {
