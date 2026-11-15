@@ -11,7 +11,7 @@ UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like 
 ROOT = Path(__file__).resolve().parent.parent
 STATE = ROOT / os.environ.get("STATE_DIR", "state"); (STATE / "transcripts").mkdir(parents=True, exist_ok=True)
 QUALITY = os.environ.get("AUDIO_QUALITY", "480p30")   # measured: 160p audio=51 kbps (bad transcripts), 480p/720p=102 kbps (clearly better)
-MAX_SEGS_PER_RUN = int(os.environ.get("MAX_SEGS_PER_RUN", "120"))   # ~15 min of audio per run (Groq free: 7200 audio-sec/hour)
+MAX_SEGS_PER_RUN = int(os.environ.get("MAX_SEGS_PER_RUN", "36"))   # ~6 min of stream per run: progress is committed every few minutes, a restart never loses much   # ~15 min of audio per run (Groq free: 7200 audio-sec/hour)
 GROQ_KEY = os.environ.get("GROQ_API_KEY", "")
 ASR_LANG = os.environ.get("ASR_LANG", "he")   # "en" for English streamers
 ASR = os.environ.get("ASR", "ivrit")          # ivrit = ivrit-ai/whisper-large-v3-turbo-ct2 on CPU (RTF ~0.4 on a 4-vCPU runner, no daily quota); groq = fallback
