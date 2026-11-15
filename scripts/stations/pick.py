@@ -55,7 +55,8 @@ def trim_dead_air(rows, keep, gap=5.0, pad_a=0.6, pad_b=0.8, min_seg=12.0):
             if out and x - out[-1][1] < 1.5: out[-1][1] = y   # keep adjacent pieces joined
             elif y - x >= min_seg: out.append([x, y])   # a short fragment (a few words) is dropped
     return out
-def valid_title(t): return 28 <= len(t) <= 75 and t.strip()[-1] in "!?"
+BAN_WORDS = re.compile(r"אוטי|מפגר|מוגבל")   # derogatory slang the streamer uses: never in a title/description (channel safety)
+def valid_title(t): return 28 <= len(t) <= 75 and t.strip()[-1] in "!?" and not BAN_WORDS.search(t)
 LANG = os.environ.get("PICK_LANG", "he"); CREDIT = os.environ.get("CHANNEL_CREDIT", "עודד (OdedSVR)"); SLUG = os.environ.get("CHANNEL", "odedsvr")
 
 def refine(rows, lo, hi, title, which):
@@ -180,6 +181,7 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
             hs = [h for h in (meta.get("hashtags") or []) if isinstance(h, str) and h.startswith("#")][:8]
             hs = list(dict.fromkeys(hs + ["#עודד", "#OdedSVR", "#עודדהיילייטס", "#ODEDHIGHLIGHTS", "#קיק", "#Kick", "#סטרימרישראלי"]))   # the channel's own best-performing description format
             desc = meta.get("description", "").strip() + ("\n" + meta["seo_line"].strip() if meta.get("seo_line") else "") + "\nהרגעים הכי טובים מהלייב של עודד בקיק | ODED HIGHLIGHTS\n\nהקטע מתוך הלייב של עודד בקיק: https://kick.com/odedsvr\n\n" + " ".join(hs)
+            desc = "\n".join(" ".join(x_ for x_ in re.split(r"(?<=[.!?])\s+", ln_) if not BAN_WORDS.search(x_)) for ln_ in desc.split("\n"))
             aff = os.path.join(ROOT, "config", "affiliate.txt")
             if os.path.exists(aff): desc += "\n\n" + open(aff, encoding="utf-8").read().strip()
             json.dump({"title": title, "description": desc, "tags": (meta.get("tags") or []) + ["עודד", "OdedSVR", "ODED HIGHLIGHTS"], "preset": meta.get("preset") if meta.get("preset") in PRESETS else "reaction_video",
