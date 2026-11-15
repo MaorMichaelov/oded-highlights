@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-15T16:03:34Z",
- "fetched_epoch": 1794758614.7370079,
+ "fetched_at": "2026-11-15T16:34:35Z",
+ "fetched_epoch": 1794760475.506965,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1860,
@@ -8,6 +8,36 @@
   "videos": 10
  },
  "videos": [
+  {
+   "id": "2DmQJZzvpmQ",
+   "title": "\"זה האב טיפוס הראשוני של לוז!\" עודד מדבר על החולצה החדשה עם אור!",
+   "published": "2026-11-15T16:30:12Z",
+   "privacy": "private",
+   "duration": "PT7M",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
+  {
+   "id": "riHgpZ1wJmA",
+   "title": "\"זה יהיה פסיכי!\" עודד מתכנן סבתון GTA 6 עם פרסים!",
+   "published": "2026-11-15T16:19:12Z",
+   "privacy": "private",
+   "duration": "PT4M7S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
+  {
+   "id": "3H3rP1V0mLQ",
+   "title": "\"אל תצפו באחרים!\" עודד מבקש מהצ'אט לא לצפות לפני ה‑GTA 6!",
+   "published": "2026-11-15T16:19:09Z",
+   "privacy": "private",
+   "duration": "PT5M19S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
   {
    "id": "xY3zj56rBXI",
    "title": "עודד מחפש את המספר של ביגי ומתקשר לעמית שיבר בלייב!",
@@ -44,7 +74,7 @@
    "published": "2026-11-13T08:00:35Z",
    "privacy": "public",
    "duration": "PT15M2S",
-   "views": 933,
+   "views": 988,
    "likes": 16,
    "comments": 0
   },
@@ -64,7 +94,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 3098,
+   "views": 3123,
    "likes": 17,
    "comments": 0
   },
@@ -84,8 +114,8 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 2421,
-   "likes": 27,
+   "views": 2455,
+   "likes": 30,
    "comments": 3
   },
   {
@@ -119,5 +149,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 71
+ "total_uploads_incl_private": 77
 }
