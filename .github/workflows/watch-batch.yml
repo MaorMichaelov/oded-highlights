@@ -1,0 +1,30 @@
+name: watch-batch
+# Watches several videos one after another with Gemini and commits each analysis to state/yt_research/watch_<id>.txt (survives container restarts; no waiting on my side).
+on:
+  workflow_dispatch:
+    inputs:
+      ids: { description: "space-separated YouTube video ids", required: true }
+      question: { required: false, default: "" }
+concurrency: { group: watch-batch, cancel-in-progress: false }
+permissions: { contents: write }
+jobs:
+  batch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Watch
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          IDS: ${{ inputs.ids }}
+          Q: ${{ inputs.question }}
+        run: |
+          pip install -q yt-dlp
+          mkdir -p state/yt_research
+          for id in $IDS; do
+            python3 scripts/watch_video.py "https://www.youtube.com/watch?v=$id" "$Q" > /tmp/w_$id.log 2>&1 || true
+            grep -o 'WATCH|.*' /tmp/w_$id.log | grep -v 'available' | cut -c7- > state/yt_research/watch_$id.txt
+            sleep 20
+          done
+          git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
+          git add state/yt_research/watch_*.txt; git diff --cached --quiet || { git commit -q -m "state: watch batch"; for i in 1 2 3 4 5 6 7 8 9 10; do git pull --rebase -q && git push -q && break; sleep $((i*2)); done; }
