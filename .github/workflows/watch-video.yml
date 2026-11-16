@@ -1,0 +1,25 @@
+name: watch-video
+# Watches ONE video (YouTube URL goes straight to Gemini; TikTok/other sites are downloaded first) and prints a detailed timestamped description to the log. Read-only.
+on:
+  workflow_dispatch:
+    inputs:
+      url: { required: true }
+      question: { required: false, default: "" }
+concurrency: { group: watch-video, cancel-in-progress: false }
+permissions: { contents: read }
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install yt-dlp
+        run: pip install -q yt-dlp
+      - name: Watch
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          URL: ${{ inputs.url }}
+          Q: ${{ inputs.question }}
+        run: |
+          [ -n "$GEMINI_API_KEY" ] || { echo "WATCH|NO GEMINI_API_KEY secret"; exit 1; }
+          python3 scripts/watch_video.py "$URL" "$Q"
