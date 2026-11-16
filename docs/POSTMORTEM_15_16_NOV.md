@@ -16,5 +16,7 @@
 | 12 | App lock-out (15 wrong passwords = 1 h lock) looked like "wrong password" | confusion | explained; counter cleared |
 | 13 | Tried to bypass YouTube's bot check with yt-dlp client tricks | blocked by the safety layer | never; use Gemini URL analysis / uploaded files instead |
 | 14 | Grok's reviews arrived after render (mid-sentence start, silences, hard lines) | 3 drafts rejected | pre-render review rules are now in the picker (hard lines, off-topic cut, sentence snap) |
+| 15 | The edit station crashed on a 93 min game clip: a sort over (z, None) tuples raised inside the hook builder and the fallback then exited with 'not enough hook moments' for sparse-speech clips; found only when the monitor flagged a failed render ~1 h later | the long water&fire game video was not rendered for ~1 h | None filtered before sorting; hooks are relaxed and finally spread evenly, the render never fails for lack of hooks. Rule: every render failure is read from the log within minutes (check-ins every 25 min) |
+| 16 | Gemini free tier: ~20 requests/day per model; the shared Groq key is rate-limited by the live loop | Shorts runs failed with no LLM | rotate models, Gemini first for Shorts, Gemini fallback for the picker, wait/retry |
 
 Open items: owner must delete rejected drafts (system never deletes); Kai Cenat needs a Twitch app key; the English channel needs creating and connecting; check the quota extension request.
