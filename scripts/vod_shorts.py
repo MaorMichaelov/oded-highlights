@@ -49,10 +49,14 @@ def render2(body, s, e, ass, out, hook, peak):
     import shorts as SH
     fonts = [os.path.join(d, f) for d in SH.FONTS for f in (os.listdir(d) if os.path.isdir(d) else []) if f.lower().endswith(".ttf") and ("black" in f.lower() or "bold" in f.lower())]
     ff = fonts[0] if fonts else "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
-    safe = re.sub(r"[^A-Za-z0-9 !?']", "", (hook or "")).upper().replace("'", "")[:34]
+    safe = re.sub(r"[^A-Za-z0-9 !?']", "", (hook or "")).upper().replace("'", "")[:40]
+    if len(safe) > 16:   # QA by Gemini (16 Nov): a 22+ char hook ran off both edges at 80 px; wrap into two centred lines and size to fit the safe width (~900 px)
+        w_ = safe.split(); a_, b_ = [], []
+        for x_ in w_: (a_ if len(" ".join(a_ + [x_])) <= max(12, len(safe) // 2 + 2) else b_).append(x_)
+        safe = " ".join(a_) + "|" + " ".join(b_) if b_ else " ".join(a_)
     P = max(0.0, peak - s); fr = int(P * 30)
     z = f"if(between(on,{fr},{fr + 7}),1+0.12*(on-{fr})/7,if(between(on,{fr + 7},{fr + 30}),1.12-0.12*(on-{fr + 7})/23,1))" if peak else "1"
-    dt = (f",drawtext=fontfile={ff}:text='{safe}':fontsize=80:fontcolor=white:borderw=7:bordercolor=black:x=(w-text_w)/2:y=330:enable='lt(t,1.8)'") if safe else ""
+    dt = "".join(f",drawtext=fontfile={ff}:text='{ln}':fontsize=64:fontcolor=white:borderw=6:bordercolor=black:x=(w-text_w)/2:y={300 + 84 * k}:enable='lt(t,1.8)'" for k, ln in enumerate([x for x in safe.split("|") if x.strip()]))
     vf = ("[0:v]split=2[a][b];[a]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=28:4,eq=brightness=-0.12[bg];[b]scale=1080:-2[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2[v0];"
           f"[v0]zoompan=z='{z}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s=1080x1920:fps=30[v1];[v1]subtitles={ass.replace(':', chr(92) + ':')}" + (":fontsdir=" + SH.FONTS[0] if SH.FONTS else "") + dt + "[v]")
     sfx = os.path.join(ROOT, "assets", "sfx", "boom.wav"); have = peak and os.path.exists(sfx)
