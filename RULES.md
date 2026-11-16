@@ -57,3 +57,5 @@ GROK BOT'S INSTRUCTIONS (owner pasted 14 Nov): drafts = private + full Hebrew ti
 - REACTION CONTENT (owner, 15 Nov): the video he reacts to can be in English / by any creator. While reacting he asks the chat about the video or talks about it: that is part of the reaction and STAYS in the clip (do not cut it as a digression). Reactions need few cuts, only here and there.
 
 - CHANNEL DISCLAIMER (Oded himself commented, 15 Nov): every description says where the clips come from (Oded's Kick live) and that this is NOT the official channel (an unofficial fan channel); links to kick.com/odedsvr and his official YouTube channel @OdedSVRLive.
+
+- GROK'S UPLOADS ARE THE QUALITY BAR (owner, 16 Nov): see docs/GROK_EXAMPLES.md. One video per source (a news report and a different report = two videos), title `עודד מגיב ל"<original title>" של <outlet/creator>`, description first line = fan-channel disclaimer + kick link, 2-3 specific sentences, SEO line, credit, chapters about every minute for reactions (every 3-5 min for long sessions) with real names/quotes, hashtags.
