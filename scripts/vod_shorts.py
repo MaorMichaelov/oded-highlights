@@ -17,8 +17,18 @@ def groq(model, messages, mx=1200):
     d = json.loads(r.stdout)
     if "choices" not in d: raise RuntimeError(str(d.get("error", d))[:160])
     return d["choices"][0]["message"]["content"]
-def llm(prompt):   # the free Groq key is shared with the live loop: rotate models and wait out the per-minute token limit
-    for rnd in range(4):
+def gemini(prompt):
+    key = os.environ.get("GEMINI_API_KEY")
+    if not key: return None
+    for model in ("gemini-flash-latest", "gemini-3.5-flash"):
+        r = sh(["curl", "-sS", "-m", "120", f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent", "-H", "x-goog-api-key: " + key, "-H", "Content-Type: application/json", "-d", json.dumps({"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"temperature": 0.2, "maxOutputTokens": 1500, "responseMimeType": "application/json"}})])
+        try: return json.loads(json.loads(r.stdout)["candidates"][0]["content"]["parts"][0]["text"])
+        except Exception as e: print("gemini", model, "failed:", r.stdout[:160])
+    return None
+def llm(prompt):   # Gemini first (the free Groq key is shared with the live loop and often rate-limited), then Groq with model rotation
+    g = gemini(prompt)
+    if g: return g
+    for rnd in range(3):
         for m in ("openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3-32b"):
             try:
                 txt = groq(m, [{"role": "user", "content": prompt}]); return json.loads(re.search(r"\{.*\}", re.sub(r"<think>.*?</think>", "", txt, flags=re.S), re.S).group(0))

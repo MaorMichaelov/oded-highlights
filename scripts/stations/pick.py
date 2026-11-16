@@ -27,14 +27,29 @@ def lines(rows, a, b, step=30):
         if r["end"] - t0 >= step: out.append(f"[{mmss(t0)}|{int(t0)}] " + " ".join(cur)); cur, t0 = [], None
     if cur: out.append(f"[{mmss(t0)}|{int(t0)}] " + " ".join(cur))
     return out
+def gemini_ask(system, user):
+    """Fallback when the shared free Groq quota is exhausted: Gemini (free key, GEMINI_API_KEY secret)."""
+    key = os.environ.get("GEMINI_API_KEY")
+    if not key: return None
+    body = json.dumps({"systemInstruction": {"parts": [{"text": system}]}, "contents": [{"parts": [{"text": user}]}], "generationConfig": {"temperature": 0.3, "maxOutputTokens": 4000}}, ensure_ascii=False)
+    for model in ("gemini-flash-latest", "gemini-3.5-flash"):
+        r = subprocess.run(["curl", "-sS", "-m", "120", f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent", "-H", "x-goog-api-key: " + key, "-H", "Content-Type: application/json", "-d", body], capture_output=True, text=True)
+        try: return "".join(p_.get("text", "") for p_ in json.loads(r.stdout)["candidates"][0]["content"]["parts"])
+        except Exception: print("gemini error:", r.stdout[:200])
+    return None
 def ask(system, user):
     body = json.dumps({"model": MODEL, "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}], "temperature": 0.3, "max_tokens": 3000, "reasoning_effort": "low"}, ensure_ascii=False)
     hdr = ["-H", "Content-Type: application/json"] + (["-H", "Authorization: Bearer " + os.environ["GROQ_API_KEY"]] if os.environ.get("GROQ_API_KEY") else [])
     for attempt in range(3):
         r = subprocess.run(["curl", "-sS", "-m", "180", "https://api.groq.com/openai/v1/chat/completions"] + hdr + ["-d", body], capture_output=True, text=True)
         try: d = json.loads(r.stdout); return d["choices"][0]["message"]["content"]
-        except Exception: print("model error:", r.stdout[:300], r.stderr[:200]); time.sleep(20 * (attempt + 1))
-    return None
+        except Exception:
+            print("model error:", r.stdout[:300], r.stderr[:200])
+            if attempt == 1:
+                g = gemini_ask(system, user)
+                if g: return g
+            time.sleep(20 * (attempt + 1))
+    return gemini_ask(system, user)
 def snap(rows, a, b):
     """snap start to a sentence start (<= a), end to a sentence end (>= b), 3 s pre-roll"""
     s = max([r["start"] for r in rows if r["start"] <= a], default=a); e = min([r["end"] for r in rows if r["end"] >= b], default=b)
