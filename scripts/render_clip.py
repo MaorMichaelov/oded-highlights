@@ -49,7 +49,7 @@ if len(hooks) < 3:   # funniest moments first: chat reaction spikes mapped into 
         sys.path.insert(0, HERE); import topic_scan
         _ing = json.load(open(os.path.join(ROOT, "state", "ingest_state.json")))
         if str(cuts.get("vod")) == str(_ing.get("_current_vod")):
-            sp = sorted(((z, vod2body(t - 1.0)) for t, z in topic_scan.chat_spikes(_ing.get("_vod_start_epoch")) if z >= 2.3), reverse=True)
+            sp = sorted(((z, bt_) for z, bt_ in ((z, vod2body(t - 1.0)) for t, z in topic_scan.chat_spikes(_ing.get("_vod_start_epoch")) if z >= 2.3) if bt_ is not None), reverse=True)   # bug 16 Nov: a None body time made the sort raise
             for z, bt in sp:
                 if bt is not None and 12 <= bt <= dur - 6 and all(abs(bt - h["t"]) >= 25 for h in hooks) and sum(1 for w in words if bt <= w["start"] < bt + 2.8) >= 2:
                     hooks.append(dict(t=round(bt, 2), d=2.8, cap="", hl=[]))
@@ -62,6 +62,12 @@ if len(hooks) < 3:                                    # auto: densest 2.8 s wind
         n = sum(1 for w in words if t <= w["start"] < t + 2.8); cand.append((n, t))
     for n, t in sorted(cand, reverse=True):
         if all(abs(t - h["t"]) >= 25 for h in hooks) and n >= 3: hooks.append(dict(t=float(t), d=2.8, cap="", hl=[]))
+        if len(hooks) >= 3: break
+for need in (2, 1, 0):   # sparse speech (game clips): the render used to die with "not enough hook moments"; relax the word count, finally spread the hooks evenly
+    if len(hooks) >= 3: break
+    for n, t in sorted(cand, reverse=True) if need else [(0, int(dur * f_)) for f_ in (0.3, 0.55, 0.8)]:
+        if t < 12 or t > dur - 6: continue
+        if all(abs(t - h["t"]) >= 25 for h in hooks) and n >= need: hooks.append(dict(t=float(t), d=2.8, cap="", hl=[]))
         if len(hooks) >= 3: break
 montage = []
 for h in sorted(hooks, key=lambda h: h["t"])[:3]:
