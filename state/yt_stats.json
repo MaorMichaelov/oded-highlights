@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-16T16:39:09Z",
- "fetched_epoch": 1794847149.60424,
+ "fetched_at": "2026-11-16T17:09:12Z",
+ "fetched_epoch": 1794848952.1351855,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1880,
@@ -24,7 +24,7 @@
    "published": "2026-11-16T12:35:30Z",
    "privacy": "public",
    "duration": "PT5M17S",
-   "views": 373,
+   "views": 490,
    "likes": 9,
    "comments": 0
   },
@@ -34,8 +34,8 @@
    "published": "2026-11-16T12:17:55Z",
    "privacy": "public",
    "duration": "PT51M48S",
-   "views": 219,
-   "likes": 8,
+   "views": 245,
+   "likes": 10,
    "comments": 0
   },
   {
@@ -44,9 +44,9 @@
    "published": "2026-11-16T12:06:24Z",
    "privacy": "public",
    "duration": "PT23M12S",
-   "views": 782,
+   "views": 1048,
    "likes": 21,
-   "comments": 3
+   "comments": 5
   },
   {
    "id": "ZFrsrP_iaSs",
@@ -54,7 +54,7 @@
    "published": "2026-11-16T12:05:12Z",
    "privacy": "public",
    "duration": "PT21M22S",
-   "views": 134,
+   "views": 176,
    "likes": 5,
    "comments": 0
   },
@@ -194,7 +194,7 @@
    "published": "2026-11-13T09:30:26Z",
    "privacy": "public",
    "duration": "PT14M55S",
-   "views": 2213,
+   "views": 2244,
    "likes": 14,
    "comments": 0
   },
@@ -204,7 +204,7 @@
    "published": "2026-11-13T09:00:02Z",
    "privacy": "public",
    "duration": "PT9M37S",
-   "views": 4102,
+   "views": 4132,
    "likes": 35,
    "comments": 3
   },
@@ -214,7 +214,7 @@
    "published": "2026-11-13T08:00:35Z",
    "privacy": "public",
    "duration": "PT15M2S",
-   "views": 1118,
+   "views": 1110,
    "likes": 17,
    "comments": 2
   },
@@ -234,7 +234,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 3726,
+   "views": 3729,
    "likes": 20,
    "comments": 0
   },
@@ -244,7 +244,7 @@
    "published": "2026-11-12T12:34:00Z",
    "privacy": "public",
    "duration": "PT6M",
-   "views": 78,
+   "views": 83,
    "likes": 3,
    "comments": 0
   },
@@ -254,7 +254,7 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 4292,
+   "views": 4102,
    "likes": 42,
    "comments": 3
   },
@@ -264,7 +264,7 @@
    "published": "2026-11-11T17:52:12Z",
    "privacy": "public",
    "duration": "PT14M5S",
-   "views": 168,
+   "views": 167,
    "likes": 6,
    "comments": 0
   },
