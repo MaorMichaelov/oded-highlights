@@ -125,3 +125,12 @@ Compare with what the pipeline produced: Grok names the REAL source (outlet/crea
 
 #עודד #OdedSVR #עודדהיילייטס #ODEDHIGHLIGHTS #קיק #Kick #סטרימרישראלי #אור #טבסקו
 ```
+
+## HOW GROK CUTS A NEWS REACTION (Gemini watched https://youtu.be/aWOw52IYBf4, 16 Nov; scripts/watch_video.py)
+- Source: the stream layout (browser window with the news report, face-cam top right, chat) - same render as ours (hook, bumper, subscribe pop-up).
+- 5:17 video made from ~21 stream minutes (about 139:15 -> 160:40): ~14 jump cuts in 5 min, i.e. a new point of interest every 10-20 s. It is a HIGHLIGHT STITCH of the reaction, not the raw stretch.
+- 00:00-00:07 hook: three punchy 1.5-2.5 s moments (his loudest line, a funny prop, the peak "אין את זה במחשב!") with big yellow captions; 00:07-00:10 channel bumper; body has NO captions (captions only in the hook).
+- Body starts at the START of the news report (sentence start), includes his best interactions (he holds up the old GTA V disc box: "איזה דיסק?!" at 01:06-01:33), keeps his funny pauses/monologue (30 s monologue on 02:13-02:43), skips dry stats, silences, chat-reading, drinking breaks.
+- Cuts skip dry seconds inside the reacted video (jump cuts of 1-2 s); longest uninterrupted part ~40 s (the peak outburst).
+- Ends the moment he closes the tab ("לא רוצה לראות את זה, באמת היא עצבנה אותי") with a hard cut to black: no outro. CTA pop-up at ~00:14.
+- One source per video; the second news report (computers) is a separate video.

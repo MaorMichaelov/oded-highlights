@@ -59,3 +59,5 @@ GROK BOT'S INSTRUCTIONS (owner pasted 14 Nov): drafts = private + full Hebrew ti
 - CHANNEL DISCLAIMER (Oded himself commented, 15 Nov): every description says where the clips come from (Oded's Kick live) and that this is NOT the official channel (an unofficial fan channel); links to kick.com/odedsvr and his official YouTube channel @OdedSVRLive.
 
 - GROK'S UPLOADS ARE THE QUALITY BAR (owner, 16 Nov): see docs/GROK_EXAMPLES.md. One video per source (a news report and a different report = two videos), title `עודד מגיב ל"<original title>" של <outlet/creator>`, description first line = fan-channel disclaimer + kick link, 2-3 specific sentences, SEO line, credit, chapters about every minute for reactions (every 3-5 min for long sessions) with real names/quotes, hashtags.
+
+- HOW A NEWS/VIDEO REACTION IS EDITED (watched with Gemini, 16 Nov, see docs/GROK_EXAMPLES.md): highlight stitch, not raw stretch: ~14 cuts per 5 min, a hook of the 3 strongest moments, the body starts where the reacted video/article starts and ends when he closes it; keep his props/funny monologues, drop dry parts and chat-reading; one source per video.
