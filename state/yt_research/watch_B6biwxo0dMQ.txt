@@ -1,0 +1,51 @@
+model failed gemini-flash-latest: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease 
+model failed gemini-flash-latest: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease 
+model failed gemini-3.8-flash: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease ret
+model failed gemini-3.7-flash: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease ret
+model: gemini-3.6-flash
+### ניתוח הסרטון (תגובה בלייב לטריילר GTA VI)
+
+---
+
+### 1. לוח זמנים ומעברי סצנות (Timeline & Layouts)
+* **00:00 - 00:11**: **מצלמת חדר מלאה** – Kai Cenat במרכז החדר, צ'אט Twitch פעיל בצד ימין, מד מנויים/תרומות מימין למטה.
+* **00:11 - 03:01**: **תצוגת מסך/דפדפן (סרטון יוטיוב)** – צפייה בטריילר GTA VI. חלון מצלמה קטן (Facecam) ממוקם בצד שמאל למטה.
+  * **00:45**: תחילת ניגון הטריילר בנגן היוטיוב.
+  * **01:10 - 01:15**: עצירה (Pause) קצרה של הסרטון וחזרה לניגון.
+  * **01:33 - 02:00**: עצירת הסרטון, תגובה נסערת והרצה לאחור.
+  * **02:09 - 02:45**: עצירה נוספת וחידוש עד לסיום הטריילר והצגת תאריך היציאה.
+* **03:01 - 08:44**: **חזרה למצלמת חדר מלאה** – דיון ממושך עם הצ'אט. 
+  * **05:24 - 05:30**: קם מהכיסא בהתרגשות וחוזר לשבת.
+
+---
+
+### 2. תוכן מוצג ונחתך (Shown vs. Not Shown)
+* **מה מוצג**: השידור החי הרציף (Stream Recording), כולל הגדרות הנגן, עצירות הטריילר, התגובות הפיזיות והשיחה המלאה עם הצופים.
+* **מה לא מוצג/נחתך**: אין עריכת Cut/Crop פוסט-פרודקשן; הכל מוצג ברצף ללא הטיות או סינון קטעי דיבור צדדיים.
+
+---
+
+### 3. נתוני חיתוכים וזמנים (Cuts & Durations)
+* **סה"כ מעברי סצנות בשידור**: 2 מעברים עיקריים (00:11, 03:01).
+* **הקטע הרציף הארוך ביותר**: 03:01 - 08:44 (5 דקות ו-43 שניות של שיחה ברצף).
+* **הקטע הקצר ביותר**: מעבר הגדרות האיכות ביוטיוב (00:40 - 00:44).
+
+---
+
+### 4. פתיח ומבנה 10 השניות הראשונות (Hook)
+* ההקלטה מתחילה ללא פתיח ערוך. ה-"Hook" מתבסס על ההתלהבות הטיפוסית של הסטרימר שמכריז מיד על הצפייה בטריילר הלוהט של GTA VI.
+
+---
+
+### 5. Editor Reference Guide (Analysis in English)
+
+* **Structure**: Standard Live Reaction format: Instant Hook (0:00–0:11) $\rightarrow$ Content Reaction (0:11–3:01) $\rightarrow$ Post-Reaction Yap/Discussion (3:01–8:44).
+* **Layout**: Fullscreen streamer camera with active chat overlay, switching to main screen capture with PiP (picture-in-picture) streamer face-cam in the bottom-left corner.
+* **Captions & FX**: Clean stream raw output—no added post-production captions, SFX, or pop-ups. Relies entirely on live Twitch widgets (chat, goal counter).
+* **Pacing & Cuts**: Uncut, authentic stream pacing. Cuts only occur via live scene switching between desktop and main camera.
+* **Why It Works (Key Takeaways for Editors)**:
+  1. **Immediate Energy**: High-energy opening hook keeps retention high without needing over-edited intros.
+  2. **Clear Screen Hierarchy**: PiP camera placement ensures the reacted content remains fully visible.
+  3. **Strategic Pauses**: Stopping the video at key hypes/surprises amplifies emotional reaction.
+  4. **Extended Discussion**: Keeping the post-reaction talk adds value for core community members.
+  5. **Authenticity**: Minimal editing preserves the genuine live-stream experience.

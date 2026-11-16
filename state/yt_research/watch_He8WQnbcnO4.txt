@@ -1,0 +1,79 @@
+model failed gemini-flash-latest: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease 
+model failed gemini-3.8-flash: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease ret
+model failed gemini-3.7-flash: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease ret
+model: gemini-3.6-flash
+### חלק 1: ציר זמן של החיתוכים והשינויים בסרטון (Timeline & Scene Changes)
+
+* **00:00 - 00:20**: פוזי (Fousey) מחזיק את ניאון (N3on) בחנק בלובי של מלון ודורש ממנו להתנצל.
+* **00:21 - 00:45**: ניאון, יור-רייג' (YourRage) וסניקו (Sneako) אוכלים אוכל הודי באולם כדורסל ומשוחחים על מוצא אתני.
+* **00:46 - 00:57**: ניאון וסניקו בחנות בגדי יוקרה.
+* **00:58 - 01:04**: ניאון מגיש חיתולים ליור-רייג' היושב בכיסא גלגלים.
+* **01:05 - 01:21**: רכיבה על טרקטורונים בשטח פתוח בשקיעה.
+* **01:22 - 01:46**: ניאון לובש חיתול מבוגרים מעל המכנסיים מול כולם.
+* **01:47 - 02:03**: עימות מתוח בבית של ה-"Island Boys" עם פוזי, סניקו וניאון.
+* **02:04 - 02:08**: סניקו צוחק על הלבוש של ניאון בקניון.
+* **02:09 - 02:20**: ניאון בזירת אגרוף מול מתאגרפת.
+* **02:21 - 02:46**: ניאון מעניק חולצת לויס לבנה ליור-רייג'.
+* **02:47 - 03:19**: פוזי מכריח את ניאון להחזיק בכיסו וללכת אחריו בלובי.
+* **03:20 - 03:27**: תגרת אגרופים מתפרצת בבית של האיילנד בויז.
+* **03:28 - 03:40**: שיחה בחוץ בלילה עם מפתח גוף (מייקל ראשיד).
+* **03:41 - 03:56**: אחד מהאיילנד בויז מתעמת ומאיים על ניאון על הספה.
+* **03:57 - 04:37**: פוזי במסע הופעות/מונולוג סוער בבית על ביקור בחנות רולקס.
+* **04:38 - 04:49**: פוזי מדבר עם סניקו וניאון במסדרון על כבוד וביוש.
+* **04:50 - 05:01**: פוזי חונק שוב את ניאון על הספה בלובי.
+* **05:02 - 05:20**: יור-רייג' צוחק על המראה של ניאון באולם הכדורסל.
+* **05:21 - 05:51**: שיחה בשולחן האוכל על שמועות פייק ניוז ופברוק מוות.
+* **05:52 - 05:59**: ניאון שואל את מפתח הגוף על מספר השותפות המיניות שלו.
+* **06:00 - 06:05**: ניאון על טרקטורון עם משקפי מגן.
+* **06:06 - 06:51**: פוזי מאיים באלימות גרפית מפורטת על ניאון ליד שולחן האוכל.
+* **06:52 - 07:23**: שיחה באולם הכדורסל בין ניאון ליור-רייג' על נכות ומשפחה.
+* **07:24 - 07:29**: ניאון מצהיר בלובי שהוא חייב מאבטחים.
+* **07:30 - 07:35**: שיחת לילה בחוץ עם סניקו ומפתח הגוף.
+* **07:36 - 07:57**: דיון בשולחן על בדיחות גזעניות ואבא נעלם.
+* **07:58 - 08:04**: רכיבה על טרקטורון ברחוב מוצף מים.
+* **08:05 - 08:40**: פוזי וניאון מנהלים ויכוח על כסף, ולוגים ושחיקה נפשית.
+* **08:41 - 09:08**: ניאון ניגש לאישה במתחם המזון בקניון.
+* **09:09 - 09:18**: פוזי צועק על ניאון במטבח.
+* **09:19 - 09:38**: פוזי עושה לניאון "וודג'י" (מתיחת תחתונים) כואב בלובי.
+* **09:39 - 10:03**: תחרות שקילוט שרירים/שכיבות סמיכה ברצפת הקניון.
+* **10:04 - 10:37**: פוזי דורש מניאון להתנצל בפני יוצרים אחרים (DDG / Woo Back).
+* **10:38 - 11:25**: ניאון מנסה להגן על עצמו ולהסביר שהכל בדיחה, אך נכנע ומתנצל.
+* **11:26 - 11:39**: נערים מעניקים לניאון ארנק ספונג'בוב עם קונדום בתוכו.
+* **11:40 - 11:46**: צחוקים בחוץ עם מפתח הגוף.
+* **11:47 - 12:08**: דיון בחנות נעליים על שימוש במילים פוגעניות.
+* **12:09 - 13:09**: מונולוג רציני של פוזי ברכב בלילה לניאון על התנתקות מהאינטרנט וחיבור עצמי.
+
+---
+
+### חלק 2: מה מוצג ומה נחתך (Content Included vs. Cut)
+* **מה מוצג**: לקט מרוכז של קטעי דרמה, עימותים פיזיים/מילוליים, רגעים מביכים, מתיחות וסיטואציות IRL מתוך שידורים חיים של N3on, Fousey, Sneako, YourRage וה-Island Boys.
+* **מה נחתך**: כל חלקי ההמתנה הארוכים, השיחות השגרתיות והאינטראקציות האיטיות של השידור החי (IRL Stream). הסרטון חותך ישירות לנקודות שיא, צעקות או בדיחות.
+
+---
+
+### חלק 3: ספירה ונתוני עריכה (Cut Statistics)
+* **סה"כ חיתוכים**: כ-38 מעברים/קטעים עיקריים.
+* **הקטע הארוך ביותר**: 12:09 - 13:09 (כדקה אחת רצופה - שיחת מוסר ברכב).
+* **הקטע הקצר ביותר**: 02:04 - 02:08 (כ-4 שניות).
+
+---
+
+### חלק 4: פתיח וקוד כבש (Hook Analysis)
+* **10 השניות הראשונות**: קפיצה ישר לתוך דרמה בעוצמה גבוהה (Fousey חונק את N3on בלובי), שמייצרת סקרנות ואנגייג'מנט מיידי ללא הסברים או פתיח איטי.
+
+---
+
+### 5. Editor's Reference Report (English)
+
+* **Structure**: High-energy hook (fight/confrontation) $\rightarrow$ body (fast-paced montage of viral moments, drama, meme interactions, and IRL stream highlights) $\rightarrow$ reflective ending (emotional car talk).
+* **Layout**: Full-screen 16:9 stream captures; no webcam overlay added (direct footage cuts).
+* **Captions / On-screen Elements**: Chat overlays are visible on certain raw stream clips; no added stylistic subtitles.
+* **Pacing & Cuts**: High frequency (~3 cuts per minute average), cutting straight to peak conflict or punchlines.
+* **Audio**: Raw stream audio with natural dialogue, shouting, and background ambient music from venues.
+
+#### Why This Compilation Works:
+1. **Immediate Hook**: Starts with physical/verbal conflict to retain viewers instantly.
+2. **High-Drama Focus**: Curates only high-arousal emotions (fear, embarrassment, confrontation, humor).
+3. **Streamer Chemistry**: Highlights contrasting personalities (aggressive Fousey vs. timid N3on vs. stoic Sneako).
+4. **Fast Pacing**: Eliminates dead air standard in long-form IRL streams.
+5. **Variety of Set-Pieces**: Alternates between lobbies, gyms, malls, house drama, and outdoor activities to maintain visual interest.

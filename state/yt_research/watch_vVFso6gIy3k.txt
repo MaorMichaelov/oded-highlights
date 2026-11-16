@@ -1,0 +1,48 @@
+model failed gemini-flash-latest: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease 
+model failed gemini-flash-latest: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease 
+model failed gemini-3.8-flash: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease ret
+model failed gemini-3.7-flash: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease ret
+model: gemini-3.6-flash
+### ניתוח הווידאו (Hebrew Breakdown)
+
+#### 1. לוח זמנים (Timeline)
+* **00:00 - 00:59**: קטע רציף יחיד (Single shot) של אינטראקציה בלייב-סטרים/אירוע.
+* **אלמנטים ויזואליים**: 
+  * לוגו **KICK HUB** מופיע במרכז המסך.
+  * כתוביות בולטות בצבע ירוק זוהר בתחתית המסך שמאלה.
+
+#### 2. מה מוצג ומה נחתך
+* **מוצג**: שיחה רציפה בין המצלם/משדר (בתחפושת שוטר) לבין סטימרת/משתתפת (בתחפושת צבאית).
+* **חיתוכים**: אין חיתוכי עריכה פנימיים; הקטע שומר על רציפות בזמן אמת.
+
+#### 3. נתונים וספירה
+* **מספר חיתוכים**: 0 (שוט אחד מתמשך).
+* **חלק ארוך/קצר ביותר**: כל הקטע (59 שניות).
+
+#### 4. Hook / פתיח
+* **00:00 - 00:10**: דיאלוג פלרטטני מיידי על עניבה ואזכור "הארי פוטר" שתופס את תשומת הלב.
+
+---
+
+### English Technical Analysis (Editing Reference)
+
+* **Structure**:
+  * **Hook (00:00–00:10)**: Quick icebreaker around fixing a tie and Harry Potter trivia.
+  * **Body (00:10–00:48)**: Personal compliments, small talk on religion/church, and joke flirting.
+  * **Ending (00:48–00:59)**: Hug, wrap-up conversation, and exit.
+
+* **Layout & Style**:
+  * **Format**: Full-screen IRL raw camera perspective (Medium Close-Up).
+  * **Captions**: Bold green pop-up subtitles fixed at the bottom left.
+  * **Overlays**: Static center-screen watermark ("KICK HUB").
+
+* **Pacing & Edits**:
+  * **Cuts per minute**: 0 (Continuous uncut footage).
+  * **Audio**: Raw ambient event audio with loud background music preserved.
+
+* **5 Key Strengths**:
+  1. **Raw Pacing**: Uncut footage maintains genuine social awkwardness and tension.
+  2. **High-Contrast Text**: Bright green text ensures readability despite busy dark background.
+  3. **Tight Framing**: Framing stays close enough to capture key facial reactions.
+  4. **Immediate Hook**: Jump straight into conversation without long intro buffers.
+  5. **Clear Audio Primacy**: Foreground dialogue remains audible over background venue noise.
