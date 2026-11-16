@@ -1,0 +1,20 @@
+# Mistakes and bugs of 15-16 Nov and what was done about them (owner asked: review everything and learn)
+
+| # | What went wrong | Cost | Fix / rule now |
+|---|---|---|---|
+| 1 | Restarted the live loop every 6-10 min to load new rules; one full cycle takes ~15 min, so no cycle ever finished | ~1.5 h with no new clips | Restart only after a full cycle ended (a `state: pick` commit) and never twice in a row; rules are loaded per cycle anyway |
+| 2 | A span whose part-1 meta/title failed was marked "done" (game part 1 vanished) | a 50 min clip lost | failed parts are retried (max 4) before the span is marked done |
+| 3 | Reactions were labelled "talk" (the video's voice is in the transcript) and skipped for being < 15 min | the first GTA 6 reaction was missed | reaction scan per chunk, reactions from 6 min, forced_spans for owner requests |
+| 4 | Clip titles/descriptions could contain slang the channel must not carry ("אוטיזם") and quotes that were not in the clip | a draft rejected by Grok | BAN_WORDS in titles/descriptions, extended HARD list, quote-must-be-in-transcript |
+| 5 | yt-edit passed title/description through the shell: a quote character in the title cut it to one word and overwrote the description | a draft's metadata broken for minutes | values go through env vars |
+| 6 | Reaction clip mixed two news reports and started mid-sentence; I labelled the source wrongly | clip replaced by Grok's | one source per reaction, off-topic cleanup pass, source named from the transcript, fine chapters, Gemini video watcher to verify real videos |
+| 7 | No handling of the YouTube upload quota | clips would be lost overnight | quota_wait + automatic re-render/upload after the reset |
+| 8 | Many `git push` failures (the loop pushes every few minutes) | lost workflow commits, wasted waits | retry with backoff; workflows print results to the log instead of committing |
+| 9 | Waiting loops with the wrong condition (counted different event kinds) returned immediately | false alarms | use the same regex in both counts |
+| 10 | Segmentation bug: for long talk stretches the model returned 5-min spans (and spans outside its window), so minutes 310-600 of a 10 h stream gave no clips for ~19 h | many possible clips | out-of-window spans dropped, `coalesce_talk` joins talk runs into 15-35 min blocks, seg_v 5 forces re-segmentation |
+| 11 | Announced things as working before checking (reaction scan "will find them" while it had stalled at 12/61 chunks) | wrong expectations | state facts only after checking the log; say "not verified" otherwise |
+| 12 | App lock-out (15 wrong passwords = 1 h lock) looked like "wrong password" | confusion | explained; counter cleared |
+| 13 | Tried to bypass YouTube's bot check with yt-dlp client tricks | blocked by the safety layer | never; use Gemini URL analysis / uploaded files instead |
+| 14 | Grok's reviews arrived after render (mid-sentence start, silences, hard lines) | 3 drafts rejected | pre-render review rules are now in the picker (hard lines, off-topic cut, sentence snap) |
+
+Open items: owner must delete rejected drafts (system never deletes); Kai Cenat needs a Twitch app key; the English channel needs creating and connecting; check the quota extension request.

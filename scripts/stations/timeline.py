@@ -84,6 +84,29 @@ def react_scan(T, max_calls=4):
 try:
     if react_scan(T): T["spans"] = []   # re-segment so the new reaction chunks become spans
 except Exception as e: print("react_scan failed:", str(e)[:120])
+def coalesce_talk(spans, max_block=2100):
+    """The model often returns one 5-minute span per chunk for long talk stretches, which leaves nothing for the picker (bug found 16 Nov: minutes 310-600 of a 10 h stream produced no clip). Runs of consecutive talk/chat spans that are each <= 10 min are joined into blocks of up to 35 min; a block of >= 15 min that has at least two talk spans becomes clip_worthy and is then judged by the picker (chat peak, valid title, 15 min after cleaning)."""
+    out, run = [], []
+    def flush():
+        nonlocal run
+        if not run: return
+        blk = None
+        for x in run:
+            if blk and x["to"] - blk["from"] <= max_block: blk["to"] = x["to"]; blk["closed"] = x["closed"]; blk["_n"] += 1 if x["kind"] == "talk" else 0; blk["title"] = blk["title"]
+            else:
+                if blk: out.append(blk)
+                blk = dict(x, kind="talk", _n=1 if x["kind"] == "talk" else 0)
+        if blk: out.append(blk)
+        run = []
+    for x in spans:
+        if x["kind"] in ("talk", "chat") and x["to"] - x["from"] <= 600 and not x.get("clip_worthy"): run.append(x)
+        else: flush(); out.append(x)
+    flush()
+    for x in out:
+        if "_n" in x:
+            if x["to"] - x["from"] >= 900 and x.pop("_n") >= 2: x["clip_worthy"] = True; x["title"] = x["title"] if x.get("title") else "שיחה"
+            else: x.pop("_n", None)
+    return out
 def segment(T, nchunks):
     """LLM groups consecutive chunk labels into topic SPANS (what a clip would be). Incremental: re-segments from the start of the last open span."""
     spans = T.get("spans", []); last_chunk = max(map(int, T["chunks"]), default=-1)
@@ -109,15 +132,17 @@ def segment(T, nchunks):
             if not new: raise ValueError("no spans in model output")
             for x in new:
                 x["from"], x["to"] = int(x["from"]) * 60, int(x["to"]) * 60; x["closed"] = x["to"] <= (last_chunk - 0) * CH   # a span is closed once at least one later chunk exists after it
+            new = [x for x in new if x["from"] >= start_c * CH - 60 and x["to"] <= (last_chunk + 1) * CH + 60]   # the model sometimes invents spans outside the window it was given (e.g. 0-420 min): drop them
+            for x in new: x["from"] = max(x["from"], start_c * CH)
             merged = []
             for x in sorted((x for x in new if x["to"] > x["from"]), key=lambda x: x["from"]):   # one activity = one span: merge adjacent spans of the same activity kind
                 if merged and merged[-1]["to"] == x["from"] and x["kind"] == merged[-1]["kind"] and x["kind"] in ("cooking", "game", "guest", "call", "reaction", "event"):
                     merged[-1]["to"] = x["to"]; merged[-1]["closed"] = x["closed"]; merged[-1]["clip_worthy"] = merged[-1]["clip_worthy"] or x["clip_worthy"]
                 else: merged.append(x)
-            return spans + merged
+            return spans + coalesce_talk(merged)
         except Exception as e: print("segment model", model, "failed:", str(e)[:80], out[:120])
     return spans
-if T.get("seg_v") != 4: T["spans"] = []; T["seg_v"] = 4   # segmentation criteria changed (more inclusive): re-evaluate the whole stream once
+if T.get("seg_v") != 5: T["spans"] = []; T["seg_v"] = 5   # segmentation criteria changed (more inclusive): re-evaluate the whole stream once
 T["spans"] = segment(T, 0)
 tl = []
 for c in sorted(map(int, T["chunks"])):
