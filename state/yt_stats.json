@@ -1,21 +1,41 @@
 {
- "fetched_at": "2026-11-16T12:08:30Z",
- "fetched_epoch": 1794830910.4950395,
+ "fetched_at": "2026-11-16T12:38:35Z",
+ "fetched_epoch": 1794832715.6651242,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1870,
   "views": 14892,
-  "videos": 12
+  "videos": 14
  },
  "videos": [
+  {
+   "id": "aWOw52IYBf4",
+   "title": "עודד מגיב ל\"המשלוח הראשון של GTA VI\" של חדשות 13",
+   "published": "2026-11-16T12:35:30Z",
+   "privacy": "public",
+   "duration": "PT5M17S",
+   "views": 1,
+   "likes": 1,
+   "comments": 0
+  },
+  {
+   "id": "vuVbQellgSU",
+   "title": "עודד מגיב ל\"משחקי הרעב במציאות\" של מיסטר ביסט!",
+   "published": "2026-11-16T12:17:55Z",
+   "privacy": "public",
+   "duration": "PT51M48S",
+   "views": 6,
+   "likes": 3,
+   "comments": 0
+  },
   {
    "id": "3ahtxhmle3o",
    "title": "עודד ואשתו אור מבשלים פסטה בלייב ובוחרים שם לכלב!",
    "published": "2026-11-16T12:06:24Z",
    "privacy": "public",
    "duration": "PT23M12S",
-   "views": 1,
-   "likes": 1,
+   "views": 20,
+   "likes": 3,
    "comments": 0
   },
   {
@@ -24,8 +44,8 @@
    "published": "2026-11-16T12:05:12Z",
    "privacy": "public",
    "duration": "PT21M22S",
-   "views": 1,
-   "likes": 1,
+   "views": 6,
+   "likes": 3,
    "comments": 0
   },
   {
@@ -174,7 +194,7 @@
    "published": "2026-11-13T09:00:02Z",
    "privacy": "public",
    "duration": "PT9M37S",
-   "views": 3808,
+   "views": 3824,
    "likes": 28,
    "comments": 3
   },
@@ -184,7 +204,7 @@
    "published": "2026-11-13T08:00:35Z",
    "privacy": "public",
    "duration": "PT15M2S",
-   "views": 1082,
+   "views": 1101,
    "likes": 17,
    "comments": 2
   },
@@ -204,7 +224,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 3453,
+   "views": 3480,
    "likes": 19,
    "comments": 0
   },
@@ -224,7 +244,7 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 3938,
+   "views": 3976,
    "likes": 41,
    "comments": 3
   },
@@ -259,5 +279,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 89
+ "total_uploads_incl_private": 90
 }
