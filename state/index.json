@@ -83,10 +83,15 @@
    "who": "עודד, מיכאל, דניאל, דיוויד, הצ'אט, אשתו",
    "peak": "11:45"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/-n7O1xJ_5Sk",
+  "draft_at": "2026-11-16T02:12:46Z",
+  "quality_errors": [],
   "auto": true
  },
  {
