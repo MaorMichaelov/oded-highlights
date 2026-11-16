@@ -14,11 +14,16 @@ def jget(url): return json.loads(sh(["curl", "-sS", "-m", "40", "-A", "Mozilla/5
 def groq(model, messages, mx=1200):
     key = os.environ["GROQ_API_KEY"]
     r = sh(["curl", "-sS", "-m", "120", "https://api.groq.com/openai/v1/chat/completions", "-H", "Authorization: Bearer " + key, "-H", "Content-Type: application/json", "-d", json.dumps({"model": model, "messages": messages, "max_tokens": mx, "reasoning_effort": "low"})])
-    return json.loads(r.stdout)["choices"][0]["message"]["content"]
-def llm(prompt):
-    for m in ("openai/gpt-oss-120b", "openai/gpt-oss-20b"):
-        try: return json.loads(re.search(r"\{.*\}", groq(m, [{"role": "user", "content": prompt}]), re.S).group(0))
-        except Exception as e: print("llm", m, "failed:", str(e)[:100]); time.sleep(3)
+    d = json.loads(r.stdout)
+    if "choices" not in d: raise RuntimeError(str(d.get("error", d))[:160])
+    return d["choices"][0]["message"]["content"]
+def llm(prompt):   # the free Groq key is shared with the live loop: rotate models and wait out the per-minute token limit
+    for rnd in range(4):
+        for m in ("openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3-32b"):
+            try:
+                txt = groq(m, [{"role": "user", "content": prompt}]); return json.loads(re.search(r"\{.*\}", re.sub(r"<think>.*?</think>", "", txt, flags=re.S), re.S).group(0))
+            except Exception as e: print("llm", m, "failed:", str(e)[:140])
+        time.sleep(20)
     return None
 def pick_vod(slug, vid):
     vs = jget(f"https://kick.com/api/v2/channels/{slug}/videos")
