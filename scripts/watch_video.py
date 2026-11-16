@@ -37,8 +37,8 @@ def gen(part):
     raise SystemExit("all models failed: " + last)
 if re.search(r"youtube\.com|youtu\.be", URL): part = {"file_data": {"file_uri": URL}}
 else:
-    os.makedirs("/tmp/w", exist_ok=True); f = "/tmp/w/v.mp4"
-    subprocess.run(["yt-dlp", "-f", "best[height<=720]/best", "-o", f, URL], check=True)
+    os.makedirs("/tmp/w", exist_ok=True); f = URL if os.path.exists(URL) else "/tmp/w/v.mp4"   # a local file is analysed as is
+    if not os.path.exists(URL): subprocess.run(["yt-dlp", "-f", "best[height<=720]/best", "-o", f, URL], check=True)
     n = os.path.getsize(f); h = {"X-Goog-Upload-Protocol": "resumable", "X-Goog-Upload-Command": "start", "X-Goog-Upload-Header-Content-Length": str(n), "X-Goog-Upload-Header-Content-Type": "video/mp4", "Content-Type": "application/json"}
     req = urllib.request.Request(f"https://generativelanguage.googleapis.com/upload/v1beta/files?key={KEY}", json.dumps({"file": {"display_name": "v"}}).encode(), h)
     up = urllib.request.urlopen(req, timeout=120).headers["X-Goog-Upload-URL"]
