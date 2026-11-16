@@ -45,10 +45,15 @@
    "who": "עודד, הצ'אט, אליאב, יוב קריספ, ג'ון",
    "peak": "21:42"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/ODOvF5m_OUs",
+  "draft_at": "2026-11-16T21:53:55Z",
+  "quality_errors": [],
   "auto": true
  },
  {

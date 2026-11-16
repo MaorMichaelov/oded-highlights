@@ -1,0 +1,23 @@
+{
+ "cut": {
+  "state": "done",
+  "at": "2026-11-16T21:50:45Z",
+  "seconds": 710.6
+ },
+ "edit": {
+  "state": "done",
+  "at": "2026-11-16T21:52:54Z",
+  "seconds": 125.4
+ },
+ "quality": {
+  "state": "done",
+  "at": "2026-11-16T21:53:15Z",
+  "seconds": 17.7
+ },
+ "draft": {
+  "state": "done",
+  "at": "2026-11-16T21:53:55Z",
+  "url": "https://youtu.be/ODOvF5m_OUs",
+  "seconds": 37.4
+ }
+}
