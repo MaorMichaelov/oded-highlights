@@ -29,6 +29,24 @@ def pick_vod(slug, vid):
 def whisper(path):   # Groq whisper large-v3-turbo, word timestamps (free tier: 7200 audio-seconds/hour)
     r = sh(["curl", "-sS", "-m", "300", "https://api.groq.com/openai/v1/audio/transcriptions", "-H", "Authorization: Bearer " + os.environ["GROQ_API_KEY"], "-F", f"file=@{path}", "-F", "model=whisper-large-v3-turbo", "-F", "language=en", "-F", "response_format=verbose_json", "-F", "timestamp_granularities[]=word"])
     return json.loads(r.stdout).get("words", [])
+def render2(body, s, e, ass, out, hook, peak):
+    """9:16 render with the research rules: blurred fill + centred stream, hook text on frame 0 (0-1.8 s), one punch-in (100->112%) at the peak, an impact SFX at the peak (assets/sfx/boom.wav, quiet), burned-in captions, -14 LUFS."""
+    import shorts as SH
+    fonts = [os.path.join(d, f) for d in SH.FONTS for f in (os.listdir(d) if os.path.isdir(d) else []) if f.lower().endswith(".ttf") and ("black" in f.lower() or "bold" in f.lower())]
+    ff = fonts[0] if fonts else "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+    safe = re.sub(r"[^A-Za-z0-9 !?']", "", (hook or "")).upper().replace("'", "")[:34]
+    P = max(0.0, peak - s); fr = int(P * 30)
+    z = f"if(between(on,{fr},{fr + 7}),1+0.12*(on-{fr})/7,if(between(on,{fr + 7},{fr + 30}),1.12-0.12*(on-{fr + 7})/23,1))" if peak else "1"
+    dt = (f",drawtext=fontfile={ff}:text='{safe}':fontsize=80:fontcolor=white:borderw=7:bordercolor=black:x=(w-text_w)/2:y=330:enable='lt(t,1.8)'") if safe else ""
+    vf = ("[0:v]split=2[a][b];[a]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=28:4,eq=brightness=-0.12[bg];[b]scale=1080:-2[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2[v0];"
+          f"[v0]zoompan=z='{z}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s=1080x1920:fps=30[v1];[v1]subtitles={ass.replace(':', chr(92) + ':')}" + (":fontsdir=" + SH.FONTS[0] if SH.FONTS else "") + dt + "[v]")
+    sfx = os.path.join(ROOT, "assets", "sfx", "boom.wav"); have = peak and os.path.exists(sfx)
+    cmd = ["ffmpeg", "-v", "error", "-y", "-ss", f"{s:.3f}", "-i", body] + (["-i", sfx] if have else []) + ["-t", f"{e - s:.3f}", "-filter_complex"]
+    af = (f"[1:a]adelay={int(P * 1000)}|{int(P * 1000)},volume=-9dB[sx];[0:a][sx]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-14:TP=-1.5:LRA=7,aresample=48000[aud]" if have else "[0:a]loudnorm=I=-14:TP=-1.5:LRA=7,aresample=48000[aud]")
+    cmd += [vf + ";" + af, "-map", "[v]", "-map", "[aud]", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p", "-r", "30", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out]
+    r = sh(cmd)
+    if r.returncode: print("render2 failed:", r.stderr[-700:]); return False
+    return True
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--slug", required=True); ap.add_argument("--vod", default="auto"); ap.add_argument("--from-min", type=float, default=0); ap.add_argument("--to-min", type=float, default=60); ap.add_argument("--n", type=int, default=3); ap.add_argument("--out", default=None); a = ap.parse_args()
     out = a.out or f"state/{a.slug}/shorts"; os.makedirs(out, exist_ok=True); v = pick_vod(a.slug, a.vod); base = v["source"].rsplit("/master.m3u8", 1)[0]; vid = str(v["id"])
@@ -66,7 +84,7 @@ def main():
         pk = t0 + p; ws = [w for w in words if pk - 45 <= w["start"] <= pk + 20]
         if len(ws) < 15: continue
         txt = " ".join(f"[{w['start']:.0f}]{w['word'].strip()}" for w in ws)[:5500]
-        j = llm("You edit YouTube Shorts from a live stream of a big streamer. Below: words with [second] for the window around an audio/speech peak at second %d. Decide if it is a clip-worthy moment (funny, shocking, dramatic, a story with a punchline). REJECT (reject=true) gambling/casino/giveaway/promo-code talk, sponsored reads, slurs, sexual content, self-harm, minors, or random chatter. Return JSON only: {\"score\":1-10,\"start\":second where the SETUP sentence starts (8-25 s before the peak, a sentence start),\"end\":second where the PAYOFF/reaction sentence ends (+0.4 s allowed),\"title\":\"English YouTube Shorts title 40-70 chars, hook first, quote the funniest line if it is clean, ends with ! or ?\",\"hook\":\"3-6 word on-screen text\",\"reject\":false,\"why\":\"\"}\n\n%s" % (pk, txt))
+        j = llm("You edit YouTube Shorts from a live stream of a big streamer. Below: words with [second] for the window around an audio/speech peak at second %d. Decide if it is a clip-worthy moment (funny, shocking, dramatic, a story with a punchline). REJECT (reject=true) gambling/casino/giveaway/promo-code talk, unreleased or leaked game footage, close-up graphic violence, sponsored reads, slurs, sexual content, self-harm, minors, or random chatter. Return JSON only: {\"score\":1-10,\"start\":second where the SETUP sentence starts (8-25 s before the peak, a sentence start),\"end\":second where the PAYOFF/reaction sentence ends (+0.4 s allowed),\"title\":\"English YouTube Shorts title 40-70 chars, hook first, quote the funniest line if it is clean, ends with ! or ?\",\"hook\":\"3-6 word on-screen text\",\"reject\":false,\"why\":\"\"}\n\n%s" % (pk, txt))
         if j and not j.get("reject") and float(j.get("score", 0)) >= 6: cands.append((float(j["score"]) + float(S[p]) / 3, pk, j))
     cands.sort(reverse=True); made = []
     # 3. cut + 9:16 render
@@ -84,7 +102,7 @@ def main():
         rel = [{"word": w["word"], "start": w["start"] - (s0 - pad), "end": w["end"] - (s0 - pad)} for w in words if s0 - pad <= w["start"] <= e0 + pad]
         ass = f"{out}/short_{vid}_{int(s0)}.ass"; mp4 = f"{out}/short_{vid}_{int(s0)}.mp4"; SH.make_ass(rel, pad, pad + e0 - s0, ass)
         txt = open(ass, encoding="utf-8").read().replace("&H0028E678", "&H0000E6FF").replace("Heebo Black", "Heebo Black"); open(ass, "w", encoding="utf-8").write(txt)
-        if not SH.render(body, pad, pad + e0 - s0, ass, mp4): continue
+        if not (render2(body, pad, pad + e0 - s0, ass, mp4, j.get("hook", ""), pad + (pk - s0)) or SH.render(body, pad, pad + e0 - s0, ass, mp4)): continue
         meta = {"title": j["title"][:90] + " #Shorts", "hook": j.get("hook", ""), "source": {"slug": a.slug, "vod": vid, "start_s": round(s0), "end_s": round(e0), "vod_title": v.get("session_title")}, "score": round(sc, 1), "why": j.get("why", ""),
                 "description": f"{j['title']}\n\nClip from {a.slug}'s live stream on Kick (https://kick.com/{a.slug}). Unofficial fan channel, not affiliated.\n#Shorts #{a.slug}"}
         json.dump(meta, open(mp4.replace(".mp4", ".json"), "w"), ensure_ascii=False, indent=1); made.append((mp4, meta, s0, e0)); print(f"SHORT {len(made)}: {int(s0 // 60)}:{int(s0 % 60):02d}-{int(e0 // 60)}:{int(e0 % 60):02d} ({e0 - s0:.0f}s) score {sc:.1f} | {j['title']}")
