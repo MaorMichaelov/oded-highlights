@@ -114,6 +114,8 @@ def main():
         except Exception: continue
         s = max(s, pk - 25); e_ = min(max(e_, pk + 3), s + 58)
         s0 = max([w["start"] for w in words if w["start"] <= s], default=s) - 0.2; e0 = min([w["end"] for w in words if w["end"] >= e_], default=e_) + 0.45
+        if e0 - s0 < 20:   # the model often picks only the punchline (15-19 s): give it lead-in context (60%) and a short tail (40%) up to ~24 s, snapped to word starts
+            need = 24 - (e0 - s0); s0 = max([w["start"] for w in words if w["start"] <= s0 - need * 0.6], default=s0) - 0.2; e0 = min([w["end"] for w in words if w["end"] >= e0 + need * 0.4], default=e0) + 0.45
         if not (20 <= e0 - s0 <= 59) or any(s0 < y and x < e0 for x, y in [(m[2], m[3]) for m in made]): print("rejected", round(s0), round(e0), j.get("title")); continue
         body = f"{tmp}/b{int(s0)}.mp4"; pad = 2.0
         r = sh(["ffmpeg", "-v", "error", "-y", "-ss", f"{s0 - pad:.2f}", "-t", f"{e0 - s0 + 2 * pad:.2f}", "-i", f"{base}/1080p60/playlist.m3u8", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "aac", "-b:a", "192k", body])
