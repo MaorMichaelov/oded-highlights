@@ -1,12 +1,15 @@
 {
  "live_loop_running": true,
- "state_age_min": 0.1,
+ "state_age_min": 0.0,
  "live": false,
  "recent_failed_renders": 1,
- "stuck_clips": [],
+ "stuck_clips": [
+  "137995265_9901"
+ ],
  "pending_candidates": 0,
  "problems": [
-  "1 render-clip run(s) failed in the last 3 h (ids [43962124064])"
+  "1 render-clip run(s) failed in the last 3 h (ids [43962124064])",
+  "clips without a draft after 90 min: ['137995265_9901']"
  ],
- "checked_at": "2026-11-16T23:08:20Z"
+ "checked_at": "2026-11-16T23:08:26Z"
 }
