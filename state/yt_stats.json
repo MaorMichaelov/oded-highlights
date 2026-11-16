@@ -1,13 +1,33 @@
 {
- "fetched_at": "2026-11-16T11:38:24Z",
- "fetched_epoch": 1794829104.3572514,
+ "fetched_at": "2026-11-16T12:08:30Z",
+ "fetched_epoch": 1794830910.4950395,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1870,
   "views": 14892,
-  "videos": 10
+  "videos": 12
  },
  "videos": [
+  {
+   "id": "3ahtxhmle3o",
+   "title": "עודד ואשתו אור מבשלים פסטה בלייב ובוחרים שם לכלב!",
+   "published": "2026-11-16T12:06:24Z",
+   "privacy": "public",
+   "duration": "PT23M12S",
+   "views": 1,
+   "likes": 1,
+   "comments": 0
+  },
+  {
+   "id": "ZFrsrP_iaSs",
+   "title": "אור, אשתו של עודד, עונה לצ'אט ושותה טבסקו בלייב!",
+   "published": "2026-11-16T12:05:12Z",
+   "privacy": "public",
+   "duration": "PT21M22S",
+   "views": 1,
+   "likes": 1,
+   "comments": 0
+  },
   {
    "id": "-n7O1xJ_5Sk",
    "title": "זהו, מיכאל הוא בן‑אדם אמיתי, הוא פינוק! (Rob Run)!",
@@ -144,7 +164,7 @@
    "published": "2026-11-13T09:30:26Z",
    "privacy": "public",
    "duration": "PT14M55S",
-   "views": 2164,
+   "views": 2150,
    "likes": 14,
    "comments": 0
   },
@@ -154,8 +174,8 @@
    "published": "2026-11-13T09:00:02Z",
    "privacy": "public",
    "duration": "PT9M37S",
-   "views": 3701,
-   "likes": 27,
+   "views": 3808,
+   "likes": 28,
    "comments": 3
   },
   {
@@ -164,7 +184,7 @@
    "published": "2026-11-13T08:00:35Z",
    "privacy": "public",
    "duration": "PT15M2S",
-   "views": 1089,
+   "views": 1082,
    "likes": 17,
    "comments": 2
   },
@@ -184,7 +204,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 3428,
+   "views": 3453,
    "likes": 19,
    "comments": 0
   },
@@ -204,8 +224,8 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 3903,
-   "likes": 40,
+   "views": 3938,
+   "likes": 41,
    "comments": 3
   },
   {
@@ -214,7 +234,7 @@
    "published": "2026-11-11T17:52:12Z",
    "privacy": "public",
    "duration": "PT14M5S",
-   "views": 162,
+   "views": 161,
    "likes": 6,
    "comments": 0
   },
@@ -239,5 +259,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 88
+ "total_uploads_incl_private": 89
 }
