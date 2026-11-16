@@ -12,3 +12,5 @@ for i in range(0, len(ids), 50):
     for v in api("videos", part="snippet,contentDetails,statistics,status", id=",".join(ids[i:i + 50])).get("items", []):
         sn = v["snippet"]; out.append({"id": v["id"], "title": sn["title"], "description": sn.get("description", ""), "tags": sn.get("tags", []), "published": sn["publishedAt"], "privacy": v["status"]["privacyStatus"], "duration": v["contentDetails"]["duration"], "views": int(v["statistics"].get("viewCount", 0)), "likes": int(v["statistics"].get("likeCount", 0)), "thumb": (sn.get("thumbnails", {}).get("maxres") or sn.get("thumbnails", {}).get("high") or {}).get("url")})
 os.makedirs("state/yt_research", exist_ok=True); json.dump(out, open("state/yt_research/own_full.json", "w"), ensure_ascii=False, indent=1); print(len(out), "videos")
+
+for v in out: print("YTV|" + json.dumps(v, ensure_ascii=False))
