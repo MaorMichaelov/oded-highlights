@@ -1,63 +1,13 @@
 {
- "fetched_at": "2026-11-16T18:39:29Z",
- "fetched_epoch": 1794854369.9241593,
+ "fetched_at": "2026-11-16T19:09:35Z",
+ "fetched_epoch": 1794856175.9325268,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1880,
   "views": 14892,
-  "videos": 15
+  "videos": 10
  },
  "videos": [
-  {
-   "id": "CA5H-ZUSYf8",
-   "title": "עודד מגיב ל\"זינוק במחירי המחשבים\" של חדשות 13!",
-   "published": "2026-11-16T14:15:56Z",
-   "privacy": "public",
-   "duration": "PT8M40S",
-   "views": 4,
-   "likes": 1,
-   "comments": 0
-  },
-  {
-   "id": "aWOw52IYBf4",
-   "title": "עודד מגיב ל\"המשלוח הראשון של GTA VI\" של חדשות 13",
-   "published": "2026-11-16T12:35:30Z",
-   "privacy": "public",
-   "duration": "PT5M17S",
-   "views": 748,
-   "likes": 10,
-   "comments": 0
-  },
-  {
-   "id": "vuVbQellgSU",
-   "title": "עודד מגיב ל\"משחקי הרעב במציאות\" של מיסטר ביסט!",
-   "published": "2026-11-16T12:17:55Z",
-   "privacy": "public",
-   "duration": "PT51M48S",
-   "views": 435,
-   "likes": 19,
-   "comments": 0
-  },
-  {
-   "id": "3ahtxhmle3o",
-   "title": "עודד ואשתו אור מבשלים פסטה בלייב ובוחרים שם לכלב!",
-   "published": "2026-11-16T12:06:24Z",
-   "privacy": "public",
-   "duration": "PT23M12S",
-   "views": 1592,
-   "likes": 28,
-   "comments": 3
-  },
-  {
-   "id": "ZFrsrP_iaSs",
-   "title": "אור, אשתו של עודד, עונה לצ'אט ושותה טבסקו בלייב!",
-   "published": "2026-11-16T12:05:12Z",
-   "privacy": "public",
-   "duration": "PT21M22S",
-   "views": 346,
-   "likes": 8,
-   "comments": 0
-  },
   {
    "id": "-n7O1xJ_5Sk",
    "title": "זהו, מיכאל הוא בן‑אדם אמיתי, הוא פינוק! (Rob Run)!",
@@ -204,8 +154,8 @@
    "published": "2026-11-13T09:00:02Z",
    "privacy": "public",
    "duration": "PT9M37S",
-   "views": 4230,
-   "likes": 35,
+   "views": 4249,
+   "likes": 36,
    "comments": 3
   },
   {
@@ -214,7 +164,7 @@
    "published": "2026-11-13T08:00:35Z",
    "privacy": "public",
    "duration": "PT15M2S",
-   "views": 1110,
+   "views": 1119,
    "likes": 17,
    "comments": 2
   },
@@ -254,8 +204,8 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 4364,
-   "likes": 43,
+   "views": 4450,
+   "likes": 44,
    "comments": 3
   },
   {
@@ -264,7 +214,7 @@
    "published": "2026-11-11T17:52:12Z",
    "privacy": "public",
    "duration": "PT14M5S",
-   "views": 167,
+   "views": 168,
    "likes": 6,
    "comments": 0
   },
