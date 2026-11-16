@@ -2132,7 +2132,7 @@
   }
  ],
  "transcript_end": 36684,
- "updated": "2026-11-16T21:37:08Z",
+ "updated": "2026-11-16T21:38:32Z",
  "spans": [
   {
    "from": 0,
@@ -2222,6 +2222,213 @@
    "kind": "game",
    "clip_worthy": true,
    "why": "סדרת הדגמות, הורדות ודיון על באגים של משחקים חדשים במשך 25 דקות",
+   "closed": true
+  },
+  {
+   "from": 18000,
+   "to": 18600,
+   "title": "שיח על משחקים",
+   "kind": "game",
+   "clip_worthy": true,
+   "why": "משחק, שיח ותגובות מהצופים",
+   "closed": true
+  },
+  {
+   "from": 18600,
+   "to": 18900,
+   "title": "דיבור על מיסים ו‑TTS",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "הסבר על מיסים, TTS ושיעורים",
+   "closed": true
+  },
+  {
+   "from": 18900,
+   "to": 19200,
+   "title": "שיקול על פיקוח עובדים",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "הסברה על ניהול עובדים ותמיכה",
+   "closed": true
+  },
+  {
+   "from": 19200,
+   "to": 19500,
+   "title": "שכר ותמריצים",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "הסבר על שכר עובדים ומבצעי בונוסים",
+   "closed": true
+  },
+  {
+   "from": 19500,
+   "to": 19800,
+   "title": "מבצעי פוקימון",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "דיבור על חבילות פוקימון ומבצעים",
+   "closed": true
+  },
+  {
+   "from": 19800,
+   "to": 20100,
+   "title": "חבילות וקופונים",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "הסברה על קופונים ומבצעים",
+   "closed": true
+  },
+  {
+   "from": 20100,
+   "to": 20400,
+   "title": "שותפויות ותשלומים",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "הסבר על שותפים ותשלומים עם וולט",
+   "closed": true
+  },
+  {
+   "from": 20400,
+   "to": 22500,
+   "title": "שיח רגיל עם צ׳אט",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "שיחה רגילה ללא תכנים קוהרנטיים",
+   "closed": true
+  },
+  {
+   "from": 22500,
+   "to": 22800,
+   "title": "תגובה ל‑video stream",
+   "kind": "reaction",
+   "clip_worthy": true,
+   "why": "תגובה ל‑video stream חיצוני",
+   "closed": true
+  },
+  {
+   "from": 22800,
+   "to": 24900,
+   "title": "אירועים קודמים ותחזיות",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "שיח על אירועים עתידיים",
+   "closed": true
+  },
+  {
+   "from": 24900,
+   "to": 26100,
+   "title": "קידום ערוצים",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "שיח על קידום ערוצים",
+   "closed": true
+  },
+  {
+   "from": 26100,
+   "to": 26700,
+   "title": "גט 6 ומגמות שוק",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "דיון על GTA6 ו‑שוק",
+   "closed": true
+  },
+  {
+   "from": 26700,
+   "to": 27000,
+   "title": "הסבר על מחירי מחשבים",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "הסבר על מחשבים",
+   "closed": true
+  },
+  {
+   "from": 27000,
+   "to": 27300,
+   "title": "הגרלה של משחקים",
+   "kind": "event",
+   "clip_worthy": true,
+   "why": "הגרלת משחקים למשתתפים",
+   "closed": true
+  },
+  {
+   "from": 27300,
+   "to": 28500,
+   "title": "חוויות חיים",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "שיח על חוויות",
+   "closed": true
+  },
+  {
+   "from": 28500,
+   "to": 28800,
+   "title": "Rob Run – משחק רוברן",
+   "kind": "game",
+   "clip_worthy": true,
+   "why": "משחק Roblox עם חברים",
+   "closed": true
+  },
+  {
+   "from": 28800,
+   "to": 29400,
+   "title": "Rob Run – תלונות על ירינוב",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "תלונות על ירינוב",
+   "closed": true
+  },
+  {
+   "from": 29400,
+   "to": 30900,
+   "title": "Rob Run – גייס כסף לרכישת נשקים",
+   "kind": "game",
+   "clip_worthy": true,
+   "why": "תוכנית רכישת נשקים במשחק",
+   "closed": true
+  },
+  {
+   "from": 30900,
+   "to": 31500,
+   "title": "Rob Run – שיח על משחק וצעדים",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "שיחה על צעדים במשחק",
+   "closed": true
+  },
+  {
+   "from": 31500,
+   "to": 32700,
+   "title": "Rob Run – רוכבים ל‑rob run",
+   "kind": "game",
+   "clip_worthy": true,
+   "why": "התקדמות level 4 ב‑Rob Run",
+   "closed": true
+  },
+  {
+   "from": 32700,
+   "to": 33300,
+   "title": "Rob Run – חבילות ושיתופי פעולה",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "דיון בחבילות משחק",
+   "closed": true
+  },
+  {
+   "from": 33300,
+   "to": 33900,
+   "title": "Rob Run – מצב קרב",
+   "kind": "game",
+   "clip_worthy": true,
+   "why": "דיון במצב קרב במשחק",
+   "closed": true
+  },
+  {
+   "from": 33900,
+   "to": 36000,
+   "title": "Rob Run – שיח על יחידות מתמטיקה",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "דיבור על יחידות מתמטיקה",
    "closed": true
   }
  ],
