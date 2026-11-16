@@ -71,6 +71,13 @@ jobs:
           YT_CLIENT_ID: ${{ inputs.yt == 'en' && secrets.YT2_CLIENT_ID || secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ inputs.yt == 'en' && secrets.YT2_CLIENT_SECRET || secrets.YT_CLIENT_SECRET }}
         run: python3 scripts/stations/shorts.py "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}" ${{ (inputs.upload == 'true' && env.HAS_YT == 'true') && '--upload' || '' }}
+      - name: "QA - Gemini watches an excerpt of the final clip"
+        if: ${{ always() }}
+        continue-on-error: true
+        env: { GEMINI_API_KEY: "${{ secrets.GEMINI_API_KEY }}" }
+        run: |
+          pip install -q yt-dlp
+          python3 scripts/qa_clip.py "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}" || echo "qa skipped"
       - name: Keep the rendered video (works even without YouTube secrets)
         if: always()
         uses: actions/upload-artifact@v4
