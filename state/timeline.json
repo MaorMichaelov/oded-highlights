@@ -2132,7 +2132,7 @@
   }
  ],
  "transcript_end": 36684,
- "updated": "2026-11-16T02:53:56Z",
+ "updated": "2026-11-16T02:54:03Z",
  "spans": [
   {
    "from": 0,
@@ -2568,11 +2568,20 @@
   },
   {
    "from": 36000,
-   "to": 36600,
-   "title": "Live Stream – Rob Run",
+   "to": 36300,
+   "title": "דיבר על הימורים, נידונים וכסף",
    "kind": "chat",
    "clip_worthy": false,
-   "why": "General chat, jokes, camera glitches, and side conversations",
+   "why": "general chat",
+   "closed": true
+  },
+  {
+   "from": 36300,
+   "to": 36600,
+   "title": "צ׳אט מלא בצחוקים, תקלות מצלמה ושיחות על סנסי וחברים",
+   "kind": "chat",
+   "clip_worthy": false,
+   "why": "general chat",
    "closed": false
   }
  ],
