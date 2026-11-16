@@ -12,7 +12,8 @@ def list_models():   # model names change: pick the newest "flash" model that su
         names = [m["name"].split("/")[-1] for m in ms if "generateContent" in m.get("supportedGenerationMethods", [])]
         print("WATCH|available:", ", ".join(names)[:1500])
         fl = sorted([n for n in names if "flash" in n and not re.search(r"lite|image|tts|live|audio|thinking|exp|preview-\d{2}-\d{2}", n)], reverse=True)
-        return fl[:3] + ["gemini-2.5-flash", "gemini-2.0-flash"]
+        fl = [n for n in fl if "omni" not in n]
+        return ["gemini-flash-latest"] + fl[:4] + ["gemini-2.5-flash"]
     except Exception as e: print("WATCH|list models failed", str(e)[:200]); return ["gemini-2.5-flash", "gemini-2.0-flash"]
 MODELS = list_models()
 PROMPT = ("Watch this video carefully, both picture and sound. It is a highlights/reaction video made from a live stream of an Israeli streamer (Hebrew). Answer in HEBREW, in detail, with mm:ss timestamps:\n"
@@ -30,9 +31,9 @@ def gen(part):
             r = post(f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={KEY}", {"contents": [{"parts": [part, {"text": PROMPT}]}], "generationConfig": {"temperature": 0.2}})
             return m, "".join(p.get("text", "") for p in r["candidates"][0]["content"]["parts"])
         except Exception as e:
-            try: body = e.read().decode()[:400]
+            try: body = e.read().decode()[:900]
             except Exception: body = ""
-            last = f"{m}: {e} {body}"; print("WATCH|model failed", last[:500])
+            last = f"{m}: {e} {' '.join(body.split())}"; print("WATCH|model failed", last[:600])
     raise SystemExit("all models failed: " + last)
 if re.search(r"youtube\.com|youtu\.be", URL): part = {"file_data": {"file_uri": URL}}
 else:
