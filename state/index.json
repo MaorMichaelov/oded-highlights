@@ -64,10 +64,15 @@
    "who": "עודד, מיכאל, הצ'אט",
    "peak": "11:12"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/0KTpnblRDVs",
+  "draft_at": "2026-11-16T01:43:41Z",
+  "quality_errors": [],
   "auto": true
  },
  {
