@@ -1,0 +1,29 @@
+{
+ "title": "זה הכי כיף בעולם! (Rob Run)!",
+ "description": "הצחוק של הצ'אט מתגבר כשעודד אומר שזה \"הכי כיף בעולם\".\nעודד SVR משחק Rob Run | Oded plays Rob Run | gaming, Israeli streamer, live chat\nהרגעים הכי טובים מהלייב של עודד בקיק | ODED HIGHLIGHTS\n\nהקטע מתוך הלייב של עודד בקיק: https://kick.com/odedsvr\nערוץ מעריצים לא רשמי: כל הקטעים נלקחו מהשידורים של עודד (OdedSVR) בקיק, וזה אינו הערוץ הרשמי של עודד. הערוץ הרשמי: https://www.youtube.com/@OdedSVRLive\n\n#עודד #OdedSVR #RobRun #Gaming #IsraeliStreamer #צחוק #עודדהיילייטס #ODEDHIGHLIGHTS #קיק #Kick #סטרימרישראלי",
+ "tags": [
+  "עודד",
+  "מיכאל",
+  "צ'אט",
+  "Rob Run",
+  "משחק",
+  "ישראל",
+  "שידור חי",
+  "עודד",
+  "OdedSVR",
+  "ODED HIGHLIGHTS"
+ ],
+ "preset": "gaming_fail",
+ "head": "צחוק מטורף",
+ "accent": "הכי כיף!",
+ "refs": "shock,excited,smirk",
+ "brief": {
+  "about": "הקלאיפ מציג את עודד משחק ב‑Rob Run עם תגובות מצחיקות מהצ'אט.",
+  "who": "עודד, מיכאל, הצ'אט",
+  "peak": "11:12"
+ },
+ "lang": "he",
+ "auto": true,
+ "picked_by": "span:openai/gpt-oss-120b",
+ "span": "Rob Run – משחק משולב עם רוכבים, נשק ומכוניות"
+}
