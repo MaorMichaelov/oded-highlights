@@ -134,3 +134,10 @@ Compare with what the pipeline produced: Grok names the REAL source (outlet/crea
 - Cuts skip dry seconds inside the reacted video (jump cuts of 1-2 s); longest uninterrupted part ~40 s (the peak outburst).
 - Ends the moment he closes the tab ("לא רוצה לראות את זה, באמת היא עצבנה אותי") with a hard cut to black: no outro. CTA pop-up at ~00:14.
 - One source per video; the second news report (computers) is a separate video.
+
+## Second analysis: https://youtu.be/CA5H-ZUSYf8 (computer prices, Channel 13, 8:40, watched with Gemini)
+- The whole report from its start to its end (he ends with "a good, interesting report"): ~8 content cuts in 8.5 min (about 1 per minute), longest uninterrupted part 1:15.
+- Cuts remove: dead air (him typing in chat/Discord, staring), dry parts of the report (graphs, English explanation), anything personal/IRL/donations.
+- Hook = 3 of his funniest lines taken from later in the video (00:43, 05:17, 06:54) with yellow/white captions, then the 3 s bumper at 00:07, CTA pop-up at 00:14, no captions in the body.
+- Editing effect: one digital zoom-in on the face-cam at a funny line (02:59-03:02) then quick zoom-out. Every part starts at a sentence start and ends at a sentence end.
+- RULE: a reaction to ONE report = the whole report, start to end, clean cuts only for dead air/dry parts/off-topic, ~1 cut per minute; the hook is built from the 3 funniest lines of the whole video.
