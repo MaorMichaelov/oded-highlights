@@ -40,7 +40,7 @@ def main():
         r = sh(["ffmpeg", "-v", "error", "-y", "-ss", f"{t0 + c0:.1f}", "-t", f"{d:.1f}", "-i", f"{base}/480p30/playlist.m3u8", "-vn", "-ac", "1", "-ar", "16000", "-c:a", "libmp3lame", "-b:a", "48k", mp3])
         if r.returncode: print("audio chunk failed", r.stderr[-200:]); continue
         for w in whisper(mp3): words.append({"word": w["word"], "start": t0 + c0 + w["start"], "end": t0 + c0 + w["end"]})
-        raw = sh(["ffmpeg", "-v", "error", "-i", mp3, "-f", "s16le", "-ac", "1", "-ar", "8000", "-"], text=False).stdout; x = np.frombuffer(raw, dtype=np.int16).astype(np.float32)
+        raw = subprocess.run(["ffmpeg", "-v", "error", "-i", mp3, "-f", "s16le", "-ac", "1", "-ar", "8000", "-"], capture_output=True).stdout; x = np.frombuffer(raw, dtype=np.int16).astype(np.float32)
         n = len(x) // 8000; en += list(np.sqrt((x[:n * 8000].reshape(n, 8000) ** 2).mean(1)) + 1e-3)
         print(f"chunk {int(c0 / 60)}-{int((c0 + d) / 60)} min: {len(words)} words total"); time.sleep(2)
     N = int(dur); e = np.zeros(N); e[:min(N, len(en))] = np.array(en[:N]); wps = np.zeros(N)
