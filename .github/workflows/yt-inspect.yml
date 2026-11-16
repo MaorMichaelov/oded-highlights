@@ -1,0 +1,20 @@
+name: yt-inspect
+# Read-only: dumps full metadata of the channel's latest uploads into state/yt_research/own_full.json (to learn from the other bot's uploads).
+on: { workflow_dispatch: {} }
+concurrency: { group: yt-inspect, cancel-in-progress: false }
+permissions: { contents: write }
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect
+        env:
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+        run: |
+          python3 scripts/yt_inspect.py
+          git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
+          git add state/yt_research; git diff --cached --quiet || { git commit -q -m "state: yt inspect"; for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 2; done; }
