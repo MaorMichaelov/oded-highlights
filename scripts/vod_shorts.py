@@ -55,9 +55,10 @@ def main():
     sm = lambda z: np.convolve(z, np.ones(5) / 5, mode="same")
     S = sm(0.6 * rz(np.log(e + 1e-3)) + 0.4 * rz(wps)); order = np.argsort(-S); peaks = []
     for i in order:
-        if S[i] < 1.8: break
+        if S[i] < 0.9: break
         if all(abs(i - p) >= 60 for p in peaks): peaks.append(int(i))
         if len(peaks) >= a.n * 4: break
+    print("S max/p99:", round(float(S.max()), 2), round(float(np.percentile(S, 99)), 2), "n", len(S))
     print("peaks:", [(int(p + t0) // 60, round(float(S[p]), 1)) for p in peaks])
     # 2. LLM scoring of every peak window
     cands = []
