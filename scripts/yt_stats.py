@@ -41,4 +41,8 @@ if len(pub) >= 8:
         if v["views"] > med * 2.5: lesson(f"סרטון חזק ({v['views']} צפיות מול חציון {med}): \"{v['title']}\". חפש יותר נושאים כאלה.", "strong_performance")
 hp = os.path.join(ST, "yt_history.jsonl")   # hourly snapshots: lets the app answer "views in the last N hours" exactly
 with open(hp, "a") as hf: hf.write(json.dumps({"t": out["fetched_at"], "views": out["channel"]["views"], "subs": out["channel"]["subscribers"]}) + "\n")
+with open(os.path.join(ST, "yt_video_history.jsonl"), "a") as vf:   # per-video snapshots (public/unlisted): the data the prediction station fits growth curves on
+    vf.write(json.dumps({"t": out["fetched_at"], "v": {v["id"]: [v["views"], v.get("likes", 0), v.get("comments", 0)] for v in vids if v["privacy"] != "private"}}) + "\n")
 json.dump(out, open(f, "w"), ensure_ascii=False, indent=1); print("stats:", len(vids), "videos")
+try: subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "stations", "predict.py")], timeout=120)
+except Exception as e: print("predict failed:", e)

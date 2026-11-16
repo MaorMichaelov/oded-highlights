@@ -24,12 +24,17 @@ input{width:100%;background:var(--card);border:1px solid var(--line);border-radi
 label{font-size:13.5px;color:var(--dim)}.btn{background:var(--green);color:#0b1a07;border:0;border-radius:12px;padding:12px 18px;font-weight:800;width:100%}.btn.alt{background:var(--card);color:var(--txt);margin-top:8px}
 #gate{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;padding:24px;z-index:9}#gate>div{width:min(92vw,380px);text-align:center}
 .small{font-size:12.5px;color:var(--dim);line-height:1.6}
+.ana{position:fixed;inset:0;background:var(--bg);z-index:8;display:none;flex-direction:column}.ana.on{display:flex}.ana h2{margin:0;font-size:18px}.anah{display:flex;align-items:center;gap:10px;padding:max(12px,env(safe-area-inset-top)) 16px 10px;border-bottom:1px solid var(--line);background:#0e1511}
+.anab{flex:1;overflow-y:auto;padding:14px}.anab select{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;color:var(--txt);padding:12px;font:inherit;font-size:15px;margin-bottom:12px}
+.cd{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}.big{font-size:30px;font-weight:800;color:var(--green)}.row{display:flex;gap:10px;flex-wrap:wrap}.row>div{flex:1;min-width:92px}.lb{font-size:12.5px;color:var(--dim)}
+.bar{height:10px;border-radius:99px;background:#22302a;overflow:hidden;margin:6px 0}.bar>i{display:block;height:100%;background:var(--green)}.ch{display:flex;justify-content:space-between;font-size:14.5px;padding:4px 0}.rs{font-size:13.5px;line-height:1.7;color:#cfe2d4;margin:4px 0}
 </style></head><body>
-<header><div class="logo">ODED HIGHLIGHTS</div><div class="sp"></div><div class="pill"><span class="dot" id="dot"></span><span id="ls">...</span></div><button class="ib" id="gear" aria-label="הגדרות">⚙</button></header>
+<header><div class="logo">ODED HIGHLIGHTS</div><div class="sp"></div><div class="pill"><span class="dot" id="dot"></span><span id="ls">...</span></div><button class="ib" id="ana" aria-label="ניתוח סרטונים">📊</button><button class="ib" id="gear" aria-label="הגדרות">⚙</button></header>
 <div id="log"></div>
 <div class="chips"><button class="chip">מה בלייב עכשיו?</button><button class="chip">מה עלה היום?</button><button class="chip">נתוני יוטיוב</button><button class="chip">מה נפסל ולמה?</button><button class="chip">עצור את המערכת</button></div>
 <form id="f"><textarea id="t" rows="1" placeholder="כתוב הודעה..." enterkeyhint="send"></textarea><button class="send" aria-label="שלח">➤</button></form>
 <div id="gate"><div><div class="logo" style="font-size:26px;margin-bottom:6px">ODED HIGHLIGHTS</div><div class="small" id="gmsg"></div><input id="pw" type="password" placeholder="סיסמה" autocomplete="current-password"><button class="btn" id="go">כניסה</button><div class="small" id="gerr" style="color:#ff8a80;margin-top:10px"></div></div></div>
+<div class="ana" id="ana_p"><div class="anah"><h2>📊 ניתוח סרטון</h2><div class="sp"></div><button class="ib" id="ana_x">✕</button></div><div class="anab"><select id="ana_sel"></select><div id="ana_out" class="small">טוען...</div></div></div>
 <dialog id="dlg"><div style="font-weight:800;font-size:17px;margin-bottom:10px">הגדרות</div>
 <label>מפתח GitHub (לפעולות: חיתוך, עצירה, לקחים)</label><input id="gh" type="password" placeholder="github_pat_..." autocomplete="off">
 <div class="small" style="margin:-6px 0 12px">נשמר רק בטלפון הזה. צור מפתח צר: GitHub ← Settings ← Developer settings ← Fine-grained tokens, למאגר oded-highlights בלבד, הרשאות Contents ו-Actions: Read and write.</div>
@@ -51,6 +56,20 @@ $('f').onsubmit=function(e){e.preventDefault();var v=$('t').value;$('t').value='
 $('t').oninput=function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'};
 $('t').onkeydown=function(e){if(e.key==='Enter'&&!e.shiftKey&&window.innerWidth>700){e.preventDefault();$('f').requestSubmit()}};
 document.querySelectorAll('.chip').forEach(function(c){c.onclick=function(){send(c.textContent)}});
+
+function fmt(n){return (n||0).toLocaleString('he-IL')}
+function spark(sr,pr){var W=300,H=90,P=6;if(!sr||sr.length<2)return '<div class="small">עדיין אין מספיק נקודות כדי לצייר גרף (המערכת שומרת תמונת מצב כל ~30 דקות).</div>';var a1=Math.max(sr[sr.length-1][0]+48,1),mx=Math.max(pr.high,sr[sr.length-1][1],1);function X(a){return P+(W-2*P)*a/a1}function Y(v){return H-P-(H-2*P)*v/mx}
+ var d=sr.map(function(p,i){return(i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1)}).join(' ');var l=sr[sr.length-1];
+ var pj='M'+X(l[0]).toFixed(1)+' '+Y(l[1]).toFixed(1)+' L'+X(a1).toFixed(1)+' '+Y(pr.mid).toFixed(1);var bd='M'+X(l[0]).toFixed(1)+' '+Y(l[1]).toFixed(1)+' L'+X(a1).toFixed(1)+' '+Y(pr.high).toFixed(1)+' L'+X(a1).toFixed(1)+' '+Y(pr.low).toFixed(1)+' Z';
+ return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto"><path d="'+bd+'" fill="#78e62833"/><path d="'+d+'" fill="none" stroke="#78e628" stroke-width="2"/><path d="'+pj+'" fill="none" stroke="#78e628" stroke-width="2" stroke-dasharray="4 3"/></svg><div class="small">קו מלא = צפיות עד עכשיו, מקוקו = תחזית ל-48 שעות קדימה (האזור = טווח סביר)</div>'}
+function showPred(v){var c=v.chances,col=v.label==='גבוה'?'#78e628':v.label==='בינוני'?'#f0c040':'#e5754d';
+ $('ana_out').innerHTML='<div class="cd"><div class="row"><div><div class="lb">צפיות עכשיו</div><div class="big">'+fmt(v.views)+'</div></div><div><div class="lb">בעוד 48 שעות (חציון)</div><div class="big">'+fmt(v.proj48.mid)+'</div></div></div><div class="lb" style="margin-top:6px">טווח סביר: '+fmt(v.proj48.low)+' עד '+fmt(v.proj48.high)+' | אמינות התחזית: '+v.confidence+'</div></div>'+
+ '<div class="cd"><div class="lb">סיכוי להתפרסם (ציון '+v.score+'/100)</div><div style="font-size:22px;font-weight:800;color:'+col+'">'+v.label+'</div><div class="bar"><i style="width:'+v.score+'%;background:'+col+'"></i></div></div>'+
+ '<div class="cd"><div class="lb" style="margin-bottom:6px">סיכוי להגיע בעוד 48 שעות ל...</div>'+['1000','5000','10000','20000'].map(function(k){return '<div class="ch"><span>'+fmt(+k)+' צפיות</span><b>'+c[k]+'%</b></div>'}).join('')+'</div>'+
+ '<div class="cd">'+spark(v.series,v.proj48)+'</div><div class="cd">'+v.reasons.map(function(r){return '<div class="rs">• '+r+'</div>'}).join('')+'<div class="small" style="margin-top:8px">הערכה סטטיסטית, לא הבטחה. נתוני YouTube Data API מתעדכנים באיחור מול Studio.</div></div>'}
+var PRED=null;async function openAna(){$('ana_p').classList.add('on');try{PRED=await api('/api/predictions')}catch(e){return}var vs=(PRED&&PRED.videos)||[];if(!vs.length){$('ana_out').textContent='אין עדיין נתונים. המערכת מעדכנת אותם כל כמה דקות.';return}
+ $('ana_sel').innerHTML=vs.map(function(v,i){return '<option value="'+i+'">'+v.title.slice(0,60)+' ('+fmt(v.views)+')</option>'}).join('');$('ana_sel').onchange=function(){showPred(vs[+$('ana_sel').value])};showPred(vs[0])}
+$('ana').onclick=openAna;$('ana_x').onclick=function(){$('ana_p').classList.remove('on')};
 $('gear').onclick=function(){$('gh').value=LS.gh||'';$('gq').value=LS.groq||'';$('dlg').showModal()};$('close').onclick=function(){$('dlg').close()};
 $('save').onclick=function(){LS.gh=$('gh').value.trim();LS.groq=$('gq').value.trim();fetch('/api/token',{method:'POST',headers:hdr()});$('dlg').close();add('bot','נשמר ✅')};
 $('logout').onclick=function(){LS.removeItem('pw');location.reload()};

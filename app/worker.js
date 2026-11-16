@@ -242,6 +242,7 @@ self.addEventListener('notificationclick',e=>{e.notification.close();e.waitUntil
       const events = (ev || "").trim().split("\n").map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter((e) => e && e.t > since).slice(-25);
       return J({ live: live && live.live, title: live && live.title, events, now: new Date().toISOString() });
     }
+    if (p === "/api/predictions") return J((await ghJson("state/predictions.json", tok)) || { videos: [] });
     if (p === "/api/chat" && req.method === "POST") { const b = await req.json(); const reply = await agent(env, b.messages || [], tok, req.headers.get("x-groq") || ""); return J({ reply, ...(ERRS.length ? { debug: ERRS } : {}) }); }
     return J({ error: "not found" }, 404);
   },
