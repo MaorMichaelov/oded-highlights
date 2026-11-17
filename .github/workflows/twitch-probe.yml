@@ -1,0 +1,26 @@
+name: twitch-probe
+# Feasibility probe: can a GitHub runner list a Twitch channel's VODs / clips and download a short section with yt-dlp (no login, no API key)? Prints results to the log; nothing is committed.
+on:
+  workflow_dispatch:
+    inputs:
+      login: { required: false, default: "kaicenat" }
+permissions: { contents: read }
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Install
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg && pip install -q -U yt-dlp
+      - name: VOD list
+        run: |
+          yt-dlp --version
+          timeout 120 yt-dlp --flat-playlist --playlist-end 8 --print "%(id)s|%(duration)s|%(title)s|%(upload_date)s" "https://www.twitch.tv/${{ inputs.login }}/videos?filter=archives&sort=time" 2>&1 | head -12 || echo "list failed"
+      - name: Clip list
+        run: |
+          timeout 120 yt-dlp --flat-playlist --playlist-end 8 --print "%(id)s|%(duration)s|%(view_count)s|%(title)s" "https://www.twitch.tv/${{ inputs.login }}/clips?filter=clips&range=7d" 2>&1 | head -12 || echo "clip list failed"
+      - name: Download 20 s of the newest VOD
+        run: |
+          id=$(yt-dlp --flat-playlist --playlist-end 1 --print "%(id)s" "https://www.twitch.tv/${{ inputs.login }}/videos?filter=archives&sort=time" 2>/dev/null | head -1); echo "newest VOD: $id"
+          [ -n "$id" ] && timeout 400 yt-dlp -f "best[height<=720]/best" --download-sections "*00:30:00-00:30:20" -o /tmp/t.mp4 "https://www.twitch.tv/videos/$id" 2>&1 | tail -8
+          ls -la /tmp/t.mp4* 2>/dev/null && ffprobe -v error -show_entries stream=codec_type,width,height,r_frame_rate,duration -of compact /tmp/t.mp4*
