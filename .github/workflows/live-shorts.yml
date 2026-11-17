@@ -9,6 +9,7 @@ on:
       focus: { required: false, default: "" }
       upload: { required: false, default: "true" }
       max_upload: { required: false, default: "2" }
+      long_every: { description: "also make a LONG video for every N finished minutes of the stream (0 = off)", required: false, default: "40" }
       force: { description: "treat the newest VOD as current even if offline (test)", required: false, default: "false" }
 concurrency: { group: "live-shorts-${{ inputs.slug }}", cancel-in-progress: false }
 permissions: { contents: write, actions: write }
@@ -41,11 +42,11 @@ jobs:
           end=$((SECONDS+20400))
           while [ $SECONDS -lt $end ]; do
             [ -f "state/${{ inputs.slug }}/PAUSE" ] && { echo "PAUSE file present, stopping"; exit 0; }
-            python3 -u scripts/live_shorts.py --slug "${{ inputs.slug }}" --platform "${{ inputs.platform }}" --credit "${{ inputs.credit }}" --focus "${{ inputs.focus }}" ${{ inputs.upload == 'true' && '--upload' || '' }} --max-upload "${{ inputs.max_upload }}" ${{ inputs.force == 'true' && '--force' || '' }} || echo "iteration failed (continuing)"
-            git add state/${{ inputs.slug }}/live_state.json state/${{ inputs.slug }}/shorts/*.json 2>/dev/null; git diff --cached --quiet || { git commit -q -m "live shorts: ${{ inputs.slug }}"; for i in 1 2 3 4 5 6; do git pull --rebase -q && git push -q && break; sleep $((i*2)); done; }
+            python3 -u scripts/live_shorts.py --slug "${{ inputs.slug }}" --platform "${{ inputs.platform }}" --credit "${{ inputs.credit }}" --focus "${{ inputs.focus }}" ${{ inputs.upload == 'true' && '--upload' || '' }} --max-upload "${{ inputs.max_upload }}" --long-every "${{ inputs.long_every }}" ${{ inputs.force == 'true' && '--force' || '' }} || echo "iteration failed (continuing)"
+            git add state/${{ inputs.slug }}/live_state.json state/${{ inputs.slug }}/long/*.json state/${{ inputs.slug }}/shorts/*.json 2>/dev/null; git diff --cached --quiet || { git commit -q -m "live shorts: ${{ inputs.slug }}"; for i in 1 2 3 4 5 6; do git pull --rebase -q && git push -q && break; sleep $((i*2)); done; }
             sleep 240
           done
-          gh workflow run live-shorts.yml --ref main -f slug="${{ inputs.slug }}" -f platform="${{ inputs.platform }}" -f credit="${{ inputs.credit }}" -f focus="${{ inputs.focus }}" -f upload="${{ inputs.upload }}" -f max_upload="${{ inputs.max_upload }}"
+          gh workflow run live-shorts.yml --ref main -f slug="${{ inputs.slug }}" -f platform="${{ inputs.platform }}" -f credit="${{ inputs.credit }}" -f focus="${{ inputs.focus }}" -f upload="${{ inputs.upload }}" -f max_upload="${{ inputs.max_upload }}" -f long_every="${{ inputs.long_every }}"
       - name: Keep the Shorts
         if: always()
         uses: actions/upload-artifact@v4

@@ -17,8 +17,12 @@ def is_live(slug, platform):
     if platform == "twitch": return V.sh(["yt-dlp", "--simulate", "--print", "%(is_live)s", f"https://www.twitch.tv/{slug}"]).stdout.strip() == "True"
     try: return bool(V.jget(f"https://kick.com/api/v2/channels/{slug}").get("livestream"))
     except Exception: return False
+def dispatch_long(a, cur, f, t):
+    """Start the long-video workflow for minutes f..t of the running VOD (a finished chunk of the stream), upload as private draft if --upload."""
+    c = ["gh", "api", f"repos/{os.environ.get('GITHUB_REPOSITORY', 'MaorMichaelov/oded-highlights')}/actions/workflows/long-video.yml/dispatches", "-f", "ref=main", "-f", f"inputs[slug]={a.slug}", "-f", f"inputs[platform]={a.platform}", "-f", f"inputs[vod]={cur['vod']}", "-f", f"inputs[from_min]={f}", "-f", f"inputs[to_min]={t}", "-f", f"inputs[credit]={a.credit or a.slug}", "-f", f"inputs[title_hint]={a.focus or cur.get('title', '')}", "-f", f"inputs[upload]={'true' if a.upload else 'false'}"]
+    r = subprocess.run(c, capture_output=True, text=True); print(f"long video {f}-{t} min dispatched" if r.returncode == 0 else "long dispatch failed: " + r.stderr[:200], flush=True)
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--slug", required=True); ap.add_argument("--platform", default="kick"); ap.add_argument("--credit", default=""); ap.add_argument("--upload", action="store_true"); ap.add_argument("--max-upload", type=int, default=2); ap.add_argument("--focus", default=""); ap.add_argument("--force", action="store_true"); ap.add_argument("--window", type=int, default=30); a = ap.parse_args()
+    ap = argparse.ArgumentParser(); ap.add_argument("--slug", required=True); ap.add_argument("--platform", default="kick"); ap.add_argument("--credit", default=""); ap.add_argument("--upload", action="store_true"); ap.add_argument("--max-upload", type=int, default=2); ap.add_argument("--focus", default=""); ap.add_argument("--force", action="store_true"); ap.add_argument("--window", type=int, default=30); ap.add_argument("--long-every", type=int, default=0, help="also start a LONG video (long-video workflow, private draft) for every N finished minutes of the stream (0 = off)"); a = ap.parse_args()
     if not a.force and not is_live(a.slug, a.platform): print("offline"); return 0
     cur = newest(a.slug, a.platform)
     if not cur: print("no VOD yet"); return 0
@@ -30,6 +34,9 @@ def main():
     env = dict(os.environ, **({"SHORTS_FOCUS": a.focus} if a.focus else {}))
     print(f"processing {a.slug} VOD {cur['vod']} window {a_}-{b_} (stream length {dur:.0f} min)", flush=True)
     p = subprocess.run([sys.executable, "-u", os.path.join(HERE, "vod_shorts.py"), "--slug", a.slug, "--platform", a.platform, "--vod", cur["vod"], "--from-min", str(a_), "--to-min", str(b_), "--n", "2", "--credit", a.credit or a.slug], env=env)
+    if a.long_every and b_ - st.get("long_to_min", st.get("start_min", a_)) >= a.long_every:
+        lf = st.get("long_to_min", st.get("start_min", a_)); dispatch_long(a, cur, lf, b_); st["long_to_min"] = b_
+    st.setdefault("start_min", a_)
     st["done_to_min"] = b_; os.makedirs(f"state/{a.slug}", exist_ok=True); json.dump(st, open(sf, "w"))
     if a.upload: subprocess.run([sys.executable, os.path.join(HERE, "upload_shorts.py"), a.slug, str(a.max_upload)], env=dict(os.environ, CHANNEL_YT="en"))
     return 0
