@@ -1,0 +1,79 @@
+{
+ "schema": 1,
+ "name": "test-twitchclip",
+ "label": "test-twitchclip",
+ "description": "Measured from https://www.twitch.tv/kaicenat/clip/PuzzledLongAntelopeDxAbomb-G8QCjK1905yV3xMQ: 12.0 cuts/min, -15.7 LUFS, captions coverage 0.45",
+ "extends": "signature",
+ "source": {
+  "kind": "video",
+  "url": "https://www.twitch.tv/kaicenat/clip/PuzzledLongAntelopeDxAbomb-G8QCjK1905yV3xMQ",
+  "format": "long",
+  "measured": {
+   "video": {
+    "w": 1280,
+    "h": 720,
+    "fps": 60.0,
+    "dur": 10.0,
+    "analysed_s": 10.0,
+    "portrait": false
+   },
+   "pace": {
+    "cuts": 2,
+    "cuts_per_min": 12.0,
+    "avg_shot_s": 3.33,
+    "median_shot_s": 0.92,
+    "min_shot_s": 0.92,
+    "max_shot_s": 8.17
+   },
+   "audio": {
+    "lufs": -15.7,
+    "lra": 7.3,
+    "true_peak_db": -0.4,
+    "silence_pct": 0.0,
+    "silences_per_min": 0.0
+   },
+   "captions": {
+    "coverage": 0.45,
+    "frames": 20,
+    "y_center": 0.938,
+    "y_top": 0.9,
+    "y_bottom": 0.976,
+    "band_h": 0.074,
+    "white_share": 0.82,
+    "color_hex": "#854AFA",
+    "colored_share": 0.18
+   },
+   "hook": {
+    "coverage": 0.0,
+    "frames": 20,
+    "present": false
+   },
+   "zoom": {
+    "events": 2,
+    "events_per_min": 12.0,
+    "median_strength": 0.095,
+    "analysed_s": 10.0
+   }
+  }
+ },
+ "long": {
+  "captions": {
+   "enabled": true,
+   "color": "#FFFFFF",
+   "highlight_color": "#854AFA",
+   "animation": "karaoke",
+   "size": 120,
+   "align": 2,
+   "margin_v": 0
+  },
+  "loudness": {
+   "enabled": true,
+   "lufs": -15.7,
+   "tp": -1.0,
+   "lra": 7.3
+  },
+  "pace": {
+   "dead_air_trim_s": 0.7
+  }
+ }
+}
