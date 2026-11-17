@@ -102,10 +102,15 @@
    "who": "עודד, אשתו, צ'אט הצופים",
    "peak": "05:08"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/A2gMEAwKp10",
+  "draft_at": "2026-11-17T06:18:46Z",
+  "quality_errors": [],
   "auto": true
  },
  {
