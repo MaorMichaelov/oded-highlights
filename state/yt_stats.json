@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-17T11:15:22Z",
- "fetched_epoch": 1794914122.2933872,
+ "fetched_at": "2026-11-17T11:45:30Z",
+ "fetched_epoch": 1794915930.0858562,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1880,
@@ -10,12 +10,12 @@
  "videos": [
   {
    "id": "6nUNrQdln9w",
-   "title": "עודד משחק \"מים ואש\" בלייב – המשחק המלא!",
+   "title": "עודד משחק \"מים ואש\" בלייב  המשחק המלא!",
    "published": "2026-11-17T10:00:01Z",
    "privacy": "public",
    "duration": "PT1H33M46S",
-   "views": 9,
-   "likes": 3,
+   "views": 10,
+   "likes": 4,
    "comments": 0
   },
   {
@@ -204,7 +204,7 @@
    "published": "2026-11-13T09:00:02Z",
    "privacy": "public",
    "duration": "PT9M37S",
-   "views": 4953,
+   "views": 4976,
    "likes": 46,
    "comments": 3
   },
@@ -234,8 +234,8 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 4480,
-   "likes": 21,
+   "views": 4489,
+   "likes": 22,
    "comments": 1
   },
   {
