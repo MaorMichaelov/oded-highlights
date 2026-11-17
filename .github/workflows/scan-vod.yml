@@ -12,7 +12,7 @@ on:
       k: { required: false, default: "3" }
       dispatch: { description: "start the long-video workflow for every candidate", required: false, default: "true" }
       upload: { description: "the started long videos upload as PRIVATE drafts to the English channel", required: false, default: "false" }
-concurrency: { group: "scan-${{ inputs.slug }}", cancel-in-progress: false }
+concurrency: { group: "scan-${{ inputs.slug }}-${{ inputs.vod }}", cancel-in-progress: false }
 permissions: { contents: write, actions: write }
 jobs:
   scan:
