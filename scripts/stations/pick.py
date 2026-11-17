@@ -233,9 +233,9 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
             hs = list(dict.fromkeys(hs + ["#עודד", "#OdedSVR", "#עודדהיילייטס", "#ODEDHIGHLIGHTS", "#קיק", "#Kick", "#סטרימרישראלי"]))   # the channel's own best-performing description format
             desc = "קטעים מהלייב של עודד (OdedSVR) ב-Kick: https://kick.com/odedsvr | ערוץ מעריצים לא רשמי.\n" + meta.get("description", "").strip() + ("\n" + meta["seo_line"].strip() if meta.get("seo_line") else "") + "\nהרגעים הכי טובים מהלייב של עודד בקיק | ODED HIGHLIGHTS\n\nהקטע מתוך הלייב של עודד בקיק: https://kick.com/odedsvr\nערוץ מעריצים לא רשמי: כל הקטעים נלקחו מהשידורים של עודד (OdedSVR) בקיק, וזה אינו הערוץ הרשמי של עודד. הערוץ הרשמי: https://www.youtube.com/@OdedSVRLive\n\n" + " ".join(hs)
             if LANG == "en":   # WORLD CLIPS: English description, no ODED HIGHLIGHTS texts
-                hs = list(dict.fromkeys([h for h in (meta.get("hashtags") or []) if isinstance(h, str) and h.startswith("#")][:6] + ["#" + SLUG, "#Kick", "#streamer", "#WorldClips"]))
+                hs = list(dict.fromkeys([h for h in (meta.get("hashtags") or []) if isinstance(h, str) and h.startswith("#")][:6] + ["#" + SLUG, "#Kick", "#streamer", "#ClipGlobe"]))
                 desc = (f"Clips from {CREDIT}'s live streams on Kick: https://kick.com/{SLUG} | Unofficial fan channel, not affiliated.\n" + meta.get("description", "").strip() + ("\n" + meta["seo_line"].strip() if meta.get("seo_line") else "")
-                        + f"\nBest moments from {CREDIT}'s live | WORLD CLIPS\n\nClip from the live stream: https://kick.com/{SLUG}\nThis is an unofficial fan channel: all clips are taken from {CREDIT}'s streams on Kick. It is not {CREDIT}'s official channel.\n\n" + " ".join(hs))
+                        + f"\nBest moments from {CREDIT}'s live | {os.environ.get('CHANNEL_BRAND', 'ClipGlobe')}\n\nClip from the live stream: https://kick.com/{SLUG}\nThis is an unofficial fan channel: all clips are taken from {CREDIT}'s streams on Kick. It is not {CREDIT}'s official channel.\n\n" + " ".join(hs))
             desc = "\n".join(" ".join(x_ for x_ in re.split(r"(?<=[.!?])\s+", ln_) if not BAN_WORDS.search(x_)) for ln_ in desc.split("\n"))
             aff = os.path.join(ROOT, "config", "affiliate.txt")
             if os.path.exists(aff): desc += "\n\n" + open(aff, encoding="utf-8").read().strip()

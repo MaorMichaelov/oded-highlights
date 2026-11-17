@@ -68,11 +68,11 @@
    "content": "Oded (OdedSVR) only, Hebrew"
   },
   "en": {
-   "name": "WORLD CLIPS",
+   "name": "ClipGlobe",
    "secrets": "YT2_*",
-   "content": "English: Kai Cenat, N3on and other big streamers (reactions, clips, Shorts); NOT connected yet",
-   "channel_id": "",
-   "note": "NOT CONNECTED: the YT2 token currently belongs to RONEN HIGHLIGHTS (UCSxfaoSBUtKddThesb2zfvg), which must never receive uploads. Uploads with yt=en are refused until channel_id is set to the verified WORLD CLIPS id."
+   "content": "English: Kai Cenat, N3on and other big streamers (reactions, clips, Shorts)",
+   "channel_id": "UCSxfaoSBUtKddThesb2zfvg",
+   "note": "Connected 17 Nov and verified with yt-whoami: the owner renamed the former RONEN HIGHLIGHTS channel to ClipGlobe (English clips of Kai Cenat / N3on and others). Uploads for yt=en are accepted only for this channel id."
   }
  },
  "world_clips_plan": {

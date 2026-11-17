@@ -19,7 +19,7 @@ if os.environ.get("CHANNEL_YT") == "en":
     _cfg = json.load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config", "channels.json"))); _want = ((_cfg.get("youtube_channels") or {}).get("en") or {}).get("channel_id", "")
     _me = json.loads(run(["curl", "-sS", "-m", "30", "https://www.googleapis.com/youtube/v3/channels?part=id&mine=true", "-H", f"Authorization: Bearer {at}"]).stdout).get("items", [{}])[0].get("id", "")
     if not _want or _me != _want: print(f"REFUSED: the token's channel is {_me!r}, the allowed WORLD CLIPS channel id is {_want!r}"); sys.exit(3)
-body = {"snippet": {"title": meta["title"], "description": meta["description"], "tags": meta.get("tags", []), "categoryId": "24", "defaultLanguage": "he", "defaultAudioLanguage": "he"},
+body = {"snippet": {"title": meta["title"], "description": meta["description"], "tags": meta.get("tags", []), "categoryId": "24", "defaultLanguage": ("en" if os.environ.get("CHANNEL_YT") == "en" else "he"), "defaultAudioLanguage": ("en" if os.environ.get("CHANNEL_YT") == "en" else "he")},
         "status": {"privacyStatus": meta.get("privacy", "private"), "selfDeclaredMadeForKids": False}}
 if meta.get("publishAt"): body["status"]["publishAt"] = meta["publishAt"]
 size = os.path.getsize(video)

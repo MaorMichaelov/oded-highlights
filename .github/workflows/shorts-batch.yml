@@ -10,6 +10,8 @@ on:
       total_min: { description: "minutes of the VOD to scan from the start", required: false, default: "180" }
       from_min: { required: false, default: "0" }
       per_window: { description: "Shorts per 30-min window", required: false, default: "2" }
+      upload: { description: "upload the Shorts as PRIVATE drafts to the English channel (needs YT2 secrets)", required: false, default: "false" }
+      max_upload: { description: "max Shorts to upload in this run (YouTube quota ~1600 units each)", required: false, default: "6" }
 concurrency: { group: shorts-batch, cancel-in-progress: false }
 permissions: { contents: write }
 jobs:
@@ -36,6 +38,14 @@ jobs:
             from=$to
           done
           ls -la state/${{ inputs.slug }}/shorts/ || true
+      - name: Upload Shorts as private drafts (English channel)
+        if: ${{ inputs.upload == 'true' }}
+        env:
+          YT_REFRESH_TOKEN: ${{ secrets.YT2_REFRESH_TOKEN }}
+          YT_CLIENT_ID: ${{ secrets.YT2_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT2_CLIENT_SECRET }}
+          CHANNEL_YT: en
+        run: python3 scripts/upload_shorts.py "${{ inputs.slug }}" "${{ inputs.max_upload }}"
       - name: Keep the Shorts
         if: always()
         uses: actions/upload-artifact@v4

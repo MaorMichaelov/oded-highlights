@@ -10,6 +10,8 @@ on:
       from_min: { required: false, default: "0" }
       to_min: { required: false, default: "60" }
       n: { required: false, default: "3" }
+      upload: { description: "upload the Shorts as PRIVATE drafts to the English channel (needs YT2 secrets)", required: false, default: "false" }
+      max_upload: { description: "max Shorts to upload in this run (YouTube quota ~1600 units each)", required: false, default: "6" }
 concurrency: { group: vod-shorts, cancel-in-progress: false }
 permissions: { contents: write }
 jobs:
@@ -38,6 +40,14 @@ jobs:
           for f in $(ls state/${{ inputs.slug }}/shorts/*.mp4 2>/dev/null | head -2); do
             echo "WATCH|FILE $f"; python3 scripts/watch_video.py "$f" "QUALITY CHECK of OUR OWN edit (a 9:16 YouTube Short made automatically). Ignore question 3 and 5 of the normal list. Report in Hebrew: (a) is the layout correct, nothing cut off, face/subject visible; (b) are the captions readable, in sync with the speech, not covering the face; (c) is the hook text at the start readable and correct English; (d) is there a zoom punch-in and a boom sound, does it look natural or amateur; (e) does the clip start at the beginning of a sentence and end right after the punchline; (f) is the audio level/clean; (g) is the moment actually funny or interesting (score 1-10 with a reason); (h) list concrete defects to fix." || true
           done
+      - name: Upload Shorts as private drafts (English channel)
+        if: ${{ inputs.upload == 'true' }}
+        env:
+          YT_REFRESH_TOKEN: ${{ secrets.YT2_REFRESH_TOKEN }}
+          YT_CLIENT_ID: ${{ secrets.YT2_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT2_CLIENT_SECRET }}
+          CHANNEL_YT: en
+        run: python3 scripts/upload_shorts.py "${{ inputs.slug }}" "${{ inputs.max_upload }}"
       - name: Keep the Shorts
         if: always()
         uses: actions/upload-artifact@v4
