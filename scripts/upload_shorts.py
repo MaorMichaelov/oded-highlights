@@ -2,7 +2,7 @@
 """Uploads the Shorts of state/<slug>/shorts/*.mp4 (+ .json meta) as PRIVATE drafts to the English channel (CHANNEL_YT=en, YT2_* secrets; yt_upload.py refuses any channel but the verified id in config/channels.json).
 usage: upload_shorts.py <slug> [max]   Highest score first; already uploaded files are remembered in state/<slug>/shorts/uploaded.json."""
 import glob, json, os, subprocess, sys
-slug = sys.argv[1]; mx = int(sys.argv[2]) if len(sys.argv) > 2 else 6; d = f"state/{slug}/shorts"; rec_f = f"{d}/uploaded.json"
+slug = sys.argv[1]; mx = int(sys.argv[2]) if len(sys.argv) > 2 else 6; sub = sys.argv[3] if len(sys.argv) > 3 else "shorts"; d = f"state/{slug}/{sub}"; rec_f = f"{d}/uploaded.json"
 rec = json.load(open(rec_f)) if os.path.exists(rec_f) else {}
 todo = []
 for mp4 in glob.glob(f"{d}/*.mp4"):
@@ -11,7 +11,7 @@ for mp4 in glob.glob(f"{d}/*.mp4"):
     todo.append((json.load(open(mf)).get("score", 0), mp4, mf))
 todo.sort(reverse=True); n = 0
 for sc, mp4, mf in todo[:mx]:
-    meta = json.load(open(mf)); meta["privacy"] = "private"; meta.setdefault("tags", []).extend(["Shorts", slug]); json.dump(meta, open(mf, "w"), ensure_ascii=False)
+    meta = json.load(open(mf)); meta["privacy"] = "private"; meta.setdefault("tags", []).extend((["Shorts"] if sub == "shorts" else []) + [slug]); json.dump(meta, open(mf, "w"), ensure_ascii=False)
     r = subprocess.run([sys.executable, "scripts/yt_upload.py", mp4, mf], capture_output=True, text=True, env=dict(os.environ, CHANNEL_YT="en"))
     url = [l for l in r.stdout.splitlines() if l.startswith("https://youtu.be/")]
     print(("UPLOADED " + url[-1] + " | " + meta["title"]) if url else ("FAILED " + (r.stdout + r.stderr)[-300:]))
