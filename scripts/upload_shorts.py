@@ -8,7 +8,10 @@ todo = []
 for mp4 in glob.glob(f"{d}/*.mp4"):
     mf = mp4[:-4] + ".json"
     if os.path.basename(mp4) in rec or not os.path.exists(mf): continue
-    todo.append((json.load(open(mf)).get("score", 0), mp4, mf))
+    mj = json.load(open(mf))
+    if mj.get("qa_fail") and os.environ.get("QA_OVERRIDE") != "1":   # scripts/qa_clip.py / vod_shorts / vod_long flag a draft that failed the automatic grade (sync, dead air, chopped audio, word cut, caption overflow, title not in the transcript)
+        print("SKIPPED (qa_fail)", os.path.basename(mp4), "|", "; ".join((mj.get("qa") or {}).get("fail", []))[:220], "(QA_OVERRIDE=1 uploads anyway)"); continue
+    todo.append((mj.get("score", 0), mp4, mf))
 todo.sort(reverse=True); n = 0
 for sc, mp4, mf in todo[:mx]:
     meta = json.load(open(mf)); meta["privacy"] = "private"; meta.setdefault("tags", []).extend((["Shorts"] if sub == "shorts" else []) + [slug]); json.dump(meta, open(mf, "w"), ensure_ascii=False)

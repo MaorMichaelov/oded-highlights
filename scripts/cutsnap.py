@@ -73,11 +73,13 @@ def check_boundaries(s, e, env, hop, t0):
 # ---------------------------------------------------------------- sentence-aware spans (added 17 Nov: the LLM's start/end seconds are only roughly right, they often fall in the middle of a sentence)
 END_PUNCT = re.compile(r"[.!?…]['\"”’)]*$")
 def _ws(words): return _clamp(sorted(words, key=lambda w: w["start"]))
-def sentence_breaks(words, pause=0.45):
-    """indices i such that a sentence ENDS after words[i]: the word ends with . ! ? (when the ASR gives punctuation) or the next word starts >= `pause` s later. The last word counts as an end."""
+def sentence_breaks(words, pause=0.45, last=True):
+    """indices i such that a sentence ENDS after words[i]: the word ends with . ! ? (when the ASR gives punctuation) or the next word starts >= `pause` s later. The last word counts as an end unless last=False (the transcript stops there, the sentence may go on)."""
     ws = _ws(words); out = []
     for i, w in enumerate(ws):
-        if i == len(ws) - 1 or END_PUNCT.search(w["word"].strip()) or ws[i + 1]["start"] - w["end"] >= pause: out.append(i)
+        if i == len(ws) - 1: brk = last or bool(END_PUNCT.search(w["word"].strip()))
+        else: brk = ws[i + 1]["start"] - w["end"] >= pause or bool(END_PUNCT.search(w["word"].strip()))
+        if brk: out.append(i)
     return out
 def sentence_start_near(t, words, back=5.0, fwd=2.5, pause=0.45):
     """start time of the sentence start nearest to t: a sentence that begins at or up to `back` s before t is preferred (the setup must stay in), else the first one up to `fwd` s after t. None when the words do not reach t."""
@@ -88,11 +90,11 @@ def sentence_start_near(t, words, back=5.0, fwd=2.5, pause=0.45):
     if before: return ws[before[-1]]["start"]   # the closest sentence start at or before t
     if after: return ws[after[0]]["start"]
     return None
-def sentence_end_near(t, words, back=1.5, fwd=5.0, pause=0.45):
+def sentence_end_near(t, words, back=1.5, fwd=5.0, pause=0.45, last=True, before_win=4.0):
     """end time of the sentence end nearest to t: the first sentence end at or after t-back (finish the sentence the LLM ended inside), up to `fwd` s later; else the last one before. None when nothing is in reach."""
     ws = _ws(words)
     if not ws: return None
-    ends = sentence_breaks(ws, pause); after = [i for i in ends if t - back <= ws[i]["end"] <= t + fwd]; before = [i for i in ends if t - back - 4.0 <= ws[i]["end"] < t - back]
+    ends = sentence_breaks(ws, pause, last); after = [i for i in ends if t - back <= ws[i]["end"] <= t + fwd]; before = [i for i in ends if t - back - before_win <= ws[i]["end"] < t - back]
     if after: return ws[after[0]]["end"]
     if before: return ws[before[-1]]["end"]
     return None

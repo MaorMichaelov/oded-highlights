@@ -6,7 +6,7 @@ Steps: Groq whisper (English, word times) over the window -> LLM writes title / 
 import argparse, json, os, re, subprocess, sys, tempfile, time
 import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
-import vod_shorts as V, cutsnap as CS
+import vod_shorts as V, cutsnap as CS, cutqa as Q
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--slug", required=True); ap.add_argument("--platform", default="kick"); ap.add_argument("--vod", default="auto"); ap.add_argument("--from-min", type=float, required=True); ap.add_argument("--to-min", type=float, required=True); ap.add_argument("--credit", default=""); ap.add_argument("--out", default=None); ap.add_argument("--title-hint", default=""); ap.add_argument("--style", default=None, help="editing style name (config/styles/<name>.json) or path; default env STYLE; none = classic"); a = ap.parse_args()
     if a.style: os.environ["STYLE"] = a.style
@@ -17,7 +17,14 @@ def main():
         tv = V.twitch_pick(a.slug, a.vod); vid = str(tv["id"]); AUDIO, VIDEO = V.twitch_urls(vid); vtitle = tv["title"]
     else:
         v = V.pick_vod(a.slug, a.vod); base = v["source"].rsplit("/master.m3u8", 1)[0]; vid = str(v["id"]); AUDIO, VIDEO = f"{base}/480p30/playlist.m3u8", f"{base}/1080p60/playlist.m3u8"; vtitle = v.get("session_title") or ""
-    t0 = a.from_min * 60; dur = (a.to_min - a.from_min) * 60; tmp = tempfile.mkdtemp(); words = []; envs = []
+    t0 = a.from_min * 60; dur = (a.to_min - a.from_min) * 60; tmp = tempfile.mkdtemp(); words = []; envs = []; pre_chunk = None
+    PRE = min(12.0, t0)   # 17 Nov quality pass: 12 s of context before the window, so the first sentence of the window can be recognised as complete or cut (words/energy only used at the start edge)
+    if PRE >= 4:
+        try:
+            mp3p = f"{tmp}/pre.mp3"; rp = V.sh(["ffmpeg", "-v", "error", "-y", "-ss", f"{t0 - PRE:.1f}", "-t", f"{PRE:.1f}", "-i", AUDIO, "-vn", "-ac", "1", "-ar", "16000", "-c:a", "libmp3lame", "-b:a", "48k", mp3p])
+            if not rp.returncode:
+                pre_chunk = (t0 - PRE, mp3p); pw = V.whisper(mp3p, LANG); words += [{"word": w["word"], "start": t0 - PRE + w["start"], "end": t0 - PRE + w["end"]} for w in pw]
+        except Exception as e_: print("pre-roll context skipped:", str(e_)[:100])
     for c0 in np.arange(0, dur, 600):
         d = min(600, dur - c0); mp3 = f"{tmp}/a{int(c0)}.mp3"
         r = V.sh(["ffmpeg", "-v", "error", "-y", "-ss", f"{t0 + c0:.1f}", "-t", f"{d:.1f}", "-i", AUDIO, "-vn", "-ac", "1", "-ar", "16000", "-c:a", "libmp3lame", "-b:a", "48k", mp3])
@@ -31,6 +38,7 @@ def main():
         for w in cw: words.append({"word": w["word"], "start": t0 + c0 + w["start"], "end": t0 + c0 + w["end"]})
         envs.append((t0 + c0, mp3)); print(f"chunk {int(c0 / 60)}-{int((c0 + d) / 60)} min: {len(words)} words", flush=True); time.sleep(2)
     if len(words) < 200: sys.exit("too little speech in the window")
+    allwords = list(words)   # incl. the pre-roll context; `words` is cut down to the refined window below
     # the plan comes from coarse samples (+-5 min): let the LLM find where the session really starts/ends inside the transcript of the first and last 8 minutes
     try:
         def lines_of(lo, hi): return "\n".join(f"[{int(w0)}] " + " ".join(x["word"].strip() for x in grp) for w0, grp in _groups(words, lo, hi))
@@ -51,30 +59,48 @@ def main():
             if t0 - 1 <= ns <= t0 + 540 and t0 + dur - 540 <= ne <= t0 + dur + 1 and ne - ns >= 600:
                 print(f"LLM edge refinement: start {t0:.0f}->{ns:.0f}, end {t0 + dur:.0f}->{ne:.0f} ({rj.get('why')})"); words = [w for w in words if ns - 2 <= w["start"] <= ne + 2]; t0, dur = ns, ne - ns
     except Exception as e: print("edge refinement skipped:", e)
-    # edges: the first and last audio chunk give the energy envelope around the cut points
+    # edges (17 Nov quality pass): start on the first complete sentence of the topic, end after its last sentence, then snap into the pause with the real audio energy of the chunk that holds the point
+    _envc = {}
+    def env_for(t):
+        for c_, p_ in ([pre_chunk] if pre_chunk else []) + envs:
+            if p_ not in _envc: _envc[p_] = CS.energy_db(p_)
+            e_, h_ = _envc[p_]
+            if c_ - 0.01 <= t < c_ + len(e_) * h_ - 0.3 or p_ == (envs[-1][1] if envs else None): return e_, h_, c_
+        raise RuntimeError("no audio chunk for %.1f" % t)
+    allw = sorted(allwords, key=lambda w: w["start"]); s_win, e_win = t0, t0 + dur
     s0 = max(t0, min(w["start"] for w in words)); e0 = max(w["end"] for w in words); s1, e1 = s0 - 0.2, min(t0 + dur, e0 + 0.4)
     try:
-        env, hop = CS.energy_db(envs[0][1]); first = [w for w in words if w["start"] >= t0][0]; s1 = CS.snap_start(first["start"], words, env, hop, envs[0][0])
-        env2, hop2 = CS.energy_db(envs[-1][1]); last_end = min(max(w["end"] for w in words), t0 + dur - 0.3); e1 = CS.snap_end(min(last_end, [w for w in words if w["end"] <= last_end][-1]["start"] + 1.4), words, env2, hop2, envs[-1][0])
-        print(f"edge snap: start {t0:.2f}->{s1:.2f}  end {t0 + dur:.2f}->{e1:.2f}")
+        st = CS.sentence_start_near(s_win, allw, back=1.5, fwd=12.0); st = st if st is not None else [w for w in words if w["start"] >= t0][0]["start"]
+        env, hop, c_ = env_for(st); s1 = CS.snap_start(st, allw, env, hop, c_)
+        open_end = not any(w["end"] > e_win + 1.0 for w in allw)   # the transcript stops at the window end: the last sentence there may be unfinished, back up to the previous complete one
+        en = CS.sentence_end_near(e_win, allw, back=1.0, fwd=6.0, last=not open_end, before_win=14.0)
+        if en is None: last_end = min(max(w["end"] for w in words), e_win - 0.3); en = min(last_end, [w for w in words if w["end"] <= last_end][-1]["start"] + 1.4)
+        env2, hop2, c2 = env_for(en); e1 = CS.snap_end(en, allw, env2, hop2, c2)
+        print(f"edge snap: start {t0:.2f}->{s1:.2f} (sentence start {st:.2f})  end {t0 + dur:.2f}->{e1:.2f} (sentence end {en:.2f}{', window end was open' if open_end else ''})")
     except Exception as e: print("edge snap failed, keeping the window edges:", e)
-    s1 = max(s1, t0 - 0.5); e1 = max(e1, s1 + 60)
+    s1 = max(s1, t0 - 1.7); e1 = max(e1, s1 + 60)
+    if os.environ.get("ALLOW_DUP") != "1":   # 17 Nov: never render the same stretch of a VOD twice (set ALLOW_DUP=1 for a deliberate re-render)
+        du = [x for x in Q.existing_ranges(a.slug, vid, kinds=("long",)) if Q.overlap(s1, e1, x["start"], x["end"]) >= 0.5]
+        if du: print(f"DUPLICATE: {s1:.0f}-{e1:.0f} overlaps the existing long video {du[0]['id']} ({du[0]['start']:.0f}-{du[0]['end']:.0f}); not rendering (ALLOW_DUP=1 overrides)"); sys.exit(0)
     # LLM metadata from the real transcript (evenly sampled lines with [seconds from the clip start])
-    lines = []; cur = []; ts = None
+    lines = []; cur = []; ts = None; line_t = []   # line_t[i] = absolute start second of line i: chapters are chosen by LINE NUMBER, never by seconds written by the LLM (17 Nov: LLM seconds put 8 chapters into the first 5 min of a 12 min video, 7 of them describing other moments)
     for w in words:
+        if w["start"] < s1 - 0.3 or w["start"] > e1 + 0.3: continue
         if ts is None: ts = w["start"]
         cur.append(w["word"].strip())
-        if w["end"] - ts >= 20: lines.append(f"[{int(ts - s1)}] " + " ".join(cur)[:170]); cur, ts = [], None   # 170 chars per 20 s line, spread over the WHOLE window (a 9000-char cut used to show only the first 6 minutes of a 20 min clip: wrong chapters)
-    step = max(1, len(lines) // 80); sample = "\n".join(lines[::step])[:15000]
+        if w["end"] - ts >= 20: lines.append(f"L{len(lines)} [{int(ts - s1)}s] " + " ".join(cur)[:170]); line_t.append(ts); cur, ts = [], None   # 170 chars per 20 s line, spread over the WHOLE window (a 9000-char cut used to show only the first 6 minutes of a 20 min clip: wrong chapters)
+    step = max(1, len(lines) // 90); sample = "\n".join(lines[::step])[:16000]
     L = (lambda t: t) if LANGN == "English" else (lambda t: t.replace("English", LANGN))
     prompt = (f"You write the YouTube metadata of a LONG highlight video cut from {credit}'s live stream (platform: {a.platform}); the clip is one continuous session of {int((e1 - s1) / 60)} minutes. The transcript is automatic and may contain errors; never invent facts, people or quotes. Stream title: '{vtitle}'. {a.title_hint}\n"
               "Return JSON only: {\"title\":\"English, 50-85 chars, literal and specific (only what really happens, NEVER invent facts, reveals, surprises or hype words), name the streamer, put the streamer's name in it, what really happens, no profanity, no ALL CAPS shouting, ends without a period\",\"description\":\"3 English sentences with specifics (who, what, key moments)\",\"hashtags\":[\"#" + a.slug.replace('-', '') + "\", ...4 more],\"tags\":[...8 keywords],"
-              "\"chapters\":[{\"second\":n,\"title\":\"<=6 specific words\"}] (8-14 entries IN ORDER, the first at 0, spread over the whole clip, seconds from the clip start taken from the transcript lines),\"reject\":false,\"why\":\"\"}. Set reject=true (and explain in why) if the clip is mostly gambling/casino/promo talk, hate speech, sexual content, or empty chatter.\n\nTranscript (lines are [seconds from the clip start] text):\n" + sample)
+              "\"chapters\":[{\"line\":n,\"title\":\"<=6 specific words\"}] (8-14 entries IN ORDER, the first one is line 0, spread over the whole clip; \"line\" = the number n of the transcript line L<n> where that topic BEGINS, copied from the transcript, never a time),\"reject\":false,\"why\":\"\"}. Set reject=true (and explain in why) if the clip is mostly gambling/casino/promo talk, hate speech, sexual content, or empty chatter.\n\nTranscript (lines are L<number> [seconds from the clip start] text):\n" + sample)
     HYPE = re.compile(r"epic|wild|shock|insane|crazy|you won't believe|unbelievable|mind-?blow|exposed|leaked|teaser|reveal|surprise", re.I)   # titles/descriptions must state only what really happens
     prompt = L(prompt); j = V.llm(prompt)
     if j and not j.get("reject") and HYPE.search(j.get("title", "")): j = V.llm(prompt + "\n\nYour previous title used hype words or invented details. Be strictly literal: only what is really said in the transcript, plain words, no 'epic', 'reveal', 'surprise', 'shocking'. Do not mention anything that is not in the transcript lines.")
     if j and HYPE.search(j.get("title", "")): j["title"] = HYPE.sub("", j["title"]).replace("  ", " ").strip(" -:,")
     if not j or j.get("reject"): sys.exit("metadata step rejected the window: " + str((j or {}).get("why")))
+    _cw = [w for w in words if s1 - 0.3 <= w["start"] <= e1 + 0.3]   # the words that are really in the video
+    j["title"], _tt, _tok = V.truthful_title(j["title"], _cw, [credit, a.slug], vtitle or "", f"{LANGN}, 50-85 chars, literal and specific, names the streamer, no period at the end", vtitle or "", credit)   # titles must be true: names / numbers / quotes have to occur in the transcript
     # cut + encode
     dd = e1 - s1; mp4 = f"{out}/long_{vid}_{int(s1)}.mp4"
     import brand
@@ -106,14 +132,37 @@ def main():
     dd -= sum(b_ - a_ for a_, b_ in cuts); remap_ = _S.make_remap(cuts) if cuts else (lambda t_: t_)   # style dead-air cuts shorten the video; chapter seconds are re-timed below
     def _rc(x_): x_ = float(x_); r_ = remap_(x_); return r_ if r_ is not None else (remap_(max(0.0, x_ - 3)) or 0)   # a chapter that fell into a cut pause moves to the cut
     dd += BUMP   # the published video is longer than the cut window by the bumper
+    def _chapters(raw):
+        """LLM chapters (by line number) -> [{"second": from the clip start, "title"}]: the time is the real start of that transcript line moved to the nearest sentence start, a chapter whose title has no support in the transcript right there is dropped, minimum spacing 25 s"""
+        out_ = []; last_ = -1e9
+        for c in (raw or []):
+            t_ = str(c.get("title", "")).strip()
+            if not t_: continue
+            try: ta = line_t[int(c["line"])] if c.get("line") is not None else s1 + float(c["second"])
+            except Exception: continue
+            ta2 = CS.sentence_start_near(ta, allw, back=1.0, fwd=9.0); ta = ta2 if ta2 is not None else ta; sec_ = max(0.0, ta - s1)
+            toks = [Q._stem(x) for x in Q.tokens(t_) if x not in Q.EN_STOP and x not in Q.GENERIC and len(x) > 2]; sup = {Q._stem(x) for x in Q.tokens(Q.words_text(allw, ta - 8, ta + 75))}
+            if toks and sum(1 for x in toks if x in sup) / len(toks) < 0.34 and len(sup) > 20 and LANGN == "English": print("chapter dropped (no support in the transcript at that time):", int(sec_), t_); continue
+            if sec_ - last_ < 25 and out_: continue
+            out_.append({"second": round(sec_, 2), "title": t_}); last_ = sec_
+        return out_
+    j["chapters"] = _chapters(j.get("chapters"))
     def mmss(sec): sec = int(max(0, sec)); return f"{sec // 3600}:{sec % 3600 // 60:02d}:{sec % 60:02d}" if sec >= 3600 else f"{sec // 60:02d}:{sec % 60:02d}"
-    ch = sorted({int(_rc(c["second"])): str(c["title"]).strip()[:50] for c in (j.get("chapters") or []) if str(c.get("title", "")).strip()}.items()); ch = [(t, n) for t, n in ch if 0 <= t < dd - 20]
+    ch = sorted({int(_rc(c["second"]) + 0.5): str(c["title"]).strip()[:50] for c in (j.get("chapters") or []) if str(c.get("title", "")).strip()}.items()); ch = [(t, n) for t, n in ch if 0 <= t < dd - 20]
     if ch: ch[0] = (0, ch[0][1])
     chap = "\n".join(f"{mmss(t + (BUMP if t > 0 else 0))} {n}" for t, n in ch) if len(ch) >= 3 else ""
     hs = list(dict.fromkeys([h for h in (j.get("hashtags") or []) if isinstance(h, str) and h.startswith("#")][:6] + ["#" + a.slug.replace("-", ""), "#" + ("Twitch" if a.platform == "twitch" else "Kick"), "#ClipGlobe"]))
     src_line = ("Twitch (https://twitch.tv/" if a.platform == "twitch" else "Kick (https://kick.com/") + f"{a.slug})"
     desc = f"Clips from {credit}'s live streams on {src_line} | Unofficial fan channel, not affiliated.\n{j.get('description', '').strip()}\n" + (f"\nChapters:\n{chap}\n" if chap else "") + f"\nClip from the live stream: {src_line}\nThis is an unofficial fan channel: all clips are taken from {credit}'s streams. It is not {credit}'s official channel.\n\n" + " ".join(hs)
-    meta = {"title": j["title"].strip()[:98], "description": desc, "tags": (j.get("tags") or [])[:12] + [credit, "highlights"], "privacy": "private", "score": 100, "source": {"slug": a.slug, "platform": a.platform, "vod": vid, "start_s": round(s1), "end_s": round(e1), "minutes": round(dd / 60, 1)}}
+    meta = {"title": j["title"].strip()[:98], "description": desc, "tags": (j.get("tags") or [])[:12] + [credit, "highlights"], "privacy": "private", "score": 100, "source": {"slug": a.slug, "platform": a.platform, "vod": vid, "start_s": round(s1), "end_s": round(e1), "start_exact": round(s1, 2), "end_exact": round(e1, 2), "bumper_s": BUMP, "vod_title": vtitle, "minutes": round(dd / 60, 1)}}
+    try:   # automatic grade of the finished draft (17 Nov): sync, dead air / abrupt end at both ends, loudness, word cut, title truth; a failing draft gets qa_fail=true and upload_shorts.py skips it
+        if not cuts: Q.save_words(mp4[:-4] + ".words.json", _cw, s1)
+        g = Q.grade(mp4, "long", title=meta["title"], words=None if cuts else [{"word": w["word"], "start": w["start"] - s1 + BUMP, "end": w["end"] - s1 + BUMP} for w in _cw], window_text_=Q.words_text(_cw), skip_head=BUMP, ignore_names=[credit, a.slug], extra_text=vtitle or "", expected_dur=dd)
+        meta["qa"] = {"score": g["score"], "fail": g["fail"], "warn": g["warn"]}
+        if not _tok: meta["qa"]["fail"].append("title not supported by the transcript (rewrite failed)")
+        if meta["qa"]["fail"]: meta["qa_fail"] = True
+        print("QA", meta["qa"], flush=True)
+    except Exception as e_: print("qa grade failed (draft kept as is):", str(e_)[:150])
     json.dump(meta, open(mp4[:-4] + ".json", "w"), ensure_ascii=False, indent=1)
     if os.environ.get("THUMB_PRO") == "1":   # opt-in only: the owner does not want auto-designed thumbnails
       try:   # pro thumbnail from a real face frame (thumb_pro.py): 2-4 literal words

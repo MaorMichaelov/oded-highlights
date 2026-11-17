@@ -26,9 +26,10 @@ for p in C["pieces"]:
     for a, b in p["keep"]:
         for s in files(a, b): need[s[0]] = s
 _ranges = [(a, b) for p in C["pieces"] for a, b in p["keep"]]
-if _ranges:   # edge refinement (owner priority: precise start/end) needs ~2 s of audio before the first range and after the last one
-    for s in files(_ranges[0][0] - 2.0, _ranges[0][0]): need[s[0]] = s
-    for s in files(_ranges[-1][1], _ranges[-1][1] + 2.0): need[s[0]] = s
+if _ranges:   # edge refinement (owner priority: precise start/end) needs ~2 s of audio around EVERY cut point (17 Nov: internal cuts were never refined, 12% of them fell inside a spoken sentence)
+    for a_, b_ in _ranges:
+        for s in files(a_ - 2.0, a_): need[s[0]] = s
+        for s in files(b_, b_ + 2.0): need[s[0]] = s
 def dl(s):
     f = work / "seg" / s[0]
     if f.exists() and f.stat().st_size > 1000: return
@@ -87,18 +88,27 @@ def _gaps_env(env, hop, t0, lo, hi, fl, min_len=0.12, margin=7.0):
             i = j
         else: i += 1
     return out
-def refine_start(t):
+def _dip(env, hop, t0, t, fl, r=0.22):
+    """no pause (>= 120 ms) nearby = continuous speech: slide to the quietest 30 ms frame within +-r s if that is a real dip between two words (>= 12 dB below the level at t and close to the noise floor), else keep t. Cutting on a dip never splits a word."""
+    import numpy as _np
+    k = max(1, int(round(0.03 / hop))); sm = _np.convolve(env, _np.ones(k) / k, mode="same"); i = int(round((t - t0) / hop)); i0 = max(0, i - int(r / hop)); i1 = min(len(sm) - 1, i + int(r / hop))
+    if i1 <= i0 or not (0 <= i < len(sm)): return t
+    here = float(sm[i]); j = i0 + int(_np.argmin(sm[i0:i1 + 1]))
+    return t0 + j * hop if here > fl + 10 and sm[j] <= here - 12 and sm[j] <= fl + 16 else t
+def refine_start(t, back=2.0):
     env, hop, t0 = _edge_env(t - 2.5, t + 2.5)
     if env is None: return t
-    import numpy as _np; fl = float(_np.percentile(env, 10)); gs = _gaps_env(env, hop, t0, t - 2.0, t + 0.9, fl)
-    if not gs: print(f"edge start {t:.1f}: no pause found nearby, kept", flush=True); return t
+    import numpy as _np; fl = float(_np.percentile(env, 10)); gs = _gaps_env(env, hop, t0, t - back, t + 0.9, fl)
+    if not gs:
+        n_ = _dip(env, hop, t0, t, fl); print(f"edge start {t:.2f}: no pause found nearby, " + (f"moved to the quietest dip {n_:.2f}" if n_ != t else "kept"), flush=True); return n_
     a_, b_ = min(gs, key=lambda g: abs(g[1] - t)); n_ = min(max(b_ - 0.15, a_ + 0.03), b_ - 0.03)   # cut 150 ms before speech resumes, inside the pause
     print(f"edge start {t:.2f} -> {n_:.2f} (pause {a_:.2f}-{b_:.2f})", flush=True); return n_
-def refine_end(t):
+def refine_end(t, fwd=1.2):
     env, hop, t0 = _edge_env(t - 2.0, t + 1.5)
     if env is None: return t
-    import numpy as _np; fl = float(_np.percentile(env, 10)); gs = _gaps_env(env, hop, t0, t - 0.6, t + 1.2, fl)
-    if not gs: print(f"edge end {t:.1f}: no pause found nearby, kept", flush=True); return t
+    import numpy as _np; fl = float(_np.percentile(env, 10)); gs = _gaps_env(env, hop, t0, t - 0.6, t + fwd, fl)
+    if not gs:
+        n_ = _dip(env, hop, t0, t, fl); print(f"edge end {t:.2f}: no pause found nearby, " + (f"moved to the quietest dip {n_:.2f}" if n_ != t else "kept"), flush=True); return n_
     a_, b_ = min(gs, key=lambda g: abs(g[0] - t)); n_ = min(a_ + 0.30, b_ - 0.05)   # 300 ms after the last sound, inside the pause
     print(f"edge end {t:.2f} -> {n_:.2f} (pause {a_:.2f}-{b_:.2f})", flush=True); return n_
 try:
@@ -108,6 +118,21 @@ try:
         if _ns < _p0[0][1] - 5: _p0[0][0] = round(_ns, 3)
         if _ne > _pl[-1][0] + 5: _pl[-1][1] = round(_ne, 3)
 except Exception as _e: print("edge refinement skipped:", _e, flush=True)
+def refine_internal():
+    """every other cut point (between kept ranges, e.g. a dry part or a donation reading removed): move it into the nearest real pause (max 1.0 s away) so no cut lands inside a word. Skipped with `"no_edge_snap": true`."""
+    rs = [r for p_ in C["pieces"] for r in p_["keep"]]; moved = 0
+    for i, r in enumerate(rs):
+        lo_prev = rs[i - 1][1] + 0.05 if i else -1e9; hi_next = rs[i + 1][0] - 0.05 if i + 1 < len(rs) else 1e9
+        if i > 0:   # start of a range that follows another range
+            ns = refine_start(r[0], back=1.0)
+            if abs(ns - r[0]) <= 1.0 and ns >= lo_prev and ns < r[1] - 2.0 and ns != r[0]: moved += 1; r[0] = round(ns, 3)
+        if i + 1 < len(rs):   # end of a range that is followed by another range
+            ne = refine_end(r[1], fwd=1.0)
+            if abs(ne - r[1]) <= 1.0 and ne <= hi_next and ne > r[0] + 2.0 and ne != r[1]: moved += 1; r[1] = round(ne, 3)
+    print(f"internal cut points refined: {moved} of {max(0, 2 * len(rs) - 2)}", flush=True)
+try:
+    if C.get("pieces") and not C.get("no_edge_snap") and not C.get("no_internal_snap"): refine_internal()
+except Exception as _e: print("internal refinement skipped:", _e, flush=True)
 all_keep = [r for p_ in C["pieces"] for r in p_["keep"]]; before = sum(b - a for a, b in all_keep)
 for thr_s in (*(C.get("silence") or [6, 10, 18]), None):   # games / reactions: only very long silences (>= 25 s), continuous video
     if thr_s is None: print("silence trimming skipped (clip would become too short)"); break
