@@ -149,7 +149,7 @@ def run_media(dirp, items, store, asr):
         t = time.time()
         try: g = eval_media(mp4, it["meta"], it["group"], asr)
         except Exception as e: print("media eval failed", name, str(e)[:150]); continue
-        store[name if name != "final" else os.path.basename(os.path.dirname(mp4))] = {"kind": it["group"], "fail": g["fail"], "warn": g["warn"], "score": g["score"], "audio": g["metrics"].get("audio"), "captions": g["metrics"].get("captions"), "title": it["meta"].get("title")}
+        store[name if name != "final" else os.path.basename(os.path.dirname(mp4))] = {"ver": 2, "kind": it["group"], "fail": g["fail"], "warn": g["warn"], "score": g["score"], "audio": g["metrics"].get("audio"), "captions": g["metrics"].get("captions"), "title": it["meta"].get("title")}
         print(f"MEDIA {name}: score {g['score']} fail {g['fail']} warn {len(g['warn'])} ({time.time() - t:.0f}s)", flush=True)
 # ----------------------------------------------------------------------------- report
 def pct(n, d): return f"{n}/{d} ({100 * n // d}%)" if d else "n/a"
@@ -202,12 +202,21 @@ def report(items, dups, media, path):
         if i["res"]["pen"]: L.append(f"| `{i['id']}` | {i['res']['pen']} | {'; '.join(i['res']['flags'])[:260]} |")
     L += ["", "## 5. How to read this", "", "- 'cuts through a sentence' = the cut point lies more than 0.3 s (0.6 s for rounded data) inside a Whisper segment; Whisper segments are sentence-like, so this is the objective proxy for 'starts/ends mid-sentence'.",
           "- Title truth is a heuristic: content words are matched by stem, names/numbers fuzzy (difflib >= 0.8); paraphrases of the LLM ('struggles', 'frustration') count as unsupported words, so only names, numbers and quotes block a draft (`cutqa.grade`).", "- Media numbers: dead air = time before/after the first/last sound (above the lower of floor+12 dB and speech-12 dB); abrupt end = the 150 ms before the last 70 ms are within 9 dB of the speech level (cut while loud); LUFS targets: Shorts -14 +-2, long -16 +-5 (no loudnorm is applied to long videos).", ""]
+    L += ["## 6. What was changed because of these numbers (17 Nov)", "",
+          "- **Mid-sentence starts/ends (Shorts, long, audience clips)**: `cutsnap.align_span` / `sentence_start_near` / `sentence_end_near` move the LLM seconds to a sentence start (setup kept, <= 5 s back) and to the end of the sentence that holds the punchline (pause >= 0.45 s, phrase level 0.30 s for fast talkers), pulling the end back / extending it so 20-56 s still fit. Long videos get 12 s of ASR pre-roll context so the first sentence of the window is recognised, and the end backs up to the last COMPLETE sentence when the transcript stops at the window end.",
+          "- **Chapters**: the LLM now picks transcript LINE NUMBERS (not seconds), the time is the real line start moved to the nearest sentence start, chapters whose title has no support in the transcript there are dropped, minimum spacing 25 s, displayed 0-1 s before the sentence (never after).",
+          "- **Duplicates**: `vod_shorts` refuses a Short overlapping >= 30% an earlier Short of the same VOD (state/<slug>/shorts/*.json), `vod_long` refuses a window overlapping >= 50% an earlier long video (`ALLOW_DUP=1` overrides).",
+          "- **Title truth**: every title is checked against the transcript of the finished clip (names, numbers, quotes; the stream title counts as a source of names); one LLM rewrite with the unsupported parts named; still unsupported -> `qa_fail`.",
+          "- **Hebrew build_clip**: every internal cut point (not only the first/last) is moved into a real pause (<= 1 s), or onto the quietest inter-word dip in continuous speech.",
+          "- **Audience clips**: dead air before the first / after the last word is trimmed; Shorts audio gets a 30 ms fade-in and 120 ms fade-out (no click when a cut lands in a loud tail).",
+          "- **Gate**: `qa_clip.py` / `cutqa.grade` write `qa` + `qa_fail` into the draft json; `upload_shorts.py` skips `qa_fail` drafts (`QA_OVERRIDE=1` uploads anyway).", "",
+          "Not verifiable from the repo data: how many starts/ends of the already rendered English videos cut a WORD (needs the media or the new `.words.json` sidecars: run the eval-cuts workflow with `asr=true`).", ""]
     os.makedirs(os.path.dirname(path), exist_ok=True); open(path, "w", encoding="utf-8").write("\n".join(L))
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--media"); ap.add_argument("--asr", action="store_true"); ap.add_argument("--media-json", default=os.path.join(ROOT, "state", "eval_media.json")); ap.add_argument("--report", default=os.path.join(ROOT, "docs", "QUALITY_REPORT.md")); ap.add_argument("--no-report", action="store_true"); a = ap.parse_args()
     items = collect()
     for it in items: check_item(it)
-    dups = duplicates(items); media = jl(a.media_json) or {}
+    dups = duplicates(items); media = {k: v for k, v in (jl(a.media_json) or {}).items() if v.get("ver") == 2}   # entries of the first metric version (before the speech-relative dead-air/abrupt-end rules) are dropped
     if a.media: run_media(a.media, items, media, a.asr); json.dump(media, open(a.media_json, "w"), indent=1, ensure_ascii=False)
     summ = {"items": len(items), "duplicates": dups, "flags": {i["id"]: i["res"]["flags"] for i in items if i["res"]["flags"]}}
     json.dump(summ, open(os.path.join(ROOT, "state", "eval_cuts.json"), "w"), indent=1, ensure_ascii=False)
