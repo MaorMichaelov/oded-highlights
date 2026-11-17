@@ -1,0 +1,33 @@
+name: yt-whoami
+# Verifies which YouTube channel a set of secrets uploads to (prints only the channel title/id/subscribers, never a secret).
+on:
+  workflow_dispatch:
+    inputs:
+      which: { description: "main (ODED HIGHLIGHTS) or en (WORLD CLIPS)", required: false, default: "en" }
+permissions: { contents: read }
+jobs:
+  who:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Who
+        env:
+          WHICH: ${{ inputs.which }}
+          MAIN_RT: ${{ secrets.YT_REFRESH_TOKEN }}
+          MAIN_ID: ${{ secrets.YT_CLIENT_ID }}
+          MAIN_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          EN_RT: ${{ secrets.YT2_REFRESH_TOKEN }}
+          EN_ID: ${{ secrets.YT2_CLIENT_ID }}
+          EN_SECRET: ${{ secrets.YT2_CLIENT_SECRET }}
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess, urllib.parse
+          w = os.environ["WHICH"]; rt, cid, cs = (os.environ["EN_RT"], os.environ["EN_ID"], os.environ["EN_SECRET"]) if w == "en" else (os.environ["MAIN_RT"], os.environ["MAIN_ID"], os.environ["MAIN_SECRET"])
+          if not (rt and cid and cs): print("WHOAMI| missing secrets for", w, "(need refresh token, client id, client secret)"); raise SystemExit(1)
+          r = subprocess.run(["curl", "-sS", "-X", "POST", "https://oauth2.googleapis.com/token", "-d", "grant_type=refresh_token", "--data-urlencode", "refresh_token=" + rt, "-d", "client_id=" + cid, "-d", "client_secret=" + cs], capture_output=True, text=True)
+          tok = json.loads(r.stdout)
+          if "access_token" not in tok: print("WHOAMI| token error:", tok.get("error"), tok.get("error_description")); raise SystemExit(1)
+          c = subprocess.run(["curl", "-sS", "https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&mine=true", "-H", "Authorization: Bearer " + tok["access_token"]], capture_output=True, text=True)
+          for it in json.loads(c.stdout).get("items", []): print("WHOAMI|", w, "->", it["snippet"]["title"], "| id", it["id"], "| subscribers", it["statistics"].get("subscriberCount"), "| videos", it["statistics"].get("videoCount"))
+          print("WHOAMI| scopes:", tok.get("scope"))
+          PY
