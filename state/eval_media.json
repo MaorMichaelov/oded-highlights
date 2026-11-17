@@ -1,0 +1,612 @@
+{
+ "long_137878318_4199": {
+  "kind": "en-long",
+  "fail": [],
+  "warn": [
+   "true peak 0.7 dBFS (clipping)",
+   "first word starts at 0.00s (probably clipped: 'It's')"
+  ],
+  "score": 94,
+  "audio": {
+   "duration_s": 1199.52,
+   "floor_db": -25.0,
+   "lead_silence_s": 0.09,
+   "trail_silence_s": 0.14,
+   "tail_rms_db": -14.4,
+   "tail_over_floor": 10.5,
+   "head_over_floor": 8.4,
+   "speech_db": -13.2,
+   "lufs": -14.0,
+   "tp": 0.7,
+   "sync": {
+    "v_dur": 1199.5,
+    "a_dur": 1199.5,
+    "dur_diff_s": 0.0,
+    "start_diff_s": 0.016,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.0,
+   "asr_last_gap_s": 0.76,
+   "asr_first_word": "It's",
+   "asr_last_word": "in"
+  },
+  "captions": null,
+  "title": "N3on at TwitchCon: Food, Friends, and a Live Chat Party"
+ },
+ "clip_clip_01M6MYY9N6XKSPYETSN4BDJPCS": {
+  "kind": "en-clip",
+  "fail": [
+   "trailing dead air 5.19s"
+  ],
+  "warn": [
+   "leading dead air 0.78s",
+   "first word starts at 0.00s (probably clipped: 'Look,')",
+   "last word ends -0.28s before the end (probably clipped: 'legend.')"
+  ],
+  "score": 69,
+  "audio": {
+   "duration_s": 58.03,
+   "floor_db": -25.5,
+   "lead_silence_s": 0.78,
+   "trail_silence_s": 5.19,
+   "tail_rms_db": -17.0,
+   "tail_over_floor": 8.5,
+   "head_over_floor": 9.2,
+   "speech_db": -13.6,
+   "lufs": -13.9,
+   "tp": -1.5,
+   "sync": {
+    "v_dur": 58.033333,
+    "a_dur": 58.027,
+    "dur_diff_s": 0.006,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.0,
+   "asr_last_gap_s": -0.28,
+   "asr_first_word": "Look,",
+   "asr_last_word": "legend."
+  },
+  "captions": null,
+  "title": "N3on Asked for Natalie Nunn’s Number – He Should Have It! #Shorts"
+ },
+ "clip_clip_01M6N0YAEFX3DHQ1SQ6JE3YS8G": {
+  "kind": "en-clip",
+  "fail": [
+   "leading dead air 21.69s",
+   "trailing dead air 6.63s"
+  ],
+  "warn": [
+   "first word starts at 0.00s (probably clipped: 'I')"
+  ],
+  "score": 50,
+  "audio": {
+   "duration_s": 32.02,
+   "floor_db": -23.7,
+   "lead_silence_s": 21.69,
+   "trail_silence_s": 6.63,
+   "tail_rms_db": -16.0,
+   "tail_over_floor": 7.8,
+   "head_over_floor": 6.7,
+   "speech_db": -13.8,
+   "lufs": -14.3,
+   "tp": -1.5,
+   "sync": {
+    "v_dur": 32.0,
+    "a_dur": 32.015,
+    "dur_diff_s": 0.015,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.0,
+   "asr_last_gap_s": 0.82,
+   "asr_first_word": "I",
+   "asr_last_word": "seat."
+  },
+  "captions": null,
+  "title": "N3on Rizzing Shorty Up at Yeezy Fashion Show! #Shorts"
+ },
+ "clip_clip_01M71C357A8S60K1DV2PMG9JW3": {
+  "kind": "en-clip",
+  "fail": [],
+  "warn": [
+   "audio ends abruptly (last 200 ms is 27 dB over the floor)"
+  ],
+  "score": 94,
+  "audio": {
+   "duration_s": 30.27,
+   "floor_db": -48.3,
+   "lead_silence_s": 0.13,
+   "trail_silence_s": 0.0,
+   "tail_rms_db": -21.3,
+   "tail_over_floor": 27.0,
+   "head_over_floor": 11.6,
+   "speech_db": -14.9,
+   "lufs": -15.3,
+   "tp": -1.4,
+   "sync": {
+    "v_dur": 30.266667,
+    "a_dur": 30.274,
+    "dur_diff_s": 0.007,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.28,
+   "asr_last_gap_s": 1.16,
+   "asr_first_word": "This,",
+   "asr_last_word": "here."
+  },
+  "captions": null,
+  "title": "N3on Explains Game Rules to Team! #Shorts"
+ },
+ "clip_clip_01M73ZFJXGNZJCKBXHKXD3RX1G": {
+  "kind": "en-clip",
+  "fail": [],
+  "warn": [
+   "first word starts at 0.00s (probably clipped: 'Just')"
+  ],
+  "score": 100,
+  "audio": {
+   "duration_s": 32.0,
+   "floor_db": -36.4,
+   "lead_silence_s": 0.01,
+   "trail_silence_s": 0.0,
+   "tail_rms_db": -17.1,
+   "tail_over_floor": 19.3,
+   "head_over_floor": 19.5,
+   "speech_db": -13.7,
+   "lufs": -14.6,
+   "tp": -1.4,
+   "sync": {
+    "v_dur": 32.0,
+    "a_dur": 32.003,
+    "dur_diff_s": 0.003,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.0,
+   "asr_last_gap_s": 1.82,
+   "asr_first_word": "Just",
+   "asr_last_word": "doctor?"
+  },
+  "captions": null,
+  "title": "N3on Goes LMFAO in Unexpected Rescue Moment! #Shorts"
+ },
+ "clip_clip_01M7923FBRKBE603RXD95PVVDP": {
+  "kind": "en-clip",
+  "fail": [],
+  "warn": [
+   "first word starts at 0.00s (probably clipped: 'Four')"
+  ],
+  "score": 100,
+  "audio": {
+   "duration_s": 30.02,
+   "floor_db": -33.8,
+   "lead_silence_s": 0.02,
+   "trail_silence_s": 0.0,
+   "tail_rms_db": -16.0,
+   "tail_over_floor": 17.7,
+   "head_over_floor": 13.0,
+   "speech_db": -12.8,
+   "lufs": -14.3,
+   "tp": -1.4,
+   "sync": {
+    "v_dur": 30.0,
+    "a_dur": 30.015,
+    "dur_diff_s": 0.015,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.0,
+   "asr_last_gap_s": 0.36,
+   "asr_first_word": "Four",
+   "asr_last_word": "real."
+  },
+  "captions": null,
+  "title": "N3on Talks Wholesome Women & Generational Sigh! #Shorts"
+ },
+ "clip_clip_01M7933PZ63Y8M4XEH1Q9XDY8Q": {
+  "kind": "en-clip",
+  "fail": [],
+  "warn": [
+   "first word starts at 0.00s (probably clipped: 'Okay,')"
+  ],
+  "score": 100,
+  "audio": {
+   "duration_s": 38.03,
+   "floor_db": -31.8,
+   "lead_silence_s": 0.03,
+   "trail_silence_s": 0.45,
+   "tail_rms_db": -21.6,
+   "tail_over_floor": 10.2,
+   "head_over_floor": 19.1,
+   "speech_db": -12.6,
+   "lufs": -13.6,
+   "tp": -1.5,
+   "sync": {
+    "v_dur": 38.033333,
+    "a_dur": 38.022,
+    "dur_diff_s": 0.011,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.0,
+   "asr_last_gap_s": 0.42,
+   "asr_first_word": "Okay,",
+   "asr_last_word": "doing?"
+  },
+  "captions": null,
+  "title": "N3on Reacts to 520 Views: Is That Eye Bug Real? #Shorts"
+ },
+ "clip_clip_01M797X7S9109T2M6CP44Z5878": {
+  "kind": "en-clip",
+  "fail": [],
+  "warn": [],
+  "score": 100,
+  "audio": {
+   "duration_s": 42.02,
+   "floor_db": -30.5,
+   "lead_silence_s": 0.45,
+   "trail_silence_s": 0.0,
+   "tail_rms_db": -12.4,
+   "tail_over_floor": 18.2,
+   "head_over_floor": 13.4,
+   "speech_db": -12.8,
+   "lufs": -14.2,
+   "tp": -1.5,
+   "sync": {
+    "v_dur": 42.0,
+    "a_dur": 42.024,
+    "dur_diff_s": 0.024,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.42,
+   "asr_last_gap_s": 0.98,
+   "asr_first_word": "Based",
+   "asr_last_word": "now."
+  },
+  "captions": null,
+  "title": "Got 24? 25? Age Guessing with N3on! #Shorts"
+ },
+ "clip_clip_01M7K8P71FX1EZFV1GXA2TGCSM": {
+  "kind": "en-clip",
+  "fail": [],
+  "warn": [
+   "first word starts at 0.00s (probably clipped: 'I'm')",
+   "last word ends -0.24s before the end (probably clipped: 'guy?')"
+  ],
+  "score": 100,
+  "audio": {
+   "duration_s": 36.02,
+   "floor_db": -27.3,
+   "lead_silence_s": 0.15,
+   "trail_silence_s": 0.02,
+   "tail_rms_db": -12.8,
+   "tail_over_floor": 14.5,
+   "head_over_floor": 11.1,
+   "speech_db": -12.4,
+   "lufs": -14.1,
+   "tp": -1.5,
+   "sync": {
+    "v_dur": 36.0,
+    "a_dur": 36.019,
+    "dur_diff_s": 0.019,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.0,
+   "asr_last_gap_s": -0.24,
+   "asr_first_word": "I'm",
+   "asr_last_word": "guy?"
+  },
+  "captions": null,
+  "title": "N3on Shares a Mint and a Laugh! #Shorts"
+ },
+ "clip_1151833871": {
+  "kind": "en-clip",
+  "fail": [
+   "leading dead air 3.59s",
+   "trailing dead air 25.23s"
+  ],
+  "warn": [
+   "first word starts at 0.00s (probably clipped: 'I'll')"
+  ],
+  "score": 50,
+  "audio": {
+   "duration_s": 30.02,
+   "floor_db": -22.4,
+   "lead_silence_s": 3.59,
+   "trail_silence_s": 25.23,
+   "tail_rms_db": -13.3,
+   "tail_over_floor": 9.0,
+   "head_over_floor": 9.4,
+   "speech_db": -11.3,
+   "lufs": -13.5,
+   "tp": -4.5,
+   "sync": {
+    "v_dur": 30.0,
+    "a_dur": 30.016,
+    "dur_diff_s": 0.016,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.0,
+   "asr_last_gap_s": 7.08,
+   "asr_first_word": "I'll",
+   "asr_last_word": "Bye."
+  },
+  "captions": null,
+  "title": "Kai Cenat’s WWW Marathon Shoutout! #Shorts"
+ },
+ "clip_1186821982": {
+  "kind": "en-clip",
+  "fail": [],
+  "warn": [
+   "audio ends abruptly (last 200 ms is 51 dB over the floor)",
+   "clip starts inside a loud sound (38 dB over the floor)",
+   "first word starts at 0.00s (probably clipped: 'I'll')"
+  ],
+  "score": 88,
+  "audio": {
+   "duration_s": 45.01,
+   "floor_db": -61.5,
+   "lead_silence_s": 0.0,
+   "trail_silence_s": 0.0,
+   "tail_rms_db": -10.7,
+   "tail_over_floor": 50.8,
+   "head_over_floor": 37.9,
+   "speech_db": -14.6,
+   "lufs": -13.9,
+   "tp": -1.4,
+   "sync": {
+    "v_dur": 45.0,
+    "a_dur": 45.013,
+    "dur_diff_s": 0.013,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.0,
+   "asr_last_gap_s": 2.7,
+   "asr_first_word": "I'll",
+   "asr_last_word": "gosh."
+  },
+  "captions": null,
+  "title": "Kai Cenat Returns to Game with Real‑Life GTA Characters! #Shorts"
+ },
+ "clip_2620336392": {
+  "kind": "en-clip",
+  "fail": [
+   "trailing dead air 8.94s"
+  ],
+  "warn": [
+   "first word starts at 0.00s (probably clipped: 'Thank')"
+  ],
+  "score": 75,
+  "audio": {
+   "duration_s": 43.7,
+   "floor_db": -26.7,
+   "lead_silence_s": 0.01,
+   "trail_silence_s": 8.94,
+   "tail_rms_db": -31.6,
+   "tail_over_floor": -5.0,
+   "head_over_floor": 13.7,
+   "speech_db": -12.8,
+   "lufs": -13.6,
+   "tp": -0.1,
+   "sync": {
+    "v_dur": 43.7,
+    "a_dur": 43.7,
+    "dur_diff_s": 0.0,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.0,
+   "asr_last_gap_s": null,
+   "asr_first_word": "Thank",
+   "asr_last_word": null
+  },
+  "captions": null,
+  "title": "Kai Cenat on Debonaire: Make It Boom! #Shorts"
+ },
+ "clip_3072538859": {
+  "kind": "en-clip",
+  "fail": [],
+  "warn": [
+   "trailing dead air 1.01s"
+  ],
+  "score": 94,
+  "audio": {
+   "duration_s": 30.02,
+   "floor_db": -28.7,
+   "lead_silence_s": 0.36,
+   "trail_silence_s": 1.01,
+   "tail_rms_db": -21.8,
+   "tail_over_floor": 7.0,
+   "head_over_floor": 10.4,
+   "speech_db": -12.5,
+   "lufs": -12.6,
+   "tp": -1.1,
+   "sync": {
+    "v_dur": 30.0,
+    "a_dur": 30.016,
+    "dur_diff_s": 0.016,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 2.74,
+   "asr_last_gap_s": 1.86,
+   "asr_first_word": "Tell",
+   "asr_last_word": "dude."
+  },
+  "captions": null,
+  "title": "Kai Cenat Says ‘My Child’ During GG Marathon! #Shorts"
+ },
+ "clip_310511044": {
+  "kind": "en-clip",
+  "fail": [
+   "trailing dead air 4.08s"
+  ],
+  "warn": [],
+  "score": 75,
+  "audio": {
+   "duration_s": 15.91,
+   "floor_db": -38.2,
+   "lead_silence_s": 0.66,
+   "trail_silence_s": 4.08,
+   "tail_rms_db": -33.7,
+   "tail_over_floor": 4.5,
+   "head_over_floor": 14.6,
+   "speech_db": -15.2,
+   "lufs": -15.0,
+   "tp": -3.3,
+   "sync": {
+    "v_dur": 15.9,
+    "a_dur": 15.914,
+    "dur_diff_s": 0.014,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 2.6,
+   "asr_last_gap_s": null,
+   "asr_first_word": "it's",
+   "asr_last_word": null
+  },
+  "captions": null,
+  "title": "Kai Cenat calls you fake! #Shorts"
+ },
+ "clip_3139262886": {
+  "kind": "en-clip",
+  "fail": [],
+  "warn": [
+   "audio ends abruptly (last 200 ms is 31 dB over the floor)"
+  ],
+  "score": 94,
+  "audio": {
+   "duration_s": 10.8,
+   "floor_db": -41.4,
+   "lead_silence_s": 0.19,
+   "trail_silence_s": 0.0,
+   "tail_rms_db": -10.1,
+   "tail_over_floor": 31.3,
+   "head_over_floor": 7.1,
+   "speech_db": -15.4,
+   "lufs": -14.9,
+   "tp": -1.4,
+   "sync": {
+    "v_dur": 10.8,
+    "a_dur": 10.8,
+    "dur_diff_s": 0.0,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": null,
+   "asr_last_gap_s": null,
+   "asr_first_word": null,
+   "asr_last_word": null
+  },
+  "captions": null,
+  "title": "Funny GTA 5 Moment with Kai Cenat! #Shorts"
+ },
+ "clip_472259532": {
+  "kind": "en-clip",
+  "fail": [],
+  "warn": [
+   "audio ends abruptly (last 200 ms is 29 dB over the floor)"
+  ],
+  "score": 94,
+  "audio": {
+   "duration_s": 60.03,
+   "floor_db": -45.8,
+   "lead_silence_s": 0.36,
+   "trail_silence_s": 0.0,
+   "tail_rms_db": -16.6,
+   "tail_over_floor": 29.2,
+   "head_over_floor": 9.0,
+   "speech_db": -14.3,
+   "lufs": -14.2,
+   "tp": -1.5,
+   "sync": {
+    "v_dur": 60.033333,
+    "a_dur": 60.033,
+    "dur_diff_s": 0.0,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": null,
+   "asr_last_gap_s": null,
+   "asr_first_word": null,
+   "asr_last_word": null
+  },
+  "captions": null,
+  "title": "Kai Cenat's GTA Recap: Heist Chaos & Family Drama! #Shorts"
+ },
+ "clip_723617784": {
+  "kind": "en-clip",
+  "fail": [],
+  "warn": [
+   "clip starts inside a loud sound (45 dB over the floor)",
+   "hype word: Surprise"
+  ],
+  "score": 88,
+  "audio": {
+   "duration_s": 30.02,
+   "floor_db": -67.7,
+   "lead_silence_s": 0.0,
+   "trail_silence_s": 0.02,
+   "tail_rms_db": -47.0,
+   "tail_over_floor": 20.7,
+   "head_over_floor": 45.0,
+   "speech_db": -12.7,
+   "lufs": -13.7,
+   "tp": -3.9,
+   "sync": {
+    "v_dur": 30.0,
+    "a_dur": 30.016,
+    "dur_diff_s": 0.016,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": null,
+   "asr_last_gap_s": null,
+   "asr_first_word": null,
+   "asr_last_word": null
+  },
+  "captions": null,
+  "title": "Kai Cenat Turns into Dog! Watch the Surprise! #Shorts"
+ }
+}
