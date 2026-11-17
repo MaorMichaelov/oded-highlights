@@ -1,0 +1,17 @@
+{
+ "errors": [],
+ "warnings": [
+  "1 silence(s) >= 8 s (max 17s)"
+ ],
+ "info": {
+  "width": 1920,
+  "height": 1080,
+  "fps": 60.0,
+  "mbps": 12.4,
+  "duration": 630.1,
+  "planned_body": 619.0,
+  "expected": 630.1,
+  "lufs": -16.5,
+  "source": "1920,1080,60/1\n\n1920,1080,60/1"
+ }
+}

@@ -268,10 +268,15 @@
    "who": "עודד, דן, צ׳אט, אשתו (מופיעה בקול רק)",
    "peak": "01:19"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/KoW__5Y-ZIo",
+  "draft_at": "2026-11-17T06:08:57Z",
+  "quality_errors": [],
   "auto": true
  },
  {
