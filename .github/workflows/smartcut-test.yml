@@ -21,3 +21,12 @@ jobs:
           for f in state/clips/${{ inputs.clip_id }}/work/parts/*.mp4 state/clips/${{ inputs.clip_id }}/work/body.mp4; do
             echo "== $f"; ffprobe -v error -show_entries stream=codec_type,start_time,duration:format=duration,start_time -of compact "$f"
           done
+      - name: Split like render_clip (copy at keyframes) and re-join
+        run: |
+          W=state/clips/${{ inputs.clip_id }}/work; mkdir -p $W/split
+          ffmpeg -hide_banner -loglevel error -y -i $W/body.mp4 -c copy -f segment -segment_times 30 -reset_timestamps 1 $W/split/s%d.mp4
+          for f in $W/split/s*.mp4; do echo "== $f"; ffprobe -v error -show_entries stream=codec_type,start_time,duration:format=duration,start_time -of compact "$f"; done
+          printf "file '$PWD/$W/split/s0.mp4'\nfile '$PWD/$W/split/s1.mp4'\n" > $W/join.txt
+          ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i $W/join.txt -c copy $W/joined.mp4
+          echo "== joined"; ffprobe -v error -show_entries stream=codec_type,start_time,duration:format=duration -of compact $W/joined.mp4
+          echo "== keyframes of body (first 12)"; ffprobe -v error -select_streams v:0 -skip_frame nokey -show_entries frame=pts_time -of csv=p=0 $W/body.mp4 | head -12
