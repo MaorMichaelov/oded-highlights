@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-17T20:16:52Z",
+ "generated": "2026-11-17T20:46:57Z",
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -9,16 +9,16 @@
  "totals": {
   "videos_total": 29,
   "videos_public": 13,
-  "views": 19914,
-  "likes": 185,
-  "est_hours_low": 996.7,
-  "est_hours_high": 2325.8
+  "views": 19932,
+  "likes": 186,
+  "est_hours_low": 997.3,
+  "est_hours_high": 2327.4
  },
  "by_kind": {
   "other": {
    "n": 11,
-   "views": 19800,
-   "est_hours_mid": 1656.2
+   "views": 19818,
+   "est_hours_mid": 1657.2
   },
   "reaction": {
    "n": 1,
@@ -59,7 +59,7 @@
     0.2,
     0.6
    ],
-   "views_per_day": 61.4,
+   "views_per_day": 46.5,
    "kind": "other"
   },
   {
@@ -75,7 +75,7 @@
     9.5,
     22.1
    ],
-   "views_per_day": 98.0,
+   "views_per_day": 93.5,
    "kind": "other"
   },
   {
@@ -283,7 +283,7 @@
     27.0,
     63.1
    ],
-   "views_per_day": 529.8,
+   "views_per_day": 524.7,
    "kind": "other"
   },
   {
@@ -347,7 +347,7 @@
     1.5,
     3.6
    ],
-   "views_per_day": 16.5,
+   "views_per_day": 16.4,
    "kind": "other"
   },
   {
@@ -363,7 +363,7 @@
     131.9,
     307.8
    ],
-   "views_per_day": 621.3,
+   "views_per_day": 618.4,
    "kind": "other"
   },
   {
@@ -379,7 +379,7 @@
     229.2,
     534.8
    ],
-   "views_per_day": 1184.8,
+   "views_per_day": 1179.3,
    "kind": "other"
   },
   {
@@ -395,7 +395,7 @@
     58.4,
     136.3
    ],
-   "views_per_day": 269.1,
+   "views_per_day": 267.9,
    "kind": "other"
   },
   {
@@ -411,7 +411,7 @@
     5.1,
     12.0
    ],
-   "views_per_day": 10.7,
+   "views_per_day": 10.6,
    "kind": "other"
   },
   {
@@ -427,7 +427,7 @@
     351.6,
     820.4
    ],
-   "views_per_day": 904.4,
+   "views_per_day": 900.9,
    "kind": "other"
   },
   {
@@ -443,7 +443,7 @@
     3.1,
     7.2
    ],
-   "views_per_day": 21.4,
+   "views_per_day": 21.3,
    "kind": "reaction"
   },
   {
@@ -452,14 +452,14 @@
    "published": "2026-11-12",
    "privacy": "public",
    "duration_min": 11.4,
-   "views": 5369,
-   "likes": 49,
+   "views": 5387,
+   "likes": 50,
    "comments": 4,
    "est_hours": [
-    195.6,
-    456.3
+    196.2,
+    457.9
    ],
-   "views_per_day": 1007.8,
+   "views_per_day": 1007.2,
    "kind": "other"
   },
   {
@@ -475,7 +475,7 @@
     8.5,
     19.9
    ],
-   "views_per_day": 31.0,
+   "views_per_day": 30.9,
    "kind": "other"
   },
   {
@@ -491,7 +491,7 @@
     2.1,
     4.8
    ],
-   "views_per_day": 7.7,
+   "views_per_day": 7.6,
    "kind": "other"
   },
   {
