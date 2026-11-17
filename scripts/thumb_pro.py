@@ -30,6 +30,26 @@ def score(f):
     hsv = np.asarray(sm.convert("HSV"), dtype=np.float32); sat = hsv[..., 1].mean(); val = hsv[..., 2].mean()
     exposure = 1 - abs(val - 125) / 125
     return float(lap) ** 0.5 * 2 + sat * 0.4 + exposure * 30
+_FD = None
+def faces(f):
+    """YuNet face detector (assets/models, fetched by the fetch-fonts workflow): returns [(score, x, y, w, h)] in the pixel space of the frame."""
+    global _FD
+    m = os.path.join(ROOT, "assets/models/face_detection_yunet_2023mar.onnx")
+    if not os.path.exists(m) or os.path.getsize(m) < 10000: return []
+    try:
+        import cv2
+        im = cv2.imread(f)
+        if im is None: return []
+        if _FD is None: _FD = cv2.FaceDetectorYN.create(m, "", (im.shape[1], im.shape[0]), 0.7, 0.3, 50)
+        _FD.setInputSize((im.shape[1], im.shape[0])); _, r = _FD.detect(im)
+        return [] if r is None else [(float(x[14]), float(x[0]), float(x[1]), float(x[2]), float(x[3])) for x in r]
+    except Exception as e: print("face detect error:", str(e)[:120]); return []
+def face_score(f):
+    """big, confident, well-lit face (the largest face counts; tiny facecam faces are worth little)"""
+    fs = faces(f); 
+    if not fs: return 0, None
+    im = Image.open(f); iw, ih = im.size; c, x, y, w, h = max(fs, key=lambda r: r[3] * r[4]); area = (w * h) / (iw * ih)
+    return c * min(area * 40, 6) , [y / ih * 1000, x / iw * 1000, (y + h) / ih * 1000, (x + w) / iw * 1000]
 def gemini_pick(cands, hint):
     keys = [os.environ[k] for k in ["GEMINI_API_KEY"] + [f"GEMINI_API_KEY_{i}" for i in range(2, 8)] if os.environ.get(k)]
     if not keys: return None
@@ -74,10 +94,11 @@ def hexrgb(h): h = h.lstrip("#"); return tuple(int(h[i:i + 2], 16) for i in (0, 
 def build(video, out, text, accent, logo, nframes, hint):
     d = tempfile.mkdtemp(); fr = extract(video, nframes, d)
     if not fr: print("no frames"); return 1
-    ranked = sorted(fr, key=lambda x: -score(x[1]))[:6]; box = None; pick = ranked[0]
-    g = gemini_pick(ranked, hint)
-    if g: pick = ranked[max(0, min(g[0], len(ranked) - 1))]; box = g[1]
-    print("frame at", round(pick[0], 1), "s", "(gemini)" if g else "(sharpness)", "face box:", box)
+    sc = {f: score(f) for _, f in fr}; fsc = {f: face_score(f) for _, f in fr}
+    ranked = sorted(fr, key=lambda x: -(sc[x[1]] + fsc[x[1]][0] * 60))[:6]; pick = ranked[0]; box = fsc[pick[1]][1]
+    g = gemini_pick(ranked, hint) if sum(1 for _, f in ranked if fsc[f][1]) >= 2 else None        # Gemini only judges the emotion among frames that really have a face
+    if g: pick = ranked[max(0, min(g[0], len(ranked) - 1))]; box = fsc[pick[1]][1] or g[1]
+    print("frame at", round(pick[0], 1), "s", "(gemini)" if g else "(local)", "face box:", box, "faces in top6:", sum(1 for _, f in ranked if fsc[f][1]))
     im = Image.open(pick[1]).convert("RGB"); base, face = crop_to(im, box); base = grade(base)
     # soft glow behind the face area (separates subject from background)
     ov = Image.new("RGBA", (W, H), (0, 0, 0, 0))

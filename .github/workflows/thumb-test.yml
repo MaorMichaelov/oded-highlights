@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; pip install -q numpy pillow yt-dlp
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; pip install -q numpy pillow yt-dlp opencv-python-headless
       - env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_API_KEY_2: ${{ secrets.GEMINI_API_KEY_2 }}
