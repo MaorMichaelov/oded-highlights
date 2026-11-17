@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-17T01:13:44Z",
- "fetched_epoch": 1794878024.9458141,
+ "fetched_at": "2026-11-17T01:43:50Z",
+ "fetched_epoch": 1794879830.492779,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1880,
@@ -8,6 +8,16 @@
   "videos": 10
  },
  "videos": [
+  {
+   "id": "6nUNrQdln9w",
+   "title": "\"וואו אחי, אז יש לי אחד החזקים!\" – עודד משחק במים ואש עם הצ'אט!",
+   "published": "2026-11-17T00:55:03Z",
+   "privacy": "private",
+   "duration": "PT1H33M46S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
   {
    "id": "yB4uwdHmEZQ",
    "title": "\"זה הסרטון הכי פורף שלו, אני חייב להגיד!\" – עודד מתגיב לצ׳אט ומשתף חוויות!",
@@ -154,7 +164,7 @@
    "published": "2026-11-13T10:00:09Z",
    "privacy": "public",
    "duration": "PT4M43S",
-   "views": 68,
+   "views": 69,
    "likes": 3,
    "comments": 0
   },
@@ -224,7 +234,7 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 4606,
+   "views": 4791,
    "likes": 45,
    "comments": 3
   },
