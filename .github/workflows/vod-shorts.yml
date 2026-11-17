@@ -23,7 +23,7 @@ jobs:
       - name: Install
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
-          pip install -q numpy yt-dlp
+          pip install -q numpy yt-dlp faster-whisper "av==15.1.0"
           bash scripts/setup_workspace.sh
       - name: Shorts
         env:

@@ -56,9 +56,22 @@ def twitch_urls(vod_id):
     v = sh(["yt-dlp", "-g", "-f", "best", f"https://www.twitch.tv/videos/{vod_id}"]).stdout.split()
     if not a or not v: sys.exit("could not resolve Twitch playlist URLs")
     return a[0], v[0]
-def whisper(path, lang="en"):   # Groq whisper large-v3-turbo, word timestamps (free tier: 7200 audio-seconds/hour)
-    r = sh(["curl", "-sS", "-m", "300", "https://api.groq.com/openai/v1/audio/transcriptions", "-H", "Authorization: Bearer " + os.environ["GROQ_API_KEY"], "-F", f"file=@{path}", "-F", "model=whisper-large-v3-turbo"] + (["-F", "language=" + lang] if lang else []) + ["-F", "response_format=verbose_json", "-F", "timestamp_granularities[]=word"])
-    return json.loads(r.stdout).get("words", [])
+_LM = None
+def local_whisper(path, lang="en"):
+    """Fallback when the free Groq whisper quota (7200 audio-seconds/hour, 8 h/day) is used up: faster-whisper large-v3-turbo on the runner's CPU (no quota; ~0.4x realtime)."""
+    global _LM
+    from faster_whisper import WhisperModel
+    if _LM is None: _LM = WhisperModel("deepdml/faster-whisper-large-v3-turbo-ct2", device="cpu", compute_type="int8", cpu_threads=os.cpu_count() or 4)
+    segs, _ = _LM.transcribe(path, language=lang, beam_size=1, word_timestamps=True, vad_filter=True, vad_parameters={"min_silence_duration_ms": 500, "threshold": 0.35}, condition_on_previous_text=False)
+    return [{"word": w.word, "start": w.start, "end": w.end} for sg in segs for w in (sg.words or [])]
+def whisper(path, lang="en"):   # Groq whisper large-v3-turbo with word timestamps; local CPU whisper when Groq refuses
+    r = sh(["curl", "-sS", "-m", "300", "https://api.groq.com/openai/v1/audio/transcriptions", "-H", "Authorization: Bearer " + os.environ.get("GROQ_API_KEY", ""), "-F", f"file=@{path}", "-F", "model=whisper-large-v3-turbo"] + (["-F", "language=" + lang] if lang else []) + ["-F", "response_format=verbose_json", "-F", "timestamp_granularities[]=word"])
+    try: w = json.loads(r.stdout).get("words", [])
+    except Exception: w = []
+    if w: return w
+    print("groq whisper gave nothing (" + r.stdout[:90].replace("\n", " ") + ") -> local faster-whisper", flush=True)
+    try: return local_whisper(path, lang or "en")
+    except Exception as e: print("local whisper failed:", str(e)[:150]); return []
 def render2(body, s, e, ass, out, hook, peak):
     """9:16 render with the research rules: blurred fill + centred stream, hook text on frame 0 (0-1.8 s), one punch-in (100->112%) at the peak, an impact SFX at the peak (assets/sfx/boom.wav, quiet), burned-in captions, -14 LUFS."""
     import shorts as SH
