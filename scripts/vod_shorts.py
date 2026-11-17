@@ -56,8 +56,8 @@ def twitch_urls(vod_id):
     v = sh(["yt-dlp", "-g", "-f", "best", f"https://www.twitch.tv/videos/{vod_id}"]).stdout.split()
     if not a or not v: sys.exit("could not resolve Twitch playlist URLs")
     return a[0], v[0]
-def whisper(path):   # Groq whisper large-v3-turbo, word timestamps (free tier: 7200 audio-seconds/hour)
-    r = sh(["curl", "-sS", "-m", "300", "https://api.groq.com/openai/v1/audio/transcriptions", "-H", "Authorization: Bearer " + os.environ["GROQ_API_KEY"], "-F", f"file=@{path}", "-F", "model=whisper-large-v3-turbo", "-F", "language=en", "-F", "response_format=verbose_json", "-F", "timestamp_granularities[]=word"])
+def whisper(path, lang="en"):   # Groq whisper large-v3-turbo, word timestamps (free tier: 7200 audio-seconds/hour)
+    r = sh(["curl", "-sS", "-m", "300", "https://api.groq.com/openai/v1/audio/transcriptions", "-H", "Authorization: Bearer " + os.environ["GROQ_API_KEY"], "-F", f"file=@{path}", "-F", "model=whisper-large-v3-turbo"] + (["-F", "language=" + lang] if lang else []) + ["-F", "response_format=verbose_json", "-F", "timestamp_granularities[]=word"])
     return json.loads(r.stdout).get("words", [])
 def render2(body, s, e, ass, out, hook, peak):
     """9:16 render with the research rules: blurred fill + centred stream, hook text on frame 0 (0-1.8 s), one punch-in (100->112%) at the peak, an impact SFX at the peak (assets/sfx/boom.wav, quiet), burned-in captions, -14 LUFS."""
