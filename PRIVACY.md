@@ -1,11 +1,10 @@
-# Privacy Policy
+# Privacy Policy - World Clips / ODED HIGHLIGHTS tools
 
-**ODED HIGHLIGHTS Uploader** is a personal, single-user tool used by the owner of the YouTube channel "ODED HIGHLIGHTS" to upload and manage videos on that same channel.
+This is a personal, non-commercial tool operated by its owner to upload his own videos to his own YouTube channels.
 
-- **What it accesses:** only the owner's own YouTube channel, through Google's YouTube Data API, to upload videos, set titles/descriptions/thumbnails, and read the channel's own video list.
-- **Who uses it:** only the channel owner. It is not offered to the public and has no other users.
-- **Data stored:** an OAuth token kept as a private secret by the owner. No personal data about anyone else is collected, sold, shared, or used for advertising.
-- **Third parties:** data is not shared with any third party.
-- **Deletion:** the owner can revoke access at any time at https://myaccount.google.com/permissions.
+- The app asks for access to the owner's own YouTube account only, to upload videos and edit the title/description of videos on his own channels.
+- It does not collect, store, sell or share any personal data of other people. No analytics, no advertising.
+- The OAuth refresh token is stored only as an encrypted secret in the owner's private GitHub repository settings and is used only by the owner's automation.
+- You can revoke the access at any time at https://myaccount.google.com/permissions.
 
-This tool's use of information received from Google APIs adheres to the Google API Services User Data Policy, including the Limited Use requirements.
+Contact: the repository owner, via GitHub (https://github.com/MaorMichaelov/oded-highlights).
