@@ -44,7 +44,14 @@ def main():
         words = V.whisper(mp3, None)
         if len(words) < 6: print("no usable speech, skipped:", c["title"]); continue
         txt = " ".join(w["word"].strip() for w in words)[:2500]
-        j = V.llm(f"You edit YouTube Shorts for an English fan channel of the streamer {credit}. This audience-made clip ({int(c['dur'])} s, {c['views']} views, original clip title: '{c['title']}') has this transcript (automatic, may contain errors, may not be English):\n{txt}\n\nReturn JSON only: {{\"title\":\"English YouTube Shorts title 40-70 chars, hook first, put the streamer's name ({credit}) in it when natural, ends with ! or ?, NO profanity, never invent facts\",\"hook\":\"3-6 word on-screen text, English\",\"reject\":false,\"why\":\"\"}}. Set reject=true for gambling/promo talk, hate speech, slurs, sexual content, self-harm, minors, or if the clip is not understandable without context.")
+        CLICK = re.compile(r"epic|wild|shock|insane|crazy|you won't believe|unbelievable|mind-?blow|goes viral|exposed|leaked|teaser|prediction|predicts|breaking", re.I)   # invented hype/facts: titles must only say what is really in the clip
+        def ask_title(strict):
+            return V.llm(f"You write the YouTube Shorts title for an English fan channel of the streamer {credit}. This audience-made clip ({int(c['dur'])} s, {c['views']} views) has the ORIGINAL clip title '{c['title']}' (written by a viewer who watched it) and this automatic transcript (may contain errors, may not be English):\n{txt}\n\n"
+                         "Return JSON only: {\"title\":\"English, 35-70 chars, ends with ! or ?, put the streamer's name (" + credit + ") in it when natural. Describe ONLY what is really said or shown, using the viewer's original title as the main source of truth when the transcript is unclear. NEVER invent facts, events, predictions, teasers, products or numbers. No hype words (epic, wild, shocking, insane, crazy, you won't believe, ...). Plain, specific and a little funny at most.\",\"hook\":\"3-6 word on-screen text, English, plain\",\"reject\":false,\"why\":\"\"}. "
+                         "Set reject=true for gambling/promo talk, hate speech, slurs, sexual content, self-harm, minors, or if you cannot tell what the clip is about from the transcript and the original title together." + (" Your previous answer used hype or invented details: be strictly literal this time." if strict else ""))
+        j = ask_title(False)
+        if j and not j.get("reject") and CLICK.search(j.get("title", "")): j = ask_title(True)
+        if j and not j.get("reject") and CLICK.search(j.get("title", "")): print("hype title rejected:", j.get("title")); continue
         if not j or j.get("reject"): print("rejected:", c["title"], (j or {}).get("why")); continue
         ass = f"{out}/clip_{c['id']}.ass"; dur = float(V.sh(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", mp4]).stdout.strip() or c["dur"])
         SH.make_ass([{"word": w["word"], "start": w["start"], "end": w["end"]} for w in words], 0.0, dur, ass)
@@ -52,7 +59,7 @@ def main():
         dest = f"{out}/clip_{c['id']}.mp4"
         if not V.render2(mp4, 0.0, dur, ass, dest, j.get("hook", ""), None): print("render failed", c["id"]); continue
         title = re.sub(r"\s+([!?])", r"\1", j["title"]).strip()[:90]; where = ("Twitch (https://twitch.tv/" if a.platform == "twitch" else "Kick (https://kick.com/") + f"{a.slug})"
-        meta = {"title": title + " #Shorts", "hook": j.get("hook", ""), "score": round(2 * math.log10(max(c["views"], 10)), 1), "source": {"slug": a.slug, "platform": a.platform, "clip": c["id"], "views": c["views"], "created": c["created"]},
+        meta = {"title": title + " #Shorts", "hook": j.get("hook", ""), "score": round(2 * math.log10(max(c["views"], 10)), 1), "source": {"slug": a.slug, "platform": a.platform, "clip": c["id"], "views": c["views"], "created": c["created"], "original_title": c["title"]},
                 "description": f"{title}\n\nClip from {credit}'s live stream on {where}. Unofficial fan channel, not affiliated.\n#Shorts #{a.slug.replace('-', '')} #ClipGlobe"}
         json.dump(meta, open(dest[:-4] + ".json", "w"), ensure_ascii=False, indent=1); made += 1; print(f"SHORT {made}: {c['views']} views | {title}", flush=True)
     if not made: sys.exit("no short produced")
