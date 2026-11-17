@@ -44,12 +44,23 @@ def main():
     if not j or j.get("reject"): sys.exit("metadata step rejected the window: " + str((j or {}).get("why")))
     # cut + encode
     dd = e1 - s1; mp4 = f"{out}/long_{vid}_{int(s1)}.mp4"
-    r = V.sh(["ffmpeg", "-v", "error", "-y", "-ss", f"{s1:.3f}", "-t", f"{dd:.3f}", "-i", VIDEO, "-c:v", "libx264", "-preset", "veryfast", "-crf", "19", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-af", "afade=t=in:d=0.02,afade=t=out:st=%.3f:d=0.05" % (dd - 0.05), "-movflags", "+faststart", mp4])
+    import brand
+    main_mp4 = mp4[:-4] + "_main.mp4"   # the clip with the owner's logo as a corner watermark; the logo bumper is prepended below
+    r = V.sh(["ffmpeg", "-v", "error", "-y", "-ss", f"{s1:.3f}", "-t", f"{dd:.3f}", "-i", VIDEO, "-loop", "1", "-i", brand.LOGO, "-filter_complex", "[1:v]format=rgba,scale=120:-1,colorchannelmixer=aa=0.85[wm];[0:v][wm]overlay=W-w-32:H-h-32:shortest=1,format=yuv420p[v]",
+              "-map", "[v]", "-map", "0:a:0", "-c:v", "libx264", "-preset", "veryfast", "-crf", "19", "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2", "-af", "afade=t=in:d=0.02,afade=t=out:st=%.3f:d=0.05" % (dd - 0.05), "-t", f"{dd:.3f}", "-movflags", "+faststart", main_mp4])
     if r.returncode: sys.exit("encode failed: " + r.stderr[-400:])
+    pr = V.sh(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height,r_frame_rate", "-of", "csv=p=0", main_mp4]).stdout.strip().split(",")
+    bw, bh = int(pr[0]), int(pr[1]); fn, fd = pr[2].split("/"); bfps = round(float(fn) / float(fd), 3); BUMP = 2.5
+    bump = mp4[:-4] + "_bump.mp4"; brand.make_bumper(bump, bw, bh, bfps, BUMP)
+    open(mp4[:-4] + "_list.txt", "w").write(f"file '{os.path.abspath(bump)}'\nfile '{os.path.abspath(main_mp4)}'\n")
+    r = V.sh(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", mp4[:-4] + "_list.txt", "-c", "copy", "-movflags", "+faststart", mp4])
+    if r.returncode: sys.exit("join failed: " + r.stderr[-400:])
+    for f_ in (main_mp4, bump, mp4[:-4] + "_list.txt"): os.remove(f_)
+    dd += BUMP   # the published video is 2.5 s longer than the cut window
     def mmss(sec): sec = int(max(0, sec)); return f"{sec // 3600}:{sec % 3600 // 60:02d}:{sec % 60:02d}" if sec >= 3600 else f"{sec // 60:02d}:{sec % 60:02d}"
     ch = sorted({int(c["second"]): str(c["title"]).strip()[:50] for c in (j.get("chapters") or []) if str(c.get("title", "")).strip()}.items()); ch = [(t, n) for t, n in ch if 0 <= t < dd - 20]
     if ch: ch[0] = (0, ch[0][1])
-    chap = "\n".join(f"{mmss(t)} {n}" for t, n in ch) if len(ch) >= 3 else ""
+    chap = "\n".join(f"{mmss(t + (2.5 if t > 0 else 0))} {n}" for t, n in ch) if len(ch) >= 3 else ""
     hs = list(dict.fromkeys([h for h in (j.get("hashtags") or []) if isinstance(h, str) and h.startswith("#")][:6] + ["#" + a.slug.replace("-", ""), "#" + ("Twitch" if a.platform == "twitch" else "Kick"), "#ClipGlobe"]))
     src_line = ("Twitch (https://twitch.tv/" if a.platform == "twitch" else "Kick (https://kick.com/") + f"{a.slug})"
     desc = f"Clips from {credit}'s live streams on {src_line} | Unofficial fan channel, not affiliated.\n{j.get('description', '').strip()}\n" + (f"\nChapters:\n{chap}\n" if chap else "") + f"\nClip from the live stream: {src_line}\nThis is an unofficial fan channel: all clips are taken from {credit}'s streams. It is not {credit}'s official channel.\n\n" + " ".join(hs)

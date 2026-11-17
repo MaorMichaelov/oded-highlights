@@ -69,3 +69,5 @@ GROK BOT'S INSTRUCTIONS (owner pasted 14 Nov): drafts = private + full Hebrew ti
 - CUT PRECISION (owner priority, 17 Nov): every clip start/end must be exact. Shorts use scripts/cutsnap.py (audio-energy onset/offset, pauses, boundary check, stretched-word cap). Long clips: pre-roll before the first sentence is 1.0 s (was 3.0 s: it dragged in the previous topic). Never start/end inside a word, no dead air > 0.6 s at either end.
 
 - CLIPGLOBE LOGO (owner, 17 Nov): the channel logo is the owner's own artwork (yellow swoosh C around a red globe with a play button on black): assets/world_clips/logo_clipglobe.png. Use it EXACTLY as is (only resizing); never redraw, restyle or replace it, and do not make banners from it unless asked.
+
+- CLIPGLOBE EDITING (owner, 17 Nov): the owner's logo is for the EDITING, not for the profile picture: long English videos start with a 2.5 s logo bumper (black, logo scales in, whoosh) and carry the logo as a small corner watermark; every English Short carries the watermark (top-left). Implemented in scripts/brand.py, vod_long.py, vod_shorts.render2.

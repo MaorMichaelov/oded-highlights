@@ -73,10 +73,10 @@ def render2(body, s, e, ass, out, hook, peak):
     z = f"if(between(on,{fr},{fr + 7}),1+0.07*(on-{fr})/7,if(between(on,{fr + 7},{fr + 30}),1.07-0.07*(on-{fr + 7})/23,1))" if peak else "1"
     dt = "".join(f",drawtext=fontfile={ff}:text='{ln}':fontsize=64:fontcolor=white:borderw=6:bordercolor=black:x=(w-text_w)/2:y={300 + 84 * k}:enable='lt(t,1.8)'" for k, ln in enumerate([x for x in safe.split("|") if x.strip()]))
     vf = ("[0:v]split=2[a][b];[a]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=28:4,eq=brightness=-0.12[bg];[b]scale=1080:-2[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2[v0];"
-          f"[v0]zoompan=z='{z}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s=1080x1920:fps=30[v1];[v1]subtitles={ass.replace(':', chr(92) + ':')}" + (":fontsdir=" + SH.FONTS[0] if SH.FONTS else "") + dt + "[v]")
+          f"[v0]zoompan=z='{z}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s=1080x1920:fps=30[v1];[v1]subtitles={ass.replace(':', chr(92) + ':')}" + (":fontsdir=" + SH.FONTS[0] if SH.FONTS else "") + dt + "[vt];[1:v]format=rgba,scale=130:-1,colorchannelmixer=aa=0.9[wm];[vt][wm]overlay=30:140[v]")
     sfx = os.path.join(ROOT, "assets", "sfx", "boom.wav"); have = peak and os.path.exists(sfx) and os.environ.get("SHORTS_SFX") == "1"   # research 16 Nov: the Shorts/clips that travel on Kai/N3on are raw single takes; SFX/zoom spam reads as AI slop, so SFX is off by default
-    cmd = ["ffmpeg", "-v", "error", "-y", "-ss", f"{s:.3f}", "-i", body] + (["-i", sfx] if have else []) + ["-t", f"{e - s:.3f}", "-filter_complex"]
-    af = (f"[1:a]adelay={int(P * 1000)}|{int(P * 1000)},volume=-9dB[sx];[0:a][sx]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-14:TP=-1.5:LRA=7,aresample=48000[aud]" if have else "[0:a]loudnorm=I=-14:TP=-1.5:LRA=7,aresample=48000[aud]")
+    cmd = ["ffmpeg", "-v", "error", "-y", "-ss", f"{s:.3f}", "-i", body, "-loop", "1", "-i", os.path.join(ROOT, "assets", "world_clips", "logo_clipglobe.png")] + (["-i", sfx] if have else []) + ["-t", f"{e - s:.3f}", "-filter_complex"]
+    af = (f"[2:a]adelay={int(P * 1000)}|{int(P * 1000)},volume=-9dB[sx];[0:a][sx]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-14:TP=-1.5:LRA=7,aresample=48000[aud]" if have else "[0:a]loudnorm=I=-14:TP=-1.5:LRA=7,aresample=48000[aud]")
     cmd += [vf + ";" + af, "-map", "[v]", "-map", "[aud]", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p", "-r", "30", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out]
     r = sh(cmd)
     if r.returncode: print("render2 failed:", r.stderr[-700:]); return False
