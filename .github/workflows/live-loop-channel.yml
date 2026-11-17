@@ -51,6 +51,7 @@ jobs:
             [ -f "$STATE_DIR/PAUSE" ] && { echo "PAUSE file present, stopping"; exit 0; }
             python3 scripts/live_watch.py || echo "live_watch failed (continuing)"
             python3 scripts/stations/live_alert.py || echo "alert failed (continuing)"
+            python3 scripts/stations/timeline.py || echo "timeline skipped"   # topic spans for the English streamers too (bug 17 Nov: without it the old window picker found nothing in a chatty stream)
             python3 scripts/stations/pick.py || echo "pick station failed (continuing)"
             python3 scripts/stations/index.py || true
             git add state; git diff --cached --quiet || { git commit -q -m "state: ${CHANNEL} $(date -u +%FT%TZ)"; git pull --rebase -q || true; git push -q || true; }
