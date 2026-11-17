@@ -62,8 +62,8 @@ def snap_end(t, words, env, hop, t0, tail=0.30):
     for a, b in _gaps(words, lt - 0.1, lt + 1.5):   # the pause that starts at this last word
         if abs(a - lt) < 0.25:
             e = min(lt + tail, b - 0.02) if b - a < 0.9 else lt + tail; break
-    fl = _floor(env); off = _offset(env, hop, t0, lt - 0.3, lt + 0.9, fl)
-    if off is not None and off >= lt - 0.3: e = max(e, off + 0.25) if off <= lt + 0.5 else lt + tail   # real end of the last sound + 250 ms (a laugh/breath tail up to 0.5 s is kept)
+    fl = _floor(env); off = _offset(env, hop, t0, lt - 1.0, lt + 0.9, fl)
+    if off is not None and off >= lt - 1.0: e = (off + 0.25) if off < lt - 0.3 else (max(e, off + 0.25) if off <= lt + 0.5 else lt + tail)   # off well before the word end = the word was stretched over silence: trust the audio   # real end of the last sound + 250 ms (a laugh/breath tail up to 0.5 s is kept)
     nxt = min((w["start"] for w in words if w["start"] > lt + 0.05), default=None)
     if nxt is not None and e > nxt - 0.04: e = max(lt + 0.1, nxt - 0.04)
     while _inside_word(e, words) and e < lt + 1.2: e += 0.03
