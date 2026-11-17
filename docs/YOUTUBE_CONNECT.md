@@ -10,7 +10,7 @@
 2. מסך הסכמה (OAuth consent screen): External, מצב Testing, להוסיף את המיילים של לקוחות הפיילוט כ-Test users.
 3. ליצור OAuth Client מסוג Web application עם כתובת החזרה `https://<האפליקציה>/studio/yt/callback`.
 4. להכניס ל-Cloudflare כ-Secrets (לא בצ'אט ולא ב-git): `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `STUDIO_ENC_KEY` (מפתח ההצפנה, נוצר ב-`openssl rand -base64 32`).
-5. שני שינויים קטנים שלא עשיתי כי סוכנים אחרים עורכים את הקבצים: שורת hook אחת ב-`worker.js` ושורה ב-`deploy.py` שמעלה את הקובץ החדש (סעיף 10).
+5. ה-hook כבר הוסף ל-`worker.js` ול-`deploy.py` (שני שינויים זעירים, סעיף 10) אבל **לא פרסתי**. מומלץ להריץ `deploy.py --dry-run` לפני הפריסה הראשונה. עד שמכניסים את ה-Secrets הנקודות החדשות מחזירות 503 ולא עושות כלום.
 6. לפני לקוחות אמיתיים: להגיש אימות (Verification) לגוגל. זה דורש **דומיין משלך** (אי אפשר לאמת `workers.dev`), דף מדיניות פרטיות, וסרטון הדגמה (סעיף 5).
 
 **הסיכונים העיקריים (תכל'ס):**
@@ -25,7 +25,7 @@
 
 # Details (English)
 
-Status: module + script + tests built and passing offline; **not wired into worker.js/deploy.py, not deployed, never contacted Google.** Research caveat: from this sandbox `developers.google.com` and most vendor sites were unreachable (DNS blocked), so Google facts below come from web-search summaries. Items marked **[verify]** conflict between sources or are third-party only; check them in the Google Cloud Console / the official page before relying on them.
+Status: module + script + tests built and passing offline; hook added to worker.js/deploy.py (section 10), **not deployed, never contacted Google.** Research caveat: from this sandbox `developers.google.com` and most vendor sites were unreachable (DNS blocked), so Google facts below come from web-search summaries. Items marked **[verify]** conflict between sources or are third-party only; check them in the Google Cloud Console / the official page before relying on them.
 
 ## 1. What the user experiences
 
@@ -154,7 +154,9 @@ Another failure: the Google account has no YouTube channel → `no_youtube_chann
 
 `POST /studio/yt/disconnect` (owner): decrypt token → `POST https://oauth2.googleapis.com/revoke` (revokes the grant and its access tokens) → delete connection record, channel claim, reset studio channel `yt` status. If the key is lost or Google is unreachable, our copy is still deleted and the response tells the customer to remove access at `myaccount.google.com/permissions`. If the customer revokes there first, the next token request returns `invalid_grant` → `needs_reconnect`. On customer/account deletion the studio must call disconnect for each channel (hook to add in studio.js). Videos already uploaded remain on the customer's channel (we never delete anything on YouTube).
 
-## 10. Integration (not done here: other agents are editing these files)
+## 10. Integration
+
+**Status: items 1 and 2 are applied** (a 2-line hook in `app/worker.js`, two small edits in `app/deploy.py`), tested only by syntax checks and the unit tests, **never deployed** (`deploy.py` was not run, not even `--dry-run`; please run `python3 app/deploy.py --dry-run` once before the first real deploy). Until the `YT_*` secrets exist `/studio/yt/start` answers 503 `yt_not_configured`, so the hook is dormant. Items 3-5 are still to do.
 
 1. `app/worker.js`, top of `fetch()` before the `/studio` route:
    ```js
@@ -185,6 +187,7 @@ Another failure: the Google account has no YouTube channel → `no_youtube_chann
 
 `node app/youtube_connect.test.mjs` (28 checks): PKCE, consent URL, AES-GCM (aad, tamper, rotation), Pacific day/DST maths, schedule slots, settings validation, policy downgrade, full start→callback→status→settings→token→report→disconnect flow against a mocked Google, CSRF/cookie/state-reuse/role-change/missing-scope/no-refresh-token/no-channel/duplicate-channel cases, quota guard and `quota_exceeded`, `needs_reconnect` and recovery, no plaintext secrets in KV, no logging.
 `python3 -m unittest tests/test_yt_upload_customer.py` (23 tests): chunked upload ranges, channel enforcement, policy (privacy/publishAt), hold file, reconnect/quota/limit exit codes, init retries/backoff, resume after network drop, crash-and-rerun, expired session, 401 mid-upload, thumbnail failures, input errors.
+`node app/youtube_connect.integration.test.mjs`: the same flow on top of the REAL `app/studio.js` (real signup/session/org membership and `createJob`), proving the default auth adapter matches studio.js storage.
 **Not tested** (needs real Google, deliberately not done): the actual consent screen, real token/refresh behaviour, brand-account selection, real `videos.insert`/`publishAt`/`thumbnails.set` responses, the Cloudflare deployment with secrets, the quota numbers.
 
 ## 13. Sources (search summaries; Google's own pages were not reachable from this environment)
