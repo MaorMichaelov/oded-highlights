@@ -52,6 +52,8 @@ def main():
         j = ask_title(False)
         if j and not j.get("reject") and CLICK.search(j.get("title", "")): j = ask_title(True)
         if j and not j.get("reject") and CLICK.search(j.get("title", "")): print("hype title rejected:", j.get("title")); continue
+        SEXUAL = re.compile(r"titt|boob|lick|sex|nude|naked|porn|dick|cock|pussy|\bass\b|nsfw|horny|thirst|gooning|hook ?up", re.I)   # advertiser safety: no sexual wording in titles; such clips are skipped
+        if j and (SEXUAL.search(j.get("title", "")) or SEXUAL.search(c["title"]) or SEXUAL.search(txt)): print("sexual content skipped:", c["title"]); continue
         if not j or j.get("reject"): print("rejected:", c["title"], (j or {}).get("why")); continue
         ass = f"{out}/clip_{c['id']}.ass"; dur = float(V.sh(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", mp4]).stdout.strip() or c["dur"])
         SH.make_ass([{"word": w["word"], "start": w["start"], "end": w["end"]} for w in words], 0.0, dur, ass)
