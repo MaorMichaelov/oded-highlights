@@ -66,6 +66,62 @@
     "what": "skate video game clip featuring Tony",
     "who": "Tony"
    }
+  },
+  "5": {
+   "label": "משחק סקייטינג עם אורבני",
+   "kind": "game",
+   "kw": [
+    "סקייט",
+    "חברים",
+    "חידון",
+    "תחרות",
+    "פלאש",
+    "שחק",
+    "חיבוק"
+   ],
+   "v": 2
+  },
+  "8": {
+   "label": "שוחח על משחקי כיק וחוויות ב-Jackass",
+   "kind": "talk",
+   "kw": [
+    "כיק",
+    "Jackass",
+    "קונספט",
+    "סביבות",
+    "הזדמנויות",
+    "תכנון",
+    "חברים"
+   ],
+   "v": 2,
+   "rv": 1
+  },
+  "9": {
+   "label": "שוחח על פחדים וסכנות ב-Jackass",
+   "kind": "talk",
+   "kw": [
+    "פחדים",
+    "נחש",
+    "זיכרון ילדות",
+    "Jackass",
+    "הפחד מהחשכה"
+   ],
+   "v": 2,
+   "rv": 1
+  },
+  "10": {
+   "label": "שוחח על חוויות קיצוניות ב-Jackass",
+   "kind": "talk",
+   "kw": [
+    "Jackass",
+    "חוויות קיצוניות",
+    "פגיעה",
+    "פחדים",
+    "ביטויים",
+    "קהילה"
+   ],
+   "v": 2,
+   "rv": 1
   }
  },
  "spans": [
@@ -99,10 +155,37 @@
   {
    "from": 1200,
    "to": 1500,
-   "title": "ריאקציה לסרטון סקייטינג של טוני",
+   "title": "תגובה לקטע סקייט",
    "kind": "reaction",
    "clip_worthy": false,
-   "why": "הקטע ארוך רק 5 דקות – ריאקציה נחשבת ל‑clip_worthy רק מגודל של 6 דקות ומעלה",
+   "why": "5 דקות תגובה, מתערב בצ'אט, לא עומד בקריטריונים ל-clip",
+   "closed": true
+  },
+  {
+   "from": 1500,
+   "to": 1800,
+   "title": "משחק סקייטינג אורבני",
+   "kind": "game",
+   "clip_worthy": false,
+   "why": "5 דקות משחק, קצר מדי ל-clip",
+   "closed": true
+  },
+  {
+   "from": 1800,
+   "to": 2400,
+   "title": "המתנה/צ'אט כללית",
+   "kind": "idle",
+   "clip_worthy": false,
+   "why": "אין תוכן משמעותי, רק המתנה ודיונים כלליים",
+   "closed": true
+  },
+  {
+   "from": 2400,
+   "to": 3300,
+   "title": "שיחות על Jackass",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "15 דקות שיח רציף בנושא Jackass, קוהרנטי והולך מעבר ל-15 דקות",
    "closed": false
   }
  ],
@@ -137,8 +220,32 @@
    "to": 1500,
    "label": "מגיב לskate video game clip featuring Tony של Tony",
    "kind": "reaction"
+  },
+  {
+   "from": 1500,
+   "to": 1800,
+   "label": "משחק סקייטינג עם אורבני",
+   "kind": "game"
+  },
+  {
+   "from": 2400,
+   "to": 2700,
+   "label": "שוחח על משחקי כיק וחוויות ב-Jackass",
+   "kind": "talk"
+  },
+  {
+   "from": 2700,
+   "to": 3000,
+   "label": "שוחח על פחדים וסכנות ב-Jackass",
+   "kind": "talk"
+  },
+  {
+   "from": 3000,
+   "to": 3300,
+   "label": "שוחח על חוויות קיצוניות ב-Jackass",
+   "kind": "talk"
   }
  ],
- "transcript_end": 7200,
- "updated": "2026-11-17T09:36:26Z"
+ "transcript_end": 7560,
+ "updated": "2026-11-17T09:39:52Z"
 }
