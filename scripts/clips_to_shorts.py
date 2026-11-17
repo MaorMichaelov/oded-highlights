@@ -56,13 +56,26 @@ def main():
         if j and (SEXUAL.search(j.get("title", "")) or SEXUAL.search(c["title"]) or SEXUAL.search(txt)): print("sexual content skipped:", c["title"]); continue
         if not j or j.get("reject"): print("rejected:", c["title"], (j or {}).get("why")); continue
         ass = f"{out}/clip_{c['id']}.ass"; dur = float(V.sh(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", mp4]).stdout.strip() or c["dur"])
-        SH.make_ass([{"word": w["word"], "start": w["start"], "end": w["end"]} for w in words], 0.0, dur, ass)
+        s_t, e_t = 0.0, dur
+        try:   # 17 Nov quality pass: the viewer's clip may carry dead air before the first / after the last word (measured: up to 9 s at the end): trim it, keep ~250 ms around the speech
+            import cutsnap as CS
+            env_, hop_ = CS.energy_db(mp4); a_, b_ = CS.trim_dead_air(0.0, dur, words, env_, hop_, 0.0, max_lead=0.6, max_tail=0.8)
+            if b_ - a_ >= max(5.0, dur * 0.4) and (a_ > 0.1 or b_ < dur - 0.1): s_t, e_t = max(0.0, a_), min(dur, b_); print(f"trimmed dead air: {dur:.1f}s -> {e_t - s_t:.1f}s ({s_t:.2f}-{e_t:.2f})", flush=True)
+        except Exception as e_: print("dead-air trim skipped:", str(e_)[:100])
+        SH.make_ass([{"word": w["word"], "start": w["start"], "end": w["end"]} for w in words], s_t, e_t, ass)
         t_ = open(ass, encoding="utf-8").read().replace("&H0028E678", "&H0007C1FF"); open(ass, "w", encoding="utf-8").write(t_)
         dest = f"{out}/clip_{c['id']}.mp4"
-        if not V.render2(mp4, 0.0, dur, ass, dest, j.get("hook", ""), None): print("render failed", c["id"]); continue
+        if not V.render2(mp4, s_t, e_t, ass, dest, j.get("hook", ""), None): print("render failed", c["id"]); continue
         title = re.sub(r"\s+([!?])", r"\1", j["title"]).strip()[:90]; where = ("Twitch (https://twitch.tv/" if a.platform == "twitch" else "Kick (https://kick.com/") + f"{a.slug})"
         meta = {"title": title + " #Shorts", "hook": j.get("hook", ""), "score": round(2 * math.log10(max(c["views"], 10)), 1), "source": {"slug": a.slug, "platform": a.platform, "clip": c["id"], "views": c["views"], "created": c["created"], "original_title": c["title"]},
                 "description": f"{title}\n\nClip from {credit}'s live stream on {where}. Unofficial fan channel, not affiliated.\n#Shorts #{a.slug.replace('-', '')} #ClipGlobe"}
+        try:   # automatic grade of the draft (cutqa): a failing draft gets qa_fail and upload_shorts.py skips it
+            import cutqa as Q
+            cw_ = [{"word": w["word"], "start": w["start"] - s_t, "end": w["end"] - s_t} for w in words if w["end"] > s_t and w["start"] < e_t]
+            g_ = Q.grade(dest, "short", title=meta["title"], words=None, window_text_=Q.words_text(words), ass=ass, ignore_names=[credit, a.slug], extra_text=c["title"]); meta["qa"] = {"score": g_["score"], "fail": g_["fail"], "warn": g_["warn"]}
+            if g_["fail"]: meta["qa_fail"] = True
+            Q.save_words(dest[:-4] + ".words.json", [dict(w, start=w["start"] + s_t, end=w["end"] + s_t) for w in cw_], s_t) if cw_ else None; print("QA", meta["qa"], flush=True)
+        except Exception as e_: print("qa grade failed (draft kept as is):", str(e_)[:120])
         json.dump(meta, open(dest[:-4] + ".json", "w"), ensure_ascii=False, indent=1); made += 1; print(f"SHORT {made}: {c['views']} views | {title}", flush=True)
     if not made: sys.exit("no short produced")
 if __name__ == "__main__": main()
