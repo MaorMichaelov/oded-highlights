@@ -124,6 +124,12 @@ def main():
         ass = f"{out}/short_{vid}_{int(s0)}.ass"; mp4 = f"{out}/short_{vid}_{int(s0)}.mp4"; SH.make_ass(rel, pad, pad + e0 - s0, ass)
         txt = open(ass, encoding="utf-8").read().replace("&H0028E678", "&H0000E6FF").replace("Heebo Black", "Heebo Black"); open(ass, "w", encoding="utf-8").write(txt)
         if not (render2(body, pad, pad + e0 - s0, ass, mp4, j.get("hook", ""), pad + (pk - s0)) or SH.render(body, pad, pad + e0 - s0, ass, mp4)): continue
+        PROF = re.compile(r"fuck|shit|bitch|nigg|fag|retard|cunt|dick|pussy|whore|slut", re.I)   # research: profanity in a title earns no ad revenue; drop the quoted part instead of publishing it
+        if PROF.search(j["title"]):
+            t2 = re.sub(r"\s*[-–:]?\s*[\"“”'‘’][^\"“”'‘’]*[\"“”'‘’]\s*", " ", j["title"]).strip(" -–:")
+            t2 = t2 if t2 and t2[-1] in "!?" else t2 + "!"
+            if len(t2) < 18 or PROF.search(t2): print("title has profanity, skipped:", j["title"]); made_skip = True; continue
+            j["title"] = t2
         meta = {"title": j["title"][:90] + " #Shorts", "hook": j.get("hook", ""), "source": {"slug": a.slug, "vod": vid, "start_s": round(s0), "end_s": round(e0), "vod_title": v.get("session_title")}, "score": round(sc, 1), "why": j.get("why", ""),
                 "description": f"{j['title']}\n\nClip from {a.slug}'s live stream on Kick (https://kick.com/{a.slug}). Unofficial fan channel, not affiliated.\n#Shorts #{a.slug}"}
         json.dump(meta, open(mp4.replace(".mp4", ".json"), "w"), ensure_ascii=False, indent=1); made.append((mp4, meta, s0, e0)); print(f"SHORT {len(made)}: {int(s0 // 60)}:{int(s0 % 60):02d}-{int(e0 // 60)}:{int(e0 % 60):02d} ({e0 - s0:.0f}s) score {sc:.1f} | {j['title']}")
