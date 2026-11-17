@@ -216,7 +216,7 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--media"); ap.add_argument("--asr", action="store_true"); ap.add_argument("--media-json", default=os.path.join(ROOT, "state", "eval_media.json")); ap.add_argument("--report", default=os.path.join(ROOT, "docs", "QUALITY_REPORT.md")); ap.add_argument("--no-report", action="store_true"); a = ap.parse_args()
     items = collect()
     for it in items: check_item(it)
-    dups = duplicates(items); media = {k: v for k, v in (jl(a.media_json) or {}).items() if v.get("ver") == 2}   # entries of the first metric version (before the speech-relative dead-air/abrupt-end rules) are dropped
+    dups = duplicates(items); media = {k: v for k, v in (jl(a.media_json) or {}).items() if v.get("ver") == 2 or "tail_rel_speech_db" in (v.get("audio") or {})}   # entries of the first metric version (before the speech-relative dead-air/abrupt-end rules) are dropped
     if a.media: run_media(a.media, items, media, a.asr); json.dump(media, open(a.media_json, "w"), indent=1, ensure_ascii=False)
     summ = {"items": len(items), "duplicates": dups, "flags": {i["id"]: i["res"]["flags"] for i in items if i["res"]["flags"]}}
     json.dump(summ, open(os.path.join(ROOT, "state", "eval_cuts.json"), "w"), indent=1, ensure_ascii=False)
