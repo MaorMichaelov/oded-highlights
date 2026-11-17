@@ -273,10 +273,15 @@
    "who": "עודד, הצ'אט, אשתו (מופיעה ברקע)",
    "peak": "60:32"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/6nUNrQdln9w",
+  "draft_at": "2026-11-17T01:07:14Z",
+  "quality_errors": [],
   "auto": true
  },
  {

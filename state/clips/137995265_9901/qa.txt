@@ -1,0 +1,54 @@
+model failed gemini-flash-latest: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease 
+model failed gemini-flash-latest: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease 
+model failed gemini-3.8-flash: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease ret
+model failed gemini-3.7-flash: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease ret
+model: gemini-3.6-flash
+SCORE: 6/10
+
+### 1. ציר זמן של שינויים (Timeline)
+- **00:00 - 00:08**: קטע הוק/פתיחה – ניצחון בקרב, מצלמת פנים בצד ימין למעלה וצ'אט מתחתיה.
+- **00:08 - 00:10**: אינטרו/מעברון ממותג "ODED HIGHLIGHTS" עם כתובית ירוקה "הרגעים הכי טובים של עודד" ואפקט קולי.
+- **00:11 - 01:14**: קטע גיימפליי 1 – אימון אלמנט מים. ב-00:15-00:18 מופיע פופ-אפ להנעה לפעולה ("תנו לייק וסאב").
+- **01:15 - 01:34**: חיתוך לקטע גיימפליי 2 – ניצחון בסיבוב ובמשחק בארנה.
+- **01:34 - 02:12**: מסך סיכום ניצחון (Victory), הסטרימר מגיב ומדבר עם הצ'אט.
+- **02:13 - 02:28**: מסך בחירת אלמנט לסיבוב הבא (Fire vs Earth).
+
+---
+
+### 2. מה מוצג ומה הושמט
+- **מוצג**: רגעי אקשן, ניצחונות, תגובות הסטרימר וקטע אימון משעשע.
+- **הושמט**: זמני ממתין בתפריטים וקטעי משחק מתים. החיתוכים בוצעו לשמירה על רצף מעניין.
+
+---
+
+### 3. ספירת חיתוכים ונתונים
+- **מספר חיתוכים כולל**: 4 חיתוכים מרכזיים.
+- **הקטע הארוך ביותר**: 00:11 - 01:14 (כ-63 שניות).
+- **הקטע הקצר ביותר**: 00:00 - 00:08 (כ-8 שניות).
+- **תחילת/סיום מקטעים**: המקטעים מתחילים ומסתיימים בנקודות דיבור או אקשן טבעיות.
+
+---
+
+### 4. הוק ו-10 השניות הראשונות
+הסרטון נפתח ברגע ניצחון מהיר ואנרגטי (00:00-00:08) כהוק למשיכת תשומת לב, ומיד עובר לאינטרו הממותג (00:08-00:10).
+
+---
+
+### 5. הנחיות לעורך (Copy-cat)
+- מיקום מצלמה וצ'אט בפינה העליונה.
+- שילוב מעברון ממותג קצר (2 שניות) עם סאונד ייעודי.
+- הוספת באנר הנעה לפעולה (סאב/לייק) בחלק התחתון.
+
+---
+
+### 6. בקרת איכות (Quality Check)
+- **(a) פתיחה והוק**: הוק קצר ואפקטיבי, אינטרו קריא ומותאם.
+- **(b) כתוביות ולייאאוט**: תצוגה נקייה, פופ-אפ קריא ומתוזמן היטב.
+- **(c) התחלת קטע**: מתחיל בתחילת משפט/אירוע.
+- **(d) קטעים מתים/שתיקה**: ללא רגעים מתים.
+- **(e) תוכן פוגעני**: קללות קלות בלבד (00:32, 01:13).
+- **(f) אודיו**: מאוזן וברור, ללא עיוותים.
+- **(g) ציון עניין**: 6/10 - תוכן חביב ומצחיק, אך בעל מבנה סטנדרטי.
+- **(h) רשימת ליקויים**:
+  1. קללות קלות בשפה חופשית (00:32, 01:13).
+  2. מעבר חד ב-01:15 ללא מעברון קולי או ויזואלי.
