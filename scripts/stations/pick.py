@@ -223,7 +223,7 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
                         elif sub and np_: np_[-1]["keep"] += sub
                     if len(np_) >= 4: pieces = np_
             except Exception as e_: print("chapters from LLM failed:", e_)
-            json.dump({"vod": vod, "base": ing.get("_vod_base"), **({"silence": [25]} if sp.get("kind") in ("game", "reaction", "event") else {}), "pieces": [{"keep": [[round(x, 2), round(y, 2)] for x, y in pc["keep"]], "ch": pc["ch"]} for pc in pieces]}, open(os.path.join(d, "cuts.json"), "w"), ensure_ascii=False, indent=1)   # games/reactions: continuous, only silences >= 25 s are removed
+            json.dump({"vod": vod, "base": ing.get("_vod_base"), **({"fast": True} if LANG == "en" else {}), **({"silence": [25]} if sp.get("kind") in ("game", "reaction", "event") else {}), "pieces": [{"keep": [[round(x, 2), round(y, 2)] for x, y in pc["keep"]], "ch": pc["ch"]} for pc in pieces]}, open(os.path.join(d, "cuts.json"), "w"), ensure_ascii=False, indent=1)   # games/reactions: continuous, only silences >= 25 s are removed
             acc, pv = 0.0, None
             for x, y in keep:
                 if x <= float(meta.get("peak_second", -1)) <= y: pv = acc + (float(meta["peak_second"]) - x) + 11.2

@@ -116,12 +116,45 @@ for thr_s in (*(C.get("silence") or [6, 10, 18]), None):   # games / reactions: 
     if before < 840 or after >= 840:   # short clips (old rules) are trimmed fully; long ones must stay >= 14 min
         for p_, k in zip(C["pieces"], trial): p_["keep"] = k if k else p_["keep"]
         break
+def smart_cut(a, b, out):
+    """SPEED (owner: be first): re-encode only the edges (<= one HLS segment each) and STREAM-COPY the whole segments in between (Kick's 1080p60 is 9.2 Mbps, so the > 8 Mbps rule holds). A 25 min clip takes seconds instead of ~12 min. The result is decoded end to end and its duration checked; on ANY problem we return False and the caller does the normal full re-encode."""
+    try:
+        starts = [(n, st, d) for n, st, d in segs]
+        mid = [(n, st, d) for n, st, d in starts if st >= a - 1e-3 and st + d <= b + 1e-3]
+        if len(mid) < 4: return False
+        sa = mid[0][1]; sb = mid[-1][1] + mid[-1][2]
+        tmp = work / "parts" / f"_sc{int(a)}"; tmp.mkdir(parents=True, exist_ok=True); pieces = []
+        def enc(x0, x1, name):
+            if x1 - x0 < 0.05: return None
+            fs = files(x0, x1); s0 = fs[0][1]; x = x0 - s0; d_ = x1 - x0; f = tmp / name
+            inp = "concat:" + "|".join(str(work / "seg" / n) for n, _, _ in fs)
+            subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", inp, "-map", "0:v:0", "-map", "0:a:0", "-vf", f"trim=start={x:.3f}:duration={d_:.3f},setpts=PTS-STARTPTS,fps=60,format=yuv420p,setsar=1",
+              "-af", f"atrim=start={x:.3f}:duration={d_:.3f},asetpts=PTS-STARTPTS,aresample=48000", "-c:v", "libx264", "-profile:v", "high", "-preset", PRESET, "-b:v", "12M", "-maxrate", "16M", "-bufsize", "24M", "-g", "120", "-keyint_min", "120", "-sc_threshold", "0",
+              "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2", "-f", "mpegts", str(f)], check=True); return f
+        h = enc(a, sa, "head.ts")
+        m = tmp / "mid.ts"
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", "concat:" + "|".join(str(work / "seg" / n) for n, _, _ in mid), "-c", "copy", "-f", "mpegts", str(m)], check=True)
+        tl = enc(sb, b, "tail.ts")
+        parts_ = [x for x in (h, m, tl) if x is not None]
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", "concat:" + "|".join(str(x) for x in parts_), "-c", "copy", "-bsf:a", "aac_adtstoasc", "-movflags", "+faststart", str(out)], check=True)
+        # verify: full decode without errors and the right duration
+        dd = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(out)], capture_output=True, text=True).stdout.strip() or 0)
+        chk = subprocess.run(["ffmpeg", "-v", "error", "-i", str(out), "-f", "null", "-"], capture_output=True, text=True)
+        if abs(dd - (b - a)) > 1.0 or chk.stderr.strip():
+            print(f"smart cut rejected (duration {dd:.1f} vs {b - a:.1f}; decode errors: {chk.stderr.strip()[:200]})", flush=True); out.unlink(missing_ok=True); return False
+        import shutil as _sh; _sh.rmtree(tmp, ignore_errors=True); return True
+    except Exception as e_:
+        print("smart cut failed, falling back to the full re-encode:", str(e_)[:200], flush=True)
+        try: out.unlink(missing_ok=True)
+        except Exception: pass
+        return False
 lst = []; i = 0; t = 0.0; chapters = []
 for p in C["pieces"]:
     if p.get("ch"): chapters.append({"t": round(t, 2), "ch": p["ch"]})
     for a, b in p["keep"]:
         fs = files(a, b); s0 = fs[0][1]; x = a - s0; dur = b - a
         out = work / "parts" / f"p{i:03d}.mp4"; i += 1
+        if not out.exists() and C.get("fast") and dur >= 40 and smart_cut(a, b, out): lst.append(out); t += dur; print(f"part {i} smart-cut ({t:.0f}s so far)", flush=True); continue
         if not out.exists():
             inp = "concat:" + "|".join(str(work / "seg" / n) for n, _, _ in fs)
             subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", inp, "-map", "0:v:0", "-map", "0:a:0",
