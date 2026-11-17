@@ -1,0 +1,23 @@
+name: smartcut-test
+# Debug helper: runs the CUT station on a tiny test clip and prints the stream timestamps of every part and of the body (no upload, nothing committed).
+on:
+  workflow_dispatch:
+    inputs:
+      clip_id: { required: false, default: "test_fast_cut2" }
+permissions: { contents: read }
+jobs:
+  t:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Cut
+        run: |
+          python3 scripts/stations/cut.py state/clips/${{ inputs.clip_id }} 2>&1 | tail -30
+      - name: Probe
+        run: |
+          for f in state/clips/${{ inputs.clip_id }}/work/parts/*.mp4 state/clips/${{ inputs.clip_id }}/work/body.mp4; do
+            echo "== $f"; ffprobe -v error -show_entries stream=codec_type,start_time,duration:format=duration,start_time -of compact "$f"
+          done
