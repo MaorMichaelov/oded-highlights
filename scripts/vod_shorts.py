@@ -126,7 +126,7 @@ def main():
             env, hop = CS.energy_db(body); t0b = s0 - pad
             wi = [w for w in words if s0 - 0.05 <= w["start"] <= e0 + 0.05]
             if wi:
-                s1 = CS.snap_start(wi[0]["start"], words, env, hop, t0b); e1 = CS.snap_end(wi[-1]["end"], words, env, hop, t0b); chk = CS.check_boundaries(s1, e1, env, hop, t0b)
+                s1 = CS.snap_start(wi[0]["start"], words, env, hop, t0b); e1 = CS.snap_end(min(wi[-1]["end"], wi[-1]["start"] + 1.4), words, env, hop, t0b); chk = CS.check_boundaries(s1, e1, env, hop, t0b)
                 print(f"snap: start {s0:.2f}->{s1:.2f}  end {e0:.2f}->{e1:.2f}  boundary check {chk}")
                 if 18 <= e1 - s1 <= 60: s0, e0 = s1, e1
         except Exception as e_: print("cutsnap failed (keeping word-based points):", e_)

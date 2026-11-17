@@ -12,6 +12,9 @@ def energy_db(path, sr=16000, hop=0.01):
     x = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768.0; n = int(sr * hop); m = len(x) // n
     if m == 0: return np.zeros(1), hop
     rms = np.sqrt((x[:m * n].reshape(m, n) ** 2).mean(1) + 1e-10); return 20 * np.log10(rms), hop
+def _clamp(words, mx=1.4):
+    """Whisper sometimes stretches a word across a pause or music (seen: last word 'ending' 11 s late): cap a word's length"""
+    return [dict(w, end=min(w["end"], w["start"] + mx)) if w["end"] - w["start"] > mx else w for w in words]
 def _gaps(words, lo, hi, min_gap=0.10):
     ws = sorted((w for w in words if w["end"] > lo - 2 and w["start"] < hi + 2), key=lambda w: w["start"]); out = []
     for a, b in zip(ws, ws[1:]):
@@ -40,6 +43,7 @@ def _offset(env, hop, t0, lo, hi, floor, thr=10, sustain=0.06):
     return None
 def snap_start(t, words, env, hop, t0, lead=0.18):
     """t = the first word start the LLM/sentence logic chose (absolute seconds)."""
+    words = _clamp(words)
     first = min((w for w in words if abs(w["start"] - t) < 0.6), key=lambda w: abs(w["start"] - t), default=None)
     ft = first["start"] if first else t
     s = ft - lead
@@ -51,7 +55,8 @@ def snap_start(t, words, env, hop, t0, lead=0.18):
     return _quiet(env, hop, t0, s, fl)
 def snap_end(t, words, env, hop, t0, tail=0.30):
     """t = the last word end (absolute seconds)."""
-    last = min((w for w in words if abs(w["end"] - t) < 0.6), key=lambda w: abs(w["end"] - t), default=None)
+    words = _clamp(words)
+    last = min((w for w in words if abs(w["end"] - t) < 1.6), key=lambda w: abs(w["end"] - t), default=None)
     lt = last["end"] if last else t
     e = lt + tail
     for a, b in _gaps(words, lt - 0.1, lt + 1.5):   # the pause that starts at this last word
