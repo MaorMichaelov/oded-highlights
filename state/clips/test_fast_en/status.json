@@ -1,0 +1,17 @@
+{
+ "cut": {
+  "state": "done",
+  "at": "2026-11-17T09:26:54Z",
+  "seconds": 21.1
+ },
+ "edit": {
+  "state": "done",
+  "at": "2026-11-17T09:26:58Z",
+  "seconds": 2.1
+ },
+ "quality": {
+  "state": "done",
+  "at": "2026-11-17T09:27:01Z",
+  "seconds": 1.4
+ }
+}

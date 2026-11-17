@@ -386,10 +386,14 @@
    "who": "עודד, מיכאל, דניאל, דיוויד, הצ'אט, אשתו",
    "peak": "11:45"
   },
-  "stages": {},
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done"
+  },
   "draft": null,
   "draft_at": null,
-  "quality_errors": null,
+  "quality_errors": [],
   "auto": true
  },
  {
