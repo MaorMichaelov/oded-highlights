@@ -37,9 +37,10 @@ def gemini_pick(cands, hint):
     for i, (_, f) in enumerate(cands):
         im = Image.open(f).convert("RGB"); im.thumbnail((640, 360)); b = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False); im.save(b.name, quality=80)
         parts += [{"text": f"frame {i}:"}, {"inline_data": {"mime_type": "image/jpeg", "data": base64.b64encode(open(b.name, "rb").read()).decode()}}]
+    pf = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False); json.dump({"contents": [{"parts": parts}], "generationConfig": {"temperature": 0.1, "responseMimeType": "application/json"}}, pf); pf.close()
     for key in keys:
         for model in ("gemini-flash-latest", "gemini-3.5-flash"):
-            r = sh(["curl", "-sS", "-m", "90", f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent", "-H", "x-goog-api-key: " + key, "-H", "Content-Type: application/json", "-d", json.dumps({"contents": [{"parts": parts}], "generationConfig": {"temperature": 0.1, "responseMimeType": "application/json"}})])
+            r = sh(["curl", "-sS", "-m", "90", f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent", "-H", "x-goog-api-key: " + key, "-H", "Content-Type: application/json", "-d", "@" + pf.name])
             try: d = json.loads(json.loads(r.stdout)["candidates"][0]["content"]["parts"][0]["text"]); return int(d["best"]), d.get("face_box")
             except Exception: print("gemini pick failed:", r.stdout[:100].replace("\n", " "))
     return None
