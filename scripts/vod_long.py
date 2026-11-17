@@ -19,7 +19,13 @@ def main():
         d = min(600, dur - c0); mp3 = f"{tmp}/a{int(c0)}.mp3"
         r = V.sh(["ffmpeg", "-v", "error", "-y", "-ss", f"{t0 + c0:.1f}", "-t", f"{d:.1f}", "-i", AUDIO, "-vn", "-ac", "1", "-ar", "16000", "-c:a", "libmp3lame", "-b:a", "48k", mp3])
         if r.returncode: print("audio chunk failed", r.stderr[-200:]); continue
-        for w in V.whisper(mp3): words.append({"word": w["word"], "start": t0 + c0 + w["start"], "end": t0 + c0 + w["end"]})
+        cw = []
+        for _try in range(3):   # a failed chunk silently cut a 30 min window to 20 min (16 Nov bug): retry, and say so loudly if it still fails
+            cw = V.whisper(mp3)
+            if cw: break
+            print("whisper returned nothing for chunk", int(c0 / 60), "- retrying", flush=True); time.sleep(8)
+        if not cw: print("WARNING: chunk", int(c0 / 60), "has no transcript", flush=True)
+        for w in cw: words.append({"word": w["word"], "start": t0 + c0 + w["start"], "end": t0 + c0 + w["end"]})
         envs.append((t0 + c0, mp3)); print(f"chunk {int(c0 / 60)}-{int((c0 + d) / 60)} min: {len(words)} words", flush=True); time.sleep(2)
     if len(words) < 200: sys.exit("too little speech in the window")
     # the plan comes from coarse samples (+-5 min): let the LLM find where the session really starts/ends inside the transcript of the first and last 8 minutes
@@ -55,12 +61,15 @@ def main():
     for w in words:
         if ts is None: ts = w["start"]
         cur.append(w["word"].strip())
-        if w["end"] - ts >= 20: lines.append(f"[{int(ts - s1)}] " + " ".join(cur)); cur, ts = [], None
-    step = max(1, len(lines) // 70); sample = "\n".join(lines[::step])[:9000]
+        if w["end"] - ts >= 20: lines.append(f"[{int(ts - s1)}] " + " ".join(cur)[:170]); cur, ts = [], None   # 170 chars per 20 s line, spread over the WHOLE window (a 9000-char cut used to show only the first 6 minutes of a 20 min clip: wrong chapters)
+    step = max(1, len(lines) // 80); sample = "\n".join(lines[::step])[:15000]
     prompt = (f"You write the YouTube metadata of a LONG highlight video cut from {credit}'s live stream (platform: {a.platform}); the clip is one continuous session of {int((e1 - s1) / 60)} minutes. The transcript is automatic and may contain errors; never invent facts, people or quotes. Stream title: '{vtitle}'. {a.title_hint}\n"
-              "Return JSON only: {\"title\":\"English, 50-85 chars, hook first, put the streamer's name in it, what really happens, no profanity, no ALL CAPS shouting, ends without a period\",\"description\":\"3 English sentences with specifics (who, what, key moments)\",\"hashtags\":[\"#" + a.slug.replace('-', '') + "\", ...4 more],\"tags\":[...8 keywords],"
+              "Return JSON only: {\"title\":\"English, 50-85 chars, literal and specific (only what really happens, NEVER invent facts, reveals, surprises or hype words), name the streamer, put the streamer's name in it, what really happens, no profanity, no ALL CAPS shouting, ends without a period\",\"description\":\"3 English sentences with specifics (who, what, key moments)\",\"hashtags\":[\"#" + a.slug.replace('-', '') + "\", ...4 more],\"tags\":[...8 keywords],"
               "\"chapters\":[{\"second\":n,\"title\":\"<=6 specific words\"}] (8-14 entries IN ORDER, the first at 0, spread over the whole clip, seconds from the clip start taken from the transcript lines),\"reject\":false,\"why\":\"\"}. Set reject=true (and explain in why) if the clip is mostly gambling/casino/promo talk, hate speech, sexual content, or empty chatter.\n\nTranscript (lines are [seconds from the clip start] text):\n" + sample)
+    HYPE = re.compile(r"epic|wild|shock|insane|crazy|you won't believe|unbelievable|mind-?blow|exposed|leaked|teaser|reveal|surprise", re.I)   # titles/descriptions must state only what really happens
     j = V.llm(prompt)
+    if j and not j.get("reject") and HYPE.search(j.get("title", "")): j = V.llm(prompt + "\n\nYour previous title used hype words or invented details. Be strictly literal: only what is really said in the transcript, plain words, no 'epic', 'reveal', 'surprise', 'shocking'. Do not mention anything that is not in the transcript lines.")
+    if j and HYPE.search(j.get("title", "")): j["title"] = HYPE.sub("", j["title"]).replace("  ", " ").strip(" -:,")
     if not j or j.get("reject"): sys.exit("metadata step rejected the window: " + str((j or {}).get("why")))
     # cut + encode
     dd = e1 - s1; mp4 = f"{out}/long_{vid}_{int(s1)}.mp4"
