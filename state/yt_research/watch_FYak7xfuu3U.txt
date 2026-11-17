@@ -1,0 +1,56 @@
+model: gemini-3.6-flash
+להלן ניתוח מפורט של הסרטון (ראיון הפודקאסט של מתן אוון עם N3on):
+
+---
+
+### 1. ציר זמן והתרחשויות מרכזיות (Timeline & Key Events)
+
+- **00:00 - 00:15**: **פתיחה (Intro)** – מתן יושב לבדו בשולחן המתקפל, מציג את התוכנית ומזמין את האורח (N3on) ואת ה-Co-host.
+- **00:15 - 01:38**: **כניסת N3on** – ניאון נכנס, מתיישב במרכז ומתווכח על מיקום הישיבה והמיקרופון.
+- **01:38 - 03:00**: **דיון על זיוף מוות** – מתן מעלה פרובוקציה על זיוף המוות של ניאון בעבר.
+- **03:00 - 05:27**: **דיון על הודו ורשתות** – שיחה עקיצה על סקאמרים, תרבות הודו וצ'אט הלייב.
+- **05:27 - 06:50**: **נושא ההימורים** – תחקור על עסקאות הימורים בסטרימינג והפסדי צופים.
+- **06:50 - 08:42**: **מערכות יחסים** – תחקור על האקסית (סאם פרנק) ודיון על תוכן אונליין.
+- **08:42 - 09:18**: **חילוץ/החלפת Co-host** – המנהל של מתן (בלבוש אדום של פרארי) נכנס ומחליף את המארח המושתק.
+- **09:18 - 11:41**: **שיחת טלפון בלייב** – ניאון מתקשר לחבר בלייב כדי להוכיח נקודה.
+- **11:41 - 13:00**: **התפרצות ראשונה** – אדם נמוך קומה/הומלס נכנס בזחילה לחדר ומפונה ע"י אבטחה.
+- **13:01 - 14:23**: **קטע חסות (Squarespace)** – מעבר חד למתן בלבד מציג פרסומת מבויימת.
+- **14:23 - 17:33**: **פוליטיקה וסניקו** – דיון על ישראל/פלסטין, דעות פוליטיות ואזכור של סניקו.
+- **17:33 - 18:42**: **תיאוריית רדיפה (Gangstalking)** – מתן טוען שרודפים אחריו כדי לגנוב את הציוד שלו.
+- **18:42 - 20:49**: **בוטים ופלטפורמות** – השוואה בין Twitch, Kick ו-YouTube וממוצע צופים.
+- **20:49 - 22:58**: **עבודה ומשפחה** – המשך פרובוקציות על היסטוריית הסטרימינג של ניאון.
+- **22:58 - 23:59**: **קטע חסות (Chubbies)** – מעבר לפרסומת שנייה עם מתן בלבד.
+- **23:59 - 27:59**: **שאלות אבסורדיות** – נושאי עכברים, פטיש, יחסים עם הורים והגדרה מילונית ל"מטפורה".
+- **28:00 - 31:20**: **התפרצות שנייה** – הפולש חוזר בזחילה, מורחק שוב החוצה בצעקות.
+- **31:20 - 36:36**: **סיום וסיכום** – דיון על ריחות בחדר, פרידה מניאון ואזכור האורח הבא ("Long Neck").
+
+---
+
+### 2. מה מוצג ומה נחתך (Visible Edits)
+
+- **מה מוצג**: אולפן פודקאסט קומדי בתוך קובייה לבנה מינימליסטית. השיחה מצולמת במצלמה ראשית רחבה (Master Shot) עם מעברים מהירים לתקריבים (Medium Shots) להדגשת תגובות מבוכה או הומור יבש.
+- **מה נחתך**: שתיקות מתות ארוכות, הכנות טכניות בין המערכונים המבויימים, ומעברים חלקים לקטעי חסות מבודדים.
+
+---
+
+### 3. נתוני עריכה וחתוכים (Counts & Stats)
+
+- **סה"כ חתוכים בסרטון**: כ-130 חתוכי מצלמה (כ-3.5 חתוכים לדקה).
+- **המקטע הרציף הארוך ביותר**: קטעי הפרסומות המובנים (כ-1.5 דקות).
+- **המקטע הקצר ביותר**: חתוכים מהירים של שנייה אחת בין מתן לניאון ברגעי שיא של מבוכה.
+
+---
+
+### 4. Technical Analysis for Editor Copy-Cat (in English)
+
+#### **Structure & Pacing:**
+- **Hook (00:00 - 00:30)**: Direct intro with cold, awkward energy establishing the interview style.
+- **Body (00:30 - 35:40)**: Alternating high-tension interrogation, absurd physical stunts (intruder, manager swap), and structured ad breaks.
+- **Ending (35:40 - 36:36)**: Quick handshake wrap-up leading into a cliffhanger joke about the next guest.
+
+#### **Editing & Aesthetic Rules:**
+1. **Static Master Setup**: Stark white-wall background, two cheap folding tables, zero decorative set design.
+2. **Reaction Cutting**: Hard cuts to close-ups immediately on line delivery to enhance deadpan anti-humor.
+3. **Absurd Disruptions**: Scripted character entrances integrated as natural interruptions to keep engagement high.
+4. **Polished Ad Integration**: Hard-cut away from the studio set to a centered solo frame with clean bottom-third graphics and promo codes.
+5. **No Music / Raw Audio**: Reliance entirely on voice, physical room noise, and deliberate awkward silence rather than sound effects or soundtracking.
