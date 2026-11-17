@@ -75,7 +75,7 @@
    "note": "Connected 17 Nov and verified with yt-whoami: the owner renamed the former RONEN HIGHLIGHTS channel to ClipGlobe (English clips of Kai Cenat / N3on and others). Uploads for yt=en are accepted only for this channel id.",
    "brand": {
     "name": "ClipGlobe",
-    "logo": "yellow swoosh 'C' around a red globe with a play button, on black (owner's logo, 17 Nov)",
+    "logo": "assets/world_clips/logo_clipglobe.png (the owner's own logo, copied exactly, never redrawn)",
     "colors": {
      "yellow": "#FFC107",
      "red": "#E8212B",

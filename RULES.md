@@ -67,3 +67,5 @@ GROK BOT'S INSTRUCTIONS (owner pasted 14 Nov): drafts = private + full Hebrew ti
 - WORLD CLIPS streamers (owner, 17 Nov): start with N3on (Kick) and Kai Cenat (TWITCH; the owner brings the Twitch app key today); then maybe xQc / Trainwreck / Adin Ross (Kick). Priorities for the new channel: (1) PRECISION of where each clip starts and ends, (2) SPEED (being first to upload matters).
 
 - CUT PRECISION (owner priority, 17 Nov): every clip start/end must be exact. Shorts use scripts/cutsnap.py (audio-energy onset/offset, pauses, boundary check, stretched-word cap). Long clips: pre-roll before the first sentence is 1.0 s (was 3.0 s: it dragged in the previous topic). Never start/end inside a word, no dead air > 0.6 s at either end.
+
+- CLIPGLOBE LOGO (owner, 17 Nov): the channel logo is the owner's own artwork (yellow swoosh C around a red globe with a play button on black): assets/world_clips/logo_clipglobe.png. Use it EXACTLY as is (only resizing); never redraw, restyle or replace it, and do not make banners from it unless asked.
