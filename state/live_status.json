@@ -1,5 +1,6 @@
 {
- "checked_at": "2026-11-17T20:15:57Z",
- "http": "200",
- "live": false
+ "checked_at": "2026-11-17T20:15:59Z",
+ "http": "403",
+ "live": null,
+ "note": "channel api not reachable"
 }
