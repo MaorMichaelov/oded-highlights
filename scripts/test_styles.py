@@ -39,7 +39,7 @@ def main():
     old = ["ffmpeg", "-v", "error", "-y", "-ss", f"{77.25:.3f}", "-t", f"{dd:.3f}", "-i", "VID", "-loop", "1", "-i", brand.LOGO, "-filter_complex", "[1:v]format=rgba,scale=120:-1,colorchannelmixer=aa=0.85[wm];[0:v][wm]overlay=W-w-32:H-h-32:shortest=1,format=yuv420p[v]",
            "-map", "[v]", "-map", "0:a:0", "-c:v", "libx264", "-preset", "veryfast", "-crf", "19", "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2", "-af", "afade=t=in:d=0.02,afade=t=out:st=%.3f:d=0.05" % (dd - 0.05), "-t", f"{dd:.3f}", "-movflags", "+faststart", "OUT"]
     new = SR.long_encode_cmd(lg, "VID", 77.25, dd, None, [], brand.LOGO, "OUT"); check("Long cmd identical", old == new, "\n OLD " + " ".join(old) + "\n NEW " + " ".join(new))
-    if "--render" in sys.argv: render_tests(tmp, sig, ws)
+    if "--render" in sys.argv: render_tests(tmp, sig, ws); feature_tests(tmp)
     print("\nALL PASS" if not FAIL else "\nFAILED: " + ", ".join(FAIL)); sys.exit(1 if FAIL else 0)
 def render_tests(tmp, sig, ws):
     import re
@@ -54,4 +54,31 @@ def render_tests(tmp, sig, ws):
     m = re.search(r"average:(\S+)", r); psnr = float(m.group(1)) if m and m.group(1) != "inf" else 99.0; check("video PSNR classic vs signature >= 60 dB (identical)", psnr >= 60, f"psnr={psnr}")
     def lufs(f): return float(re.search(r"I:\s+(-?[\d.]+) LUFS", subprocess.run(["ffmpeg", "-nostats", "-i", f, "-af", "ebur128", "-f", "null", "-"], capture_output=True, text=True).stderr.split("Summary")[-1]).group(1))
     a, b = lufs(tmp + "/legacy.mp4"), lufs(tmp + "/new.mp4"); check("loudness classic vs signature within 0.1 LU", abs(a - b) < 0.1, f"{a} vs {b}"); print("psnr", psnr, "lufs", a, b, "outputs in", tmp)
+def dur(f): return float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", f], capture_output=True, text=True).stdout.strip())
+def feature_tests(tmp):
+    """optional parameters (not used by the signature style) must keep working: dead-air cuts, other layouts/animations, extra zooms, sfx, music bed, bumper, long captions+loudness"""
+    import re
+    V.sh = lambda c, **k: subprocess.run(c, capture_output=True, text=True, **k)
+    src = tmp + "/synth.mp4"   # 20 s: speech-like tone 0-5, silence 5-9, tone 9-14, silence 14-16, tone 16-20
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc2=s=1280x720:r=30:d=20", "-f", "lavfi", "-i", "sine=f=300:d=20", "-af", "volume='if(between(t,5,9)+between(t,14,16),0,0.5)':eval=frame", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", src], check=True)
+    ws = [{"word": f" w{i}", "start": t, "end": t + 0.4} for i, t in enumerate([0.5, 1.2, 2.0, 3.0, 4.0, 9.5, 10.3, 11.0, 12.5, 13.2, 16.5, 17.4, 18.5, 19.2])]
+    pace = {"dead_air_trim_s": 1.0, "keep_pause_s": 0.4, "silence_db": -42}
+    cuts = SR.dead_air_cuts(src, 0.0, 20.0, ws, pace); print("dead-air cuts:", cuts)
+    check("dead-air cuts found (2 silences)", len(cuts) == 2 and abs(cuts[0][0] - 5.2) < 0.4 and abs(cuts[1][0] - 14.2) < 0.4, str(cuts))
+    # Shorts with every optional feature: crop_fill, karaoke captions, extra zooms, sfx, music (generated tone), bumper, cuts
+    music = tmp + "/music.wav"; subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "sine=f=220:d=5", music], check=True)
+    for name, ov in (("everything on", {"layout": {"mode": "crop_fill"}, "captions": {"animation": "karaoke", "font": "Anton", "uppercase": True}, "zoom": {"extra_every_s": 4, "extra_strength": 0.05}, "sfx": {"mode": "on", "at": ["peak", "start", "zoom"]}, "music": {"enabled": True, "file": music}, "intro": {"bumper_s": 1.5}}),
+                     ("square bars no zoom/captions/wm", {"layout": {"aspect": "1:1", "mode": "bars", "bg_color": "#202020"}, "captions": {"enabled": False}, "zoom": {"enabled": False}, "watermark": {"enabled": False}, "loudness": {"enabled": False}}),
+                     ("16:9 contain blur", {"layout": {"aspect": "16:9", "fg_fit": "contain"}, "captions": {"animation": "fade", "color": "#00FF99"}})):
+        st = ST.resolve({"extends": None, "shorts": ov}, "shorts"); ass = tmp + "/f.ass"; side = SR.shorts_captions(st, ws, 0.0, 20.0, ass, "Hook line here", cuts); out = tmp + f"/f_{name[:4]}.mp4"
+        ok = SR.render_shorts(src, 0.0, 20.0, ass, out, "Hook line here", 10.0, st); L = dur(out) if ok and os.path.exists(out) else 0
+        exp = 20.0 - ST.total_cut(cuts) + (1.5 if st["intro"]["bumper_s"] else 0)
+        check(f"Shorts [{name}] renders, length {L:.1f}s (expected {exp:.1f})", ok and abs(L - exp) < 0.6, f"{L} vs {exp}")
+    # Long: captions + dead-air + loudness + music through long_encode_cmd
+    lg = ST.resolve({"extends": None, "long": {"captions": {"enabled": True}, "loudness": {"enabled": True}, "music": {"enabled": True, "file": music}}}, "long"); ass = tmp + "/l2.ass"
+    ST.make_ass(ws, 0.0, 20.0, ass, lg["captions"], 1920, 1080, ST.make_remap(cuts)); out = tmp + "/long_f.mp4"
+    import brand
+    r = subprocess.run(SR.long_encode_cmd(lg, src, 0.0, 20.0, ass, cuts, brand.LOGO, out), capture_output=True, text=True)
+    L = dur(out) if r.returncode == 0 else 0; check(f"Long [captions+cuts+loudness+music] renders, length {L:.1f}s", r.returncode == 0 and abs(L - (20 - ST.total_cut(cuts))) < 0.6, r.stderr[-400:])
+    print("feature outputs in", tmp)
 if __name__ == "__main__": main()
