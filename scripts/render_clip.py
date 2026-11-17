@@ -73,7 +73,8 @@ montage = []
 for h in sorted(hooks, key=lambda h: h["t"])[:3]:
     ws = [[round(w["start"] - h["t"], 3), w["word"].strip()] for w in words if h["t"] - 0.02 <= w["start"] < h["t"] + h["d"] - 0.15 and w["word"].strip()]
     montage.append(dict(t=h["t"], d=h["d"], cap=" ".join(x[1] for x in ws) or h["cap"] or "...", words=ws, hl=h["hl"] or ([ws[-1][1]] if ws else [])))
-if len(montage) < 3: print("not enough hook moments (need 3)"); sys.exit(2)
+EN = spec.get("lang", "he") != "he"
+if len(montage) < 3 and not EN: print("not enough hook moments (need 3)"); sys.exit(2)
 logo = "/workspace/oded_research/oded_highlights_logo.jpg"
 HEAD = 30.0   # only the first ~30 s of the body go through the opening/popup compositor; the rest is joined by stream copy (no second generation loss)
 head = os.path.join(work, "body_head.mp4"); rest = os.path.join(work, "body_rest.mp4")
@@ -83,15 +84,20 @@ if dur > HEAD + 20:
     os.replace(os.path.join(segd, "s0.mp4"), head); os.replace(os.path.join(segd, "s1.mp4"), rest)
     hdur = float(run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", head]).strip())
 else: head, hdur, rest = body, dur, None
-ospec = dict(body=head, montage_src=body, body_dur=hdur, work=os.path.join(work, "po"), res=[1920, 1080], montage=montage, premise=["-"], headshot=logo, popup_face=logo, sub_at=4.0)
-sp = os.path.join(work, "open_spec.json"); json.dump(ospec, open(sp, "w"), ensure_ascii=False, indent=1)
-final = os.path.join(clip, "final.mp4"); print("building opening ...")
-fh = final if rest is None else os.path.join(work, "final_head.mp4")
-run([sys.executable, os.path.join(HERE, "peak_open", "nov13_open.py"), sp, fh])
-if rest is not None:
-    open(os.path.join(work, "join.txt"), "w").write(f"file '{fh}'\nfile '{rest}'\n")
-    run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", os.path.join(work, "join.txt"), "-c", "copy", "-movflags", "+faststart", final])
-    os.replace(fh + ".open.json", final + ".open.json")
+EN = spec.get("lang", "he") != "he"   # WORLD CLIPS (English) clips carry no ODED HIGHLIGHTS branding: no opening montage, sting or Hebrew pop-up; the final is the clean body
+final = os.path.join(clip, "final.mp4")
+if EN:
+    import shutil; shutil.copy(body, final); json.dump({"body_offset_in_out": 0.0}, open(final + ".open.json", "w")); fh = final; rest = None; print("english channel: clean body, no branding opening", flush=True)
+else:
+    ospec = dict(body=head, montage_src=body, body_dur=hdur, work=os.path.join(work, "po"), res=[1920, 1080], montage=montage, premise=["-"], headshot=logo, popup_face=logo, sub_at=4.0)
+    sp = os.path.join(work, "open_spec.json"); json.dump(ospec, open(sp, "w"), ensure_ascii=False, indent=1)
+    final = os.path.join(clip, "final.mp4"); print("building opening ...")
+    fh = final if rest is None else os.path.join(work, "final_head.mp4")
+    run([sys.executable, os.path.join(HERE, "peak_open", "nov13_open.py"), sp, fh])
+    if rest is not None:
+        open(os.path.join(work, "join.txt"), "w").write(f"file '{fh}'\nfile '{rest}'\n")
+        run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", os.path.join(work, "join.txt"), "-c", "copy", "-movflags", "+faststart", final])
+        os.replace(fh + ".open.json", final + ".open.json")
 lap("opening built")
 def probe(f):
     o = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height,r_frame_rate:format=bit_rate", "-of", "json", f], capture_output=True, text=True).stdout
@@ -111,12 +117,12 @@ diag = dict(body=round(dur, 2), head_in=round(hdur, 2), opening_offset=round(off
 if rest is not None: diag.update(final_head=round(dd(fh), 2), rest=round(dd(rest), 2))
 print("DURATIONS", json.dumps(diag)); json.dump(diag, open(os.path.join(clip, "durations.json"), "w"))
 def ts(s): s = int(round(s)); return f"{s//60:02d}:{s%60:02d}"
-lines = ["00:00 פתיחה"] + [f'{ts(c["t"] + off)} {c["ch"]}' for c in chapters]
+lines = [("00:00 Intro" if EN else "00:00 פתיחה")] + [f'{ts(c["t"] + off)} {c["ch"]}' for c in chapters]
 meta = json.load(open(os.path.join(clip, "meta.json"))) if os.path.exists(os.path.join(clip, "meta.json")) else {"title": spec["title"], "description": spec["description"], "tags": spec.get("tags", []), "privacy": "private"}
-meta["description"] = spec["description"].rstrip() + "\n\nפרקים:\n" + "\n".join(lines)
+meta["description"] = spec["description"].rstrip() + ("\n\nChapters:\n" if EN else "\n\nפרקים:\n") + "\n".join(lines)
 b = spec.get("brief")   # draft note for the thumbnail bot: what the clip is about, who appears, the strongest moment
 if b:
-    note = f"[טיוטה - למחוק לפני פרסום] על מה: {b.get('about', '')} | מופיעים: {b.get('who', 'עודד')} | הרגע החזק: {b.get('peak', '')}"
+    note = (f"[DRAFT - delete before publishing] About: {b.get('about', '')} | Who: {b.get('who', '')} | Strongest moment: {b.get('peak', '')}" if EN else f"[טיוטה - למחוק לפני פרסום] על מה: {b.get('about', '')} | מופיעים: {b.get('who', 'עודד')} | הרגע החזק: {b.get('peak', '')}")
     meta["description"] = note + "\n\n" + meta["description"]; open(os.path.join(clip, "brief.md"), "w").write(note + "\n")
 json.dump(meta, open(os.path.join(clip, "meta.json"), "w"), ensure_ascii=False, indent=1)
 print("FINAL", final, "chapters:", len(lines))

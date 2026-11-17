@@ -8,6 +8,7 @@ on:
       lang: { description: "en or he", required: false, default: "en" }
       yt: { description: "main or en (which YouTube channel gets the drafts)", required: false, default: "en" }
       credit: { description: "name shown in the description credit", required: false, default: "" }
+      force_vod: { description: "TEST/backfill: index in the streamer's VOD list (0 = newest) to transcribe even when offline; empty = only the live stream", required: false, default: "" }
 concurrency:
   group: live-${{ inputs.channel }}
   cancel-in-progress: false
@@ -41,6 +42,7 @@ jobs:
           CHANNEL_YT: ${{ inputs.yt }}
           CHANNEL_CREDIT: ${{ inputs.credit || inputs.channel }}
           STATE_DIR: state/${{ inputs.channel }}
+          FORCE_VOD: ${{ inputs.force_vod }}
         run: |
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
           mkdir -p "$STATE_DIR"
@@ -55,4 +57,4 @@ jobs:
             B=$(python3 -c 'import json,os;print(json.load(open(os.environ["STATE_DIR"]+"/ingest_state.json")).get("_behind_segs",0))' 2>/dev/null || echo 0)
             if [ "${B:-0}" -gt 12 ]; then echo "behind by $B segments: no sleep"; else sleep 300; fi
           done
-          gh workflow run live-loop-channel.yml --ref main -f channel="$CHANNEL" -f lang="$ASR_LANG" -f yt="$CHANNEL_YT" -f credit="$CHANNEL_CREDIT"
+          gh workflow run live-loop-channel.yml --ref main -f channel="$CHANNEL" -f lang="$ASR_LANG" -f yt="$CHANNEL_YT" -f credit="$CHANNEL_CREDIT" -f force_vod="$FORCE_VOD"

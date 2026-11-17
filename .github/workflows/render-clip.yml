@@ -12,6 +12,7 @@ on:
 concurrency: { group: "render-${{ inputs.state_dir }}-${{ inputs.clip_id }}", cancel-in-progress: false }   # different clips render in parallel
 env:
   HAS_YT: ${{ secrets.YT_REFRESH_TOKEN != '' }}
+  HAS_YT2: ${{ secrets.YT2_REFRESH_TOKEN != '' }}
 permissions: { contents: write }
 jobs:
   render:
@@ -56,7 +57,7 @@ jobs:
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
           git add state/events.jsonl 2>/dev/null; git diff --cached --quiet || { git commit -q -m "events: progress"; (git pull --rebase -q && git push -q) || git rebase --abort 2>/dev/null || true; }
       - name: "Station 5 - DRAFT (private upload)"
-        if: ${{ inputs.upload == 'true' && env.HAS_YT == 'true' }}
+        if: ${{ inputs.upload == 'true' && ((inputs.yt != 'en' && env.HAS_YT == 'true') || (inputs.yt == 'en' && env.HAS_YT2 == 'true')) }}   # WORLD CLIPS (yt=en) uploads only with its own YT2_* secrets, never with the ODED HIGHLIGHTS ones
         env:
           YT_REFRESH_TOKEN: ${{ inputs.yt == 'en' && secrets.YT2_REFRESH_TOKEN || secrets.YT_REFRESH_TOKEN }}
           YT_CLIENT_ID: ${{ inputs.yt == 'en' && secrets.YT2_CLIENT_ID || secrets.YT_CLIENT_ID }}
