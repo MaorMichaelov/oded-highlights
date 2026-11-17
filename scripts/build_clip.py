@@ -88,9 +88,9 @@ def _gaps_env(env, hop, t0, lo, hi, fl, min_len=0.12, margin=7.0):
         else: i += 1
     return out
 def refine_start(t):
-    env, hop, t0 = _edge_env(t - 1.5, t + 2.0)
+    env, hop, t0 = _edge_env(t - 2.5, t + 2.5)
     if env is None: return t
-    import numpy as _np; fl = float(_np.percentile(env, 10)); gs = _gaps_env(env, hop, t0, t - 1.2, t + 0.5, fl)
+    import numpy as _np; fl = float(_np.percentile(env, 10)); gs = _gaps_env(env, hop, t0, t - 2.0, t + 0.9, fl)
     if not gs: print(f"edge start {t:.1f}: no pause found nearby, kept", flush=True); return t
     a_, b_ = min(gs, key=lambda g: abs(g[1] - t)); n_ = min(max(b_ - 0.15, a_ + 0.03), b_ - 0.03)   # cut 150 ms before speech resumes, inside the pause
     print(f"edge start {t:.2f} -> {n_:.2f} (pause {a_:.2f}-{b_:.2f})", flush=True); return n_
