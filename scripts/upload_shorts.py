@@ -12,10 +12,12 @@ for mp4 in glob.glob(f"{d}/*.mp4"):
 todo.sort(reverse=True); n = 0
 for sc, mp4, mf in todo[:mx]:
     meta = json.load(open(mf)); meta["privacy"] = "private"; meta.setdefault("tags", []).extend((["Shorts"] if sub == "shorts" else []) + [slug]); json.dump(meta, open(mf, "w"), ensure_ascii=False)
-    r = subprocess.run([sys.executable, "scripts/yt_upload.py", mp4, mf], capture_output=True, text=True, env=dict(os.environ, CHANNEL_YT="en"))
+    th = mp4[:-4] + ".jpg"; cmd = [sys.executable, "scripts/yt_upload.py", mp4, mf] + ([th] if sub != "shorts" and os.path.exists(th) else [])   # long videos carry a custom thumbnail
+    r = subprocess.run(cmd, capture_output=True, text=True, env=dict(os.environ, CHANNEL_YT="en"))
     url = [l for l in r.stdout.splitlines() if l.startswith("https://youtu.be/")]
     print(("UPLOADED " + url[-1] + " | " + meta["title"]) if url else ("FAILED " + (r.stdout + r.stderr)[-300:]))
     if url: rec[os.path.basename(mp4)] = url[-1]; n += 1
+    elif "UPLOAD_HOLD" in r.stdout: print("upload hold active, stopping"); break
     elif "quota" in (r.stdout + r.stderr).lower(): print("quota reached, stopping"); break
     elif "REFUSED" in r.stdout: print("upload refused by the channel guard, stopping"); break
 json.dump(rec, open(rec_f, "w"), indent=1); print("uploaded", n, "of", len(todo), "pending")
