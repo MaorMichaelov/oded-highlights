@@ -117,13 +117,23 @@ def main():
         if e0 - s0 < 20:   # the model often picks only the punchline (15-19 s): give it lead-in context (60%) and a short tail (40%) up to ~24 s, snapped to word starts
             need = 24 - (e0 - s0); s0 = max([w["start"] for w in words if w["start"] <= s0 - need * 0.6], default=s0) - 0.2; e0 = min([w["end"] for w in words if w["end"] >= e0 + need * 0.4], default=e0) + 0.45
         if not (20 <= e0 - s0 <= 59) or any(s0 < y and x < e0 for x, y in [(m[2], m[3]) for m in made]): print("rejected", round(s0), round(e0), j.get("title")); continue
-        body = f"{tmp}/b{int(s0)}.mp4"; pad = 2.0
+        body = f"{tmp}/b{int(s0)}.mp4"; pad = 2.0; body_t0 = s0 - pad
         r = sh(["ffmpeg", "-v", "error", "-y", "-ss", f"{s0 - pad:.2f}", "-t", f"{e0 - s0 + 2 * pad:.2f}", "-i", f"{base}/1080p60/playlist.m3u8", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "aac", "-b:a", "192k", body])
         if r.returncode: print("cut failed", r.stderr[-300:]); continue
-        rel = [{"word": w["word"], "start": w["start"] - (s0 - pad), "end": w["end"] - (s0 - pad)} for w in words if s0 - pad <= w["start"] <= e0 + pad]
-        ass = f"{out}/short_{vid}_{int(s0)}.ass"; mp4 = f"{out}/short_{vid}_{int(s0)}.mp4"; SH.make_ass(rel, pad, pad + e0 - s0, ass)
+        # PRECISION (research 17 Nov): refine the in/out points with the real audio energy of the cut body (Whisper word times are only good to ~100-300 ms and often early)
+        try:
+            import cutsnap as CS
+            env, hop = CS.energy_db(body); t0b = s0 - pad
+            wi = [w for w in words if s0 - 0.05 <= w["start"] <= e0 + 0.05]
+            if wi:
+                s1 = CS.snap_start(wi[0]["start"], words, env, hop, t0b); e1 = CS.snap_end(wi[-1]["end"], words, env, hop, t0b); chk = CS.check_boundaries(s1, e1, env, hop, t0b)
+                print(f"snap: start {s0:.2f}->{s1:.2f}  end {e0:.2f}->{e1:.2f}  boundary check {chk}")
+                if 18 <= e1 - s1 <= 60: s0, e0 = s1, e1
+        except Exception as e_: print("cutsnap failed (keeping word-based points):", e_)
+        rel = [{"word": w["word"], "start": w["start"] - body_t0, "end": w["end"] - body_t0} for w in words if body_t0 <= w["start"] <= e0 + pad]
+        ass = f"{out}/short_{vid}_{int(s0)}.ass"; mp4 = f"{out}/short_{vid}_{int(s0)}.mp4"; SH.make_ass(rel, s0 - body_t0, e0 - body_t0, ass)
         txt = open(ass, encoding="utf-8").read().replace("&H0028E678", "&H0000E6FF").replace("Heebo Black", "Heebo Black"); open(ass, "w", encoding="utf-8").write(txt)
-        if not (render2(body, pad, pad + e0 - s0, ass, mp4, j.get("hook", ""), pad + (pk - s0)) or SH.render(body, pad, pad + e0 - s0, ass, mp4)): continue
+        if not (render2(body, s0 - body_t0, e0 - body_t0, ass, mp4, j.get("hook", ""), pk - body_t0) or SH.render(body, s0 - body_t0, e0 - body_t0, ass, mp4)): continue
         PROF = re.compile(r"fuck|shit|bitch|nigg|fag|retard|cunt|dick|pussy|whore|slut", re.I)   # research: profanity in a title earns no ad revenue; drop the quoted part instead of publishing it
         if PROF.search(j["title"]):
             t2 = re.sub(r"\s*[-–:]?\s*[\"“”'‘’][^\"“”'‘’]*[\"“”'‘’]\s*", " ", j["title"]).strip(" -–:")
