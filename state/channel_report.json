@@ -1,0 +1,547 @@
+{
+ "generated": "2026-11-17T12:32:19Z",
+ "channel": {
+  "title": "ODED HIGHLIGHTS",
+  "subscribers": 1880,
+  "views": 17558,
+  "videos": 13
+ },
+ "totals": {
+  "videos_total": 31,
+  "videos_public": 15,
+  "views": 24003,
+  "likes": 235,
+  "est_hours_low": 1295.6,
+  "est_hours_high": 3022.8
+ },
+ "by_kind": {
+  "other": {
+   "n": 11,
+   "views": 21193,
+   "est_hours_mid": 1873.5
+  },
+  "reaction": {
+   "n": 3,
+   "views": 2810,
+   "est_hours_mid": 285.6
+  },
+  "short": {
+   "n": 1,
+   "views": 0,
+   "est_hours_mid": 0.0
+  }
+ },
+ "top_views": [
+  "KwS6vxsn-VQ",
+  "7pMRRSwuhu0",
+  "U2vvrhOr5AI",
+  "3ahtxhmle3o",
+  "UvCY4MqRuUk"
+ ],
+ "top_est_hours": [
+  "U2vvrhOr5AI",
+  "KwS6vxsn-VQ",
+  "3ahtxhmle3o",
+  "7pMRRSwuhu0",
+  "vuVbQellgSU"
+ ],
+ "videos": [
+  {
+   "id": "6nUNrQdln9w",
+   "title": "עודד משחק \"מים ואש\" בלייב  המשחק המלא!",
+   "published": "2026-11-17",
+   "privacy": "public",
+   "duration_min": 93.8,
+   "views": 10,
+   "likes": 4,
+   "comments": 0,
+   "est_hours": [
+    2.3,
+    5.3
+   ],
+   "views_per_day": 94.6,
+   "kind": "other"
+  },
+  {
+   "id": "A2gMEAwKp10",
+   "title": "\"תאוות הבצע היא האויב הגדול ביותר של האדם!\" – עודד מדבר על תחרות במשחק!",
+   "published": "2026-11-17",
+   "privacy": "private",
+   "duration_min": 24.7,
+   "views": 0,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.0
+   ],
+   "views_per_day": 0.0,
+   "kind": "other"
+  },
+  {
+   "id": "KoW__5Y-ZIo",
+   "title": "“אין לה מושג על מה היא מדברת!” – עודד מגיב לכתבה על GTA 6!",
+   "published": "2026-11-17",
+   "privacy": "private",
+   "duration_min": 10.5,
+   "views": 0,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.0
+   ],
+   "views_per_day": 0.0,
+   "kind": "reaction"
+  },
+  {
+   "id": "yB4uwdHmEZQ",
+   "title": "\"זה הסרטון הכי פורף שלו, אני חייב להגיד!\" – עודד מתגיב לצ׳אט ומשתף חוויות!",
+   "published": "2026-11-16",
+   "privacy": "private",
+   "duration_min": 28.8,
+   "views": 1,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.1,
+    0.2
+   ],
+   "views_per_day": 1.6,
+   "kind": "other"
+  },
+  {
+   "id": "ODOvF5m_OUs",
+   "title": "\"הם גרועים, הם גרועים!\" – עודד מתמודד עם תקלות במשחק!",
+   "published": "2026-11-16",
+   "privacy": "private",
+   "duration_min": 25.9,
+   "views": 0,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.0
+   ],
+   "views_per_day": 0.0,
+   "kind": "other"
+  },
+  {
+   "id": "aWOw52IYBf4",
+   "title": "עודד מגיב ל\"המשלוח הראשון של GTA VI\" של חדשות 13",
+   "published": "2026-11-16",
+   "privacy": "public",
+   "duration_min": 5.3,
+   "views": 1663,
+   "likes": 10,
+   "comments": 0,
+   "est_hours": [
+    39.5,
+    92.3
+   ],
+   "views_per_day": 1666.7,
+   "kind": "reaction"
+  },
+  {
+   "id": "vuVbQellgSU",
+   "title": "עודד מגיב ל\"משחקי הרעב במציאות\" של מיסטר ביסט!",
+   "published": "2026-11-16",
+   "privacy": "public",
+   "duration_min": 51.8,
+   "views": 1036,
+   "likes": 22,
+   "comments": 0,
+   "est_hours": [
+    128.8,
+    300.5
+   ],
+   "views_per_day": 1025.7,
+   "kind": "reaction"
+  },
+  {
+   "id": "3ahtxhmle3o",
+   "title": "עודד ואשתו אור מבשלים פסטה בלייב ובוחרים שם לכלב!",
+   "published": "2026-11-16",
+   "privacy": "public",
+   "duration_min": 23.2,
+   "views": 2663,
+   "likes": 30,
+   "comments": 0,
+   "est_hours": [
+    197.7,
+    461.3
+   ],
+   "views_per_day": 2615.9,
+   "kind": "other"
+  },
+  {
+   "id": "-n7O1xJ_5Sk",
+   "title": "זהו, מיכאל הוא בן‑אדם אמיתי, הוא פינוק! (Rob Run)!",
+   "published": "2026-11-16",
+   "privacy": "private",
+   "duration_min": 19.6,
+   "views": 0,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.0
+   ],
+   "views_per_day": 0.0,
+   "kind": "game"
+  },
+  {
+   "id": "0KTpnblRDVs",
+   "title": "זה הכי כיף בעולם! (Rob Run)!",
+   "published": "2026-11-16",
+   "privacy": "private",
+   "duration_min": 29.3,
+   "views": 1,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.1,
+    0.2
+   ],
+   "views_per_day": 0.7,
+   "kind": "game"
+  },
+  {
+   "id": "bzanvfEExrc",
+   "title": "\"עשר דקות, אחי!\" עודד מגיב לכתבות ולסרטוני GTA 6!",
+   "published": "2026-11-15",
+   "privacy": "private",
+   "duration_min": 4.7,
+   "views": 1,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.0
+   ],
+   "views_per_day": 0.6,
+   "kind": "reaction"
+  },
+  {
+   "id": "mO6e9-5Bw_A",
+   "title": "״עשר דקות, אחי!״ עודד מגיב לכתבות ולסרטוני GTA 6!",
+   "published": "2026-11-15",
+   "privacy": "private",
+   "duration_min": 10.9,
+   "views": 1,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.1
+   ],
+   "views_per_day": 0.6,
+   "kind": "reaction"
+  },
+  {
+   "id": "kAzlE23SLH0",
+   "title": "זה לא מוסקיל, אחי! – עודד מתמודד עם באג בממשק המים והאש! (חלק 2/2)",
+   "published": "2026-11-15",
+   "privacy": "private",
+   "duration_min": 50.0,
+   "views": 0,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.0
+   ],
+   "views_per_day": 0.0,
+   "kind": "other"
+  },
+  {
+   "id": "79rednRcgCU",
+   "title": "\"חלאס, נתק אותי!\" – עודד מבקש מהצ'אט לנתק אותו בזמן בעיות הקלטה!",
+   "published": "2026-11-15",
+   "privacy": "private",
+   "duration_min": 15.0,
+   "views": 2,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.1,
+    0.2
+   ],
+   "views_per_day": 1.2,
+   "kind": "other"
+  },
+  {
+   "id": "hNxA9RGgrwk",
+   "title": "\"זה לא דבר שיש מה להפסיד, חבר'ה!\" – עודד מדבר עם הצ'אט בזמן בישול ושטויות!",
+   "published": "2026-11-15",
+   "privacy": "private",
+   "duration_min": 21.3,
+   "views": 0,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.0
+   ],
+   "views_per_day": 0.0,
+   "kind": "other"
+  },
+  {
+   "id": "ykvH_5gsaSE",
+   "title": "\"אני בחרדות!\" – עודד מדבר על סבתון ותחרות בישול, אשתו מצטרפת וצ'אט שואל!",
+   "published": "2026-11-15",
+   "privacy": "private",
+   "duration_min": 15.7,
+   "views": 0,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.0
+   ],
+   "views_per_day": 0.0,
+   "kind": "other"
+  },
+  {
+   "id": "3H3rP1V0mLQ",
+   "title": "עודד מבקש מהצופים שלו לא לראות GTA 6 אצל סטרימרים אחרים!",
+   "published": "2026-11-15",
+   "privacy": "private",
+   "duration_min": 5.3,
+   "views": 1130,
+   "likes": 26,
+   "comments": 0,
+   "est_hours": [
+    27.0,
+    63.1
+   ],
+   "views_per_day": 624.3,
+   "kind": "other"
+  },
+  {
+   "id": "WQJhCHcuTSE",
+   "title": "\"זה הפלפלה שחור!\" – עודד מבשל פסטה עם נקניקיות!",
+   "published": "2026-11-15",
+   "privacy": "private",
+   "duration_min": 16.2,
+   "views": 1,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.1,
+    0.1
+   ],
+   "views_per_day": 0.6,
+   "kind": "other"
+  },
+  {
+   "id": "2DmQJZzvpmQ",
+   "title": "\"זה האב טיפוס הראשוני של לוז!\" עודד מדבר על החולצה החדשה עם אור!",
+   "published": "2026-11-15",
+   "privacy": "private",
+   "duration_min": 7.0,
+   "views": 1,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.1
+   ],
+   "views_per_day": 0.5,
+   "kind": "other"
+  },
+  {
+   "id": "riHgpZ1wJmA",
+   "title": "\"זה יהיה פסיכי!\" עודד מתכנן סבתון GTA 6 עם פרסים!",
+   "published": "2026-11-15",
+   "privacy": "private",
+   "duration_min": 4.1,
+   "views": 0,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.0
+   ],
+   "views_per_day": 0.0,
+   "kind": "other"
+  },
+  {
+   "id": "xY3zj56rBXI",
+   "title": "עודד מחפש את המספר של ביגי ומתקשר לעמית שיבר בלייב!",
+   "published": "2026-11-13",
+   "privacy": "public",
+   "duration_min": 4.7,
+   "views": 70,
+   "likes": 3,
+   "comments": 0,
+   "est_hours": [
+    1.5,
+    3.5
+   ],
+   "views_per_day": 17.0,
+   "kind": "other"
+  },
+  {
+   "id": "UvCY4MqRuUk",
+   "title": "עודד ורונן משחקים ביחד ברוב ראן ונמחקים מצ'יטר!",
+   "published": "2026-11-13",
+   "privacy": "public",
+   "duration_min": 14.9,
+   "views": 2534,
+   "likes": 16,
+   "comments": 0,
+   "est_hours": [
+    121.0,
+    282.2
+   ],
+   "views_per_day": 614.1,
+   "kind": "other"
+  },
+  {
+   "id": "KwS6vxsn-VQ",
+   "title": "סנסיי נרדם שיכור בלייב ועודד וביגי מנסים להעיר אותו!",
+   "published": "2026-11-13",
+   "privacy": "public",
+   "duration_min": 9.6,
+   "views": 4993,
+   "likes": 46,
+   "comments": 3,
+   "est_hours": [
+    216.1,
+    504.2
+   ],
+   "views_per_day": 1203.9,
+   "kind": "other"
+  },
+  {
+   "id": "ZA70shTHhSk",
+   "title": "עודד, סנסיי וביגי פותחים 36 חבילות פוקימון ושותים!",
+   "published": "2026-11-13",
+   "privacy": "public",
+   "duration_min": 15.0,
+   "views": 1185,
+   "likes": 18,
+   "comments": 2,
+   "est_hours": [
+    57.0,
+    133.0
+   ],
+   "views_per_day": 282.9,
+   "kind": "other"
+  },
+  {
+   "id": "rjv_nijAREA",
+   "title": "עודד מדרג את חיות המחמד של הצופים בלי רחמים!",
+   "published": "2026-11-12",
+   "privacy": "public",
+   "duration_min": 28.6,
+   "views": 50,
+   "likes": 2,
+   "comments": 0,
+   "est_hours": [
+    4.6,
+    10.7
+   ],
+   "views_per_day": 10.2,
+   "kind": "other"
+  },
+  {
+   "id": "U2vvrhOr5AI",
+   "title": "עודד וסנסי מתחילים מאפס בשרת חדש ברוב ראן!",
+   "published": "2026-11-12",
+   "privacy": "public",
+   "duration_min": 30.9,
+   "views": 4495,
+   "likes": 22,
+   "comments": 1,
+   "est_hours": [
+    333.0,
+    777.0
+   ],
+   "views_per_day": 912.7,
+   "kind": "other"
+  },
+  {
+   "id": "ojISFsEoUQ8",
+   "title": "עודד מגיב לשווארמה מומי באילת (הבעלים לא זיהה!)",
+   "published": "2026-11-12",
+   "privacy": "public",
+   "duration_min": 6.0,
+   "views": 111,
+   "likes": 3,
+   "comments": 0,
+   "est_hours": [
+    3.0,
+    7.0
+   ],
+   "views_per_day": 22.2,
+   "kind": "reaction"
+  },
+  {
+   "id": "7pMRRSwuhu0",
+   "title": "איתן ניסים התקשר לעודד והתחנן להזדמנות שנייה!",
+   "published": "2026-11-12",
+   "privacy": "public",
+   "duration_min": 11.4,
+   "views": 4965,
+   "likes": 48,
+   "comments": 3,
+   "est_hours": [
+    180.9,
+    422.0
+   ],
+   "views_per_day": 992.1,
+   "kind": "other"
+  },
+  {
+   "id": "kvhVs0gf5L8",
+   "title": "סנסיי מדד את החולצה של עודד בלייב! (עודד התרגש?!)",
+   "published": "2026-11-11",
+   "privacy": "public",
+   "duration_min": 14.1,
+   "views": 182,
+   "likes": 7,
+   "comments": 0,
+   "est_hours": [
+    8.2,
+    19.1
+   ],
+   "views_per_day": 31.5,
+   "kind": "other"
+  },
+  {
+   "id": "o4uJw09wskU",
+   "title": "עודד מספר על היציאה ההזויה שלו עם בן ואוהד!",
+   "published": "2026-11-11",
+   "privacy": "public",
+   "duration_min": 9.7,
+   "views": 46,
+   "likes": 4,
+   "comments": 0,
+   "est_hours": [
+    2.0,
+    4.7
+   ],
+   "views_per_day": 7.9,
+   "kind": "other"
+  },
+  {
+   "id": "EeM7ou0x70I",
+   "title": "MM17",
+   "published": "2023-10-31",
+   "privacy": "public",
+   "duration_min": 0,
+   "views": 0,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.0
+   ],
+   "views_per_day": 0.0,
+   "kind": "short"
+  }
+ ],
+ "note": "שעות הצפייה כאן הן הערכה (צפיות × אורך × אחוז צפייה ממוצע משוער). שעות צפייה מדויקות דורשות הפעלת YouTube Analytics API וחיבור מחדש עם הרשאת קריאה לאנליטיקס."
+}

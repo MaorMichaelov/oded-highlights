@@ -72,6 +72,11 @@ const TOOLS = {
     return r.status === 204 ? "שליחתי עדכון לטיוטה. יתעדכן תוך כדקה." : "נכשל " + r.status;
   },
   async drafts(a, tok) { const i = (await ghJson("state/index.json", tok)) || []; return i.slice(-15).reverse().map((c) => ({ title: c.title, uploaded: !!c.draft, url: c.draft || null, uploaded_at: c.draft_at || null, note: c.draft ? "טיוטה פרטית ביוטיוב" : (c.quality_errors && c.quality_errors.length ? "נחסם בבדיקת איכות" : "לא הועלה (בדיקה או בתהליך)") })); },
+  async report(a, tok) {   // every video one by one + estimated watch hours (the Data API has no watch time: estimate = views x duration x assumed % viewed)
+    const r = await ghJson("state/channel_report.json", tok); if (!r || !r.videos) return "אין עדיין דוח";
+    const t = r.totals || {}; const rows = r.videos.filter((v) => v.privacy !== "private").slice(0, 40).map((v) => `${v.published} | ${v.duration_min} דק׳ | ${v.views} צפיות | ~${v.est_hours[0]}-${v.est_hours[1]} שעות (הערכה) | ${v.title.slice(0, 60)}`);
+    return `סה״כ ${t.videos_public} סרטונים ציבוריים (${t.videos_total} כולל פרטיים): ${t.views} צפיות, ${t.likes} לייקים, שעות צפייה משוערות ${t.est_hours_low}-${t.est_hours_high}. לפי סוג: ${JSON.stringify(r.by_kind)}.\n` + rows.join("\n") + `\n${r.note || ""}`;
+  },
   async stats(a, tok) { const s = await ghJson("state/yt_stats.json", tok); if (!s) return "אין עדיין נתוני יוטיוב"; const v = [...s.videos].sort((x, y) => y.views - x.views); return { channel: s.channel, fetched_at: s.fetched_at, top: v.slice(0, 8).map((x) => ({ title: x.title, views: x.views, likes: x.likes, privacy: x.privacy })), latest: [...s.videos].slice(0, 6).map((x) => ({ title: x.title, views: x.views, privacy: x.privacy })) }; },
   async transcript(a, tok) {   // search the current stream transcript by words and/or time window (seconds of the stream)
     const ing = await ghJson("state/ingest_state.json", tok); if (!ing || !ing._current_vod) return "אין שידור מתומלל";
@@ -108,6 +113,7 @@ const TOOLS = {
 const TOOL_DOC = `status: מצב הלייב והמערכת. args: {}
 skipped: מה המערכת פסלה ולמה (הערות תחנת הבחירה, מועמדים, לקחים). args: {}
 views: כמה צפיות הערוץ קיבל ב-N שעות אחרונות. args: {hours}
+report: דוח כל הסרטונים אחד אחד: צפיות, לייקים, אורך ושעות צפייה משוערות (הערכה! שעות מדויקות דורשות YouTube Analytics API) + סיכום לפי סוג. args: {}
 plans: מה עודד אמר שהוא מתכנן לעשות/לצפות/לשחק/להגיב בהמשך (גם לשידורים הבאים). args: {}
 docs: קריאת מסמכי המערכת. args: {name: rules|stations|topics|readme|issues}
 clip: כל המידע על קליפ אחד (תכנית, שלבים, איכות, זמנים). args: {id}
@@ -242,6 +248,7 @@ self.addEventListener('notificationclick',e=>{e.notification.close();e.waitUntil
       const events = (ev || "").trim().split("\n").map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter((e) => e && e.t > since).slice(-25);
       return J({ live: live && live.live, title: live && live.title, events, now: new Date().toISOString() });
     }
+    if (p === "/api/report") return J((await ghJson("state/channel_report.json", tok)) || { videos: [] });
     if (p === "/api/predictions") return J((await ghJson("state/predictions.json", tok)) || { videos: [] });
     if (p === "/api/chat" && req.method === "POST") { const b = await req.json(); const reply = await agent(env, b.messages || [], tok, req.headers.get("x-groq") || ""); return J({ reply, ...(ERRS.length ? { debug: ERRS } : {}) }); }
     return J({ error: "not found" }, 404);
