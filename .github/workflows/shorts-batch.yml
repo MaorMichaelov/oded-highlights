@@ -4,6 +4,8 @@ on:
   workflow_dispatch:
     inputs:
       slug: { required: false, default: "n3on" }
+      platform: { description: "kick or twitch", required: false, default: "kick" }
+      credit: { required: false, default: "" }
       vod: { description: "VOD id or auto", required: false, default: "auto" }
       total_min: { description: "minutes of the VOD to scan from the start", required: false, default: "180" }
       from_min: { required: false, default: "0" }
@@ -19,7 +21,7 @@ jobs:
       - name: Install
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
-          pip install -q numpy
+          pip install -q numpy yt-dlp
           bash scripts/setup_workspace.sh
       - name: Windows
         env:
@@ -30,7 +32,7 @@ jobs:
           while [ $from -lt $end ]; do
             to=$((from + 30))
             echo "=== window $from-$to"
-            python3 -u scripts/vod_shorts.py --slug "${{ inputs.slug }}" --vod "${{ inputs.vod }}" --from-min $from --to-min $to --n ${{ inputs.per_window }} || echo "window $from-$to: nothing"
+            python3 -u scripts/vod_shorts.py --slug "${{ inputs.slug }}" --platform "${{ inputs.platform }}" --credit "${{ inputs.credit }}" --vod "${{ inputs.vod }}" --from-min $from --to-min $to --n ${{ inputs.per_window }} || echo "window $from-$to: nothing"
             from=$to
           done
           ls -la state/${{ inputs.slug }}/shorts/ || true

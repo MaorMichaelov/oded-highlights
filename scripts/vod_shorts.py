@@ -41,6 +41,21 @@ def pick_vod(slug, vid):
         title = v.get("session_title") or ""
         if str(v["id"]) == str(vid) or (vid == "auto" and (v.get("duration") or 0) > 25 * 60000 and not GAMBLING.search(title)): return v
     sys.exit("no suitable VOD")
+def twitch_pick(login, vid):
+    """Twitch VOD list WITHOUT an API key (yt-dlp works from a GitHub runner, probed 17 Nov): returns {"id","title","dur_s"}"""
+    r = sh(["yt-dlp", "--flat-playlist", "--playlist-end", "12", "--print", "%(id)s|%(duration)s|%(title)s", f"https://www.twitch.tv/{login}/videos?filter=archives&sort=time"])
+    for l in r.stdout.splitlines():
+        p = l.split("|", 2)
+        if len(p) < 3: continue
+        i_, d_, t_ = p[0].lstrip("v"), (float(p[1]) if p[1] not in ("NA", "None", "") else 0), p[2]
+        if str(i_) == str(vid) or (vid == "auto" and d_ > 25 * 60 and not GAMBLING.search(t_)): return {"id": i_, "title": t_, "dur_s": d_}
+    sys.exit("no suitable Twitch VOD")
+def twitch_urls(vod_id):
+    """direct HLS playlist URLs (signed, valid for hours): source-quality video and audio-only"""
+    a = sh(["yt-dlp", "-g", "-f", "audio_only/worstaudio/worst", f"https://www.twitch.tv/videos/{vod_id}"]).stdout.split()
+    v = sh(["yt-dlp", "-g", "-f", "best", f"https://www.twitch.tv/videos/{vod_id}"]).stdout.split()
+    if not a or not v: sys.exit("could not resolve Twitch playlist URLs")
+    return a[0], v[0]
 def whisper(path):   # Groq whisper large-v3-turbo, word timestamps (free tier: 7200 audio-seconds/hour)
     r = sh(["curl", "-sS", "-m", "300", "https://api.groq.com/openai/v1/audio/transcriptions", "-H", "Authorization: Bearer " + os.environ["GROQ_API_KEY"], "-F", f"file=@{path}", "-F", "model=whisper-large-v3-turbo", "-F", "language=en", "-F", "response_format=verbose_json", "-F", "timestamp_granularities[]=word"])
     return json.loads(r.stdout).get("words", [])
@@ -67,14 +82,19 @@ def render2(body, s, e, ass, out, hook, peak):
     if r.returncode: print("render2 failed:", r.stderr[-700:]); return False
     return True
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--slug", required=True); ap.add_argument("--vod", default="auto"); ap.add_argument("--from-min", type=float, default=0); ap.add_argument("--to-min", type=float, default=60); ap.add_argument("--n", type=int, default=3); ap.add_argument("--out", default=None); a = ap.parse_args()
-    out = a.out or f"state/{a.slug}/shorts"; os.makedirs(out, exist_ok=True); v = pick_vod(a.slug, a.vod); base = v["source"].rsplit("/master.m3u8", 1)[0]; vid = str(v["id"])
+    ap = argparse.ArgumentParser(); ap.add_argument("--slug", required=True); ap.add_argument("--vod", default="auto"); ap.add_argument("--from-min", type=float, default=0); ap.add_argument("--to-min", type=float, default=60); ap.add_argument("--n", type=int, default=3); ap.add_argument("--out", default=None); ap.add_argument("--platform", default="kick"); ap.add_argument("--credit", default=""); a = ap.parse_args()
+    out = a.out or f"state/{a.slug}/shorts"; os.makedirs(out, exist_ok=True)
+    if a.platform == "twitch":
+        tv = twitch_pick(a.slug, a.vod); vid = str(tv["id"]); v = {"id": vid, "session_title": tv["title"], "duration": tv["dur_s"] * 1000}; AUDIO_SRC, VIDEO_SRC = twitch_urls(vid)
+    else:
+        v = pick_vod(a.slug, a.vod); base = v["source"].rsplit("/master.m3u8", 1)[0]; vid = str(v["id"]); AUDIO_SRC, VIDEO_SRC = f"{base}/480p30/playlist.m3u8", f"{base}/1080p60/playlist.m3u8"
+    CREDIT_NAME = a.credit or a.slug
     print("VOD", vid, v.get("session_title"), round((v.get("duration") or 0) / 60000), "min"); t0 = a.from_min * 60; dur = (a.to_min - a.from_min) * 60
     tmp = tempfile.mkdtemp(); words = []; en = []
     # 1. audio in 10-minute chunks -> words (absolute VOD seconds) + energy per second
     for c0 in np.arange(0, dur, 600):
         d = min(600, dur - c0); mp3 = f"{tmp}/a{int(c0)}.mp3"
-        r = sh(["ffmpeg", "-v", "error", "-y", "-ss", f"{t0 + c0:.1f}", "-t", f"{d:.1f}", "-i", f"{base}/480p30/playlist.m3u8", "-vn", "-ac", "1", "-ar", "16000", "-c:a", "libmp3lame", "-b:a", "48k", mp3])
+        r = sh(["ffmpeg", "-v", "error", "-y", "-ss", f"{t0 + c0:.1f}", "-t", f"{d:.1f}", "-i", AUDIO_SRC, "-vn", "-ac", "1", "-ar", "16000", "-c:a", "libmp3lame", "-b:a", "48k", mp3])
         if r.returncode: print("audio chunk failed", r.stderr[-200:]); continue
         for w in whisper(mp3): words.append({"word": w["word"], "start": t0 + c0 + w["start"], "end": t0 + c0 + w["end"]})
         raw = subprocess.run(["ffmpeg", "-v", "error", "-i", mp3, "-f", "s16le", "-ac", "1", "-ar", "8000", "-"], capture_output=True).stdout; x = np.frombuffer(raw, dtype=np.int16).astype(np.float32)
@@ -118,7 +138,7 @@ def main():
             need = 24 - (e0 - s0); s0 = max([w["start"] for w in words if w["start"] <= s0 - need * 0.6], default=s0) - 0.2; e0 = min([w["end"] for w in words if w["end"] >= e0 + need * 0.4], default=e0) + 0.45
         if not (20 <= e0 - s0 <= 59) or any(s0 < y and x < e0 for x, y in [(m[2], m[3]) for m in made]): print("rejected", round(s0), round(e0), j.get("title")); continue
         body = f"{tmp}/b{int(s0)}.mp4"; pad = 2.0; body_t0 = s0 - pad
-        r = sh(["ffmpeg", "-v", "error", "-y", "-ss", f"{s0 - pad:.2f}", "-t", f"{e0 - s0 + 2 * pad:.2f}", "-i", f"{base}/1080p60/playlist.m3u8", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "aac", "-b:a", "192k", body])
+        r = sh(["ffmpeg", "-v", "error", "-y", "-ss", f"{s0 - pad:.2f}", "-t", f"{e0 - s0 + 2 * pad:.2f}", "-i", VIDEO_SRC, "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "aac", "-b:a", "192k", body])
         if r.returncode: print("cut failed", r.stderr[-300:]); continue
         # PRECISION (research 17 Nov): refine the in/out points with the real audio energy of the cut body (Whisper word times are only good to ~100-300 ms and often early)
         try:
@@ -140,8 +160,8 @@ def main():
             t2 = t2 if t2 and t2[-1] in "!?" else t2 + "!"
             if len(t2) < 18 or PROF.search(t2): print("title has profanity, skipped:", j["title"]); made_skip = True; continue
             j["title"] = t2
-        meta = {"title": j["title"][:90] + " #Shorts", "hook": j.get("hook", ""), "source": {"slug": a.slug, "vod": vid, "start_s": round(s0), "end_s": round(e0), "vod_title": v.get("session_title")}, "score": round(sc, 1), "why": j.get("why", ""),
-                "description": f"{j['title']}\n\nClip from {a.slug}'s live stream on Kick (https://kick.com/{a.slug}). Unofficial fan channel, not affiliated.\n#Shorts #{a.slug}"}
+        meta = {"title": j["title"][:90] + " #Shorts", "hook": j.get("hook", ""), "source": {"slug": a.slug, "platform": a.platform, "vod": vid, "start_s": round(s0), "end_s": round(e0), "vod_title": v.get("session_title")}, "score": round(sc, 1), "why": j.get("why", ""),
+                "description": f"{j['title']}\n\nClip from {CREDIT_NAME}'s live stream on " + ("Twitch (https://twitch.tv/" if a.platform == "twitch" else "Kick (https://kick.com/") + f"{a.slug}). Unofficial fan channel, not affiliated.\n#Shorts #{a.slug.replace('-', '')}"}
         json.dump(meta, open(mp4.replace(".mp4", ".json"), "w"), ensure_ascii=False, indent=1); made.append((mp4, meta, s0, e0)); print(f"SHORT {len(made)}: {int(s0 // 60)}:{int(s0 % 60):02d}-{int(e0 // 60)}:{int(e0 % 60):02d} ({e0 - s0:.0f}s) score {sc:.1f} | {j['title']}")
     if not made: sys.exit("no short produced")
 if __name__ == "__main__": main()

@@ -3,7 +3,9 @@ name: vod-shorts
 on:
   workflow_dispatch:
     inputs:
-      slug: { description: "Kick slug", required: false, default: "n3on" }
+      slug: { description: "Kick slug / Twitch login", required: false, default: "n3on" }
+      platform: { description: "kick or twitch", required: false, default: "kick" }
+      credit: { description: "display name for the description credit", required: false, default: "" }
       vod: { description: "VOD id or auto (newest non-gambling)", required: false, default: "auto" }
       from_min: { required: false, default: "0" }
       to_min: { required: false, default: "60" }
@@ -19,13 +21,13 @@ jobs:
       - name: Install
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
-          pip install -q numpy
+          pip install -q numpy yt-dlp
           bash scripts/setup_workspace.sh
       - name: Shorts
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python3 -u scripts/vod_shorts.py --slug "${{ inputs.slug }}" --vod "${{ inputs.vod }}" --from-min "${{ inputs.from_min }}" --to-min "${{ inputs.to_min }}" --n "${{ inputs.n }}"
+        run: python3 -u scripts/vod_shorts.py --slug "${{ inputs.slug }}" --platform "${{ inputs.platform }}" --credit "${{ inputs.credit }}" --vod "${{ inputs.vod }}" --from-min "${{ inputs.from_min }}" --to-min "${{ inputs.to_min }}" --n "${{ inputs.n }}"
       - name: QA - Gemini watches the first Shorts
         if: always()
         continue-on-error: true
