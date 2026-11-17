@@ -65,3 +65,5 @@ GROK BOT'S INSTRUCTIONS (owner pasted 14 Nov): drafts = private + full Hebrew ti
 - TWO CHANNELS (owner, 17 Nov): ODED HIGHLIGHTS = Oded only (Hebrew). WORLD CLIPS (the English channel, yt=en, secrets YT2_*) = Kai Cenat / N3on reactions and clips, long videos and Shorts. Never mix them. Nothing is uploaded to WORLD CLIPS until the owner connects the channel; until then the English Shorts stay as workflow artifacts.
 
 - WORLD CLIPS streamers (owner, 17 Nov): start with N3on (Kick) and Kai Cenat (TWITCH; the owner brings the Twitch app key today); then maybe xQc / Trainwreck / Adin Ross (Kick). Priorities for the new channel: (1) PRECISION of where each clip starts and ends, (2) SPEED (being first to upload matters).
+
+- CUT PRECISION (owner priority, 17 Nov): every clip start/end must be exact. Shorts use scripts/cutsnap.py (audio-energy onset/offset, pauses, boundary check, stretched-word cap). Long clips: pre-roll before the first sentence is 1.0 s (was 3.0 s: it dragged in the previous topic). Never start/end inside a word, no dead air > 0.6 s at either end.
