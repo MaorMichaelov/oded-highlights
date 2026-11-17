@@ -1,0 +1,52 @@
+name: live-shorts
+# RELEASE-DAY loop (e.g. GTA 6): while the streamer is live, every few minutes the next finished 30-minute window of the running stream becomes up to 2 Shorts (focus topic boosted), uploaded as PRIVATE drafts to the English channel (quota permitting). Self-chains every ~5h40. Stop: create state/<slug>/PAUSE.
+on:
+  workflow_dispatch:
+    inputs:
+      slug: { required: true }
+      platform: { required: false, default: "kick" }
+      credit: { required: false, default: "" }
+      focus: { required: false, default: "" }
+      upload: { required: false, default: "true" }
+      max_upload: { required: false, default: "2" }
+      force: { description: "treat the newest VOD as current even if offline (test)", required: false, default: "false" }
+concurrency: { group: "live-shorts-${{ inputs.slug }}", cancel-in-progress: false }
+permissions: { contents: write, actions: write }
+jobs:
+  loop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          pip install -q numpy yt-dlp
+          bash scripts/setup_workspace.sh
+      - name: Loop
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT2_REFRESH_TOKEN }}
+          YT_CLIENT_ID: ${{ secrets.YT2_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT2_CLIENT_SECRET }}
+          CHANNEL_YT: en
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
+          end=$((SECONDS+20400))
+          while [ $SECONDS -lt $end ]; do
+            [ -f "state/${{ inputs.slug }}/PAUSE" ] && { echo "PAUSE file present, stopping"; exit 0; }
+            python3 -u scripts/live_shorts.py --slug "${{ inputs.slug }}" --platform "${{ inputs.platform }}" --credit "${{ inputs.credit }}" --focus "${{ inputs.focus }}" ${{ inputs.upload == 'true' && '--upload' || '' }} --max-upload "${{ inputs.max_upload }}" ${{ inputs.force == 'true' && '--force' || '' }} || echo "iteration failed (continuing)"
+            git add state/${{ inputs.slug }}/live_state.json state/${{ inputs.slug }}/shorts/*.json 2>/dev/null; git diff --cached --quiet || { git commit -q -m "live shorts: ${{ inputs.slug }}"; for i in 1 2 3 4 5 6; do git pull --rebase -q && git push -q && break; sleep $((i*2)); done; }
+            sleep 240
+          done
+          gh workflow run live-shorts.yml --ref main -f slug="${{ inputs.slug }}" -f platform="${{ inputs.platform }}" -f credit="${{ inputs.credit }}" -f focus="${{ inputs.focus }}" -f upload="${{ inputs.upload }}" -f max_upload="${{ inputs.max_upload }}"
+      - name: Keep the Shorts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-shorts-${{ inputs.slug }}-${{ github.run_id }}
+          path: state/${{ inputs.slug }}/shorts/*.mp4
+          retention-days: 14
+          if-no-files-found: ignore
