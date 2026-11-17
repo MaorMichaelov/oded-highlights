@@ -72,6 +72,10 @@ def trim_dead_air(rows, keep, gap=5.0, pad_a=0.6, pad_b=0.8, min_seg=12.0):
             elif y - x >= min_seg: out.append([x, y])   # a short fragment (a few words) is dropped
     return out
 BAN_WORDS = re.compile(r"אוטי|מפגר|מוגבל")   # derogatory slang the streamer uses: never in a title/description (channel safety)
+try:   # CUSTOMER PROFILE hook (docs/AGENT_DESIGN.md): a strict no-op unless CUSTOMER_PROFILE points to a profile.json written by app/agent.js. It only ADDS bans, never removes built-in ones.
+    import customer_profile as CP; _CP = CP.load_from_env()
+    if _CP: HARD, HARD_EN, BAN_WORDS = CP.extend_regex(HARD, _CP), CP.extend_regex(HARD_EN, _CP), CP.extend_regex(BAN_WORDS, _CP)
+except Exception as _e: _CP = None; print("customer profile unavailable:", _e)
 def valid_title(t): return 28 <= len(t) <= 75 and t.strip()[-1] in "!?" and not BAN_WORDS.search(t)
 LANG = os.environ.get("PICK_LANG", "he"); CREDIT = os.environ.get("CHANNEL_CREDIT", "עודד (OdedSVR)"); SLUG = os.environ.get("CHANNEL", "odedsvr")
 
@@ -114,6 +118,7 @@ def span_meta(rows, keep, title, kind, funny=()):
              + SLUG + "\", ...3-5 more: topic/game/people],\"tags\":[...],\"preset\":\"one of " + ",".join(PRESETS) + "\",\"head\":\"<=2 English words\",\"accent\":\"<=2 English words ending !\",\"chapters\":[{\"second\":n,\"title\":\"<=6 specific English words\"}] (6-12 entries IN ORDER covering the clip, [second] from the samples, the first at the clip start; a reaction needs about one per minute, a long session one per 3-5 minutes),\"about\":\"one English sentence\",\"who\":\"names of who appears\",\"peak_second\":n}")
     if kind == "reaction": q += "\n\nTITLE STYLE for a reaction (copy the streamer's own channel): עודד מגיב ל\"<שם הסרטון/הכתבה שהוא צופה בו>\" של <שם היוצר>  (e.g. עודד מגיב ל\"זייפתי לייבים של סטרימרים מפורסמים\" של מרסי). Use it only when the video name and creator are clearly in the transcript (a news report: name the outlet, e.g. חדשות 13; a YouTuber: the creator); otherwise a quote + who + what title. One clip = ONE source video/article: if the stretch mixes two different reports, describe only the main one. In the description name the source and what is said in it with specifics (see docs/GROK_EXAMPLES.md style)."
     if kind in ("game", "event"): q += "\n\nTITLE STYLE for a game session (the streamer's own channel): a strong judgement/quote ending with ! then the game name in parentheses, e.g. זה המשחק הכי חולני ששיחקתי! (Can Em All). Put the game name only if it is clearly in the transcript."
+    if _CP: q += "\n\n" + CP.prompt_additions(_CP, " ".join(x for _, x in ls[::step][:40]), max_chars=900)   # customer style notes + approved/rejected examples closest to this clip
     out = ask("You are the topic editor of an Israeli streamer-highlights YouTube channel. Titles must describe the real content. JSON only.", q)
     try: return json.loads(re.search(r"\{.*\}", out, re.S).group(0))
     except Exception: return None
@@ -162,6 +167,7 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
                 for r in rs:
                     acc += len(r["text"]) + 1
                     if acc > m_.start(): ex.append([r["start"] - 0.4, r["end"] + 0.4]); break
+            if _CP: ex += CP.banned_line_spans(_CP, rs)   # lines with the customer's banned words / banned-topic keywords are cut like the HARD lines
             if sp.get("kind") == "reaction" and not sp.get("forced"):
                 ex += [[a_, b_] for a_, b_ in offtopic_cuts(rows, keep, sp["title"])]   # remove drama/IRL/chatter inside the reaction
             for x, y in sorted(ex):
@@ -199,6 +205,9 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
                     if valid_title(t_): meta = m_; break
                     print("title rejected:", len(t_), t_[:80])
             if not meta: print("meta/title failed for", sp["title"]); failed = True; continue
+            if _CP:   # final deterministic gate with the customer's bans/limits (the LLM prompt is advice, this is the rule)
+                v_ = CP.screen_candidate(_CP, meta["title"], meta.get("description", ""), text, sp.get("kind", ""), tot)
+                if v_["verdict"] == "block": print(f"customer profile blocked '{sp['title']}':", "; ".join(v_["reasons"])); __import__("events").event("pick_skip", f"🔎 הנושא \"{sp['title']}\" לא נחתך בגלל כלל של הלקוח: {v_['reasons'][0]}"); continue
             title = meta["title"].strip() + (f" (חלק {i + 1}/{parts})" if parts > 1 else "")
             cid = f"{vod}_{int(s0)}"; d = os.path.join(clipsd, cid)
             if os.path.exists(os.path.join(d, "spec.json")): continue
@@ -285,6 +294,7 @@ def main():
     L = (jf(os.path.join(ROOT, "state", "lessons.json"), []) or [])[-12:]
     ins = open(os.path.join(ROOT, "state", "chat_instructions.md"), encoding="utf-8").read()[-1200:] if os.path.exists(os.path.join(ROOT, "state", "chat_instructions.md")) else ""
     guide += ("\n\nLESSONS LEARNED (from deleted drafts, weak videos, quality failures; obey):\n" + "\n".join("- " + x["text"] for x in L) if L else "") + (("\n\nOWNER INSTRUCTIONS (from the app chat):\n" + ins) if ins.strip() else "")
+    if _CP: guide += "\n\n" + CP.prompt_additions(_CP, "\n".join(lines(rows, lo, hi))[:3000], max_chars=1100)   # customer rules, banned topics, approved/rejected examples
     system = (f"You are the topic editor of a YouTube clips channel (clips of the Kick streamer {SLUG}; language: {LANG}). " + ("Write ALL titles and descriptions in ENGLISH. " if LANG == "en" else "") + "You get a transcript of a live stream "
               "(ivrit ASR, may contain errors) and decide which COMPLETE topics become long videos. Follow the guide strictly. Reply with JSON only.\n\nGUIDE:\n" + guide)
     user = (f"Transcript window {mmss(lo)} - {mmss(hi)} (stream seconds; each line starts with [h:mm:ss|seconds]). Only topics that END before {int(hi)} s are closed.\n"
