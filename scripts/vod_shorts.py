@@ -69,7 +69,7 @@ def render2(body, s, e, ass, out, hook, peak):
         w_ = safe.split(); a_, b_ = [], []
         for x_ in w_: (a_ if len(" ".join(a_ + [x_])) <= max(12, len(safe) // 2 + 2) else b_).append(x_)
         safe = " ".join(a_) + "|" + " ".join(b_) if b_ else " ".join(a_)
-    P = max(0.0, peak - s); fr = int(P * 30)
+    P = max(0.0, (peak or 0) - s); fr = int(P * 30)
     z = f"if(between(on,{fr},{fr + 7}),1+0.07*(on-{fr})/7,if(between(on,{fr + 7},{fr + 30}),1.07-0.07*(on-{fr + 7})/23,1))" if peak else "1"
     dt = "".join(f",drawtext=fontfile={ff}:text='{ln}':fontsize=64:fontcolor=white:borderw=6:bordercolor=black:x=(w-text_w)/2:y={300 + 84 * k}:enable='lt(t,1.8)'" for k, ln in enumerate([x for x in safe.split("|") if x.strip()]))
     vf = ("[0:v]split=2[a][b];[a]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=28:4,eq=brightness=-0.12[bg];[b]scale=1080:-2[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2[v0];"
@@ -163,7 +163,7 @@ def main():
             t2 = t2 if t2 and t2[-1] in "!?" else t2 + "!"
             if len(t2) < 18 or PROF.search(t2): print("title has profanity, skipped:", j["title"]); made_skip = True; continue
             j["title"] = t2
-        meta = {"title": j["title"][:90] + " #Shorts", "hook": j.get("hook", ""), "source": {"slug": a.slug, "platform": a.platform, "vod": vid, "start_s": round(s0), "end_s": round(e0), "vod_title": v.get("session_title")}, "score": round(sc, 1), "why": j.get("why", ""),
+        meta = {"title": re.sub(r"\s+([!?])", r"\1", j["title"]).strip()[:90] + " #Shorts", "hook": j.get("hook", ""), "source": {"slug": a.slug, "platform": a.platform, "vod": vid, "start_s": round(s0), "end_s": round(e0), "vod_title": v.get("session_title")}, "score": round(sc, 1), "why": j.get("why", ""),
                 "description": f"{j['title']}\n\nClip from {CREDIT_NAME}'s live stream on " + ("Twitch (https://twitch.tv/" if a.platform == "twitch" else "Kick (https://kick.com/") + f"{a.slug}). Unofficial fan channel, not affiliated.\n#Shorts #{a.slug.replace('-', '')}"}
         json.dump(meta, open(mp4.replace(".mp4", ".json"), "w"), ensure_ascii=False, indent=1); made.append((mp4, meta, s0, e0)); print(f"SHORT {len(made)}: {int(s0 // 60)}:{int(s0 % 60):02d}-{int(e0 // 60)}:{int(e0 % 60):02d} ({e0 - s0:.0f}s) score {sc:.1f} | {j['title']}")
     if not made: sys.exit("no short produced")

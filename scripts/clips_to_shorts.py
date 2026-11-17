@@ -17,14 +17,17 @@ def list_kick(slug, days):
             if created >= cut and 8 <= dur <= 120 and not any(x["id"] == c["id"] for x in out): out.append({"id": c["id"], "title": c.get("title") or "", "views": int(c.get("view_count") or 0), "dur": dur, "src": c.get("clip_url") or c.get("video_url"), "created": c["created_at"][:10]})
     return sorted(out, key=lambda x: -x["views"])
 def list_twitch(login, days):
-    rng = "7d" if days <= 7 else "30d"; out = []
-    r = V.sh(["yt-dlp", "--flat-playlist", "--playlist-end", "25", "--print", "%(id)s|%(url)s|%(duration)s|%(view_count)s|%(title)s", f"https://www.twitch.tv/{login}/clips?filter=clips&range={rng}"])
-    for l in r.stdout.splitlines():
+    out = []; lines = []
+    for rng in ("7d", "30d"):   # clip lists by range; 30d only if the last week gave too little
+        r = V.sh(["yt-dlp", "--flat-playlist", "--playlist-end", "25", "--print", "%(id)s|%(url)s|%(duration)s|%(view_count)s|%(title)s", f"https://www.twitch.tv/{login}/clips?filter=clips&range={rng}"])
+        print("twitch clips", rng, "->", len(r.stdout.splitlines()), "rows", r.stderr[-120:] if not r.stdout else "", flush=True); lines += r.stdout.splitlines()
+        if len(lines) >= 12 or days <= 7: break
+    for l in lines:
         p = l.split("|", 4)
         if len(p) < 5: continue
         try: dur = float(p[2]); views = int(float(p[3]))
         except Exception: continue
-        if 8 <= dur <= 120: out.append({"id": p[0], "title": p[4], "views": views, "dur": dur, "src": p[1], "created": ""})
+        if 5 <= dur <= 120 and not any(x["id"] == p[0] for x in out): out.append({"id": p[0], "title": p[4], "views": views, "dur": dur, "src": p[1], "created": ""})
     return sorted(out, key=lambda x: -x["views"])
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--platform", default="kick"); ap.add_argument("--slug", required=True); ap.add_argument("--days", type=int, default=14); ap.add_argument("--n", type=int, default=6); ap.add_argument("--credit", default=""); ap.add_argument("--out", default=None); a = ap.parse_args()
@@ -48,7 +51,7 @@ def main():
         t_ = open(ass, encoding="utf-8").read().replace("&H0028E678", "&H0007C1FF"); open(ass, "w", encoding="utf-8").write(t_)
         dest = f"{out}/clip_{c['id']}.mp4"
         if not V.render2(mp4, 0.0, dur, ass, dest, j.get("hook", ""), None): print("render failed", c["id"]); continue
-        title = j["title"].strip()[:90]; where = ("Twitch (https://twitch.tv/" if a.platform == "twitch" else "Kick (https://kick.com/") + f"{a.slug})"
+        title = re.sub(r"\s+([!?])", r"\1", j["title"]).strip()[:90]; where = ("Twitch (https://twitch.tv/" if a.platform == "twitch" else "Kick (https://kick.com/") + f"{a.slug})"
         meta = {"title": title + " #Shorts", "hook": j.get("hook", ""), "score": round(2 * math.log10(max(c["views"], 10)), 1), "source": {"slug": a.slug, "platform": a.platform, "clip": c["id"], "views": c["views"], "created": c["created"]},
                 "description": f"{title}\n\nClip from {credit}'s live stream on {where}. Unofficial fan channel, not affiliated.\n#Shorts #{a.slug.replace('-', '')} #ClipGlobe"}
         json.dump(meta, open(dest[:-4] + ".json", "w"), ensure_ascii=False, indent=1); made += 1; print(f"SHORT {made}: {c['views']} views | {title}", flush=True)
