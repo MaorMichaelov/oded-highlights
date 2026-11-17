@@ -4,130 +4,191 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Studio</title>
-<style>body{font-family:system-ui,sans-serif;max-width:760px;margin:0 auto;padding:12px}section{border:1px solid #8884;margin:10px 0;padding:8px}input,select,button{margin:2px;padding:4px}pre{white-space:pre-wrap;word-break:break-all}.hidden{display:none}</style>
+<style>body{font-family:system-ui,sans-serif;max-width:640px;margin:0 auto;padding:12px;line-height:1.4}section,.card{border:1px solid #8884;margin:10px 0;padding:10px;border-radius:6px}input,button{margin:2px;padding:6px;font:inherit}input{min-width:55%}.hidden{display:none}.chip{font-size:.85em}#chat{max-height:220px;overflow:auto}.me{opacity:.7}.card{touch-action:pan-y}.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}code{font-size:1.2em;user-select:all}progress{width:100%}</style>
 </head>
 <body>
-<!-- MVP skeleton: functional only, no design. Every action maps 1:1 to an endpoint in docs/PRODUCT_ARCHITECTURE.md. -->
-<h1>Studio (MVP)</h1>
-<pre id="msg"></pre>
+<!-- MVP skeleton: functional UX + copy only, no visual design. Texts are short and bilingual (he/en by browser language). Every action maps 1:1 to an endpoint in docs/PRODUCT_ARCHITECTURE.md. -->
+<h1 id="title"></h1>
+<div id="msg" role="status"></div>
 
+<!-- 0. sign in: ONE button. Tries login; if the email is new it signs up. -->
 <section id="auth">
-  <h2>כניסה / הרשמה</h2>
-  <input id="email" type="email" placeholder="email" autocomplete="username">
-  <input id="pw" type="password" placeholder="password (8+)" autocomplete="current-password">
-  <input id="name" placeholder="name (signup)">
-  <button id="login">Login</button> <button id="signup">Sign up</button>
-  <div id="inviteBox" class="hidden">הוזמנת לצוות: <span id="inviteInfo"></span> <button id="acceptInvite">Accept</button></div>
+  <p id="authTxt"></p>
+  <input id="email" type="email" autocomplete="username" placeholder="email">
+  <input id="pw" type="password" autocomplete="current-password" placeholder="password (8+)">
+  <button id="go"></button>
+  <div id="inviteBox" class="hidden"><span id="inviteInfo"></span> <button id="acceptInvite"></button></div>
 </section>
 
 <div id="app" class="hidden">
-  <section>
-    <b id="who"></b> <button id="logout">Logout</button>
-    <div>Team: <select id="orgSel"></select> <span id="orgInfo"></span></div>
+  <!-- 1. first run: paste channel -> verify -> connect YouTube -> done -->
+  <section id="wizard" class="hidden">
+    <h2 id="wTitle"></h2>
+    <div id="step1" class="hidden"><p id="s1Txt"></p><input id="chIn" placeholder="kick.com/name  /  twitch.tv/name"> <button id="chAdd"></button></div>
+    <div id="step2" class="hidden"><p id="s2Txt"></p><p><code id="code"></code> <button id="copy"></button></p><p id="s2Wait"></p><button id="verifyNow"></button></div>
+    <div id="step3" class="hidden"><p id="s3Txt"></p><button id="ytGo"></button> <button id="skipYt"></button></div>
   </section>
 
-  <section>
-    <h2>ערוצי סטרימינג (חיבור + אימות בעלות)</h2>
-    <select id="chPlat"><option>kick</option><option>twitch</option></select>
-    <input id="chSlug" placeholder="channel name"> <button id="chAdd">Connect</button>
-    <div id="channels"></div>
-  </section>
+  <!-- 2. home -->
+  <div id="home" class="hidden">
+    <div class="row"><b id="who"></b> <span id="orgInfo"></span> <button id="logout"></button></div>
+    <section><b id="styleTitle"></b> <span id="styleTxt"></span></section>
 
-  <section>
-    <h2>סגנון עריכה</h2>
-    <div>style per channel: use the dropdown in each channel row. Or learn from a reference link:</div>
-    <input id="refUrl" placeholder="https://youtube.com/..."> <select id="refChan"></select> <button id="refGo">Learn style</button>
-    <pre id="styles"></pre>
-  </section>
+    <section><h2 id="inboxTitle"></h2><div id="inbox"></div><div id="hintKeys"></div></section>
+    <section><h2 id="progTitle"></h2><div id="progress"></div></section>
 
-  <section>
-    <h2>חיבור YouTube</h2>
-    <div>TODO: Google OAuth (not implemented yet). Button below returns 501.</div>
-    <select id="ytChan"></select> <button id="ytGo">Connect YouTube</button>
-  </section>
+    <section><h2 id="chatTitle"></h2>
+      <div id="chat"></div>
+      <div id="chips"></div>
+      <input id="chatIn"> <button id="chatGo"></button>
+    </section>
 
-  <section>
-    <h2>עבודות (Jobs)</h2>
-    <select id="jobChan"></select> <select id="jobType"><option>vod</option><option>url</option></select>
-    <input id="jobRef" placeholder="VOD link / id"> <input id="jobDur" type="number" placeholder="duration min">
-    <button id="jobAdd">Create job</button> <button id="jobsReload">Refresh</button>
-    <div id="jobs"></div>
-  </section>
-
-  <section>
-    <h2>צוות</h2>
-    <div id="members"></div>
-    <input id="invEmail" placeholder="email"> <select id="invRole"><option>editor</option><option>viewer</option></select> <button id="invGo">Invite</button>
-    <pre id="invOut"></pre>
-  </section>
-
-  <section>
-    <h2>תשלום</h2>
-    <div id="billing"></div>
-    <button id="payGo">Buy credits (TODO)</button>
-  </section>
+    <details><summary id="teamTitle"></summary><div id="members"></div>
+      <input id="invEmail" placeholder="email"> <select id="invRole"><option>editor</option><option>viewer</option></select> <button id="invGo"></button><pre id="invOut"></pre></details>
+    <details><summary id="billTitle"></summary><div id="billing"></div><button id="payGo"></button></details>
+    <details><summary id="chTitle"></summary><div id="channels"></div><input id="chIn2" placeholder="kick.com/name"> <button id="chAdd2"></button></details>
+  </div>
 </div>
 
 <script>
 "use strict";
 const $ = (id) => document.getElementById(id);
-let token = null, orgs = [], org = null, inviteToken = null, styles = [];
-try { token = localStorage.getItem("studio_token"); } catch (e) {}
-const say = (x) => { $("msg").textContent = typeof x === "string" ? x : JSON.stringify(x); };
+const L = (navigator.language || "he").startsWith("he") ? "he" : "en";
+const T = {
+  title: { he: "סטודיו", en: "Studio" },
+  authTxt: { he: "נכנסים או נרשמים בלחיצה אחת:", en: "Sign in or sign up in one click:" },
+  go: { he: "המשך", en: "Continue" },
+  logout: { he: "יציאה", en: "Logout" },
+  accept: { he: "הצטרף לצוות", en: "Join the team" },
+  wTitle: { he: "בוא נתחיל (3 צעדים)", en: "Let's start (3 steps)" },
+  s1: { he: "1/3 הדבק קישור לערוץ שלך:", en: "1/3 Paste your channel link:" },
+  add: { he: "הוסף", en: "Add" },
+  s2: { he: "2/3 הדבק את הקוד הזה בביו / בתיאור הערוץ (או בכותרת הסטרים) ושמור:", en: "2/3 Put this code in your bio / channel description (or stream title) and save:" },
+  copy: { he: "העתק", en: "Copy" },
+  wait: { he: "בודקים אוטומטית כל כמה שניות...", en: "Checking automatically every few seconds..." },
+  verify: { he: "בדוק עכשיו", en: "Check now" },
+  s3: { he: "3/3 חבר את יוטיוב. הסרטונים יעלו כטיוטות פרטיות, שום דבר לא מתפרסם בלי אישור שלך.", en: "3/3 Connect YouTube. Videos upload as private drafts, nothing goes public without your approval." },
+  yt: { he: "חבר יוטיוב", en: "Connect YouTube" },
+  skip: { he: "אחר כך", en: "Later" },
+  ytSoon: { he: "חיבור יוטיוב בדרך. בינתיים אפשר להמשיך.", en: "YouTube connect is coming. You can continue for now." },
+  style: { he: "הסגנון שלך:", en: "Your style:" },
+  styleTxt: { he: "הסגנון שלנו - חיתוכים מהירים, כתוביות, פתיח חזק. (אין צורך לבחור)", en: "Our style - fast cuts, captions, strong hook. (nothing to pick)" },
+  inbox: { he: "ממתין לאישור שלך", en: "Waiting for your approval" },
+  inboxEmpty: { he: "אין טיוטות כרגע. בקש בצ'אט למטה!", en: "No drafts right now. Ask in the chat below!" },
+  keys: { he: "החלק ימינה = אשר, שמאלה = דחה (או חצים במקלדת)", en: "Swipe right = approve, left = reject (or arrow keys)" },
+  approve: { he: "אשר", en: "Approve" }, reject: { he: "דחה", en: "Reject" },
+  prog: { he: "מה קורה עכשיו", en: "What's happening" },
+  progEmpty: { he: "שום דבר בעבודה כרגע.", en: "Nothing in progress." },
+  cancel: { he: "בטל", en: "Cancel" },
+  chat: { he: "בקש מהעוזר", en: "Ask the assistant" },
+  chatPh: { he: "למשל: תכין 5 שורטס מצחיקים מאתמול", en: "e.g. make 5 funny Shorts from yesterday" },
+  send: { he: "שלח", en: "Send" },
+  chips: { he: ["5 שורטס מצחיקים מאתמול", "סרטון ארוך מהסטרים האחרון", "מה המצב?"], en: ["5 funny Shorts from yesterday", "a long video from the latest stream", "what's the status?"] },
+  team: { he: "צוות", en: "Team" }, invite: { he: "הזמן", en: "Invite" },
+  bill: { he: "תשלום וקרדיטים", en: "Billing & credits" }, pay: { he: "קנה קרדיטים (בקרוב)", en: "Buy credits (soon)" },
+  chans: { he: "ערוצים", en: "Channels" }, remove: { he: "הסר", en: "Remove" },
+  err: { he: "אופס, משהו לא עבד: ", en: "Oops: " },
+};
+const tx = (k) => T[k][L];
+let token = null, orgs = [], org = null, inviteToken = null, channels = [], jobs = [], pollTimer = null, verifyTimer = null, skippedYt = false;
+try { token = localStorage.getItem("studio_token"); skippedYt = localStorage.getItem("studio_skip_yt") === "1"; } catch (e) {}
+const say = (x) => { $("msg").textContent = typeof x === "string" ? x : (x && x[L]) || JSON.stringify(x); };
 async function api(method, path, body) {
   const r = await fetch("/studio/api" + path, { method, headers: { "content-type": "application/json", ...(token ? { authorization: "Bearer " + token } : {}) }, body: body ? JSON.stringify(body) : undefined });
-  const j = await r.json().catch(() => ({})); if (!r.ok) { say(r.status + " " + JSON.stringify(j)); throw j; } return j;
+  const j = await r.json().catch(() => ({})); if (!r.ok) { j._status = r.status; throw j; } return j;
 }
+const fail = (e) => say(tx("err") + (e[L] || e.error || JSON.stringify(e)));
 const el = (tag, props, ...kids) => { const e = document.createElement(tag); Object.assign(e, props || {}); for (const k of kids) e.append(k); return e; };
-const btn = (label, fn) => { const b = el("button", { textContent: label }); b.onclick = () => fn().then(refresh).catch(() => {}); return b; };
-const orgPath = () => "/orgs/" + org.id;
-const can = (a) => ({ owner: 1, editor: a !== "channel.manage" && a !== "team" && a !== "billing", viewer: 0 }[org.role]);
+const btn = (label, fn) => { const b = el("button", { textContent: label }); b.onclick = () => Promise.resolve(fn()).then(load).catch(fail); return b; };
+const op = () => "/orgs/" + org.id;
+const canEdit = () => org && (org.role === "owner" || org.role === "editor");
 
-async function login(path) {
-  const j = await api("POST", path, { email: $("email").value, password: $("pw").value, name: $("name").value });
-  token = j.token; try { localStorage.setItem("studio_token", token); } catch (e) {} say("ok"); await boot();
-}
-$("login").onclick = () => login("/login").catch(() => {});
-$("signup").onclick = () => login("/signup").catch(() => {});
+for (const [id, k] of [["title", "title"], ["authTxt", "authTxt"], ["go", "go"], ["logout", "logout"], ["acceptInvite", "accept"], ["wTitle", "wTitle"], ["s1Txt", "s1"], ["chAdd", "add"], ["chAdd2", "add"], ["s2Txt", "s2"], ["copy", "copy"], ["s2Wait", "wait"], ["verifyNow", "verify"], ["s3Txt", "s3"], ["ytGo", "yt"], ["skipYt", "skip"], ["styleTitle", "style"], ["styleTxt", "styleTxt"], ["inboxTitle", "inbox"], ["hintKeys", "keys"], ["progTitle", "prog"], ["chatTitle", "chat"], ["chatGo", "send"], ["teamTitle", "team"], ["invGo", "invite"], ["billTitle", "bill"], ["payGo", "pay"], ["chTitle", "chans"]]) $(id).textContent = tx(k);
+$("chatIn").placeholder = tx("chatPh"); document.documentElement.lang = L; document.documentElement.dir = L === "he" ? "rtl" : "ltr";
+$("chips").replaceChildren(...T.chips[L].map((c) => { const b = el("button", { className: "chip", textContent: c }); b.onclick = () => { $("chatIn").value = c; send(); }; return b; }));
+
+// ---- sign in: one button
+$("go").onclick = async () => {
+  const body = { email: $("email").value, password: $("pw").value };
+  try { token = (await api("POST", "/login", body)).token; }
+  catch (e) { if (e._status !== 401) return fail(e); try { token = (await api("POST", "/signup", body)).token; } catch (e2) { return say(e2.error === "email_exists" ? (L === "he" ? "הסיסמה לא נכונה" : "Wrong password") : tx("err") + (e2.error || "")); } }
+  try { localStorage.setItem("studio_token", token); } catch (e) {} say(""); boot();
+};
 $("logout").onclick = async () => { try { await api("POST", "/logout"); } catch (e) {} token = null; try { localStorage.removeItem("studio_token"); } catch (e) {} location.reload(); };
-$("orgSel").onchange = () => { org = orgs.find((o) => o.id === $("orgSel").value); refresh(); };
+$("acceptInvite").onclick = async () => { try { await api("POST", "/invites/accept", { token: inviteToken }); location.hash = ""; inviteToken = null; $("inviteBox").classList.add("hidden"); boot(); } catch (e) { fail(e); } };
 
 async function boot() {
-  const h = location.hash.match(/invite=(inv_[a-f0-9]+)/); if (h) { inviteToken = h[1]; try { const p = await api("POST", "/invites/preview", { token: inviteToken }); $("inviteInfo").textContent = p.org + " as " + p.role; $("inviteBox").classList.remove("hidden"); } catch (e) {} }
+  const h = location.hash.match(/invite=(inv_[a-f0-9]+)/);
+  if (h) { inviteToken = h[1]; try { const p = await api("POST", "/invites/preview", { token: inviteToken }); $("inviteInfo").textContent = p.org + " (" + p.role + ")"; $("inviteBox").classList.remove("hidden"); } catch (e) {} }
   if (!token) return;
-  try { const me = await api("GET", "/me"); $("who").textContent = me.user.email; orgs = me.orgs; } catch (e) { token = null; return; }
-  $("auth").classList.add("hidden"); $("app").classList.remove("hidden");
-  $("orgSel").replaceChildren(...orgs.map((o) => el("option", { value: o.id, textContent: o.name + " (" + o.role + ")" })));
-  org = orgs.find((o) => o.id === $("orgSel").value) || orgs[0]; await refresh();
+  let me; try { me = await api("GET", "/me"); } catch (e) { token = null; return; }
+  $("who").textContent = me.user.email; orgs = me.orgs; org = org ? orgs.find((o) => o.id === org.id) || orgs[0] : orgs[0];
+  $("auth").classList.add("hidden"); $("app").classList.remove("hidden"); if (org) await load();
 }
-$("acceptInvite").onclick = async () => { try { await api("POST", "/invites/accept", { token: inviteToken }); location.hash = ""; say("joined"); await boot(); } catch (e) {} };
 
-async function refresh() {
-  if (!org) return;
-  $("orgInfo").textContent = "plan=" + org.plan + " credits=" + org.credits + " role=" + org.role;
-  const [chs, st, jobs, mem, bill] = await Promise.all([api("GET", orgPath() + "/channels"), api("GET", "/styles"), api("GET", orgPath() + "/jobs"), api("GET", orgPath() + "/members"), api("GET", orgPath() + "/billing")]);
-  styles = st.styles; $("styles").textContent = styles.map((s) => s.id + " - " + s.name + (s.description ? ": " + s.description : "")).join("\n");
-  const chRows = chs.channels.map((c) => {
-    const row = el("div", {}, c.platform + "/" + c.slug + " [" + c.status + "] ");
-    if (c.status === "pending") { row.append(el("code", { textContent: c.verify_code }), " ", btn("Verify", () => api("POST", orgPath() + "/channels/" + c.id + "/verify").then((r) => say(r)))); }
-    const sel = el("select", {}, ...styles.map((s) => el("option", { value: s.id, textContent: s.id, selected: s.id === c.style_id }))); sel.onchange = () => api("POST", orgPath() + "/channels/" + c.id + "/style", { style_id: sel.value }).then(refresh).catch(() => {});
-    row.append(sel, btn("Remove", () => api("DELETE", orgPath() + "/channels/" + c.id)));
-    return row;
-  });
-  $("channels").replaceChildren(...chRows);
-  const verified = chs.channels.filter((c) => c.status === "verified"), opts = () => chs.channels.map((c) => el("option", { value: c.id, textContent: c.platform + "/" + c.slug }));
-  for (const id of ["refChan", "ytChan", "jobChan"]) $(id).replaceChildren(...(id === "jobChan" ? verified.map((c) => el("option", { value: c.id, textContent: c.platform + "/" + c.slug })) : opts()));
-  $("jobs").replaceChildren(...jobs.jobs.map((j) => { const r = el("div", {}, j.id + " " + j.kind + " [" + j.status + "] " + j.progress + "% "); if (j.status === "draft_ready") r.append(btn("Approve", () => api("POST", orgPath() + "/jobs/" + j.id + "/approve")), btn("Reject", () => api("POST", orgPath() + "/jobs/" + j.id + "/reject"))); if (j.status === "queued") r.append(btn("Cancel", () => api("POST", orgPath() + "/jobs/" + j.id + "/cancel"))); if (j.result.drafts.length) r.append(JSON.stringify(j.result.drafts)); return r; }));
-  $("members").replaceChildren(...mem.members.map((m) => el("div", {}, m.email + " - " + m.role)), ...mem.invites.map((i) => el("div", {}, "invited " + i.email + " as " + i.role + " ", btn("Revoke", () => api("DELETE", orgPath() + "/invites/" + i.id)))));
-  $("billing").textContent = JSON.stringify(bill);
+// ---- load everything, decide which screen to show (wizard vs home)
+async function load() {
+  clearTimeout(pollTimer); if (!org) return;
+  const me = await api("GET", "/me"); orgs = me.orgs; org = orgs.find((o) => o.id === org.id) || orgs[0];
+  [channels, jobs] = await Promise.all([api("GET", op() + "/channels").then((r) => r.channels), api("GET", op() + "/jobs").then((r) => r.jobs)]);
+  $("orgInfo").textContent = (L === "he" ? "קרדיטים: " : "credits: ") + org.credits + " | " + org.role;
+  const verified = channels.filter((c) => c.status === "verified"), pending = channels.find((c) => c.status === "pending");
+  const needWizard = org.role === "owner" && (!verified.length || (!skippedYt && verified.every((c) => c.yt.status !== "connected")));
+  $("wizard").classList.toggle("hidden", !needWizard); $("home").classList.toggle("hidden", needWizard && !verified.length);
+  for (const s of ["step1", "step2", "step3"]) $(s).classList.add("hidden");
+  clearTimeout(verifyTimer);
+  if (needWizard) {
+    if (!channels.length) $("step1").classList.remove("hidden");
+    else if (pending && !verified.length) { $("step2").classList.remove("hidden"); $("code").textContent = pending.verify_code; verifyTimer = setTimeout(() => autoVerify(pending), 8000); }
+    else $("step3").classList.remove("hidden");
+  }
+  if (!needWizard || verified.length) renderHome(verified);
+  const active = jobs.some((j) => ["queued", "running", "qa"].includes(j.status)); pollTimer = setTimeout(() => load().catch(() => {}), active ? 4000 : 20000);
 }
-$("chAdd").onclick = () => api("POST", orgPath() + "/channels", { platform: $("chPlat").value, slug: $("chSlug").value }).then((r) => { say(r.instructions || "exists"); refresh(); }).catch(() => {});
-$("refGo").onclick = () => api("POST", orgPath() + "/channels/" + $("refChan").value + "/style", { reference_url: $("refUrl").value }).then((r) => { say(r); refresh(); }).catch(() => {});
-$("ytGo").onclick = () => api("POST", orgPath() + "/channels/" + $("ytChan").value + "/youtube").catch(() => {});
-$("jobAdd").onclick = () => api("POST", orgPath() + "/jobs", { channel_id: $("jobChan").value, source: { type: $("jobType").value, ref: $("jobRef").value, duration_min: $("jobDur").value } }).then(refresh).catch(() => {});
-$("jobsReload").onclick = () => refresh().catch(() => {});
-$("invGo").onclick = () => api("POST", orgPath() + "/invites", { email: $("invEmail").value, role: $("invRole").value }).then((r) => { $("invOut").textContent = r.accept_url; refresh(); }).catch(() => {});
-$("payGo").onclick = () => api("POST", orgPath() + "/billing/checkout", {}).catch(() => {});
+async function autoVerify(c) { try { const r = await api("POST", op() + "/channels/" + c.id + "/verify"); if (r.verified) { say(L === "he" ? "הערוץ אומת!" : "Channel verified!"); } } catch (e) { if (e.error === "code_expired") say(e.error); } load().catch(() => {}); }
+$("verifyNow").onclick = async () => { try { const r = await api("POST", op() + "/channels/" + channels.find((c) => c.status === "pending").id + "/verify"); say(r.verified ? (L === "he" ? "הערוץ אומת!" : "Channel verified!") : r); } catch (e) { fail(e); } load(); };
+$("copy").onclick = () => { try { navigator.clipboard.writeText($("code").textContent); } catch (e) {} };
+const addChannel = (inp) => async () => { try { const r = await api("POST", op() + "/channels", { url: $(inp).value }); $(inp).value = ""; say(r.instructions || ""); } catch (e) { fail(e); } load(); };
+$("chAdd").onclick = addChannel("chIn"); $("chIn").onkeydown = (e) => { if (e.key === "Enter") $("chAdd").onclick(); }; $("chAdd2").onclick = addChannel("chIn2");
+$("ytGo").onclick = async () => { try { await api("POST", op() + "/channels/" + channels.find((c) => c.status === "verified").id + "/youtube"); } catch (e) { say(e.error === "youtube_oauth_not_implemented" ? tx("ytSoon") : tx("err") + e.error); skippedYt = true; try { localStorage.setItem("studio_skip_yt", "1"); } catch (x) {} } load(); };
+$("skipYt").onclick = () => { skippedYt = true; try { localStorage.setItem("studio_skip_yt", "1"); } catch (e) {} load(); };
+
+// ---- home: approval inbox (swipe cards), progress, chat, team, billing
+const stText = (j) => (j.status_text && j.status_text[L]) || j.status;
+function renderHome(verified) {
+  const cards = [];
+  for (const j of jobs.filter((j) => j.status === "draft_ready")) j.result.drafts.forEach((d, i) => { if (!d.decision) cards.push([j, d, i]); });
+  $("inbox").replaceChildren(...(cards.length ? cards.map(([j, d, i], n) => draftCard(j, d, i, n === 0)) : [el("p", { textContent: tx("inboxEmpty") })]));
+  const act = jobs.filter((j) => ["queued", "running", "qa"].includes(j.status));
+  $("progress").replaceChildren(...(act.length ? act.map((j) => { const r = el("div", {}, el("div", { textContent: stText(j) }), el("progress", { max: 100, value: j.progress || 0 })); if (j.status === "queued" && canEdit()) r.append(btn(tx("cancel"), () => api("POST", op() + "/jobs/" + j.id + "/cancel"))); return r; }) : [el("p", { textContent: tx("progEmpty") })]));
+  $("channels").replaceChildren(...channels.map((c) => el("div", {}, c.platform + "/" + c.slug + " [" + c.status + "] ", btn(tx("remove"), () => api("DELETE", op() + "/channels/" + c.id)))));
+  api("GET", op() + "/members").then((m) => $("members").replaceChildren(...m.members.map((x) => el("div", {}, x.email + " - " + x.role)), ...m.invites.map((i) => el("div", {}, i.email + " (" + i.role + ") ", btn("x", () => api("DELETE", op() + "/invites/" + i.id)))))).catch(() => {});
+  api("GET", op() + "/billing").then((b) => { $("billing").textContent = (L === "he" ? "קרדיטים: " : "Credits: ") + b.credits; }).catch(() => {});
+  api("GET", op() + "/assistant").then((h) => $("chat").replaceChildren(...h.history.map((m) => el("div", { className: m.r === "user" ? "me" : "", textContent: (m.r === "user" ? "> " : "") + m.text })))).catch(() => {});
+}
+function decide(j, i, verdict) { return api("POST", op() + "/jobs/" + j.id + "/drafts/" + i + "/" + verdict).then(load).catch(fail); }
+function draftCard(j, d, i, first) {
+  const c = el("div", { className: "card", tabIndex: 0 }, el("b", { textContent: (d.kind === "short" ? "Short" : d.kind === "long" ? "Video" : d.kind) + ": " + (d.title || "") }), el("div", { textContent: d.qa_ok ? (L === "he" ? "עבר בדיקת איכות" : "Passed quality check") : (d.qa_notes || "") }));
+  // TODO(preview): embed the private YouTube draft or a small mp4 preview served from the render server.
+  if (canEdit()) {
+    c.append(el("div", { className: "row" }, btn(tx("approve"), () => decide(j, i, "approve")), btn(tx("reject"), () => decide(j, i, "reject"))));
+    let x0 = null; c.onpointerdown = (e) => { x0 = e.clientX; }; c.onpointerup = (e) => { if (x0 == null) return; const dx = e.clientX - x0; x0 = null; if (Math.abs(dx) > 80) decide(j, i, dx > 0 ? "approve" : "reject"); };
+    if (first) document.onkeydown = (e) => { if (document.activeElement && ["INPUT", "SELECT"].includes(document.activeElement.tagName)) return; if (e.key === "ArrowRight") decide(j, i, "approve"); if (e.key === "ArrowLeft") decide(j, i, "reject"); };
+  }
+  return c;
+}
+
+// ---- assistant chat
+async function send() {
+  const m = $("chatIn").value.trim(); if (!m) return; $("chatIn").value = "";
+  try { const r = await api("POST", op() + "/assistant", { message: m, channel_id: (channels.find((c) => c.status === "verified") || {}).id }); say(r.reply); } catch (e) { fail(e); }
+  load().catch(() => {});
+}
+$("chatGo").onclick = send; $("chatIn").onkeydown = (e) => { if (e.key === "Enter") send(); };
+
+// ---- team / billing
+$("invGo").onclick = () => api("POST", op() + "/invites", { email: $("invEmail").value, role: $("invRole").value }).then((r) => { $("invOut").textContent = r.accept_url; load(); }).catch(fail);
+$("payGo").onclick = () => api("POST", op() + "/billing/checkout", {}).catch((e) => say(e.todo || e.error));
 boot();
 </script>
 </body>

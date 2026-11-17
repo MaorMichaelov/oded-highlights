@@ -35,7 +35,7 @@ const K = {
   inv: (h) => `studio:i:${h}`, invOfOrg: (o, h) => `studio:io:${o}:${h}`, invsOfOrg: (o) => `studio:io:${o}:`,
   chan: (o, c) => `studio:c:${o}:${c}`, chansOfOrg: (o) => `studio:c:${o}:`, claim: (p, s) => `studio:claim:${p}:${s}`,
   job: (j) => `studio:j:${j}`, jobOfOrg: (o, j) => `studio:oj:${o}:${j}`, jobsOfOrg: (o) => `studio:oj:${o}:`, queue: (ts, j) => `studio:q:${ts}:${j}`,
-  rl: (k) => `studio:rl:${k}`, cfg: (k) => `studio:cfg:${k}`, cache: (k) => `studio:cache:${k}`,
+  chat: (o) => `studio:chat:${o}`, rl: (k) => `studio:rl:${k}`, cfg: (k) => `studio:cfg:${k}`, cache: (k) => `studio:cache:${k}`,
 };
 const kget = (env, k) => env.KV.get(k, "json");
 const kput = (env, k, v, opt) => env.KV.put(k, JSON.stringify(v), opt);
@@ -62,6 +62,12 @@ async function limited(env, req, bucket, max, ttl = 3600) {
 async function body(req) { const t = await req.text(); if (t.length > 20000) throw new Error("too_large"); try { return t ? JSON.parse(t) : {}; } catch { throw new Error("bad_json"); } }
 const clean = (s, n = 200) => String(s == null ? "" : s).trim().slice(0, n);
 const validEmail = (e) => /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$/.test(e);
+// Accepts "https://kick.com/odedsvr", "twitch.tv/name", "@name" (+ explicit platform) -> {platform, slug} or null. One paste field instead of a platform dropdown + name field.
+export function parseChannelInput(input, platformHint) {
+  const t = clean(input, 200); if (!t) return null; const mm = t.match(/(?:^|\/\/)(?:www\.|m\.)?(kick\.com|twitch\.tv)\/([A-Za-z0-9_-]{2,25})/i);
+  const platform = mm ? (mm[1].toLowerCase() === "kick.com" ? "kick" : "twitch") : clean(platformHint, 10).toLowerCase(); if (!PLATFORMS.includes(platform)) return null;
+  const slug = normSlug(platform, mm ? mm[2] : t); return slug ? { platform, slug } : null;
+}
 export const normSlug = (platform, s) => { s = clean(s, 40).toLowerCase().replace(/^@/, ""); if (platform === "kick") s = s.replace(/_/g, "-"); return /^[a-z0-9][a-z0-9_-]{1,24}$/.test(s) ? s : ""; };
 
 async function session(req, env) {
@@ -117,7 +123,9 @@ export async function fetchChannelPublic(platform, slug, env, fetchImpl = fetch)
 }
 
 // ---------- styles (config/styles/*.json, created by another workstream) ----------
-const BUILTIN_STYLES = [{ id: "default", name: "Default (auto)", description: "Neutral style: fast cuts, burned captions, hook in first 3 seconds.", source: "builtin" }];
+// ONE signature style for now (owner decision). The data model keeps style_id per channel so more styles can be added later without a migration; the UI shows no picker.
+export const DEFAULT_STYLE = "signature";
+const BUILTIN_STYLES = [{ id: DEFAULT_STYLE, name: "הסגנון שלנו / Our style", description: "Fast cuts, burned captions, strong hook, clean ending.", source: "builtin" }];
 export async function listStyles(env, fetchImpl = fetch) {
   const cached = await kget(env, K.cache("styles")); if (cached) return cached;
   let list = [];
@@ -133,7 +141,7 @@ export async function listStyles(env, fetchImpl = fetch) {
       }))).filter(Boolean);
     }
   } catch { /* keep builtin */ }
-  const out = [...BUILTIN_STYLES, ...list.filter((s) => s.id !== "default")];
+  const out = [...BUILTIN_STYLES, ...list.filter((s) => s.id !== DEFAULT_STYLE)];
   await kput(env, K.cache("styles"), out, { expirationTtl: 600 }); return out;
 }
 
@@ -146,6 +154,70 @@ async function refund(env, job) {
   o.credits += job.credits_held; job.credits_held = 0; await kput(env, K.org(o.id), o);   // TODO(D1): not atomic, use a ledger table + transaction
 }
 const pubJob = (j) => j;   // jobs hold no secrets; keep a hook in case that changes
+
+
+// ---------- progress messages (short, friendly, he+en). The render worker sends a key + vars; the app shows the language of the browser. ----------
+export const MSG = {
+  queued: { he: "בתור - מתחילים עוד רגע", en: "Queued - starting in a moment" },
+  running: { he: "מתחילים לעבוד על זה...", en: "Getting started..." },
+  downloading: { he: "מביאים את הסטרים...", en: "Fetching your stream..." },
+  transcribing: { he: "מקשיבים לסטרים... {pct}%", en: "Listening to the stream... {pct}%" },
+  found_moments: { he: "מצאנו {n} רגעים, חותכים...", en: "Found {n} moments, cutting..." },
+  rendering: { he: "מכינים קליפ {i} מתוך {n}...", en: "Making clip {i} of {n}..." },
+  qa: { he: "בודקים איכות...", en: "Quality check..." },
+  draft_ready: { he: "{n} טיוטות מוכנות - תעבור עליהן!", en: "{n} drafts are ready - take a look!" },
+  approved: { he: "אושר. מעולה!", en: "Approved. Nice!" },
+  rejected: { he: "נדחה. אפשר לבקש גרסה אחרת בצ'אט.", en: "Rejected. Ask in the chat for another take." },
+  failed: { he: "משהו השתבש. החזרנו לך את הקרדיט.", en: "Something went wrong. Your credit is back." },
+  cancelled: { he: "בוטל. החזרנו לך את הקרדיט.", en: "Cancelled. Your credit is back." },
+};
+export const renderMsg = (key, vars = {}) => { const t = MSG[key]; if (!t) return null; const f = (s) => s.replace(/\{(\w+)\}/g, (_, k) => (vars[k] != null ? String(vars[k]).slice(0, 20) : "")); return { he: f(t.he), en: f(t.en) }; };
+const setStatusText = (job, key, vars) => { const m = renderMsg(key, vars); if (m) job.status_text = m; };
+
+// ---------- assistant chat: plain language -> a job (rule based; TODO(LLM): env.AI/Haiku-class model for free-form requests, same output shape) ----------
+const NUMW = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, "אחד": 1, "אחת": 1, "שני": 2, "שתי": 2, "שניים": 2, "שלוש": 3, "שלושה": 3, "ארבע": 4, "ארבעה": 4, "חמש": 5, "חמישה": 5, "שש": 6, "שישה": 6, "שבע": 7, "שבעה": 7, "שמונה": 8, "תשע": 9, "תשעה": 9, "עשר": 10, "עשרה": 10 };
+export function understand(text) {
+  const raw = clean(text, 500), t = raw.toLowerCase(), he = /[֐-׿]/.test(raw);
+  let count = (t.match(/\d+/) || [])[0]; if (count) count = parseInt(count); else for (const w of t.split(/[\s,.!?]+/)) if (NUMW[w]) { count = NUMW[w]; break; }
+  const status = /status|progress|ready yet|how.*(going|long)|what.?s up|מה המצב|התקדמות|מוכן כבר|עוד כמה|איפה זה/.test(t);
+  const wantsLong = /\blong\b|full video|compilation|סרטון ארוך|וידאו ארוך|סרטון מלא|סיכום|קומפילציה|יוטיוב ארוך/.test(t);
+  const wantsShorts = /short|clip|reel|tiktok|שורט|קליפ|קצר/.test(t);
+  const when = /yesterday|אתמול/.test(t) ? "yesterday" : /last week|שבוע שעבר/.test(t) ? "week" : "last_stream";   // default: the latest stream
+  const mood = /funny|lol|hilarious|מצחיק|הזוי|צחוק/.test(t) ? "funny" : /hype|epic|insane|clutch|מטורף|אפי/.test(t) ? "hype" : /fail|rage|כעס|פיל/.test(t) ? "fail" : null;
+  const make = /make|create|cut|edit|give|need|want|תעשה|תכין|צור|תחתוך|תערוך|תן|רוצה|צריך|בא לי/.test(t);
+  const intent = status ? "status" : make || wantsLong || wantsShorts || count ? "create" : "help";
+  const shorts = wantsLong && !wantsShorts && !count ? 0 : Math.min(30, count || 5);
+  return { intent, he, shorts, long: wantsLong, when, mood, text: raw };
+}
+const WHEN_TXT = { yesterday: { he: "מהסטרים של אתמול", en: "from yesterday's stream" }, last_stream: { he: "מהסטרים האחרון", en: "from your latest stream" }, week: { he: "מהשבוע האחרון", en: "from last week" } };
+const MOOD_TXT = { funny: { he: "מצחיקים", en: "funny" }, hype: { he: "מטורפים", en: "hype" }, fail: { he: "של פיילים", en: "fail" } };
+const HELP = { he: "אפשר לבקש בשפה חופשית, למשל: \"תכין 5 שורטס מצחיקים מאתמול\" או \"מה המצב?\"", en: "Ask in plain words, e.g. \"make 5 funny Shorts from yesterday\" or \"what's the status?\"" };
+async function assistant(env, org, me, role, b, store) {
+  const u = understand(b.message); const L = u.he ? "he" : "en"; let reply, actions = [];
+  if (!u.text) return { reply: HELP[L], actions };
+  if (u.intent === "help") reply = HELP[L];
+  else if (u.intent === "status") {
+    const jobs = (await kgetMany(env, (await klist(env, K.jobsOfOrg(org.id), 500)).map((k) => K.job(k.split(":")[3])))).sort((a, c) => (a.created < c.created ? 1 : -1));
+    const j = jobs[0]; reply = !j ? (L === "he" ? "עדיין אין עבודות. בקש משהו בצ'אט!" : "No jobs yet. Ask me for something!") : `${(j.status_text || renderMsg(j.status) || { he: j.status, en: j.status })[L]} (${j.progress}%)`;
+    if (j) actions.push({ type: "show_job", job_id: j.id });
+  } else if (!can(role, "job.create")) reply = L === "he" ? "לצפיינים אין הרשאה ליצור עבודות. בקש מהבעלים להפוך אותך לעורך." : "Viewers can't create jobs. Ask the owner to make you an editor.";
+  else {
+    const chans = (await kgetMany(env, await klist(env, K.chansOfOrg(org.id)))).filter((c) => c.status === "verified"); const ch = chans.find((c) => c.id === b.channel_id) || chans[0];
+    if (!ch) reply = L === "he" ? "קודם נחבר ערוץ: הדבק קישור לערוץ שלך למעלה ואמת בעלות. זה לוקח דקה." : "First let's connect a channel: paste your channel link above and verify ownership. Takes a minute.";
+    else {
+      const source = { type: "auto", when: u.when, duration_min: null }, credits = estimateCredits(source); const fresh = await kget(env, K.org(org.id));
+      if (fresh.credits < credits) reply = L === "he" ? `נגמרו הקרדיטים (צריך ${credits}, יש ${fresh.credits}). אפשר להוסיף בלשונית תשלום.` : `Out of credits (need ${credits}, have ${fresh.credits}). You can top up in Billing.`;
+      else {
+        const job = await createJob(env, org, { channel_id: ch.id, kind: "edit", source, style_id: ch.style_id, outputs: { shorts: u.shorts, long: u.long }, credits, hints: { mood: u.mood, text: u.text } });
+        const what = [u.shorts ? (L === "he" ? `${u.shorts} שורטס${u.mood ? " " + MOOD_TXT[u.mood].he : ""}` : `${u.shorts} ${u.mood ? MOOD_TXT[u.mood].en + " " : ""}Shorts`) : "", u.long ? (L === "he" ? "סרטון ארוך" : "a long video") : ""].filter(Boolean).join(L === "he" ? " ו" : " and ");
+        reply = L === "he" ? `סבבה! מכין ${what} ${WHEN_TXT[u.when].he}. אעדכן כאן כשהטיוטות מוכנות. אפשר לבטל כל עוד זה בתור.` : `On it! Making ${what} ${WHEN_TXT[u.when].en}. I'll update you here when drafts are ready. You can cancel while it's queued.`;
+        actions.push({ type: "job_created", job_id: job.id });
+      }
+    }
+  }
+  const hist = (await kget(env, K.chat(org.id))) || []; hist.push({ r: "user", t: now(), text: u.text }, { r: "bot", t: now(), text: reply }); await kput(env, K.chat(org.id), hist.slice(-40));   // TODO(D1): per-user threads
+  return { reply, actions, parsed: { intent: u.intent, shorts: u.shorts, long: u.long, when: u.when, mood: u.mood } };
+}
 
 // ---------- the router ----------
 export async function handleStudio(req, env, fetchImpl = fetch) {
@@ -189,7 +261,7 @@ export async function handleStudio(req, env, fetchImpl = fetch) {
   const me = ses.user; let mt;
   if (path === "/logout" && m === "POST") { await env.KV.delete(K.sess(ses.hash)); return json({ ok: true }); }
   if (path === "/me" && m === "GET") return json({ user: { id: me.id, email: me.email, name: me.name }, orgs: await orgsOf(env, me.id) });
-  if (path === "/styles" && m === "GET") return json({ styles: await listStyles(env, fetchImpl) });
+  if (path === "/styles" && m === "GET") return json({ default: DEFAULT_STYLE, styles: await listStyles(env, fetchImpl) });   // the app shows only "our style"; the list exists for later
   if (path === "/invites/accept" && m === "POST") {
     const h = await sha256(String(b.token || "")); const inv = await kget(env, K.inv(h)); if (!inv || inv.exp < Date.now()) return err(404, "invite_invalid");
     if (inv.email && inv.email !== me.email) return err(403, "invite_for_other_email");
@@ -231,9 +303,9 @@ export async function handleStudio(req, env, fetchImpl = fetch) {
   // channels ---
   if (sub === "/channels" && m === "GET") return json({ channels: await kgetMany(env, await klist(env, K.chansOfOrg(orgId))) });
   if (sub === "/channels" && m === "POST") {
-    let d = need("channel.manage"); if (d) return d; const platform = clean(b.platform, 10).toLowerCase(); if (!PLATFORMS.includes(platform)) return err(400, "bad_platform"); const slug = normSlug(platform, b.slug); if (!slug) return err(400, "bad_slug");
+    let d = need("channel.manage"); if (d) return d; const pc = parseChannelInput(b.url || b.slug, b.platform); if (!pc) return err(400, "bad_channel", { he: "לא הצלחתי לזהות את הערוץ. הדבק קישור כמו kick.com/name או twitch.tv/name", en: "Could not recognise the channel. Paste a link like kick.com/name or twitch.tv/name" }); const { platform, slug } = pc;
     const existing = (await kgetMany(env, await klist(env, K.chansOfOrg(orgId)))).find((c) => c.platform === platform && c.slug === slug); if (existing) return json({ channel: existing, existing: true });
-    const ch = { id: "c_" + rnd(6), org: orgId, platform, slug, status: "pending", verify_code: newVerifyCode(), verify_expires: new Date(Date.now() + VERIFY_TTL_H * 36e5).toISOString(), style_id: "default", yt: { status: "not_connected" }, created: now() };
+    const ch = { id: "c_" + rnd(6), org: orgId, platform, slug, status: "pending", verify_code: newVerifyCode(), verify_expires: new Date(Date.now() + VERIFY_TTL_H * 36e5).toISOString(), style_id: DEFAULT_STYLE, yt: { status: "not_connected" }, created: now() };
     await kput(env, K.chan(orgId, ch.id), ch);
     return json({ channel: ch, instructions: `Put the code ${ch.verify_code} in your ${platform === "kick" ? "Kick profile bio" : "Twitch channel description (About panel)"} OR in your live stream title, then press Verify. You may remove it afterwards.` });
   }
@@ -245,20 +317,15 @@ export async function handleStudio(req, env, fetchImpl = fetch) {
       if (await limited(env, req, "verify:" + ch.id, 30)) return err(429, "rate_limited");
       if (Date.parse(ch.verify_expires) < Date.now()) { ch.verify_code = newVerifyCode(); ch.verify_expires = new Date(Date.now() + VERIFY_TTL_H * 36e5).toISOString(); await kput(env, K.chan(orgId, ch.id), ch); return err(410, "code_expired", { new_code: ch.verify_code }); }
       const pub = await fetchChannelPublic(ch.platform, ch.slug, env, fetchImpl); if (!pub.ok) return err(502, pub.error, { hint: pub.hint });
-      const where = findCode(ch.verify_code, pub.texts); if (!where) return json({ verified: false, reason: "code_not_found", checked: pub.texts.map(([w]) => w) });
+      const where = findCode(ch.verify_code, pub.texts); if (!where) return json({ verified: false, reason: "code_not_found", checked: pub.texts.map(([w]) => w), he: "עוד לא רואים את הקוד. ודא שהוא בביו/בתיאור או בכותרת הסטרים ושמרת.", en: "Code not visible yet. Make sure it is in your bio/description or stream title and saved." });
       const owner = await env.KV.get(K.claim(ch.platform, ch.slug)); if (owner && owner !== orgId) return err(409, "channel_already_claimed");   // TODO: dispute flow (the real owner proves with the code, ours is revoked)
       Object.assign(ch, { status: "verified", verified_at: now(), verified_via: where, platform_user_id: pub.user_id, display: pub.display, linked_youtube: pub.linked_youtube });
       await Promise.all([kput(env, K.chan(orgId, ch.id), ch), env.KV.put(K.claim(ch.platform, ch.slug), orgId)]);
       return json({ verified: true, channel: ch });
     }
-    if (act === "/style" && m === "POST") {
-      let d = need("style.set"); if (d) return d; const sid = clean(b.style_id, 60), ref = clean(b.reference_url, 300);
-      if (ref) {   // "learn my style from this video": creates a style-learning job for the render worker
-        if (!/^https:\/\/(www\.)?(youtube\.com|youtu\.be|kick\.com|twitch\.tv)\//.test(ref)) return err(400, "bad_reference_url");
-        ch.style_id = "learning"; ch.style_reference = ref; await kput(env, K.chan(orgId, ch.id), ch);
-        const job = await createJob(env, org, { channel_id: ch.id, kind: "style_learn", source: { type: "url", ref }, credits: 0 }); return json({ channel: ch, job_id: job.id });   // TODO(worker): implement style_learn in the render worker -> writes style json to KV studio:style:<org>:<id>
-      }
-      if (!(await listStyles(env, fetchImpl)).some((s) => s.id === sid)) return err(400, "unknown_style"); ch.style_id = sid; delete ch.style_reference; await kput(env, K.chan(orgId, ch.id), ch); return json({ channel: ch });
+    if (act === "/style" && m === "POST") {   // not used by the UI today (single signature style); kept so a later multi-style product needs no migration
+      let d = need("style.set"); if (d) return d; const sid = clean(b.style_id, 60);
+      if (!(await listStyles(env, fetchImpl)).some((s) => s.id === sid)) return err(400, "unknown_style"); ch.style_id = sid; await kput(env, K.chan(orgId, ch.id), ch); return json({ channel: ch });
     }
     if (act === "/youtube" && m === "POST") {
       let d = need("youtube.connect"); if (d) return d;
@@ -273,26 +340,36 @@ export async function handleStudio(req, env, fetchImpl = fetch) {
   if (sub === "/jobs" && m === "GET") return json({ jobs: (await kgetMany(env, await klist(env, K.jobsOfOrg(orgId), 500).then((ks) => ks.map((k) => K.job(k.split(":")[3]))))).sort((a, b) => (a.created < b.created ? 1 : -1)).slice(0, 100).map(pubJob) });
   if (sub === "/jobs" && m === "POST") {
     let d = need("job.create"); if (d) return d; const ch = await kget(env, K.chan(orgId, clean(b.channel_id, 20))); if (!ch) return err(400, "channel_not_found"); if (ch.status !== "verified") return err(409, "channel_not_verified");
-    const type = clean(b.source && b.source.type, 10); if (!["vod", "live", "url"].includes(type)) return err(400, "bad_source_type");
-    const source = { type, ref: clean(b.source && b.source.ref, 300), duration_min: Number(b.source && b.source.duration_min) || null };   // TODO(ingest): for "live" the poller creates jobs itself; for "vod" validate that ref belongs to ch.slug
+    const type = clean(b.source && b.source.type, 10); if (!["vod", "live", "url", "auto"].includes(type)) return err(400, "bad_source_type");
+    const source = { type, ref: clean(b.source && b.source.ref, 300), when: ["yesterday", "last_stream", "week"].includes(b.source && b.source.when) ? b.source.when : undefined, duration_min: Number(b.source && b.source.duration_min) || null };   // "auto" = worker finds the stream by date (the assistant and one-click flows use it)   // TODO(ingest): for "live" the poller creates jobs itself; for "vod" validate that ref belongs to ch.slug
     const credits = estimateCredits(source); if (org.credits < credits) return err(402, "insufficient_credits", { need: credits, have: org.credits });   // TODO(payment): offer top-up/checkout here
     const job = await createJob(env, org, { channel_id: ch.id, kind: "edit", source, style_id: ch.style_id, outputs: { shorts: Math.min(30, Number(b.shorts) || 5), long: b.long !== false }, credits });
     return json({ job: pubJob(job) });
   }
-  if ((x = sub.match(/^\/jobs\/(j_[a-f0-9]+)(\/[a-z]+)?$/))) {
-    const job = await kget(env, K.job(x[1])); if (!job || job.org !== orgId) return err(404, "not_found"); const act = x[2] || "";
+  let x1 = null;
+  if ((x = sub.match(/^\/jobs\/(j_[a-f0-9]+)(\/[a-z]+|\/drafts\/\d+\/(?:approve|reject))?$/))) {
+    const job = await kget(env, K.job(x[1])); if (!job || job.org !== orgId) return err(404, "not_found"); const act = x[2] && x[2].startsWith("/drafts") ? "/draft" : x[2] || "";
     if (act === "" && m === "GET") return json({ job: pubJob(job) });
-    if ((act === "/approve" || act === "/reject") && m === "POST") {
-      let d = need("job.review"); if (d) return d; if (!canTransition(job.status, act === "/approve" ? "approved" : "rejected")) return err(409, "bad_state", { status: job.status });
-      job.status = act === "/approve" ? "approved" : "rejected"; job.updated = now(); job.events.push({ t: job.updated, e: job.status, by: me.id });
-      // TODO(youtube): on approve, the worker flips the private draft to the visibility the customer picked via videos.update (needs the stored refresh token); we never publish without this click (YouTube Developer Policies III.E.4)
-      await kput(env, K.job(job.id), job); return json({ job: pubJob(job) });
+    // Approve / reject: per draft (the swipe action in the UI) or all undecided drafts at once (bulk buttons). When every draft has a decision the job is closed.
+    // Approve never publishes by itself in the MVP; TODO(youtube): flip the private draft to the visibility chosen in settings via videos.update, only after this explicit click.
+    if (act === "/approve" || act === "/reject" || (x1 = sub.match(/^\/jobs\/j_[a-f0-9]+\/drafts\/(\d+)\/(approve|reject)$/))) {
+      let d = need("job.review"); if (d) return d; if (m !== "POST") return err(405, "method"); if (job.status !== "draft_ready") return err(409, "bad_state", { status: job.status });
+      const verdict = (x1 ? x1[2] : act.slice(1)) === "approve" ? "approved" : "rejected";
+      const targets = x1 ? [job.result.drafts[parseInt(x1[1])]] : job.result.drafts.filter((dr) => !dr.decision); if (targets.some((t) => !t)) return err(404, "draft_not_found");
+      for (const t of targets) { t.decision = verdict; t.decided_by = me.id; }
+      job.events.push({ t: now(), e: "draft_" + verdict, by: me.id, n: targets.length });
+      if (job.result.drafts.every((dr) => dr.decision)) { job.status = job.result.drafts.some((dr) => dr.decision === "approved") ? "approved" : "rejected"; setStatusText(job, job.status); }
+      job.updated = now(); await kput(env, K.job(job.id), job); return json({ job: pubJob(job) });
     }
     if (act === "/cancel" && m === "POST") {
       let d = need("job.create"); if (d) return d; if (!canTransition(job.status, "cancelled")) return err(409, "bad_state", { status: job.status });
-      job.status = "cancelled"; job.updated = now(); await refund(env, job); await Promise.all([kput(env, K.job(job.id), job), env.KV.delete(K.queue(job.queued_at, job.id))]); return json({ job: pubJob(job) });
+      job.status = "cancelled"; setStatusText(job, "cancelled"); job.updated = now(); await refund(env, job); await Promise.all([kput(env, K.job(job.id), job), env.KV.delete(K.queue(job.queued_at, job.id))]); return json({ job: pubJob(job) });
     }
   }
+
+  // assistant chat ---
+  if (sub === "/assistant" && m === "GET") return json({ history: ((await kget(env, K.chat(orgId))) || []).slice(-40), hint: HELP });
+  if (sub === "/assistant" && m === "POST") { if (await limited(env, req, "assist:" + orgId, 60)) return err(429, "rate_limited"); return json(await assistant(env, org, me, role, b)); }
 
   // billing ---
   if (sub === "/billing" && m === "GET") return json({ plan: org.plan, credits: org.credits, plans: [], todo: "TODO(payment): Paddle/Lemon Squeezy (merchant of record) checkout + webhook that tops up org.credits; see docs/PRODUCT_PLAN.md section 4" });
@@ -306,7 +383,7 @@ async function newSession(env, uid) { const t = "s_" + rnd(32); await kput(env, 
 export async function createJob(env, org, f) {
   const id = "j_" + rnd(8), t = now(); const o = await kget(env, K.org(org.id)); const held = Math.min(f.credits || 0, o.credits);
   if (held) { o.credits -= held; await kput(env, K.org(o.id), o); }   // TODO(D1): atomic reservation
-  const job = { id, org: org.id, channel: f.channel_id, kind: f.kind || "edit", source: f.source, style_id: f.style_id || "default", outputs: f.outputs || {}, status: "queued", credits_held: held, created: t, updated: t, queued_at: t, progress: 0, result: { drafts: [] }, events: [{ t, e: "queued" }] };
+  const job = { id, org: org.id, channel: f.channel_id, kind: f.kind || "edit", source: f.source, style_id: f.style_id || DEFAULT_STYLE, outputs: f.outputs || {}, hints: f.hints || {}, status: "queued", status_text: MSG.queued, credits_held: held, created: t, updated: t, queued_at: t, progress: 0, result: { drafts: [] }, events: [{ t, e: "queued" }] };
   await Promise.all([kput(env, K.job(id), job), kput(env, K.jobOfOrg(org.id, id), { t }), kput(env, K.queue(t, id), { id })]);
   return job;
 }
@@ -319,17 +396,18 @@ async function workerApi(req, env, p, m) {
     // TODO(D1): KV is eventually consistent, two workers could claim the same job. With one worker it is fine; with several use a Durable Object/D1 UPDATE ... WHERE status='queued'.
     for (const k of await klist(env, "studio:q:", 20)) {
       const ref = await kget(env, k); await env.KV.delete(k); const job = ref && await kget(env, K.job(ref.id)); if (!job || job.status !== "queued") continue;
-      job.status = "running"; job.updated = now(); job.events.push({ t: job.updated, e: "running" }); await kput(env, K.job(job.id), job);
-      return json({ job: { id: job.id, org: job.org, channel: job.channel, kind: job.kind, source: job.source, style_id: job.style_id, outputs: job.outputs } });
+      job.status = "running"; setStatusText(job, "running"); job.updated = now(); job.events.push({ t: job.updated, e: "running" }); await kput(env, K.job(job.id), job);
+      return json({ job: { id: job.id, org: job.org, channel: job.channel, kind: job.kind, source: job.source, style_id: job.style_id, outputs: job.outputs, hints: job.hints || {} } });
       // TODO(youtube): hand the worker a short-lived access token (refreshed here) instead of the refresh token.
     }
     return json({ job: null });
   }
   let x; if ((x = p.match(/^\/studio\/worker\/jobs\/(j_[a-f0-9]+)$/)) && m === "POST") {
     const b = await body(req).catch(() => null); if (!b) return err(400, "bad_json"); const job = await kget(env, K.job(x[1])); if (!job) return err(404, "not_found");
-    if (b.status && b.status !== job.status) { if (!canTransition(job.status, b.status) || !["qa", "draft_ready", "failed"].includes(b.status)) return err(409, "bad_state", { status: job.status }); job.status = b.status; job.events.push({ t: now(), e: b.status, note: clean(b.error || "", 200) }); }
+    if (b.status && b.status !== job.status) { if (!canTransition(job.status, b.status) || !["qa", "draft_ready", "failed"].includes(b.status)) return err(409, "bad_state", { status: job.status }); job.status = b.status; job.events.push({ t: now(), e: b.status, note: clean(b.error || "", 200) }); if (!b.msg) setStatusText(job, b.status === "draft_ready" ? "draft_ready" : b.status, { n: (b.drafts || job.result.drafts).length }); }
+    if (b.msg && MSG[b.msg]) setStatusText(job, b.msg, b.vars || {}); else if (typeof b.message === "string") job.status_text = { he: clean(b.message, 120), en: clean(b.message, 120) };   // worker progress: {msg:"found_moments", vars:{n:5}} (see MSG) or free text
     if (typeof b.progress === "number") job.progress = Math.max(0, Math.min(100, b.progress));
-    if (Array.isArray(b.drafts)) job.result.drafts = b.drafts.slice(0, 50).map((d) => ({ kind: clean(d.kind, 10), title: clean(d.title, 100), yt_video_id: clean(d.yt_video_id, 20), qa_ok: !!d.qa_ok, qa_notes: clean(d.qa_notes, 300), private: true }));
+    if (Array.isArray(b.drafts)) job.result.drafts = b.drafts.slice(0, 50).map((d) => ({ kind: clean(d.kind, 10), title: clean(d.title, 100), yt_video_id: clean(d.yt_video_id, 20), qa_ok: !!d.qa_ok, qa_notes: clean(d.qa_notes, 300), private: true, decision: null }));
     if (job.status === "failed") await refund(env, job);
     job.updated = now(); await kput(env, K.job(job.id), job); return json({ ok: true });
   }

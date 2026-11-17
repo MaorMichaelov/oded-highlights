@@ -1,4 +1,5 @@
 // ODED HIGHLIGHTS chat app backend (Cloudflare Worker). Serves the PWA, authenticates the owner, runs an LLM agent (Workers AI) with tools that read/write the GitHub system.
+import { handleStudio } from "./studio.js";   // customer-facing area (/studio), separate auth + KV prefix; see app/studio.js
 const REPO = "MaorMichaelov/oded-highlights";
 const HTML = __HTML__;
 const ICON = "__ICON__";
@@ -224,6 +225,7 @@ export default {
   async scheduled(event, env, ctx) { ctx.waitUntil(Promise.all([watchdog(env).catch(() => 0), pushEvents(env).catch(() => 0)])); },
   async fetch(req, env) {
     const u = new URL(req.url), p = u.pathname;
+    if (p === "/studio" || p.startsWith("/studio/")) return handleStudio(req, env);   // before the owner auth: the owner app below is untouched
     if (p === "/" || p === "/index.html") return new Response(HTML, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" } });
     if (p === "/manifest.webmanifest") return J({ name: "ODED HIGHLIGHTS", short_name: "ODED HL", start_url: "/", display: "standalone", background_color: "#0b0f0d", theme_color: "#0b0f0d", lang: "he", dir: "rtl", icons: [{ src: "/icon.png", sizes: "192x192", type: "image/png", purpose: "any maskable" }] });
     if (p === "/icon.png") return new Response(Uint8Array.from(atob(ICON), (c) => c.charCodeAt(0)), { headers: { "content-type": "image/png", "cache-control": "public, max-age=86400" } });
