@@ -45,7 +45,7 @@ def main():
         if not j or j.get("reject"): print("rejected:", c["title"], (j or {}).get("why")); continue
         ass = f"{out}/clip_{c['id']}.ass"; dur = float(V.sh(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", mp4]).stdout.strip() or c["dur"])
         SH.make_ass([{"word": w["word"], "start": w["start"], "end": w["end"]} for w in words], 0.0, dur, ass)
-        t_ = open(ass, encoding="utf-8").read().replace("&H0028E678", "&H0000E6FF"); open(ass, "w", encoding="utf-8").write(t_)
+        t_ = open(ass, encoding="utf-8").read().replace("&H0028E678", "&H0007C1FF"); open(ass, "w", encoding="utf-8").write(t_)
         dest = f"{out}/clip_{c['id']}.mp4"
         if not V.render2(mp4, 0.0, dur, ass, dest, j.get("hook", ""), None): print("render failed", c["id"]); continue
         title = j["title"].strip()[:90]; where = ("Twitch (https://twitch.tv/" if a.platform == "twitch" else "Kick (https://kick.com/") + f"{a.slug})"

@@ -72,7 +72,18 @@
    "secrets": "YT2_*",
    "content": "English: Kai Cenat, N3on and other big streamers (reactions, clips, Shorts)",
    "channel_id": "UCSxfaoSBUtKddThesb2zfvg",
-   "note": "Connected 17 Nov and verified with yt-whoami: the owner renamed the former RONEN HIGHLIGHTS channel to ClipGlobe (English clips of Kai Cenat / N3on and others). Uploads for yt=en are accepted only for this channel id."
+   "note": "Connected 17 Nov and verified with yt-whoami: the owner renamed the former RONEN HIGHLIGHTS channel to ClipGlobe (English clips of Kai Cenat / N3on and others). Uploads for yt=en are accepted only for this channel id.",
+   "brand": {
+    "name": "ClipGlobe",
+    "logo": "yellow swoosh 'C' around a red globe with a play button, on black (owner's logo, 17 Nov)",
+    "colors": {
+     "yellow": "#FFC107",
+     "red": "#E8212B",
+     "black": "#000000",
+     "white": "#FFFFFF"
+    },
+    "captions": "yellow (#FFC107) with black outline; hook text white with black outline"
+   }
   }
  },
  "world_clips_plan": {

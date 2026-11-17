@@ -155,7 +155,7 @@ def main():
         except Exception as e_: print("cutsnap failed (keeping word-based points):", e_)
         rel = [{"word": w["word"], "start": w["start"] - body_t0, "end": w["end"] - body_t0} for w in words if body_t0 <= w["start"] <= e0 + pad]
         ass = f"{out}/short_{vid}_{int(s0)}.ass"; mp4 = f"{out}/short_{vid}_{int(s0)}.mp4"; SH.make_ass(rel, s0 - body_t0, e0 - body_t0, ass)
-        txt = open(ass, encoding="utf-8").read().replace("&H0028E678", "&H0000E6FF").replace("Heebo Black", "Heebo Black"); open(ass, "w", encoding="utf-8").write(txt)
+        txt = open(ass, encoding="utf-8").read().replace("&H0028E678", "&H0007C1FF").replace("Heebo Black", "Heebo Black"); open(ass, "w", encoding="utf-8").write(txt)
         if not (render2(body, s0 - body_t0, e0 - body_t0, ass, mp4, j.get("hook", ""), pk - body_t0) or SH.render(body, s0 - body_t0, e0 - body_t0, ass, mp4)): continue
         PROF = re.compile(r"fuck|shit|bitch|nigg|fag|retard|cunt|dick|pussy|whore|slut", re.I)   # research: profanity in a title earns no ad revenue; drop the quoted part instead of publishing it
         if PROF.search(j["title"]):
