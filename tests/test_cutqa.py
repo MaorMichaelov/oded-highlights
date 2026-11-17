@@ -38,9 +38,9 @@ class Audio(unittest.TestCase):
     def test_clean_cut_vs_dead_air_vs_abrupt(self):
         w, end = synth.sentence(0.3, 8)
         clean = Q.audio_report(self._clip(w, end + 0.35, "clean"))
-        self.assertLess(clean["lead_silence_s"], 0.5); self.assertLess(clean["trail_silence_s"], 0.7); self.assertLess(clean["tail_over_floor"], 22)
+        self.assertLess(clean["lead_silence_s"], 0.5); self.assertLess(clean["trail_silence_s"], 0.7); self.assertLess(clean["tail_rel_speech_db"], -15)
         dead = Q.audio_report(self._clip([(x + 2.5, y + 2.5) for x, y in w], end + 2.5 + 3.0, "dead")); self.assertGreater(dead["lead_silence_s"], 2.0); self.assertGreater(dead["trail_silence_s"], 2.5)
-        abrupt = Q.audio_report(self._clip(w, end - 0.1, "abrupt")); self.assertGreater(abrupt["tail_over_floor"], 22)   # cut while the last word is loud
+        abrupt = Q.audio_report(self._clip(w, end - 0.1, "abrupt")); self.assertGreater(abrupt["tail_rel_speech_db"], -9)   # cut while the last word is loud
     def test_grade_flags(self):
         w, end = synth.sentence(0.3, 8); m = self._clip(w, end - 0.1, "abrupt"); g = Q.grade(m, "short", title="N3on plays a song at the stage")
         self.assertTrue(any("abruptly" in x for x in g["warn"]))

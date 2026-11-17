@@ -66,17 +66,18 @@ def audio_env(path, sr=8000, hop=0.01, start=None, dur=None):
     return 20 * np.log10(np.sqrt((x[:m * n].reshape(m, n) ** 2).mean(1) + 1e-10)), hop
 def edge_metrics(env, hop, skip_head=0.0, skip_tail=0.0, thr_over=12.0, abs_floor=-52.0):
     """Leading / trailing dead air and abruptness of the cut, from a dB envelope.
-    floor = 10th percentile of the whole clip; 'sound' = more than max(floor+thr_over, abs_floor) dB sustained 50 ms.
-    lead_silence_s / trail_silence_s: time before the first / after the last sound; tail_rms_db: mean level of the last 200 ms; tail_over_floor: that level above the floor (a high value = the audio is chopped while loud);
-    head_over_floor: same for the first 100 ms (the clip starts inside a loud sound); speech_db: 90th percentile level."""
-    a = int(skip_head / hop); b = len(env) - int(skip_tail / hop); e = env[a:b] if b - a > 20 else env
-    if len(e) < 20: return {}
-    fl = float(np.percentile(e, 10)); thr = max(fl + thr_over, abs_floor); loud = e > thr; n = 5
-    run = np.convolve(loud.astype(np.int8), np.ones(n, dtype=np.int8), mode="valid") >= n
-    idx = np.nonzero(run)[0]
-    if len(idx) == 0: return {"floor_db": round(fl, 1), "lead_silence_s": round(len(e) * hop, 2), "trail_silence_s": round(len(e) * hop, 2), "tail_rms_db": round(float(e[-20:].mean()), 1), "tail_over_floor": 0.0, "head_over_floor": 0.0, "speech_db": round(float(np.percentile(e, 90)), 1), "silent": True}
-    lead = idx[0] * hop; trail = (len(e) - (idx[-1] + n)) * hop; tail = float(10 * np.log10((10 ** (e[-20:] / 10)).mean())); head = float(10 * np.log10((10 ** (e[:10] / 10)).mean()))
-    return {"floor_db": round(fl, 1), "lead_silence_s": round(float(lead), 2), "trail_silence_s": round(float(trail), 2), "tail_rms_db": round(tail, 1), "tail_over_floor": round(tail - fl, 1), "head_over_floor": round(head - fl, 1), "speech_db": round(float(np.percentile(e, 90)), 1)}
+    speech_db = 90th percentile level; floor = 10th percentile; 'sound' = more than max(min(floor+12, speech-12), -52) dB sustained 50 ms (so a clip with continuous loud game audio is not 'all silence').
+    lead_silence_s / trail_silence_s: time before the first / after the last sound.
+    tail_rel_speech_db: mean level of [-220 ms, -70 ms] before the end relative to speech_db (the last 70 ms are left out because a fade-out may be applied there): above -9 dB = the audio is chopped while it is loud (natural ends are 20-40 dB below);
+    head_rel_speech_db: same for the first 100 ms (the clip starts inside a sound)."""
+    a = int(skip_head / hop); b = len(env) - int(skip_tail / hop); e = env[a:b] if b - a > 30 else env
+    if len(e) < 30: return {}
+    fl = float(np.percentile(e, 10)); sp = float(np.percentile(e, 90)); thr = max(min(fl + thr_over, sp - 12.0), abs_floor); loud = e > thr; n = 5
+    pw = lambda x: float(10 * np.log10((10 ** (x / 10)).mean()))
+    tail = pw(e[-22:-7]); head = pw(e[:10]); base = {"floor_db": round(fl, 1), "speech_db": round(sp, 1), "tail_rms_db": round(tail, 1), "tail_rel_speech_db": round(tail - sp, 1), "head_rel_speech_db": round(head - sp, 1)}
+    run = np.convolve(loud.astype(np.int8), np.ones(n, dtype=np.int8), mode="valid") >= n; idx = np.nonzero(run)[0]
+    if len(idx) == 0: return dict(base, lead_silence_s=round(len(e) * hop, 2), trail_silence_s=round(len(e) * hop, 2), silent=True)
+    return dict(base, lead_silence_s=round(float(idx[0] * hop), 2), trail_silence_s=round(float((len(e) - (idx[-1] + n)) * hop), 2))
 def loudness(path, start=None, dur=None):
     """EBU R128 integrated loudness + true peak of the audio (ffmpeg ebur128) -> {"lufs", "tp"}"""
     cmd = ["ffmpeg", "-nostats", "-hide_banner"] + (["-ss", f"{start:.3f}"] if start else []) + (["-t", f"{dur:.3f}"] if dur else []) + ["-i", path, "-vn", "-af", "ebur128=peak=true", "-f", "null", "-"]
@@ -220,7 +221,7 @@ def existing_ranges(slug, vod, root=None, kinds=("shorts", "long")):
             if str(s.get("vod")) == str(vod) and s.get("start_s") is not None and s.get("end_s") is not None: out.append({"id": os.path.basename(f)[:-5], "kind": "short" if k == "shorts" else "long", "start": float(s["start_s"]), "end": float(s["end_s"])})
     return out
 # ---------------------------------------------------------------- grade
-THRESH = {"lead_max": 0.7, "trail_max": 0.9, "tail_loud_db": 22.0, "head_loud_db": 22.0, "short_lufs": (-14.0, 2.0), "long_lufs": (-16.0, 5.0), "sync_max": 0.35, "max_silence": 8.0}
+THRESH = {"lead_max": 0.7, "trail_max": 0.9, "tail_rel_db": -9.0, "head_rel_db": -9.0, "short_lufs": (-14.0, 2.0), "long_lufs": (-16.0, 5.0), "sync_max": 0.35, "max_silence": 8.0}
 def grade(path, kind="short", title=None, words=None, window_text_=None, ass=None, skip_head=0.0, ignore_names=(), audio=None, expected_dur=None, extra_text=""):
     """Grade a finished draft. kind: 'short' | 'long'. -> {"fail": [reasons that must block the upload], "warn": [...], "metrics": {...}, "score": 0-100}
     sync (stream durations / start times / expected duration), cut cleanliness (dead air at both ends, chopped audio at the end, start inside a loud sound, word cut when words are given),
@@ -235,8 +236,8 @@ def grade(path, kind="short", title=None, words=None, window_text_=None, ass=Non
         if a.get("silent"): fail.append("audio is silent")
         if a.get("lead_silence_s", 0) > THRESH["lead_max"]: (fail if a["lead_silence_s"] > 1.5 else warn).append(f"leading dead air {a['lead_silence_s']:.2f}s")
         if a.get("trail_silence_s", 0) > THRESH["trail_max"]: (fail if a["trail_silence_s"] > 2.0 else warn).append(f"trailing dead air {a['trail_silence_s']:.2f}s")
-        if a.get("tail_over_floor", 0) > THRESH["tail_loud_db"]: warn.append(f"audio ends abruptly (last 200 ms is {a['tail_over_floor']:.0f} dB over the floor)")
-        if a.get("head_over_floor", 0) > THRESH["head_loud_db"]: warn.append(f"clip starts inside a loud sound ({a['head_over_floor']:.0f} dB over the floor)")
+        if a.get("tail_rel_speech_db", -99) > THRESH["tail_rel_db"]: warn.append(f"audio ends abruptly (just before the end it is only {-a['tail_rel_speech_db']:.0f} dB below the speech level)")
+        if a.get("head_rel_speech_db", -99) > THRESH["head_rel_db"]: warn.append(f"clip starts inside a loud sound ({-a['head_rel_speech_db']:.0f} dB below the speech level)")
         tg, tol = THRESH["short_lufs" if kind == "short" else "long_lufs"]
         if a.get("lufs") is not None:
             if abs(a["lufs"] - tg) > tol: (fail if (a["lufs"] < -26 or a["lufs"] > -8) else warn).append(f"loudness {a['lufs']:.1f} LUFS vs target {tg:.0f}")
