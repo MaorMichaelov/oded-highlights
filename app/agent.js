@@ -86,8 +86,9 @@ const nowMs = (deps) => (deps.now ? deps.now() : Date.now());
 const iso = (deps) => new Date(nowMs(deps)).toISOString();
 const day = (deps) => iso(deps).slice(0, 10);
 export const safeCid = (cid) => { const s = String(cid || "").toLowerCase().replace(/[^a-z0-9_:-]/g, "").slice(0, 64); if (!s) throw new Error("bad_customer_id"); return s; };
-export const KEY = { prof: (c) => `agent:prof:${c}`, hist: (c) => `agent:profh:${c}`, sig: (c) => `agent:sig:${c}`, meta: (c) => `agent:meta:${c}`, pend: (c) => `agent:pend:${c}`, sched: (c) => `agent:sched:${c}`,
-  audit: (c, ym) => `agent:audit:${c}:${ym}`, rl: (c, d, b) => `agent:rl:${c}:${d}:${b}`, llm: (c, d) => `agent:llm:${c}:${d}`, pc: (n, d) => `agent:pc:${n}:${d}`, cool: (n) => `agent:cool:${n}`, q: (c) => `agent:q:${c}` };
+const P = "studio:agent:";   // every KV key of the agent lives under the Studio prefix, so the owner app keys are never touched
+export const KEY = { who: (c) => `${P}who:${c}`, whoPrefix: P + "who:", prof: (c) => `${P}prof:${c}`, hist: (c) => `${P}profh:${c}`, sig: (c) => `${P}sig:${c}`, meta: (c) => `${P}meta:${c}`, pend: (c) => `${P}pend:${c}`, sched: (c) => `${P}sched:${c}`,
+  audit: (c, ym) => `${P}audit:${c}:${ym}`, rl: (c, d, b) => `${P}rl:${c}:${d}:${b}`, llm: (c, d) => `${P}llm:${c}:${d}`, pc: (n, d) => `${P}pc:${n}:${d}`, cool: (n) => `${P}cool:${n}`, q: (c) => `${P}q:${c}` };
 const kget = async (deps, k, d = null) => { try { const v = await deps.kv.get(k, "json"); return v == null ? d : v; } catch { return d; } };
 const kput = (deps, k, v, ttl) => deps.kv.put(k, JSON.stringify(v), ttl ? { expirationTtl: Math.max(60, ttl) } : undefined);
 async function bump(deps, key, ttlS = 2 * 86400) { const n = parseInt((await deps.kv.get(key)) || "0", 10) + 1; await deps.kv.put(key, String(n), { expirationTtl: ttlS }); return n; }

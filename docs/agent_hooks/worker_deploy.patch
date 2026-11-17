@@ -1,0 +1,33 @@
+diff --git a/app/deploy.py b/app/deploy.py
+index e73a21ef2f..cb12682944 100644
+--- a/app/deploy.py
++++ b/app/deploy.py
+@@ -16,7 +16,7 @@ if "--dry-run" in sys.argv: print("dry run: bundles written to", BD); sys.exit(0
+ ns = [n for n in cf("GET", "/storage/kv/namespaces")["result"] if n["title"] == NAME]
+ nsid = ns[0]["id"] if ns else cf("POST", "/storage/kv/namespaces", h=["Content-Type: application/json"], d=json.dumps({"title": NAME}))["result"]["id"]
+ meta = {"main_module": "worker.js", "compatibility_date": "2025-11-01", "bindings": [{"type": "ai", "name": "AI"}, {"type": "kv_namespace", "name": "KV", "namespace_id": nsid}]}
+-r = cf("PUT", f"/workers/scripts/{NAME}", F=["metadata=" + json.dumps(meta) + ";type=application/json", f"worker.js=@{os.path.join(BD, 'worker.bundle.js')};type=application/javascript+module;filename=worker.js", f"studio.js=@{os.path.join(BD, 'studio.bundle.js')};type=application/javascript+module;filename=studio.js"])
++r = cf("PUT", f"/workers/scripts/{NAME}", F=["metadata=" + json.dumps(meta) + ";type=application/json", f"worker.js=@{os.path.join(BD, 'worker.bundle.js')};type=application/javascript+module;filename=worker.js", f"studio.js=@{os.path.join(BD, 'studio.bundle.js')};type=application/javascript+module;filename=studio.js"] + [f"{m}=@{os.path.join(HERE, m)};type=application/javascript+module;filename={m}" for m in ("agent.js", "agent_studio.js")])   # AGENT modules: plain files, no placeholders
+ print("upload:", r.get("success"), r.get("errors"))
+ print("subdomain:", cf("POST", f"/workers/scripts/{NAME}/subdomain", h=["Content-Type: application/json"], d=json.dumps({"enabled": True})).get("success"))
+ print("cron:", cf("PUT", f"/workers/scripts/{NAME}/schedules", h=["Content-Type: application/json"], d=json.dumps([{"cron": "*/5 * * * *"}])).get("success"))
+diff --git a/app/worker.js b/app/worker.js
+index e6ad6c764c..09a45158ce 100644
+--- a/app/worker.js
++++ b/app/worker.js
+@@ -1,5 +1,5 @@
+ // ODED HIGHLIGHTS chat app backend (Cloudflare Worker). Serves the PWA, authenticates the owner, runs an LLM agent (Workers AI) with tools that read/write the GitHub system.
+-import { handleStudio } from "./studio.js";   // customer-facing area (/studio), separate auth + KV prefix; see app/studio.js
++import { handleStudio, studioCron } from "./studio.js";   // customer-facing area (/studio), separate auth + KV prefix; see app/studio.js
+ const REPO = "MaorMichaelov/oded-highlights";
+ const HTML = __HTML__;
+ const ICON = "__ICON__";
+@@ -222,7 +222,7 @@ async function watchdog(env) {   // Cloudflare cron every 5 min: GitHub's own sc
+   else await env.KV.put("wd_last", JSON.stringify({ t: new Date().toISOString(), alive: true }));
+ }
+ export default {
+-  async scheduled(event, env, ctx) { ctx.waitUntil(Promise.all([watchdog(env).catch(() => 0), pushEvents(env).catch(() => 0)])); },
++  async scheduled(event, env, ctx) { ctx.waitUntil(Promise.all([watchdog(env).catch(() => 0), pushEvents(env).catch(() => 0), studioCron(env).catch(() => 0)])); },   // studioCron = customer agent schedules + weekly rule distillation
+   async fetch(req, env) {
+     const u = new URL(req.url), p = u.pathname;
+     if (p === "/studio" || p.startsWith("/studio/")) return handleStudio(req, env);   // before the owner auth: the owner app below is untouched

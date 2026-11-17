@@ -1,0 +1,57 @@
+diff --git a/app/studio.js b/app/studio.js
+index ccdc94445b..6026703bc6 100644
+--- a/app/studio.js
++++ b/app/studio.js
+@@ -2,6 +2,9 @@
+ // MVP SKELETON. KV is not transactional/queryable: every place marked TODO(D1) must move to D1 or a Durable Object before real customers (see docs/PRODUCT_ARCHITECTURE.md).
+ // This file is an ES module imported by worker.js; the page HTML (app/studio.html) is substituted for __STUDIO_HTML__ by app/deploy.py.
+ export const STUDIO_HTML = "__STUDIO_HTML__";
++import { agentAssistant, onDraftDecision, profileHint, agentCron } from "./agent_studio.js";   // AGENT hook (docs/AGENT_DESIGN.md section 9); needs agent.js + agent_studio.js uploaded as modules by deploy.py
++const agentH = () => ({ kget, kput, klist, K, createJob, estimateCredits, can, now });
++export const studioCron = (env) => agentCron(env, { h: agentH() });   // called from worker.js scheduled()
+ const REPO = "MaorMichaelov/oded-highlights";
+ 
+ // ---------- small helpers ----------
+@@ -193,6 +196,7 @@ const WHEN_TXT = { yesterday: { he: "מהסטרים של אתמול", en: "from
+ const MOOD_TXT = { funny: { he: "מצחיקים", en: "funny" }, hype: { he: "מטורפים", en: "hype" }, fail: { he: "של פיילים", en: "fail" } };
+ const HELP = { he: "אפשר לבקש בשפה חופשית, למשל: \"תכין 5 שורטס מצחיקים מאתמול\" או \"מה המצב?\"", en: "Ask in plain words, e.g. \"make 5 funny Shorts from yesterday\" or \"what's the status?\"" };
+ async function assistant(env, org, me, role, b, store) {
++  { const a = await agentAssistant({ env, org, me, role, b, h: agentH(), llm: env.AGENT_LLM }).catch(() => null); if (a) return a; }   // AGENT hook: LLM assistant with memory + guardrails; null (no model / no verified channel / error) -> the rule-based assistant below
+   const u = understand(b.message); const L = u.he ? "he" : "en"; let reply, actions = [];
+   if (!u.text) return { reply: HELP[L], actions };
+   if (u.intent === "help") reply = HELP[L];
+@@ -357,6 +361,7 @@ export async function handleStudio(req, env, fetchImpl = fetch) {
+       const verdict = (x1 ? x1[2] : act.slice(1)) === "approve" ? "approved" : "rejected";
+       const targets = x1 ? [job.result.drafts[parseInt(x1[1])]] : job.result.drafts.filter((dr) => !dr.decision); if (targets.some((t) => !t)) return err(404, "draft_not_found");
+       for (const t of targets) { t.decision = verdict; t.decided_by = me.id; }
++      await onDraftDecision({ env, org, job, indexes: targets.map((t) => job.result.drafts.indexOf(t)), verdict, reason: b.reason, h: agentH() });   // AGENT hook: every decision is a learning signal (best effort, never throws)
+       job.events.push({ t: now(), e: "draft_" + verdict, by: me.id, n: targets.length });
+       if (job.result.drafts.every((dr) => dr.decision)) { job.status = job.result.drafts.some((dr) => dr.decision === "approved") ? "approved" : "rejected"; setStatusText(job, job.status); }
+       job.updated = now(); await kput(env, K.job(job.id), job); return json({ job: pubJob(job) });
+@@ -383,7 +388,7 @@ async function newSession(env, uid) { const t = "s_" + rnd(32); await kput(env,
+ export async function createJob(env, org, f) {
+   const id = "j_" + rnd(8), t = now(); const o = await kget(env, K.org(org.id)); const held = Math.min(f.credits || 0, o.credits);
+   if (held) { o.credits -= held; await kput(env, K.org(o.id), o); }   // TODO(D1): atomic reservation
+-  const job = { id, org: org.id, channel: f.channel_id, kind: f.kind || "edit", source: f.source, style_id: f.style_id || DEFAULT_STYLE, outputs: f.outputs || {}, hints: f.hints || {}, status: "queued", status_text: MSG.queued, credits_held: held, created: t, updated: t, queued_at: t, progress: 0, result: { drafts: [] }, events: [{ t, e: "queued" }] };
++  const job = { id, org: org.id, channel: f.channel_id, kind: f.kind || "edit", source: f.source, style_id: f.style_id || DEFAULT_STYLE, outputs: f.outputs || {}, hints: { ...(f.hints || {}), profile: (f.hints && f.hints.profile) || await profileHint(env, org.id, f.channel_id, { now: Date.now }) }, status: "queued", status_text: MSG.queued, credits_held: held, created: t, updated: t, queued_at: t, progress: 0, result: { drafts: [] }, events: [{ t, e: "queued" }] };
+   await Promise.all([kput(env, K.job(id), job), kput(env, K.jobOfOrg(org.id, id), { t }), kput(env, K.queue(t, id), { id })]);
+   return job;
+ }
+@@ -396,6 +401,7 @@ async function workerApi(req, env, p, m) {
+     // TODO(D1): KV is eventually consistent, two workers could claim the same job. With one worker it is fine; with several use a Durable Object/D1 UPDATE ... WHERE status='queued'.
+     for (const k of await klist(env, "studio:q:", 20)) {
+       const ref = await kget(env, k); await env.KV.delete(k); const job = ref && await kget(env, K.job(ref.id)); if (!job || job.status !== "queued") continue;
++      if (await env.KV.get(`studio:paused:${job.org}`)) { await kput(env, K.queue(job.queued_at, job.id), { id: job.id }); continue; }   // AGENT pause tool: a paused org's jobs stay queued
+       job.status = "running"; setStatusText(job, "running"); job.updated = now(); job.events.push({ t: job.updated, e: "running" }); await kput(env, K.job(job.id), job);
+       return json({ job: { id: job.id, org: job.org, channel: job.channel, kind: job.kind, source: job.source, style_id: job.style_id, outputs: job.outputs, hints: job.hints || {} } });
+       // TODO(youtube): hand the worker a short-lived access token (refreshed here) instead of the refresh token.
+@@ -407,7 +413,8 @@ async function workerApi(req, env, p, m) {
+     if (b.status && b.status !== job.status) { if (!canTransition(job.status, b.status) || !["qa", "draft_ready", "failed"].includes(b.status)) return err(409, "bad_state", { status: job.status }); job.status = b.status; job.events.push({ t: now(), e: b.status, note: clean(b.error || "", 200) }); if (!b.msg) setStatusText(job, b.status === "draft_ready" ? "draft_ready" : b.status, { n: (b.drafts || job.result.drafts).length }); }
+     if (b.msg && MSG[b.msg]) setStatusText(job, b.msg, b.vars || {}); else if (typeof b.message === "string") job.status_text = { he: clean(b.message, 120), en: clean(b.message, 120) };   // worker progress: {msg:"found_moments", vars:{n:5}} (see MSG) or free text
+     if (typeof b.progress === "number") job.progress = Math.max(0, Math.min(100, b.progress));
+-    if (Array.isArray(b.drafts)) job.result.drafts = b.drafts.slice(0, 50).map((d) => ({ kind: clean(d.kind, 10), title: clean(d.title, 100), yt_video_id: clean(d.yt_video_id, 20), qa_ok: !!d.qa_ok, qa_notes: clean(d.qa_notes, 300), private: true, decision: null }));
++    if (Array.isArray(b.drafts)) job.result.drafts = b.drafts.slice(0, 50).map((d) => ({ kind: clean(d.kind, 10), title: clean(d.title, 100), yt_video_id: clean(d.yt_video_id, 20), qa_ok: !!d.qa_ok, qa_notes: clean(d.qa_notes, 300), private: true, decision: null,
++      content_kind: /^[a-z_]{2,20}$/.test(d.content_kind || "") ? d.content_kind : "", topic: clean(d.topic, 80), why: clean(d.why, 400), excerpt: clean(d.excerpt, 700), qa_score: typeof d.qa_score === "number" ? Math.max(0, Math.min(1, d.qa_score)) : null, duration_s: Number(d.duration_s) || null }));   // AGENT: what the assistant needs to explain a pick and to learn from the decision
+     if (job.status === "failed") await refund(env, job);
+     job.updated = now(); await kput(env, K.job(job.id), job); return json({ ok: true });
+   }
