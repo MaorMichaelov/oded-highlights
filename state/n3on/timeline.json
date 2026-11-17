@@ -48,25 +48,43 @@
     "תחרות"
    ],
    "v": 2
+  },
+  "4": {
+   "label": "מגיב לskate video game clip featuring Tony של Tony",
+   "kind": "reaction",
+   "kw": [
+    "סקייט",
+    "הנחיה",
+    "תרגול",
+    "טכניקה",
+    "מורה",
+    "סטודיו"
+   ],
+   "v": 2,
+   "rv": 1,
+   "react": {
+    "what": "skate video game clip featuring Tony",
+    "who": "Tony"
+   }
   }
  },
  "spans": [
   {
    "from": 0,
    "to": 300,
-   "title": "התרשמות מ‑GTA 6",
+   "title": "התרשמות ראשונית מ‑GTA החדש",
    "kind": "talk",
    "clip_worthy": false,
-   "why": "משך 5 דקות בלבד, פחות ממגבלת 15 דקות לנושא קוהרנטי",
+   "why": "קטע של 5 דקות בלבד, נושא מדבר ולא מגיע למינימום של 15 דקות לשימוש כ‑clip",
    "closed": true
   },
   {
    "from": 300,
    "to": 600,
-   "title": "הצגת Bam – תחילת תחרות סקייטינג",
+   "title": "הצגת באם והתחלת תחרות סקייטינג",
    "kind": "guest",
    "clip_worthy": false,
-   "why": "משך 5 דקות בלבד, פחות ממגבלת 15 דקות לנושא קוהרנטי",
+   "why": "קטע של 5 דקות בלבד, לא עומד במינימום של 15 דקות ולא כולל תגובה לכתבה/סרטון",
    "closed": true
   },
   {
@@ -75,7 +93,16 @@
    "title": "תחרות סקייטינג עם משחקי מזל",
    "kind": "game",
    "clip_worthy": false,
-   "why": "משך 5 דקות בלבד, פחות ממגבלת 15 דקות לנושא קוהרנטי",
+   "why": "קטע של 5 דקות בלבד, אינו עומד במינימום של 15 דקות לתוכן משמעותי",
+   "closed": true
+  },
+  {
+   "from": 1200,
+   "to": 1500,
+   "title": "ריאקציה לסרטון סקייטינג של טוני",
+   "kind": "reaction",
+   "clip_worthy": false,
+   "why": "הקטע ארוך רק 5 דקות – ריאקציה נחשבת ל‑clip_worthy רק מגודל של 6 דקות ומעלה",
    "closed": false
   }
  ],
@@ -104,8 +131,14 @@
    "to": 1200,
    "label": "סקייטינג עם דמויות וסטנד‑אפ",
    "kind": "game"
+  },
+  {
+   "from": 1200,
+   "to": 1500,
+   "label": "מגיב לskate video game clip featuring Tony של Tony",
+   "kind": "reaction"
   }
  ],
- "transcript_end": 6840,
- "updated": "2026-11-17T09:33:10Z"
+ "transcript_end": 7200,
+ "updated": "2026-11-17T09:36:26Z"
 }
