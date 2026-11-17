@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-17T20:46:57Z",
- "fetched_epoch": 1794948417.9470994,
+ "fetched_at": "2026-11-17T21:17:05Z",
+ "fetched_epoch": 1794950225.7430341,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -194,7 +194,7 @@
    "published": "2026-11-13T10:00:09Z",
    "privacy": "public",
    "duration": "PT4M43S",
-   "views": 73,
+   "views": 74,
    "likes": 3,
    "comments": 0
   },
@@ -224,7 +224,7 @@
    "published": "2026-11-13T08:00:35Z",
    "privacy": "public",
    "duration": "PT15M2S",
-   "views": 1214,
+   "views": 1230,
    "likes": 18,
    "comments": 2
   },
@@ -264,7 +264,7 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 5387,
+   "views": 5402,
    "likes": 50,
    "comments": 4
   },
@@ -274,7 +274,7 @@
    "published": "2026-11-11T17:52:12Z",
    "privacy": "public",
    "duration": "PT14M5S",
-   "views": 189,
+   "views": 195,
    "likes": 7,
    "comments": 0
   },
@@ -284,7 +284,7 @@
    "published": "2026-11-11T17:18:07Z",
    "privacy": "public",
    "duration": "PT9M44S",
-   "views": 47,
+   "views": 48,
    "likes": 4,
    "comments": 0
   },
