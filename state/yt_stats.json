@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-17T23:17:20Z",
- "fetched_epoch": 1794957440.5899525,
+ "fetched_at": "2026-11-17T23:47:23Z",
+ "fetched_epoch": 1794959243.932578,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -244,8 +244,8 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 4746,
-   "likes": 25,
+   "views": 4848,
+   "likes": 26,
    "comments": 1
   },
   {
