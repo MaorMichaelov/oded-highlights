@@ -99,6 +99,12 @@ def sentence_end_near(t, words, back=1.5, fwd=5.0, pause=0.45, last=True, before
     if before: return ws[before[-1]]["end"]
     return None
 def align_span(s, e, words, min_len=20.0, max_len=58.0, pause=0.45):
+    """Tries sentence boundaries at `pause` (0.45 s) first; fast talkers who never pause that long get phrase boundaries (0.30 s) when the result would not fit min_len..max_len. See _align_span."""
+    r = _align_span(s, e, words, min_len, max_len, pause)
+    if (r[2].get("aligned") and min_len <= r[1] - r[0] <= max_len) or pause <= 0.30: return r
+    r2 = _align_span(s, e, words, min_len, max_len, 0.30); r2[2]["phrase_level"] = True
+    return r2 if r2[2].get("aligned") and min_len <= r2[1] - r2[0] <= max_len else r
+def _align_span(s, e, words, min_len, max_len, pause):
     """LLM start/end seconds -> (first word start, last word end, info) aligned to sentence boundaries: start on a sentence start (setup kept), end after the sentence that holds the punchline.
     Too long -> the end moves back to the previous sentence end that fits; too short -> the end extends over following sentences (<= max_len), then the start goes back by whole sentences."""
     ws = _ws(words)

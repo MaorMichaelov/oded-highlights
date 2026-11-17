@@ -38,3 +38,12 @@ class Snap(unittest.TestCase):
         a, b = CS.trim_dead_air(0.0, sents[2][1] + 1.9, words, env, hop, 0.0)   # 1 s of silence before the first word, 1.9 s after the last
         self.assertGreater(a, 0.5); self.assertLess(a, sents[0][0]); self.assertLess(b, sents[2][1] + 0.6); self.assertGreater(b, sents[2][1])
 if __name__ == "__main__": unittest.main()
+class FastTalker(unittest.TestCase):
+    def test_phrase_level_fallback(self):
+        # one 45 s monologue with 0.33 s phrase gaps and no 0.45 s pause: sentence level cannot fit 20-30 s, phrase level can
+        ws = []; t = 0.0
+        for k in range(120):
+            for _ in range(4): ws.append({"word": "w", "start": t, "end": t + 0.25}); t += 0.3
+            t += 0.33
+        s, e, info = CS.align_span(10.0, 38.0, ws, min_len=20, max_len=30)
+        self.assertTrue(20 <= e - s <= 30); self.assertTrue(info.get("phrase_level"))
