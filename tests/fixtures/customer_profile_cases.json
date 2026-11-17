@@ -1,0 +1,392 @@
+[
+ {
+  "name": "empty",
+  "input": {},
+  "normalized": {
+   "schema": 1,
+   "customer_id": "",
+   "language": "he",
+   "autonomy": {
+    "level": 1,
+    "auto_publish": {
+     "enabled": false,
+     "max_per_day": 0,
+     "min_qa": 0.85,
+     "undo_minutes": 60
+    },
+    "budgets": {
+     "jobs_per_day": 3,
+     "llm_calls_per_day": 150
+    }
+   },
+   "preferences": {
+    "min_len_s": null,
+    "max_len_s": null,
+    "title_max_chars": null,
+    "kind_weights": {}
+   },
+   "rules": [],
+   "stats": {
+    "approved": 0,
+    "rejected": 0,
+    "edited": 0,
+    "by_kind": {},
+    "since": ""
+   },
+   "examples": {
+    "approved": [],
+    "rejected": []
+   },
+   "version": 0,
+   "updated": ""
+  },
+  "policy": {
+   "language": "he",
+   "banned_words": [],
+   "banned_topics": [],
+   "prefer": [],
+   "style": [],
+   "kind_weights": {},
+   "min_len_s": null,
+   "max_len_s": null,
+   "title_max_chars": null
+  }
+ },
+ {
+  "name": "garbage",
+  "input": "not a dict",
+  "normalized": {
+   "schema": 1,
+   "customer_id": "",
+   "language": "he",
+   "autonomy": {
+    "level": 1,
+    "auto_publish": {
+     "enabled": false,
+     "max_per_day": 0,
+     "min_qa": 0.85,
+     "undo_minutes": 60
+    },
+    "budgets": {
+     "jobs_per_day": 3,
+     "llm_calls_per_day": 150
+    }
+   },
+   "preferences": {
+    "min_len_s": null,
+    "max_len_s": null,
+    "title_max_chars": null,
+    "kind_weights": {}
+   },
+   "rules": [],
+   "stats": {
+    "approved": 0,
+    "rejected": 0,
+    "edited": 0,
+    "by_kind": {},
+    "since": ""
+   },
+   "examples": {
+    "approved": [],
+    "rejected": []
+   },
+   "version": 0,
+   "updated": ""
+  },
+  "policy": {
+   "language": "he",
+   "banned_words": [],
+   "banned_topics": [],
+   "prefer": [],
+   "style": [],
+   "kind_weights": {},
+   "min_len_s": null,
+   "max_len_s": null,
+   "title_max_chars": null
+  }
+ },
+ {
+  "name": "messy",
+  "input": {
+   "customer_id": "  Shop_1 \n",
+   "language": "fr",
+   "autonomy": {
+    "level": 9,
+    "auto_publish": {
+     "enabled": true,
+     "max_per_day": 50,
+     "min_qa": 0.1,
+     "undo_minutes": 1
+    },
+    "budgets": {
+     "jobs_per_day": -3,
+     "llm_calls_per_day": "40"
+    }
+   },
+   "preferences": {
+    "min_len_s": 900,
+    "max_len_s": 600,
+    "title_max_chars": 500,
+    "kind_weights": {
+     "reaction": 5,
+     "Game": 1,
+     "game": -1,
+     "x": 1,
+     "talk": "2"
+    }
+   },
+   "rules": [
+    {
+     "kind": "ban_topic",
+     "text": "הימורים  ",
+     "keywords": [
+      "קזינו",
+      "קזינו",
+      "הימור",
+      5,
+      ""
+     ]
+    },
+    {
+     "kind": "ban_word",
+     "text": "אוטיסט",
+     "keywords": [
+      "x"
+     ]
+    },
+    {
+     "kind": "ban_word",
+     "text": "אוטיסט"
+    },
+    {
+     "kind": "prefer",
+     "text": "קליפים עם\nאורחים",
+     "source": "agent"
+    },
+    {
+     "kind": "style",
+     "text": "כותרות קצרות",
+     "status": "active",
+     "source": "distilled",
+     "evidence": [
+      "s_1",
+      "s_2",
+      ""
+     ]
+    },
+    {
+     "kind": "nope",
+     "text": "x"
+    },
+    {
+     "kind": "prefer",
+     "text": "   "
+    },
+    "junk",
+    {
+     "kind": "prefer",
+     "text": "disabled one",
+     "status": "disabled",
+     "id": "r_abcd1234"
+    }
+   ],
+   "stats": {
+    "approved": 3,
+    "rejected": "2",
+    "edited": -1,
+    "by_kind": {
+     "game": {
+      "approved": 2,
+      "rejected": 1
+     },
+     "BAD": {
+      "approved": 1
+     }
+    }
+   },
+   "examples": {
+    "approved": [
+     {
+      "title": "עודד מבשל פסטה",
+      "kind": "cooking",
+      "topic": "בישול",
+      "reason": "אהבתי",
+      "t": "2026-11-16"
+     },
+     {
+      "title": ""
+     }
+    ],
+    "rejected": [
+     {
+      "title": "קליפ משעמם",
+      "kind": "game",
+      "reason": "ארוך מדי"
+     }
+    ]
+   },
+   "version": 4,
+   "updated": "2026-11-17T10:00:00Z"
+  },
+  "normalized": {
+   "schema": 1,
+   "customer_id": "Shop_1",
+   "language": "he",
+   "autonomy": {
+    "level": 4,
+    "auto_publish": {
+     "enabled": true,
+     "max_per_day": 10,
+     "min_qa": 0.5,
+     "undo_minutes": 10
+    },
+    "budgets": {
+     "jobs_per_day": 0,
+     "llm_calls_per_day": 40
+    }
+   },
+   "preferences": {
+    "min_len_s": 900,
+    "max_len_s": null,
+    "title_max_chars": 120,
+    "kind_weights": {
+     "reaction": 2,
+     "game": -1,
+     "talk": 2
+    }
+   },
+   "rules": [
+    {
+     "id": "r_9578c556",
+     "kind": "ban_topic",
+     "text": "הימורים",
+     "keywords": [
+      "קזינו",
+      "הימור",
+      "5"
+     ],
+     "status": "active",
+     "source": "customer",
+     "evidence": [],
+     "created": "",
+     "updated": ""
+    },
+    {
+     "id": "r_f628d5ec",
+     "kind": "ban_word",
+     "text": "אוטיסט",
+     "keywords": [
+      "x"
+     ],
+     "status": "active",
+     "source": "customer",
+     "evidence": [],
+     "created": "",
+     "updated": ""
+    },
+    {
+     "id": "r_a09d7bbe",
+     "kind": "prefer",
+     "text": "קליפים עם אורחים",
+     "keywords": [],
+     "status": "proposed",
+     "source": "agent",
+     "evidence": [],
+     "created": "",
+     "updated": ""
+    },
+    {
+     "id": "r_84f360cb",
+     "kind": "style",
+     "text": "כותרות קצרות",
+     "keywords": [],
+     "status": "active",
+     "source": "distilled",
+     "evidence": [
+      "s_1",
+      "s_2"
+     ],
+     "created": "",
+     "updated": ""
+    },
+    {
+     "id": "r_abcd1234",
+     "kind": "prefer",
+     "text": "disabled one",
+     "keywords": [],
+     "status": "disabled",
+     "source": "customer",
+     "evidence": [],
+     "created": "",
+     "updated": ""
+    }
+   ],
+   "stats": {
+    "approved": 3,
+    "rejected": 2,
+    "edited": 0,
+    "by_kind": {
+     "game": {
+      "approved": 2,
+      "rejected": 1
+     }
+    },
+    "since": ""
+   },
+   "examples": {
+    "approved": [
+     {
+      "id": "",
+      "title": "עודד מבשל פסטה",
+      "kind": "cooking",
+      "topic": "בישול",
+      "reason": "אהבתי",
+      "t": "2026-11-16"
+     }
+    ],
+    "rejected": [
+     {
+      "id": "",
+      "title": "קליפ משעמם",
+      "kind": "game",
+      "topic": "",
+      "reason": "ארוך מדי",
+      "t": ""
+     }
+    ]
+   },
+   "version": 4,
+   "updated": "2026-11-17T10:00:00Z"
+  },
+  "policy": {
+   "language": "he",
+   "banned_words": [
+    "אוטיסט",
+    "x"
+   ],
+   "banned_topics": [
+    {
+     "label": "הימורים",
+     "keywords": [
+      "הימורים",
+      "קזינו",
+      "הימור",
+      "5"
+     ]
+    }
+   ],
+   "prefer": [],
+   "style": [
+    "כותרות קצרות"
+   ],
+   "kind_weights": {
+    "reaction": 2,
+    "game": -1,
+    "talk": 2
+   },
+   "min_len_s": 900,
+   "max_len_s": null,
+   "title_max_chars": 120
+  }
+ }
+]
