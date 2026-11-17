@@ -29,14 +29,14 @@ def lines(rows, a, b, step=30):
     if cur: out.append(f"[{mmss(t0)}|{int(t0)}] " + " ".join(cur))
     return out
 def gemini_ask(system, user):
-    """Fallback when the shared free Groq quota is exhausted: Gemini (free key, GEMINI_API_KEY secret)."""
-    key = os.environ.get("GEMINI_API_KEY")
-    if not key: return None
+    """Fallback when the shared free Groq quota is exhausted: Gemini (free keys: GEMINI_API_KEY, GEMINI_API_KEY_2.. tried in turn)."""
+    keys = [os.environ[k] for k in ["GEMINI_API_KEY"] + [f"GEMINI_API_KEY_{i}" for i in range(2, 8)] if os.environ.get(k)]
     body = json.dumps({"systemInstruction": {"parts": [{"text": system}]}, "contents": [{"parts": [{"text": user}]}], "generationConfig": {"temperature": 0.3, "maxOutputTokens": 4000}}, ensure_ascii=False)
-    for model in ("gemini-flash-latest", "gemini-3.5-flash"):
-        r = subprocess.run(["curl", "-sS", "-m", "120", f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent", "-H", "x-goog-api-key: " + key, "-H", "Content-Type: application/json", "-d", body], capture_output=True, text=True)
-        try: return "".join(p_.get("text", "") for p_ in json.loads(r.stdout)["candidates"][0]["content"]["parts"])
-        except Exception: print("gemini error:", r.stdout[:200])
+    for key in keys:
+        for model in ("gemini-flash-latest", "gemini-3.5-flash"):
+            r = subprocess.run(["curl", "-sS", "-m", "120", f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent", "-H", "x-goog-api-key: " + key, "-H", "Content-Type: application/json", "-d", body], capture_output=True, text=True)
+            try: return "".join(p_.get("text", "") for p_ in json.loads(r.stdout)["candidates"][0]["content"]["parts"])
+            except Exception: print("gemini error:", r.stdout[:120].replace("\n", " "))
     return None
 def ask(system, user):
     body = json.dumps({"model": MODEL, "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}], "temperature": 0.3, "max_tokens": 3000, "reasoning_effort": "low"}, ensure_ascii=False)

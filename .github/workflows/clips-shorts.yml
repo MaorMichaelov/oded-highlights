@@ -27,6 +27,10 @@ jobs:
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY_2: ${{ secrets.GEMINI_API_KEY_2 }}
+          GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
+          GEMINI_API_KEY_4: ${{ secrets.GEMINI_API_KEY_4 }}
+          GEMINI_API_KEY_5: ${{ secrets.GEMINI_API_KEY_5 }}
         run: python3 -u scripts/clips_to_shorts.py --platform "${{ inputs.platform }}" --slug "${{ inputs.slug }}" --days "${{ inputs.days }}" --n "${{ inputs.n }}" --credit "${{ inputs.credit }}"
       - name: Upload as private drafts (English channel)
         if: ${{ inputs.upload == 'true' }}

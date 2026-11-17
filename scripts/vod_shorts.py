@@ -17,13 +17,13 @@ def groq(model, messages, mx=1200):
     d = json.loads(r.stdout)
     if "choices" not in d: raise RuntimeError(str(d.get("error", d))[:160])
     return d["choices"][0]["message"]["content"]
+def gem_keys(): return [os.environ[k] for k in ["GEMINI_API_KEY"] + [f"GEMINI_API_KEY_{i}" for i in range(2, 8)] if os.environ.get(k)]   # several free keys (separate projects = separate daily quotas) are tried in turn
 def gemini(prompt):
-    key = os.environ.get("GEMINI_API_KEY")
-    if not key: return None
-    for model in ("gemini-flash-latest", "gemini-3.5-flash"):
-        r = sh(["curl", "-sS", "-m", "120", f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent", "-H", "x-goog-api-key: " + key, "-H", "Content-Type: application/json", "-d", json.dumps({"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"temperature": 0.2, "maxOutputTokens": 1500, "responseMimeType": "application/json"}})])
-        try: return json.loads(json.loads(r.stdout)["candidates"][0]["content"]["parts"][0]["text"])
-        except Exception as e: print("gemini", model, "failed:", r.stdout[:160])
+    for key in gem_keys():
+        for model in ("gemini-flash-latest", "gemini-3.5-flash"):
+            r = sh(["curl", "-sS", "-m", "120", f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent", "-H", "x-goog-api-key: " + key, "-H", "Content-Type: application/json", "-d", json.dumps({"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"temperature": 0.2, "maxOutputTokens": 1500, "responseMimeType": "application/json"}})])
+            try: return json.loads(json.loads(r.stdout)["candidates"][0]["content"]["parts"][0]["text"])
+            except Exception as e: print("gemini", model, "failed (next model/key):", r.stdout[:100].replace("\n", " "))
     return None
 def llm(prompt):   # Gemini first (the free Groq key is shared with the live loop and often rate-limited), then Groq with model rotation
     g = gemini(prompt)
