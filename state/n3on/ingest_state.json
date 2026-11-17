@@ -1,10 +1,10 @@
 {
  "138250688": {
-  "next_seg": 360,
-  "last_run": "2026-11-17T08:38:47Z"
+  "next_seg": 396,
+  "last_run": "2026-11-17T08:40:41Z"
  },
  "_current_vod": "138250688",
  "_vod_base": "https://stream.kick.com/3c81249a5ce0/ivs/v1/196233775518/BpABZhKymTnv/2026/11/16/21/36/80TUfMcitj2p/media/hls",
- "_behind_segs": 607,
+ "_behind_segs": 571,
  "_vod_start_epoch": 1794864974
 }
