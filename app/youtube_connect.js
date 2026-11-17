@@ -10,7 +10,7 @@
 //   GET  /studio/yt/status       Bearer session, any member. ?org_id=&channel_id=  -> connection summary (never a token)
 //   POST /studio/yt/settings     Bearer session, owner. {org_id, channel_id?, mode: "private"|"schedule"|"public", max_per_day, schedule:{tz,times,per_day,lead_min}, confirm_public}
 //   POST /studio/yt/disconnect   Bearer session, owner. {org_id, channel_id?} -> revokes at Google, deletes everything we stored
-//   POST /internal/yt/token      x-worker-key. {org_id, channel_id?, job_id, thumbnail?} -> short-lived access token + upload policy + quota reservation
+//   POST /internal/yt/token      x-worker-key. {org_id, channel_id?, job_id, thumbnail?, renew?} -> short-lived access token + upload policy + quota reservation
 //   POST /internal/yt/report     x-worker-key. {org_id, channel_id?, job_id, event: "uploaded"|"failed"|"quota_exceeded", video_id?, publish_at?, privacy?, units?}
 //
 // INTEGRATION HOOK (needs ONE tiny edit in worker.js, intentionally not done here because other agents are editing it). Add at the very top of fetch(), before the /studio route:
@@ -214,10 +214,11 @@ export async function handleYouTube(req, env, opts = {}) {
     if (p === "/internal/yt/token" && m === "POST") {
       if (conn.status === "needs_reconnect") return err(409, "needs_reconnect", { channel_title: conn.yt_channel_title });
       const g = (await kget(env, K.global(day))) || { units: 0, uploads: 0, exhausted: false }; const used = parseInt((await env.KV.get(K.used(day, org, chan))) || "0");
-      const cost = q.upload_cost + (b.thumbnail ? q.thumb_cost : 0); const st = conn.settings || DEFAULT_SETTINGS; const cap = Math.min(st.max_per_day, q.max_per_day_cap);
+      const renew = b.renew === true;   // renew: a fresh access token for an upload that already holds its reservation (token expired mid-upload, or a resumed upload): no new reservation
+      const cost = renew ? 0 : q.upload_cost + (b.thumbnail ? q.thumb_cost : 0); const st = conn.settings || DEFAULT_SETTINGS; const cap = Math.min(st.max_per_day, q.max_per_day_cap);
       const retry = Math.max(60, Math.ceil((nextPacificReset(now) - now) / 1000));
-      if (used >= cap) return err(429, "customer_daily_limit", { limit: cap, used, retry_after_s: retry });
-      if (g.exhausted || g.units + cost > q.daily_units - q.headroom_units) return err(429, "quota_exhausted", { scope: "project", retry_after_s: retry, reset_at: new Date(nextPacificReset(now)).toISOString() });
+      if (!renew && used >= cap) return err(429, "customer_daily_limit", { limit: cap, used, retry_after_s: retry });
+      if (!renew && (g.exhausted || g.units + cost > q.daily_units - q.headroom_units)) return err(429, "quota_exhausted", { scope: "project", retry_after_s: retry, reset_at: new Date(nextPacificReset(now)).toISOString() });
       let rt; try { const d = await decryptSecret(env, conn.rt, aadOf(org, chan)); rt = d.plaintext; if (d.rotated) { conn.rt = await encryptSecret(env, rt, aadOf(org, chan)); await kput(env, K.conn(org, chan), conn); } } catch { return err(500, "decrypt_failed"); }   // key lost / rotated away
       const t = await refreshAccess(env, fetchImpl, rt);
       if (!t.ok || !t.j.access_token) {
@@ -227,9 +228,9 @@ export async function handleYouTube(req, env, opts = {}) {
       }
       if (conn.status !== "connected" || conn.last_error) { conn.status = "connected"; conn.last_error = null; await kput(env, K.conn(org, chan), conn); }
       const policy = await resolvePolicy(env, conn, now);
-      g.units += cost; g.uploads += 1; await Promise.all([kput(env, K.global(day), g, { expirationTtl: 3 * 86400 }), env.KV.put(K.used(day, org, chan), String(used + 1), { expirationTtl: 3 * 86400 })]);   // KV is not atomic: fine for one worker, move to a Durable Object/D1 before scaling
+      if (!renew) { g.units += cost; g.uploads += 1; await Promise.all([kput(env, K.global(day), g, { expirationTtl: 3 * 86400 }), env.KV.put(K.used(day, org, chan), String(used + 1), { expirationTtl: 3 * 86400 })]); }   // KV is not atomic: fine for one worker, move to a Durable Object/D1 before scaling
       return json({ access_token: t.j.access_token, expires_in: t.j.expires_in || 3600, token_type: "Bearer", channel_id: conn.yt_channel_id, channel_title: conn.yt_channel_title, scopes: conn.scopes,
-        policy: { ...policy, allowed: ["private"].concat(policy.privacy === "public" ? ["public"] : []) }, reserved_units: cost, quota: { customer_used_today: used + 1, customer_limit: cap, project_day: day } });
+        policy: { ...policy, allowed: ["private"].concat(policy.privacy === "public" ? ["public"] : []) }, reserved_units: cost, quota: { customer_used_today: used + (renew ? 0 : 1), customer_limit: cap, project_day: day } });
     }
     if (p === "/internal/yt/report" && m === "POST") {
       const ev = clean(b.event, 20); if (!["uploaded", "failed", "quota_exceeded"].includes(ev)) return err(400, "bad_event");

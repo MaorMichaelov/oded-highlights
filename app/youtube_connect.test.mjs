@@ -153,6 +153,7 @@ assert.equal(r.j.reserved_units, 1600); assert.ok(!JSON.stringify(r.j).includes(
 r = await tokCall({ org_id: ORG, job_id: "j_job1" }); assert.equal(r.s, 200, "channel defaults to the job's channel"); assert.equal(r.j.quota.customer_used_today, 2);
 r = await tokCall({ org_id: ORG, channel_id: CH, job_id: "j_job1" }); assert.equal(r.s, 429); assert.equal(r.j.error, "customer_daily_limit"); assert.ok(r.j.retry_after_s >= 60); ok("token endpoint: worker auth, job binding, per-customer daily limit");
 
+r = await tokCall({ org_id: ORG, channel_id: CH, job_id: "j_job1", renew: true }); assert.equal(r.s, 200, "renew works even at the daily limit"); assert.equal(r.j.reserved_units, 0); assert.equal(r.j.quota.customer_used_today, 2); ok("renew: no second reservation");
 // report refunds a reservation when nothing was uploaded; frees a slot
 r = await call(env, g, "POST", "/internal/yt/report", { org_id: ORG, channel_id: CH, job_id: "j_job1", event: "failed", units: 1600 }, null, { "x-worker-key": "wk_test" }); assert.equal(r.s, 200);
 r = await tokCall({ org_id: ORG, channel_id: CH, job_id: "j_job1" }); assert.equal(r.s, 200); ok("report(failed) refunds the reservation");
