@@ -25,6 +25,10 @@ need = {}
 for p in C["pieces"]:
     for a, b in p["keep"]:
         for s in files(a, b): need[s[0]] = s
+_ranges = [(a, b) for p in C["pieces"] for a, b in p["keep"]]
+if _ranges:   # edge refinement (owner priority: precise start/end) needs ~2 s of audio before the first range and after the last one
+    for s in files(_ranges[0][0] - 2.0, _ranges[0][0]): need[s[0]] = s
+    for s in files(_ranges[-1][1], _ranges[-1][1] + 2.0): need[s[0]] = s
 def dl(s):
     f = work / "seg" / s[0]
     if f.exists() and f.stat().st_size > 1000: return
@@ -60,6 +64,50 @@ def trim_ranges(keep, thr_s):
         if b - cur > 2.0: res.append([cur, b])
     return res
 # remove REAL silences from the audio; adaptive so a long clip never drops below ~14 min
+def _edge_env(lo, hi):
+    """10 ms RMS energy (dB) of the downloaded audio in [lo, hi] (VOD seconds); only segments that are present"""
+    import numpy as _np
+    fs = [f for f in files(lo, hi) if (work / "seg" / f[0]).exists()]
+    if not fs: return None, None, None
+    s0 = fs[0][1]; x = max(0.0, lo - s0)
+    inp = "concat:" + "|".join(str(work / "seg" / n) for n, _, _ in fs)
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", inp, "-vn", "-ac", "1", "-ar", "16000", "-af", f"atrim=start={x:.3f}:duration={hi - lo:.3f},asetpts=PTS-STARTPTS", "-f", "s16le", "-"], capture_output=True).stdout
+    a_ = _np.frombuffer(raw, dtype=_np.int16).astype(_np.float32) / 32768.0; n_ = 160; m_ = len(a_) // n_
+    if m_ < 20: return None, None, None
+    return 20 * _np.log10(_np.sqrt((a_[:m_ * n_].reshape(m_, n_) ** 2).mean(1) + 1e-10)), 0.01, max(lo, s0 + x)
+def _gaps_env(env, hop, t0, lo, hi, fl, min_len=0.12, margin=7.0):
+    """quiet gaps (energy <= floor+margin dB for >= min_len) fully inside [lo, hi] -> [(start, end)] in VOD seconds"""
+    out = []; i = 0; n = len(env)
+    while i < n:
+        if env[i] <= fl + margin:
+            j = i
+            while j < n and env[j] <= fl + margin: j += 1
+            a_, b_ = t0 + i * hop, t0 + j * hop
+            if b_ - a_ >= min_len and a_ >= lo - 1e-6 and b_ <= hi + 1e-6: out.append((a_, b_))
+            i = j
+        else: i += 1
+    return out
+def refine_start(t):
+    env, hop, t0 = _edge_env(t - 1.5, t + 2.0)
+    if env is None: return t
+    import numpy as _np; fl = float(_np.percentile(env, 10)); gs = _gaps_env(env, hop, t0, t - 1.2, t + 0.5, fl)
+    if not gs: print(f"edge start {t:.1f}: no pause found nearby, kept", flush=True); return t
+    a_, b_ = min(gs, key=lambda g: abs(g[1] - t)); n_ = min(max(b_ - 0.15, a_ + 0.03), b_ - 0.03)   # cut 150 ms before speech resumes, inside the pause
+    print(f"edge start {t:.2f} -> {n_:.2f} (pause {a_:.2f}-{b_:.2f})", flush=True); return n_
+def refine_end(t):
+    env, hop, t0 = _edge_env(t - 2.0, t + 1.5)
+    if env is None: return t
+    import numpy as _np; fl = float(_np.percentile(env, 10)); gs = _gaps_env(env, hop, t0, t - 0.6, t + 1.2, fl)
+    if not gs: print(f"edge end {t:.1f}: no pause found nearby, kept", flush=True); return t
+    a_, b_ = min(gs, key=lambda g: abs(g[0] - t)); n_ = min(a_ + 0.30, b_ - 0.05)   # 300 ms after the last sound, inside the pause
+    print(f"edge end {t:.2f} -> {n_:.2f} (pause {a_:.2f}-{b_:.2f})", flush=True); return n_
+try:
+    if C.get("pieces") and not C.get("no_edge_snap"):
+        _p0 = C["pieces"][0]["keep"]; _pl = C["pieces"][-1]["keep"]
+        _ns = refine_start(_p0[0][0]); _ne = refine_end(_pl[-1][1])
+        if _ns < _p0[0][1] - 5: _p0[0][0] = round(_ns, 3)
+        if _ne > _pl[-1][0] + 5: _pl[-1][1] = round(_ne, 3)
+except Exception as _e: print("edge refinement skipped:", _e, flush=True)
 all_keep = [r for p_ in C["pieces"] for r in p_["keep"]]; before = sum(b - a for a, b in all_keep)
 for thr_s in (*(C.get("silence") or [6, 10, 18]), None):   # games / reactions: only very long silences (>= 25 s), continuous video
     if thr_s is None: print("silence trimming skipped (clip would become too short)"); break
