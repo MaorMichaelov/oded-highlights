@@ -1,0 +1,90 @@
+{
+ "schema": 1,
+ "name": "comedy-fast",
+ "label": "Comedy fast",
+ "description": "Fast, loud, short: 15-38 s, tight jump-cuts on pauses, huge 2-word condensed captions that pop, punch-in at the peak plus small ones every few seconds, boom on the punchline.",
+ "extends": "default",
+ "source": {
+  "kind": "builtin"
+ },
+ "shorts": {
+  "pace": {
+   "min_clip_s": 15,
+   "max_clip_s": 38,
+   "target_clip_s": 18,
+   "max_leadin_s": 18,
+   "min_llm_score": 6.5,
+   "dead_air_trim_s": 0.7,
+   "keep_pause_s": 0.25
+  },
+  "moments": {
+   "criteria": "a punchline, a loud laugh, a cringe fail or an unexpected twist; the quicker the payoff the better; the setup is one or two sentences"
+  },
+  "layout": {
+   "bg_brightness": -0.18,
+   "blur_radius": 30
+  },
+  "captions": {
+   "font": "Anton",
+   "size": 128,
+   "color": "#FFE600",
+   "highlight_color": "#FFFFFF",
+   "outline_px": 10,
+   "shadow_px": 4,
+   "margin_v": 600,
+   "words_per_group": 2,
+   "max_group_s": 1.0,
+   "animation": "bounce",
+   "uppercase": true
+  },
+  "hook": {
+   "font": "Anton-Regular.ttf",
+   "size": 84,
+   "y": 270,
+   "color": "#FFE600",
+   "border_px": 7,
+   "duration_s": 1.5,
+   "max_chars": 34,
+   "wrap_chars": 14,
+   "words": "2-5"
+  },
+  "zoom": {
+   "enabled": true,
+   "strength": 0.09,
+   "attack_frames": 5,
+   "decay_frames": 18,
+   "extra_every_s": 5,
+   "extra_strength": 0.05,
+   "max_extra": 5
+  },
+  "sfx": {
+   "mode": "on",
+   "file": "boom.wav",
+   "volume_db": -10,
+   "at": [
+    "peak"
+   ]
+  },
+  "music": {
+   "enabled": false
+  },
+  "loudness": {
+   "lufs": -14,
+   "lra": 6
+  }
+ },
+ "long": {
+  "pace": {
+   "dead_air_trim_s": 2.0,
+   "keep_pause_s": 0.4
+  },
+  "intro": {
+   "bumper_s": 1.5
+  },
+  "loudness": {
+   "enabled": true,
+   "lufs": -14,
+   "lra": 8
+  }
+ }
+}

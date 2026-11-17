@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studio</title>
+<style>body{font-family:system-ui,sans-serif;max-width:760px;margin:0 auto;padding:12px}section{border:1px solid #8884;margin:10px 0;padding:8px}input,select,button{margin:2px;padding:4px}pre{white-space:pre-wrap;word-break:break-all}.hidden{display:none}</style>
+</head>
+<body>
+<!-- MVP skeleton: functional only, no design. Every action maps 1:1 to an endpoint in docs/PRODUCT_ARCHITECTURE.md. -->
+<h1>Studio (MVP)</h1>
+<pre id="msg"></pre>
+
+<section id="auth">
+  <h2>כניסה / הרשמה</h2>
+  <input id="email" type="email" placeholder="email" autocomplete="username">
+  <input id="pw" type="password" placeholder="password (8+)" autocomplete="current-password">
+  <input id="name" placeholder="name (signup)">
+  <button id="login">Login</button> <button id="signup">Sign up</button>
+  <div id="inviteBox" class="hidden">הוזמנת לצוות: <span id="inviteInfo"></span> <button id="acceptInvite">Accept</button></div>
+</section>
+
+<div id="app" class="hidden">
+  <section>
+    <b id="who"></b> <button id="logout">Logout</button>
+    <div>Team: <select id="orgSel"></select> <span id="orgInfo"></span></div>
+  </section>
+
+  <section>
+    <h2>ערוצי סטרימינג (חיבור + אימות בעלות)</h2>
+    <select id="chPlat"><option>kick</option><option>twitch</option></select>
+    <input id="chSlug" placeholder="channel name"> <button id="chAdd">Connect</button>
+    <div id="channels"></div>
+  </section>
+
+  <section>
+    <h2>סגנון עריכה</h2>
+    <div>style per channel: use the dropdown in each channel row. Or learn from a reference link:</div>
+    <input id="refUrl" placeholder="https://youtube.com/..."> <select id="refChan"></select> <button id="refGo">Learn style</button>
+    <pre id="styles"></pre>
+  </section>
+
+  <section>
+    <h2>חיבור YouTube</h2>
+    <div>TODO: Google OAuth (not implemented yet). Button below returns 501.</div>
+    <select id="ytChan"></select> <button id="ytGo">Connect YouTube</button>
+  </section>
+
+  <section>
+    <h2>עבודות (Jobs)</h2>
+    <select id="jobChan"></select> <select id="jobType"><option>vod</option><option>url</option></select>
+    <input id="jobRef" placeholder="VOD link / id"> <input id="jobDur" type="number" placeholder="duration min">
+    <button id="jobAdd">Create job</button> <button id="jobsReload">Refresh</button>
+    <div id="jobs"></div>
+  </section>
+
+  <section>
+    <h2>צוות</h2>
+    <div id="members"></div>
+    <input id="invEmail" placeholder="email"> <select id="invRole"><option>editor</option><option>viewer</option></select> <button id="invGo">Invite</button>
+    <pre id="invOut"></pre>
+  </section>
+
+  <section>
+    <h2>תשלום</h2>
+    <div id="billing"></div>
+    <button id="payGo">Buy credits (TODO)</button>
+  </section>
+</div>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+let token = null, orgs = [], org = null, inviteToken = null, styles = [];
+try { token = localStorage.getItem("studio_token"); } catch (e) {}
+const say = (x) => { $("msg").textContent = typeof x === "string" ? x : JSON.stringify(x); };
+async function api(method, path, body) {
+  const r = await fetch("/studio/api" + path, { method, headers: { "content-type": "application/json", ...(token ? { authorization: "Bearer " + token } : {}) }, body: body ? JSON.stringify(body) : undefined });
+  const j = await r.json().catch(() => ({})); if (!r.ok) { say(r.status + " " + JSON.stringify(j)); throw j; } return j;
+}
+const el = (tag, props, ...kids) => { const e = document.createElement(tag); Object.assign(e, props || {}); for (const k of kids) e.append(k); return e; };
+const btn = (label, fn) => { const b = el("button", { textContent: label }); b.onclick = () => fn().then(refresh).catch(() => {}); return b; };
+const orgPath = () => "/orgs/" + org.id;
+const can = (a) => ({ owner: 1, editor: a !== "channel.manage" && a !== "team" && a !== "billing", viewer: 0 }[org.role]);
+
+async function login(path) {
+  const j = await api("POST", path, { email: $("email").value, password: $("pw").value, name: $("name").value });
+  token = j.token; try { localStorage.setItem("studio_token", token); } catch (e) {} say("ok"); await boot();
+}
+$("login").onclick = () => login("/login").catch(() => {});
+$("signup").onclick = () => login("/signup").catch(() => {});
+$("logout").onclick = async () => { try { await api("POST", "/logout"); } catch (e) {} token = null; try { localStorage.removeItem("studio_token"); } catch (e) {} location.reload(); };
+$("orgSel").onchange = () => { org = orgs.find((o) => o.id === $("orgSel").value); refresh(); };
+
+async function boot() {
+  const h = location.hash.match(/invite=(inv_[a-f0-9]+)/); if (h) { inviteToken = h[1]; try { const p = await api("POST", "/invites/preview", { token: inviteToken }); $("inviteInfo").textContent = p.org + " as " + p.role; $("inviteBox").classList.remove("hidden"); } catch (e) {} }
+  if (!token) return;
+  try { const me = await api("GET", "/me"); $("who").textContent = me.user.email; orgs = me.orgs; } catch (e) { token = null; return; }
+  $("auth").classList.add("hidden"); $("app").classList.remove("hidden");
+  $("orgSel").replaceChildren(...orgs.map((o) => el("option", { value: o.id, textContent: o.name + " (" + o.role + ")" })));
+  org = orgs.find((o) => o.id === $("orgSel").value) || orgs[0]; await refresh();
+}
+$("acceptInvite").onclick = async () => { try { await api("POST", "/invites/accept", { token: inviteToken }); location.hash = ""; say("joined"); await boot(); } catch (e) {} };
+
+async function refresh() {
+  if (!org) return;
+  $("orgInfo").textContent = "plan=" + org.plan + " credits=" + org.credits + " role=" + org.role;
+  const [chs, st, jobs, mem, bill] = await Promise.all([api("GET", orgPath() + "/channels"), api("GET", "/styles"), api("GET", orgPath() + "/jobs"), api("GET", orgPath() + "/members"), api("GET", orgPath() + "/billing")]);
+  styles = st.styles; $("styles").textContent = styles.map((s) => s.id + " - " + s.name + (s.description ? ": " + s.description : "")).join("\n");
+  const chRows = chs.channels.map((c) => {
+    const row = el("div", {}, c.platform + "/" + c.slug + " [" + c.status + "] ");
+    if (c.status === "pending") { row.append(el("code", { textContent: c.verify_code }), " ", btn("Verify", () => api("POST", orgPath() + "/channels/" + c.id + "/verify").then((r) => say(r)))); }
+    const sel = el("select", {}, ...styles.map((s) => el("option", { value: s.id, textContent: s.id, selected: s.id === c.style_id }))); sel.onchange = () => api("POST", orgPath() + "/channels/" + c.id + "/style", { style_id: sel.value }).then(refresh).catch(() => {});
+    row.append(sel, btn("Remove", () => api("DELETE", orgPath() + "/channels/" + c.id)));
+    return row;
+  });
+  $("channels").replaceChildren(...chRows);
+  const verified = chs.channels.filter((c) => c.status === "verified"), opts = () => chs.channels.map((c) => el("option", { value: c.id, textContent: c.platform + "/" + c.slug }));
+  for (const id of ["refChan", "ytChan", "jobChan"]) $(id).replaceChildren(...(id === "jobChan" ? verified.map((c) => el("option", { value: c.id, textContent: c.platform + "/" + c.slug })) : opts()));
+  $("jobs").replaceChildren(...jobs.jobs.map((j) => { const r = el("div", {}, j.id + " " + j.kind + " [" + j.status + "] " + j.progress + "% "); if (j.status === "draft_ready") r.append(btn("Approve", () => api("POST", orgPath() + "/jobs/" + j.id + "/approve")), btn("Reject", () => api("POST", orgPath() + "/jobs/" + j.id + "/reject"))); if (j.status === "queued") r.append(btn("Cancel", () => api("POST", orgPath() + "/jobs/" + j.id + "/cancel"))); if (j.result.drafts.length) r.append(JSON.stringify(j.result.drafts)); return r; }));
+  $("members").replaceChildren(...mem.members.map((m) => el("div", {}, m.email + " - " + m.role)), ...mem.invites.map((i) => el("div", {}, "invited " + i.email + " as " + i.role + " ", btn("Revoke", () => api("DELETE", orgPath() + "/invites/" + i.id)))));
+  $("billing").textContent = JSON.stringify(bill);
+}
+$("chAdd").onclick = () => api("POST", orgPath() + "/channels", { platform: $("chPlat").value, slug: $("chSlug").value }).then((r) => { say(r.instructions || "exists"); refresh(); }).catch(() => {});
+$("refGo").onclick = () => api("POST", orgPath() + "/channels/" + $("refChan").value + "/style", { reference_url: $("refUrl").value }).then((r) => { say(r); refresh(); }).catch(() => {});
+$("ytGo").onclick = () => api("POST", orgPath() + "/channels/" + $("ytChan").value + "/youtube").catch(() => {});
+$("jobAdd").onclick = () => api("POST", orgPath() + "/jobs", { channel_id: $("jobChan").value, source: { type: $("jobType").value, ref: $("jobRef").value, duration_min: $("jobDur").value } }).then(refresh).catch(() => {});
+$("jobsReload").onclick = () => refresh().catch(() => {});
+$("invGo").onclick = () => api("POST", orgPath() + "/invites", { email: $("invEmail").value, role: $("invRole").value }).then((r) => { $("invOut").textContent = r.accept_url; refresh(); }).catch(() => {});
+$("payGo").onclick = () => api("POST", orgPath() + "/billing/checkout", {}).catch(() => {});
+boot();
+</script>
+</body>
+</html>

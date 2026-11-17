@@ -24,8 +24,6 @@ def fontsdir_for(st):
                     try: os.symlink(os.path.join(src, f), os.path.join(d, f))
                     except OSError: pass
     return d
-def ff_color(c):
-    c = ST.norm_color(c); return {"#FFFFFF": "white", "#000000": "black"}.get(c, c.replace("#", "0x"))
 def hook_font(hk):
     f = hk.get("font", "auto")
     if f and f != "auto":
@@ -136,7 +134,7 @@ def build_shorts_cmd(body, s, e, ass, out, hook, peak, st, side=None, env=None):
     if cap["enabled"] or side.get("hook_in_ass"):
         parts.append("subtitles=" + ass.replace(":", chr(92) + ":") + (":fontsdir=" + fd if fd else ""))
     if hk["enabled"] and hook and not side.get("hook_in_ass"):
-        ff = hook_font(hk); safe = hook_text(hook, hk, st["language"]["code"]); hc, bc = ff_color(hk["color"]), ff_color(hk["border_color"])
+        ff = hook_font(hk); safe = hook_text(hook, hk, st["language"]["code"]); hc = ST.norm_color(hk["color"]).replace("#", "0x"); bc = ST.norm_color(hk["border_color"]).replace("#", "0x")
         for k, ln in enumerate([x for x in safe.split("|") if x.strip()]):
             parts.append(f"drawtext=fontfile={ff}:text='{ln}':fontsize={int(hk['size'])}:fontcolor={hc}:borderw={int(hk['border_px'])}:bordercolor={bc}:x=(w-text_w)/2:y={int(hk['y']) + int(hk['line_gap']) * k}:enable='lt(t,{_n(hk['duration_s'])})'")
     # inputs

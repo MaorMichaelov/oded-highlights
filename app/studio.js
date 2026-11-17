@@ -1,0 +1,337 @@
+// STUDIO: customer-facing area of the Worker (route prefix /studio). Separate from the owner app: own auth, own KV key prefix "studio:".
+// MVP SKELETON. KV is not transactional/queryable: every place marked TODO(D1) must move to D1 or a Durable Object before real customers (see docs/PRODUCT_ARCHITECTURE.md).
+// This file is an ES module imported by worker.js; the page HTML (app/studio.html) is substituted for __STUDIO_HTML__ by app/deploy.py.
+export const STUDIO_HTML = "__STUDIO_HTML__";
+const REPO = "MaorMichaelov/oded-highlights";
+
+// ---------- small helpers ----------
+const enc = new TextEncoder();
+const hex = (b) => [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join("");
+export const sha256 = async (t) => hex(await crypto.subtle.digest("SHA-256", enc.encode(t)));
+const rnd = (n = 16) => hex(crypto.getRandomValues(new Uint8Array(n)));
+const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+const err = (s, code, extra = {}) => json({ error: code, ...extra }, s);
+const now = () => new Date().toISOString();
+const ALPHA = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   // no 0/O/1/I: a code typed from a screenshot must not be ambiguous
+export const newVerifyCode = () => "ODH-" + [...crypto.getRandomValues(new Uint8Array(8))].map((x) => ALPHA[x % ALPHA.length]).join("");
+const ROLES = ["owner", "editor", "viewer"];
+const PLATFORMS = ["kick", "twitch"];
+const TRIAL_CREDITS = 2;                       // TODO(payment): free trial size is a product decision; 1 credit = 1 hour of source stream
+const VERIFY_TTL_H = 48;
+const INVITE_TTL_D = 7;
+
+// ---------- permissions: role -> allowed actions ----------
+const PERMS = {
+  owner: ["view", "job.create", "job.review", "style.set", "channel.manage", "team.manage", "billing.manage", "youtube.connect"],
+  editor: ["view", "job.create", "job.review", "style.set"],
+  viewer: ["view"],
+};
+export const can = (role, action) => !!(PERMS[role] && PERMS[role].includes(action));
+
+// ---------- KV key layout (all under "studio:" so the owner app's keys are never touched) ----------
+const K = {
+  user: (id) => `studio:u:${id}`, email: (e) => `studio:e:${e}`, sess: (h) => `studio:s:${h}`,
+  org: (id) => `studio:o:${id}`, mem: (o, u) => `studio:m:${o}:${u}`, memOfOrg: (o) => `studio:m:${o}:`, orgOfUser: (u, o) => `studio:uo:${u}:${o}`, orgsOfUser: (u) => `studio:uo:${u}:`,
+  inv: (h) => `studio:i:${h}`, invOfOrg: (o, h) => `studio:io:${o}:${h}`, invsOfOrg: (o) => `studio:io:${o}:`,
+  chan: (o, c) => `studio:c:${o}:${c}`, chansOfOrg: (o) => `studio:c:${o}:`, claim: (p, s) => `studio:claim:${p}:${s}`,
+  job: (j) => `studio:j:${j}`, jobOfOrg: (o, j) => `studio:oj:${o}:${j}`, jobsOfOrg: (o) => `studio:oj:${o}:`, queue: (ts, j) => `studio:q:${ts}:${j}`,
+  rl: (k) => `studio:rl:${k}`, cfg: (k) => `studio:cfg:${k}`, cache: (k) => `studio:cache:${k}`,
+};
+const kget = (env, k) => env.KV.get(k, "json");
+const kput = (env, k, v, opt) => env.KV.put(k, JSON.stringify(v), opt);
+async function klist(env, prefix, limit = 200) { const r = await env.KV.list({ prefix, limit }); return r.keys.map((x) => x.name); }
+async function kgetMany(env, keys) { return (await Promise.all(keys.map((k) => kget(env, k)))).filter(Boolean); }
+async function cfg(env, name) { return (await env.KV.get(K.cfg(name))) || env["STUDIO_" + name.toUpperCase()] || ""; }
+
+// ---------- passwords (PBKDF2-SHA256; 100000 is the Workers WebCrypto maximum) ----------
+export async function hashPassword(pw, saltHex = rnd(16), iter = 100000) {
+  const key = await crypto.subtle.importKey("raw", enc.encode(pw), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: new Uint8Array(saltHex.match(/../g).map((h) => parseInt(h, 16))), iterations: iter }, key, 256);
+  return { salt: saltHex, iter, hash: hex(bits) };
+}
+const safeEq = (a, b) => { if (a.length !== b.length) return false; let d = 0; for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i); return d === 0; };
+
+// ---------- rate limit (best effort: KV counter) ----------
+async function limited(env, req, bucket, max, ttl = 3600) {
+  const ip = req.headers.get("cf-connecting-ip") || "x"; const k = K.rl(`${bucket}:${ip}`); const n = parseInt((await env.KV.get(k)) || "0");
+  if (n >= max) return true;
+  await env.KV.put(k, String(n + 1), { expirationTtl: Math.max(60, ttl) }); return false;
+}
+
+// ---------- request helpers ----------
+async function body(req) { const t = await req.text(); if (t.length > 20000) throw new Error("too_large"); try { return t ? JSON.parse(t) : {}; } catch { throw new Error("bad_json"); } }
+const clean = (s, n = 200) => String(s == null ? "" : s).trim().slice(0, n);
+const validEmail = (e) => /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$/.test(e);
+export const normSlug = (platform, s) => { s = clean(s, 40).toLowerCase().replace(/^@/, ""); if (platform === "kick") s = s.replace(/_/g, "-"); return /^[a-z0-9][a-z0-9_-]{1,24}$/.test(s) ? s : ""; };
+
+async function session(req, env) {
+  const a = req.headers.get("authorization") || ""; if (!a.startsWith("Bearer ")) return null;
+  const s = await kget(env, K.sess(await sha256(a.slice(7)))); if (!s || s.exp < Date.now()) return null;
+  const u = await kget(env, K.user(s.uid)); return u ? { user: u, hash: await sha256(a.slice(7)) } : null;
+}
+async function roleIn(env, orgId, uid) { const m = await kget(env, K.mem(orgId, uid)); return m ? m.role : null; }
+async function orgsOf(env, uid) {
+  const keys = await klist(env, K.orgsOfUser(uid)); const out = [];
+  for (const k of keys) { const orgId = k.split(":")[3]; const [o, r] = await Promise.all([kget(env, K.org(orgId)), roleIn(env, orgId, uid)]); if (o && r) out.push({ id: o.id, name: o.name, role: r, plan: o.plan, credits: o.credits }); }
+  return out;
+}
+async function addMember(env, orgId, uid, email, role) {
+  await Promise.all([kput(env, K.mem(orgId, uid), { uid, email, role, added: now() }), kput(env, K.orgOfUser(uid, orgId), { orgId })]);
+}
+
+// ---------- channel ownership verification ----------
+// A code is placed by the streamer in the public bio/description or the live stream title; we read the public page and compare.
+export function findCode(code, texts) { const c = code.toLowerCase(); for (const [where, t] of texts) if (t && String(t).toLowerCase().includes(c)) return where; return null; }
+
+// Reads the PUBLIC channel info. fetchImpl is injectable for tests. Returns {ok, texts:[[where,text]], user_id, display, linked_youtube, error}.
+// NOTE: kick.com/api/v2 is an undocumented endpoint and Kick's ToS section 1.4 forbids automated access: this is a stopgap.
+// TODO(oauth): replace with Kick OAuth 2.1 (scope user:read, never channel:read: it returns the stream key) / Twitch OIDC login; then the code check becomes a fallback.
+export async function fetchChannelPublic(platform, slug, env, fetchImpl = fetch) {
+  try {
+    if (platform === "kick") {
+      const r = await fetchImpl(`https://kick.com/api/v2/channels/${encodeURIComponent(slug)}`, { headers: { accept: "application/json", "user-agent": "Mozilla/5.0 (compatible; OdedStudio/0.1)" } });
+      if (r.status === 404) return { ok: false, error: "channel_not_found" };
+      if (!r.ok) return { ok: false, error: "fetch_failed_" + r.status, hint: "Kick blocked the request; use the GitHub Actions/runner fallback (docs/PRODUCT_ARCHITECTURE.md)" };
+      const d = await r.json();
+      return { ok: true, user_id: String((d.user && d.user.id) || d.user_id || ""), display: d.user && d.user.username, linked_youtube: (d.user && d.user.youtube) || null,
+        texts: [["bio", d.user && d.user.bio], ["stream_title", d.livestream && (d.livestream.session_title || d.livestream.title)]] };
+    }
+    if (platform === "twitch") {
+      const c = await kget(env, K.cfg("twitch")) || (env.STUDIO_TWITCH_ID ? { id: env.STUDIO_TWITCH_ID, secret: env.STUDIO_TWITCH_SECRET } : null);
+      if (!c || !c.id) return { ok: false, error: "twitch_not_configured", hint: "put {id,secret} of a Twitch app (client credentials) into KV key studio:cfg:twitch" };
+      let tok = await env.KV.get(K.cache("twitch_tok"));
+      if (!tok) {
+        const t = await fetchImpl(`https://id.twitch.tv/oauth2/token?client_id=${encodeURIComponent(c.id)}&client_secret=${encodeURIComponent(c.secret)}&grant_type=client_credentials`, { method: "POST" });
+        if (!t.ok) return { ok: false, error: "twitch_auth_failed_" + t.status };
+        const tj = await t.json(); tok = tj.access_token; await env.KV.put(K.cache("twitch_tok"), tok, { expirationTtl: Math.max(60, (tj.expires_in || 3600) - 300) });
+      }
+      const h = { authorization: "Bearer " + tok, "client-id": c.id };
+      const [u, s] = await Promise.all([fetchImpl(`https://api.twitch.tv/helix/users?login=${encodeURIComponent(slug)}`, { headers: h }), fetchImpl(`https://api.twitch.tv/helix/streams?user_login=${encodeURIComponent(slug)}`, { headers: h })]);
+      if (!u.ok) return { ok: false, error: "fetch_failed_" + u.status };
+      const uj = await u.json(); const usr = uj.data && uj.data[0]; if (!usr) return { ok: false, error: "channel_not_found" };
+      const sj = s.ok ? await s.json() : { data: [] }; const st = sj.data && sj.data[0];
+      return { ok: true, user_id: usr.id, display: usr.display_name, linked_youtube: null, texts: [["bio", usr.description], ["stream_title", st && st.title]] };
+    }
+  } catch (e) { return { ok: false, error: "fetch_exception", hint: String(e && e.message || e).slice(0, 120) }; }
+  return { ok: false, error: "bad_platform" };
+}
+
+// ---------- styles (config/styles/*.json, created by another workstream) ----------
+const BUILTIN_STYLES = [{ id: "default", name: "Default (auto)", description: "Neutral style: fast cuts, burned captions, hook in first 3 seconds.", source: "builtin" }];
+export async function listStyles(env, fetchImpl = fetch) {
+  const cached = await kget(env, K.cache("styles")); if (cached) return cached;
+  let list = [];
+  try {
+    const tok = await env.KV.get("gh");          // optional owner token (needed once the repo is private); only used to read style metadata
+    const h = { accept: "application/vnd.github+json", "user-agent": "odedstudio", ...(tok ? { authorization: "Bearer " + tok } : {}) };
+    const r = await fetchImpl(`https://api.github.com/repos/${REPO}/contents/config/styles`, { headers: h });
+    if (r.ok) {
+      const files = (await r.json()).filter((f) => f.name.endsWith(".json") && f.type === "file");
+      list = (await Promise.all(files.slice(0, 50).map(async (f) => {
+        try { const j = await (await fetchImpl(f.download_url, { headers: h })).json(); const id = f.name.replace(/\.json$/, "");
+          return { id, name: clean(j.name || j.title || j.label || id, 80), description: clean(j.description || j.summary || j.notes || "", 300), lang: j.lang || j.language || null, source: "repo" }; } catch { return null; }
+      }))).filter(Boolean);
+    }
+  } catch { /* keep builtin */ }
+  const out = [...BUILTIN_STYLES, ...list.filter((s) => s.id !== "default")];
+  await kput(env, K.cache("styles"), out, { expirationTtl: 600 }); return out;
+}
+
+// ---------- jobs ----------
+const JOB_FLOW = { queued: ["running", "cancelled"], running: ["qa", "failed", "cancelled"], qa: ["draft_ready", "failed"], draft_ready: ["approved", "rejected"], approved: [], rejected: [], failed: [], cancelled: [] };
+export const canTransition = (from, to) => (JOB_FLOW[from] || []).includes(to);
+export const estimateCredits = (src) => Math.max(1, Math.ceil((Number(src && src.duration_min) || 60) / 60));   // 1 credit = 1 started hour of source; TODO(pricing): see PRODUCT_PLAN.md
+async function refund(env, job) {
+  if (!job.credits_held) return; const o = await kget(env, K.org(job.org)); if (!o) return;
+  o.credits += job.credits_held; job.credits_held = 0; await kput(env, K.org(o.id), o);   // TODO(D1): not atomic, use a ledger table + transaction
+}
+const pubJob = (j) => j;   // jobs hold no secrets; keep a hook in case that changes
+
+// ---------- the router ----------
+export async function handleStudio(req, env, fetchImpl = fetch) {
+  const u = new URL(req.url); const p = u.pathname.replace(/\/+$/, "") || "/studio"; const m = req.method;
+  if (p === "/studio") return new Response(STUDIO_HTML, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" } });
+  if (p === "/studio/api/health") return json({ ok: true, t: now() });
+
+  // --- render-worker API (machine to machine; secret lives in KV studio:cfg:worker_key or env.STUDIO_WORKER_KEY)
+  if (p.startsWith("/studio/worker/")) return workerApi(req, env, p, m);
+  if (!p.startsWith("/studio/api/")) return err(404, "not_found");
+  const path = p.slice("/studio/api".length); let b = {};
+  try { if (m === "POST" || m === "PATCH" || m === "PUT") b = await body(req); } catch (e) { return err(400, e.message); }
+
+  // --- public: signup / login
+  if (path === "/signup" && m === "POST") {
+    if (await limited(env, req, "signup", 10)) return err(429, "rate_limited");
+    const email = clean(b.email, 254).toLowerCase(); const pw = String(b.password || ""); const name = clean(b.name, 80) || email.split("@")[0];
+    if (!validEmail(email)) return err(400, "bad_email"); if (pw.length < 8) return err(400, "password_too_short");
+    if (await env.KV.get(K.email(email))) return err(409, "email_exists");
+    const uid = "u_" + rnd(8), orgId = "o_" + rnd(8);
+    await Promise.all([kput(env, K.user(uid), { id: uid, email, name, pw: await hashPassword(pw), created: now() }), env.KV.put(K.email(email), uid),
+      kput(env, K.org(orgId), { id: orgId, name: name + " team", owner: uid, plan: "trial", credits: TRIAL_CREDITS, created: now() })]);   // TODO(email): verify the email address before granting trial credits (abuse)
+    await addMember(env, orgId, uid, email, "owner");
+    return json({ token: await newSession(env, uid), user: { id: uid, email, name }, org_id: orgId });
+  }
+  if (path === "/login" && m === "POST") {
+    if (await limited(env, req, "login", 20)) return err(429, "rate_limited");
+    const email = clean(b.email, 254).toLowerCase(); const uid = await env.KV.get(K.email(email)); const usr = uid && await kget(env, K.user(uid));
+    const bad = () => err(401, "bad_credentials");
+    if (!usr) { await hashPassword(String(b.password || ""), rnd(16)); return bad(); }   // equalise timing
+    const h = await hashPassword(String(b.password || ""), usr.pw.salt, usr.pw.iter); if (!safeEq(h.hash, usr.pw.hash)) return bad();
+    return json({ token: await newSession(env, uid), user: { id: uid, email: usr.email, name: usr.name } });
+  }
+  if (path === "/invites/preview" && m === "POST") {   // public: lets an invitee see what they are joining before signup
+    const inv = await kget(env, K.inv(await sha256(String(b.token || "")))); if (!inv || inv.exp < Date.now()) return err(404, "invite_invalid");
+    const o = await kget(env, K.org(inv.org)); return json({ org: o && o.name, role: inv.role, email: inv.email });
+  }
+
+  // --- everything below needs a session
+  const ses = await session(req, env); if (!ses) return err(401, "unauthorized");
+  const me = ses.user; let mt;
+  if (path === "/logout" && m === "POST") { await env.KV.delete(K.sess(ses.hash)); return json({ ok: true }); }
+  if (path === "/me" && m === "GET") return json({ user: { id: me.id, email: me.email, name: me.name }, orgs: await orgsOf(env, me.id) });
+  if (path === "/styles" && m === "GET") return json({ styles: await listStyles(env, fetchImpl) });
+  if (path === "/invites/accept" && m === "POST") {
+    const h = await sha256(String(b.token || "")); const inv = await kget(env, K.inv(h)); if (!inv || inv.exp < Date.now()) return err(404, "invite_invalid");
+    if (inv.email && inv.email !== me.email) return err(403, "invite_for_other_email");
+    await addMember(env, inv.org, me.id, me.email, inv.role); await Promise.all([env.KV.delete(K.inv(h)), env.KV.delete(K.invOfOrg(inv.org, h))]);
+    return json({ ok: true, org_id: inv.org, role: inv.role });
+  }
+
+  // --- org-scoped routes: /orgs/:id/...
+  if (path === "/orgs" && m === "POST") {   // create another org (agency/editor with several clients)
+    const name = clean(b.name, 80); if (!name) return err(400, "name_required"); const orgId = "o_" + rnd(8);
+    await kput(env, K.org(orgId), { id: orgId, name, owner: me.id, plan: "none", credits: 0, created: now() }); await addMember(env, orgId, me.id, me.email, "owner"); return json({ org_id: orgId });
+  }
+  if (!(mt = path.match(/^\/orgs\/(o_[a-f0-9]+)(\/.*)?$/))) return err(404, "not_found");
+  const orgId = mt[1], sub = mt[2] || ""; const role = await roleIn(env, orgId, me.id); if (!role) return err(404, "not_found");   // 404, not 403: do not reveal other orgs exist
+  const org = await kget(env, K.org(orgId)); if (!org) return err(404, "not_found");
+  const need = (a) => (can(role, a) ? null : err(403, "forbidden", { need: a, role }));
+  let x;
+
+  if (sub === "" && m === "GET") return json({ org: { id: org.id, name: org.name, plan: org.plan, credits: org.credits }, role });
+
+  // team ---
+  if (sub === "/members" && m === "GET") return json({ members: (await kgetMany(env, await klist(env, K.memOfOrg(orgId)))).map((x) => ({ uid: x.uid, email: x.email, role: x.role })), invites: (await kgetMany(env, await klist(env, K.invsOfOrg(orgId)))).map((i) => ({ id: i.id, email: i.email, role: i.role, expires: new Date(i.exp).toISOString() })) });
+  if (sub === "/invites" && m === "POST") {
+    let d = need("team.manage"); if (d) return d; const email = clean(b.email, 254).toLowerCase(); if (!validEmail(email)) return err(400, "bad_email"); if (!ROLES.includes(b.role) || b.role === "owner") return err(400, "bad_role");
+    const token = "inv_" + rnd(24), h = await sha256(token), exp = Date.now() + INVITE_TTL_D * 864e5; const rec = { id: h.slice(0, 12), org: orgId, email, role: b.role, exp, by: me.id };
+    await Promise.all([kput(env, K.inv(h), rec, { expirationTtl: INVITE_TTL_D * 86400 }), kput(env, K.invOfOrg(orgId, h), rec, { expirationTtl: INVITE_TTL_D * 86400 })]);
+    return json({ ok: true, invite_id: rec.id, accept_url: `${u.origin}/studio#invite=${token}`, note: "TODO(email): send this link by email; for now the owner copies it." });
+  }
+  if ((x = sub.match(/^\/invites\/([a-f0-9]{12})$/)) && m === "DELETE") {
+    let d = need("team.manage"); if (d) return d; for (const k of await klist(env, K.invsOfOrg(orgId))) { const i = await kget(env, k); if (i && i.id === x[1]) { const h = k.split(":")[3]; await Promise.all([env.KV.delete(k), env.KV.delete(K.inv(h))]); return json({ ok: true }); } } return err(404, "not_found");
+  }
+  if ((x = sub.match(/^\/members\/(u_[a-f0-9]+)$/))) {
+    let d = need("team.manage"); if (d) return d; const mem = await kget(env, K.mem(orgId, x[1])); if (!mem) return err(404, "not_found");
+    if (mem.role === "owner") return err(400, "cannot_change_owner");   // TODO: ownership transfer flow
+    if (m === "PATCH") { if (!ROLES.includes(b.role) || b.role === "owner") return err(400, "bad_role"); mem.role = b.role; await kput(env, K.mem(orgId, x[1]), mem); return json({ ok: true }); }
+    if (m === "DELETE") { await Promise.all([env.KV.delete(K.mem(orgId, x[1])), env.KV.delete(K.orgOfUser(x[1], orgId))]); return json({ ok: true }); }
+  }
+
+  // channels ---
+  if (sub === "/channels" && m === "GET") return json({ channels: await kgetMany(env, await klist(env, K.chansOfOrg(orgId))) });
+  if (sub === "/channels" && m === "POST") {
+    let d = need("channel.manage"); if (d) return d; const platform = clean(b.platform, 10).toLowerCase(); if (!PLATFORMS.includes(platform)) return err(400, "bad_platform"); const slug = normSlug(platform, b.slug); if (!slug) return err(400, "bad_slug");
+    const existing = (await kgetMany(env, await klist(env, K.chansOfOrg(orgId)))).find((c) => c.platform === platform && c.slug === slug); if (existing) return json({ channel: existing, existing: true });
+    const ch = { id: "c_" + rnd(6), org: orgId, platform, slug, status: "pending", verify_code: newVerifyCode(), verify_expires: new Date(Date.now() + VERIFY_TTL_H * 36e5).toISOString(), style_id: "default", yt: { status: "not_connected" }, created: now() };
+    await kput(env, K.chan(orgId, ch.id), ch);
+    return json({ channel: ch, instructions: `Put the code ${ch.verify_code} in your ${platform === "kick" ? "Kick profile bio" : "Twitch channel description (About panel)"} OR in your live stream title, then press Verify. You may remove it afterwards.` });
+  }
+  if ((x = sub.match(/^\/channels\/(c_[a-f0-9]+)(\/[a-z-]+)?$/))) {
+    const ch = await kget(env, K.chan(orgId, x[1])); if (!ch) return err(404, "not_found"); const act = x[2] || "";
+    if (act === "" && m === "DELETE") { let d = need("channel.manage"); if (d) return d; await env.KV.delete(K.chan(orgId, ch.id)); if (ch.status === "verified") await env.KV.delete(K.claim(ch.platform, ch.slug)); return json({ ok: true }); }
+    if (act === "/verify" && m === "POST") {
+      let d = need("channel.manage"); if (d) return d; if (ch.status === "verified") return json({ channel: ch });
+      if (await limited(env, req, "verify:" + ch.id, 30)) return err(429, "rate_limited");
+      if (Date.parse(ch.verify_expires) < Date.now()) { ch.verify_code = newVerifyCode(); ch.verify_expires = new Date(Date.now() + VERIFY_TTL_H * 36e5).toISOString(); await kput(env, K.chan(orgId, ch.id), ch); return err(410, "code_expired", { new_code: ch.verify_code }); }
+      const pub = await fetchChannelPublic(ch.platform, ch.slug, env, fetchImpl); if (!pub.ok) return err(502, pub.error, { hint: pub.hint });
+      const where = findCode(ch.verify_code, pub.texts); if (!where) return json({ verified: false, reason: "code_not_found", checked: pub.texts.map(([w]) => w) });
+      const owner = await env.KV.get(K.claim(ch.platform, ch.slug)); if (owner && owner !== orgId) return err(409, "channel_already_claimed");   // TODO: dispute flow (the real owner proves with the code, ours is revoked)
+      Object.assign(ch, { status: "verified", verified_at: now(), verified_via: where, platform_user_id: pub.user_id, display: pub.display, linked_youtube: pub.linked_youtube });
+      await Promise.all([kput(env, K.chan(orgId, ch.id), ch), env.KV.put(K.claim(ch.platform, ch.slug), orgId)]);
+      return json({ verified: true, channel: ch });
+    }
+    if (act === "/style" && m === "POST") {
+      let d = need("style.set"); if (d) return d; const sid = clean(b.style_id, 60), ref = clean(b.reference_url, 300);
+      if (ref) {   // "learn my style from this video": creates a style-learning job for the render worker
+        if (!/^https:\/\/(www\.)?(youtube\.com|youtu\.be|kick\.com|twitch\.tv)\//.test(ref)) return err(400, "bad_reference_url");
+        ch.style_id = "learning"; ch.style_reference = ref; await kput(env, K.chan(orgId, ch.id), ch);
+        const job = await createJob(env, org, { channel_id: ch.id, kind: "style_learn", source: { type: "url", ref }, credits: 0 }); return json({ channel: ch, job_id: job.id });   // TODO(worker): implement style_learn in the render worker -> writes style json to KV studio:style:<org>:<id>
+      }
+      if (!(await listStyles(env, fetchImpl)).some((s) => s.id === sid)) return err(400, "unknown_style"); ch.style_id = sid; delete ch.style_reference; await kput(env, K.chan(orgId, ch.id), ch); return json({ channel: ch });
+    }
+    if (act === "/youtube" && m === "POST") {
+      let d = need("youtube.connect"); if (d) return d;
+      // TODO(youtube-oauth): build https://accounts.google.com/o/oauth2/v2/auth?client_id=..&redirect_uri=<origin>/studio/api/youtube/callback&response_type=code&access_type=offline&prompt=consent
+      //   &scope=youtube.upload youtube.readonly&state=<signed {org,channel,uid}>. In the callback exchange the code, store the REFRESH token encrypted (AES-GCM, key in secret STUDIO_ENC_KEY), never in plaintext KV.
+      //   Needs Google OAuth app verification (sensitive scopes) + public privacy policy/ToS pages; until verified only 100 test users. See docs/PRODUCT_PLAN.md section 2.
+      return err(501, "youtube_oauth_not_implemented", { todo: "see TODO(youtube-oauth) in app/studio.js" });
+    }
+  }
+
+  // jobs ---
+  if (sub === "/jobs" && m === "GET") return json({ jobs: (await kgetMany(env, await klist(env, K.jobsOfOrg(orgId), 500).then((ks) => ks.map((k) => K.job(k.split(":")[3]))))).sort((a, b) => (a.created < b.created ? 1 : -1)).slice(0, 100).map(pubJob) });
+  if (sub === "/jobs" && m === "POST") {
+    let d = need("job.create"); if (d) return d; const ch = await kget(env, K.chan(orgId, clean(b.channel_id, 20))); if (!ch) return err(400, "channel_not_found"); if (ch.status !== "verified") return err(409, "channel_not_verified");
+    const type = clean(b.source && b.source.type, 10); if (!["vod", "live", "url"].includes(type)) return err(400, "bad_source_type");
+    const source = { type, ref: clean(b.source && b.source.ref, 300), duration_min: Number(b.source && b.source.duration_min) || null };   // TODO(ingest): for "live" the poller creates jobs itself; for "vod" validate that ref belongs to ch.slug
+    const credits = estimateCredits(source); if (org.credits < credits) return err(402, "insufficient_credits", { need: credits, have: org.credits });   // TODO(payment): offer top-up/checkout here
+    const job = await createJob(env, org, { channel_id: ch.id, kind: "edit", source, style_id: ch.style_id, outputs: { shorts: Math.min(30, Number(b.shorts) || 5), long: b.long !== false }, credits });
+    return json({ job: pubJob(job) });
+  }
+  if ((x = sub.match(/^\/jobs\/(j_[a-f0-9]+)(\/[a-z]+)?$/))) {
+    const job = await kget(env, K.job(x[1])); if (!job || job.org !== orgId) return err(404, "not_found"); const act = x[2] || "";
+    if (act === "" && m === "GET") return json({ job: pubJob(job) });
+    if ((act === "/approve" || act === "/reject") && m === "POST") {
+      let d = need("job.review"); if (d) return d; if (!canTransition(job.status, act === "/approve" ? "approved" : "rejected")) return err(409, "bad_state", { status: job.status });
+      job.status = act === "/approve" ? "approved" : "rejected"; job.updated = now(); job.events.push({ t: job.updated, e: job.status, by: me.id });
+      // TODO(youtube): on approve, the worker flips the private draft to the visibility the customer picked via videos.update (needs the stored refresh token); we never publish without this click (YouTube Developer Policies III.E.4)
+      await kput(env, K.job(job.id), job); return json({ job: pubJob(job) });
+    }
+    if (act === "/cancel" && m === "POST") {
+      let d = need("job.create"); if (d) return d; if (!canTransition(job.status, "cancelled")) return err(409, "bad_state", { status: job.status });
+      job.status = "cancelled"; job.updated = now(); await refund(env, job); await Promise.all([kput(env, K.job(job.id), job), env.KV.delete(K.queue(job.queued_at, job.id))]); return json({ job: pubJob(job) });
+    }
+  }
+
+  // billing ---
+  if (sub === "/billing" && m === "GET") return json({ plan: org.plan, credits: org.credits, plans: [], todo: "TODO(payment): Paddle/Lemon Squeezy (merchant of record) checkout + webhook that tops up org.credits; see docs/PRODUCT_PLAN.md section 4" });
+  if (sub === "/billing/checkout" && m === "POST") { let d = need("billing.manage"); if (d) return d; return err(501, "payment_not_implemented", { todo: "TODO(payment): create a hosted checkout session for b.plan/b.pack and return its URL" }); }
+  return err(404, "not_found");
+}
+
+async function newSession(env, uid) { const t = "s_" + rnd(32); await kput(env, K.sess(await sha256(t)), { uid, exp: Date.now() + 30 * 864e5 }, { expirationTtl: 30 * 86400 }); return t; }
+
+// Creates the job record + puts it in the queue. Credits are held at creation and refunded on cancel/fail.
+export async function createJob(env, org, f) {
+  const id = "j_" + rnd(8), t = now(); const o = await kget(env, K.org(org.id)); const held = Math.min(f.credits || 0, o.credits);
+  if (held) { o.credits -= held; await kput(env, K.org(o.id), o); }   // TODO(D1): atomic reservation
+  const job = { id, org: org.id, channel: f.channel_id, kind: f.kind || "edit", source: f.source, style_id: f.style_id || "default", outputs: f.outputs || {}, status: "queued", credits_held: held, created: t, updated: t, queued_at: t, progress: 0, result: { drafts: [] }, events: [{ t, e: "queued" }] };
+  await Promise.all([kput(env, K.job(id), job), kput(env, K.jobOfOrg(org.id, id), { t }), kput(env, K.queue(t, id), { id })]);
+  return job;
+}
+
+// ---------- render worker API ----------
+async function workerApi(req, env, p, m) {
+  const key = await cfg(env, "worker_key"); const got = req.headers.get("x-worker-key") || "";
+  if (!key || !safeEq(await sha256(got), await sha256(key))) return err(401, "unauthorized");
+  if (p === "/studio/worker/claim" && m === "POST") {
+    // TODO(D1): KV is eventually consistent, two workers could claim the same job. With one worker it is fine; with several use a Durable Object/D1 UPDATE ... WHERE status='queued'.
+    for (const k of await klist(env, "studio:q:", 20)) {
+      const ref = await kget(env, k); await env.KV.delete(k); const job = ref && await kget(env, K.job(ref.id)); if (!job || job.status !== "queued") continue;
+      job.status = "running"; job.updated = now(); job.events.push({ t: job.updated, e: "running" }); await kput(env, K.job(job.id), job);
+      return json({ job: { id: job.id, org: job.org, channel: job.channel, kind: job.kind, source: job.source, style_id: job.style_id, outputs: job.outputs } });
+      // TODO(youtube): hand the worker a short-lived access token (refreshed here) instead of the refresh token.
+    }
+    return json({ job: null });
+  }
+  let x; if ((x = p.match(/^\/studio\/worker\/jobs\/(j_[a-f0-9]+)$/)) && m === "POST") {
+    const b = await body(req).catch(() => null); if (!b) return err(400, "bad_json"); const job = await kget(env, K.job(x[1])); if (!job) return err(404, "not_found");
+    if (b.status && b.status !== job.status) { if (!canTransition(job.status, b.status) || !["qa", "draft_ready", "failed"].includes(b.status)) return err(409, "bad_state", { status: job.status }); job.status = b.status; job.events.push({ t: now(), e: b.status, note: clean(b.error || "", 200) }); }
+    if (typeof b.progress === "number") job.progress = Math.max(0, Math.min(100, b.progress));
+    if (Array.isArray(b.drafts)) job.result.drafts = b.drafts.slice(0, 50).map((d) => ({ kind: clean(d.kind, 10), title: clean(d.title, 100), yt_video_id: clean(d.yt_video_id, 20), qa_ok: !!d.qa_ok, qa_notes: clean(d.qa_notes, 300), private: true }));
+    if (job.status === "failed") await refund(env, job);
+    job.updated = now(); await kput(env, K.job(job.id), job); return json({ ok: true });
+  }
+  return err(404, "not_found");
+}

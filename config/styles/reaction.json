@@ -1,0 +1,65 @@
+{
+ "schema": 1,
+ "name": "reaction",
+ "label": "Reaction",
+ "description": "Raw single-take reaction clips: the stream's own layout stays visible, calm white captions with the spoken word lit amber, no zoom, no sound effects. Built from the research on the Kai Cenat / N3on reaction clips that travel (docs/SHORTS_RESEARCH.md E, H).",
+ "extends": "default",
+ "source": {
+  "kind": "builtin"
+ },
+ "shorts": {
+  "pace": {
+   "min_clip_s": 25,
+   "max_clip_s": 58,
+   "target_clip_s": 30,
+   "max_leadin_s": 25
+  },
+  "moments": {
+   "criteria": "a genuine live reaction to a video, trailer, news item or another creator's clip (surprise, disbelief, laughter, anger) where the setup and the reaction are both in the window"
+  },
+  "captions": {
+   "font": "Heebo Black",
+   "size": 92,
+   "color": "#FFFFFF",
+   "highlight_color": "#FFC107",
+   "outline_px": 8,
+   "shadow_px": 2,
+   "margin_v": 470,
+   "words_per_group": 3,
+   "animation": "karaoke"
+  },
+  "hook": {
+   "size": 60,
+   "y": 280,
+   "duration_s": 2.2,
+   "words": "3-6"
+  },
+  "zoom": {
+   "enabled": false
+  },
+  "sfx": {
+   "mode": "off"
+  },
+  "music": {
+   "enabled": false
+  },
+  "loudness": {
+   "lufs": -14,
+   "lra": 9
+  }
+ },
+ "long": {
+  "pace": {
+   "dead_air_trim_s": 0
+  },
+  "captions": {
+   "enabled": false
+  },
+  "intro": {
+   "bumper_s": 2.5
+  },
+  "loudness": {
+   "enabled": false
+  }
+ }
+}
