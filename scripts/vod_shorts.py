@@ -10,6 +10,10 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE); sys.path.insert(0, os.path.join(HERE, "stations")); sys.path.insert(0, HERE)
 GAMBLING = re.compile(r"jack\.?com|gambl|giveaway|casino|stake\.|slots?\b|roulette|promo code|use code|sportsbook|betting|\bbets?\b|18\+", re.I)
 def sh(c, **k): return subprocess.run(c, capture_output=True, text=True, **k)
+def style_active(fmt="shorts"):
+    """the editing style chosen with env STYLE / --style (config/styles/<name>.json, see scripts/styles.py); None = the classic behaviour"""
+    import styles as _S
+    return _S.active(fmt)
 def jget(url): return json.loads(sh(["curl", "-sS", "-m", "40", "-A", "Mozilla/5.0", url]).stdout)
 def groq(model, messages, mx=1200):
     key = os.environ["GROQ_API_KEY"]
@@ -75,6 +79,10 @@ def whisper(path, lang="en"):   # Groq whisper large-v3-turbo with word timestam
 def render2(body, s, e, ass, out, hook, peak):
     """9:16 render with the research rules: blurred fill + centred stream, hook text on frame 0 (0-1.8 s), one punch-in (100->112%) at the peak, an impact SFX at the peak (assets/sfx/boom.wav, quiet), burned-in captions, -14 LUFS."""
     import shorts as SH
+    _st = style_active("shorts")   # an editing style (env STYLE / --style) renders through style_render; without one this function is exactly the classic render
+    if _st:
+        import style_render as SR
+        return SR.render_shorts(body, s, e, ass, out, hook, peak, _st)
     fonts = [os.path.join(d, f) for d in SH.FONTS for f in (os.listdir(d) if os.path.isdir(d) else []) if f.lower().endswith(".ttf") and ("black" in f.lower() or "bold" in f.lower())]
     ff = fonts[0] if fonts else "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
     safe = re.sub(r"[^A-Za-z0-9 !?']", "", (hook or "")).upper().replace("'", "")[:40]
@@ -95,7 +103,12 @@ def render2(body, s, e, ass, out, hook, peak):
     if r.returncode: print("render2 failed:", r.stderr[-700:]); return False
     return True
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--slug", required=True); ap.add_argument("--vod", default="auto"); ap.add_argument("--from-min", type=float, default=0); ap.add_argument("--to-min", type=float, default=60); ap.add_argument("--n", type=int, default=3); ap.add_argument("--out", default=None); ap.add_argument("--platform", default="kick"); ap.add_argument("--credit", default=""); a = ap.parse_args()
+    ap = argparse.ArgumentParser(); ap.add_argument("--slug", required=True); ap.add_argument("--vod", default="auto"); ap.add_argument("--from-min", type=float, default=0); ap.add_argument("--to-min", type=float, default=60); ap.add_argument("--n", type=int, default=3); ap.add_argument("--out", default=None); ap.add_argument("--platform", default="kick"); ap.add_argument("--credit", default=""); ap.add_argument("--style", default=None, help="editing style name (config/styles/<name>.json) or path; default env STYLE; none = classic"); a = ap.parse_args()
+    if a.style: os.environ["STYLE"] = a.style
+    import styles as _S; ST = style_active("shorts"); PC = _S.resolve(None, "shorts") if not ST else ST   # PC = parameters in force (classic defaults = the old constants)
+    LANG, LANGN, CRIT, HOOKW = PC["language"]["code"], PC["language"]["name"], PC["moments"]["criteria"].replace("%", "%%"), PC["hook"]["words"]
+    MINC, MAXC, TARC, LEAD, MINSC = float(PC["pace"]["min_clip_s"]), float(PC["pace"]["max_clip_s"]), float(PC["pace"]["target_clip_s"]), float(PC["pace"]["max_leadin_s"]), float(PC["pace"]["min_llm_score"])
+    if ST: print("STYLE", _S.name_of(os.environ["STYLE"]), "| clip", MINC, "-", MAXC, "s | captions", PC["captions"]["animation"], "| zoom", PC["zoom"]["enabled"], "| dead-air cut", PC["pace"]["dead_air_trim_s"], flush=True)
     out = a.out or f"state/{a.slug}/shorts"; os.makedirs(out, exist_ok=True)
     if a.platform == "twitch":
         tv = twitch_pick(a.slug, a.vod); vid = str(tv["id"]); v = {"id": vid, "session_title": tv["title"], "duration": tv["dur_s"] * 1000}; AUDIO_SRC, VIDEO_SRC = twitch_urls(vid)
@@ -109,7 +122,7 @@ def main():
         d = min(600, dur - c0); mp3 = f"{tmp}/a{int(c0)}.mp3"
         r = sh(["ffmpeg", "-v", "error", "-y", "-ss", f"{t0 + c0:.1f}", "-t", f"{d:.1f}", "-i", AUDIO_SRC, "-vn", "-ac", "1", "-ar", "16000", "-c:a", "libmp3lame", "-b:a", "48k", mp3])
         if r.returncode: print("audio chunk failed", r.stderr[-200:]); continue
-        for w in whisper(mp3): words.append({"word": w["word"], "start": t0 + c0 + w["start"], "end": t0 + c0 + w["end"]})
+        for w in whisper(mp3, LANG): words.append({"word": w["word"], "start": t0 + c0 + w["start"], "end": t0 + c0 + w["end"]})
         raw = subprocess.run(["ffmpeg", "-v", "error", "-i", mp3, "-f", "s16le", "-ac", "1", "-ar", "8000", "-"], capture_output=True).stdout; x = np.frombuffer(raw, dtype=np.int16).astype(np.float32)
         n = len(x) // 8000; en += list(np.sqrt((x[:n * 8000].reshape(n, 8000) ** 2).mean(1)) + 1e-3)
         print(f"chunk {int(c0 / 60)}-{int((c0 + d) / 60)} min: {len(words)} words total"); time.sleep(2)
@@ -136,8 +149,8 @@ def main():
         pk = t0 + p; ws = [w for w in words if pk - 45 <= w["start"] <= pk + 20]
         if len(ws) < 15: continue
         txt = " ".join(f"[{w['start']:.0f}]{w['word'].strip()}" for w in ws)[:5500]
-        j = llm(("You edit YouTube Shorts from a live stream of a big streamer. Below: words with [second] for the window around an audio/speech peak at second %d. Decide if it is a clip-worthy moment (funny, shocking, dramatic, a story with a punchline). " + (("PRIORITY TOPIC today: " + os.environ["SHORTS_FOCUS"] + ". Give clearly higher scores to moments about it. ") if os.environ.get("SHORTS_FOCUS") else "") + "REJECT (reject=true) gambling/casino/giveaway/promo-code talk, unreleased or leaked game footage, close-up graphic violence, sponsored reads, slurs, sexual content, self-harm, minors, or random chatter. Return JSON only: {\"score\":1-10,\"start\":second where the SETUP sentence starts (8-25 s before the peak, a sentence start),\"end\":second where the PAYOFF/reaction sentence ends (+0.4 s allowed),\"title\":\"English YouTube Shorts title 40-70 chars, hook first, put the streamer's display name in it when natural (e.g. Kai Cenat / N3on), quote the funniest line only if it is clean, ends with ! or ?\",\"hook\":\"3-6 word on-screen text\",\"reject\":false,\"why\":\"\"}\n\n%s" ) % (pk, txt))
-        if j and not j.get("reject") and float(j.get("score", 0)) >= 6: cands.append((float(j["score"]) + float(S[p]) / 3, pk, j))
+        j = llm(("You edit YouTube Shorts from a live stream of a big streamer. Below: words with [second] for the window around an audio/speech peak at second %d. Decide if it is a clip-worthy moment (" + CRIT + "). " + (("PRIORITY TOPIC today: " + os.environ["SHORTS_FOCUS"] + ". Give clearly higher scores to moments about it. ") if os.environ.get("SHORTS_FOCUS") else "") + "REJECT (reject=true) gambling/casino/giveaway/promo-code talk, unreleased or leaked game footage, close-up graphic violence, sponsored reads, slurs, sexual content, self-harm, minors, or random chatter. Return JSON only: {\"score\":1-10,\"start\":second where the SETUP sentence starts (8-" + ("%d" % LEAD) + " s before the peak, a sentence start),\"end\":second where the PAYOFF/reaction sentence ends (+0.4 s allowed),\"title\":\"" + LANGN + " YouTube Shorts title 40-70 chars, hook first, put the streamer's display name in it when natural (e.g. Kai Cenat / N3on), quote the funniest line only if it is clean, ends with ! or ?\",\"hook\":\"" + HOOKW + " word on-screen text\",\"reject\":false,\"why\":\"\"}\n\n%s" ) % (pk, txt))
+        if j and not j.get("reject") and float(j.get("score", 0)) >= MINSC: cands.append((float(j["score"]) + float(S[p]) / 3, pk, j))
     cands.sort(reverse=True); made = []
     # 3. cut + 9:16 render
     import shorts as SH
@@ -145,11 +158,11 @@ def main():
         if len(made) >= a.n: break
         try: s = float(j["start"]); e_ = float(j["end"])
         except Exception: continue
-        s = max(s, pk - 25); e_ = min(max(e_, pk + 3), s + 58)
+        s = max(s, pk - LEAD); e_ = min(max(e_, pk + 3), s + (MAXC - 1))
         s0 = max([w["start"] for w in words if w["start"] <= s], default=s) - 0.2; e0 = min([w["end"] for w in words if w["end"] >= e_], default=e_) + 0.45
-        if e0 - s0 < 20:   # the model often picks only the punchline (15-19 s): give it lead-in context (60%) and a short tail (40%) up to ~24 s, snapped to word starts
-            need = 24 - (e0 - s0); s0 = max([w["start"] for w in words if w["start"] <= s0 - need * 0.6], default=s0) - 0.2; e0 = min([w["end"] for w in words if w["end"] >= e0 + need * 0.4], default=e0) + 0.45
-        if not (20 <= e0 - s0 <= 59) or any(s0 < y and x < e0 for x, y in [(m[2], m[3]) for m in made]): print("rejected", round(s0), round(e0), j.get("title")); continue
+        if e0 - s0 < MINC:   # the model often picks only the punchline (15-19 s): give it lead-in context (60%) and a short tail (40%) up to ~24 s, snapped to word starts
+            need = TARC - (e0 - s0); s0 = max([w["start"] for w in words if w["start"] <= s0 - need * 0.6], default=s0) - 0.2; e0 = min([w["end"] for w in words if w["end"] >= e0 + need * 0.4], default=e0) + 0.45
+        if not (MINC <= e0 - s0 <= MAXC) or any(s0 < y and x < e0 for x, y in [(m[2], m[3]) for m in made]): print("rejected", round(s0), round(e0), j.get("title")); continue
         body = f"{tmp}/b{int(s0)}.mp4"; pad = 2.0; body_t0 = s0 - pad
         r = sh(["ffmpeg", "-v", "error", "-y", "-ss", f"{s0 - pad:.2f}", "-t", f"{e0 - s0 + 2 * pad:.2f}", "-i", VIDEO_SRC, "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "aac", "-b:a", "192k", body])
         if r.returncode: print("cut failed", r.stderr[-300:]); continue
@@ -164,11 +177,17 @@ def main():
                 if not chk["ok"]:   # boundary still on loud audio (game sound/music): look for a quieter frame up to 0.8 s away and keep it only if it is really better
                     fl_ = CS._floor(env); e2 = CS._quiet(env, hop, t0b, e1, fl_, 0.8); s2 = CS._quiet(env, hop, t0b, s1, fl_, 0.4); chk2 = CS.check_boundaries(s2, e2, env, hop, t0b)
                     if chk2["end_db_over_floor"] + chk2["start_db_over_floor"] < chk["end_db_over_floor"] + chk["start_db_over_floor"]: s1, e1, chk = s2, e2, chk2; print("snap: moved to quieter boundaries", chk)
-                if 18 <= e1 - s1 <= 60: s0, e0 = s1, e1
+                if MINC - 2 <= e1 - s1 <= MAXC + 1: s0, e0 = s1, e1
         except Exception as e_: print("cutsnap failed (keeping word-based points):", e_)
         rel = [{"word": w["word"], "start": w["start"] - body_t0, "end": w["end"] - body_t0} for w in words if body_t0 <= w["start"] <= e0 + pad]
-        ass = f"{out}/short_{vid}_{int(s0)}.ass"; mp4 = f"{out}/short_{vid}_{int(s0)}.mp4"; SH.make_ass(rel, s0 - body_t0, e0 - body_t0, ass)
-        txt = open(ass, encoding="utf-8").read().replace("&H0028E678", "&H0007C1FF").replace("Heebo Black", "Heebo Black"); open(ass, "w", encoding="utf-8").write(txt)
+        ass = f"{out}/short_{vid}_{int(s0)}.ass"; mp4 = f"{out}/short_{vid}_{int(s0)}.mp4"
+        if ST:   # editing style: captions/hook from the style, optional jump-cuts on dead air (the render reads <ass>.json for the cuts)
+            import style_render as SR
+            cuts = SR.dead_air_cuts(body, s0 - body_t0, e0 - body_t0, rel, ST["pace"]); SR.shorts_captions(ST, rel, s0 - body_t0, e0 - body_t0, ass, j.get("hook", ""), cuts)
+            if cuts: print(f"style: {len(cuts)} dead-air cuts, {sum(b - a for a, b in cuts):.1f} s removed")
+        else:
+            SH.make_ass(rel, s0 - body_t0, e0 - body_t0, ass)
+            txt = open(ass, encoding="utf-8").read().replace("&H0028E678", "&H0007C1FF").replace("Heebo Black", "Heebo Black"); open(ass, "w", encoding="utf-8").write(txt)
         if not (render2(body, s0 - body_t0, e0 - body_t0, ass, mp4, j.get("hook", ""), pk - body_t0) or SH.render(body, s0 - body_t0, e0 - body_t0, ass, mp4)): continue
         PROF = re.compile(r"fuck|shit|bitch|nigg|fag|retard|cunt|dick|pussy|whore|slut", re.I)   # research: profanity in a title earns no ad revenue; drop the quoted part instead of publishing it
         if PROF.search(j["title"]):
@@ -176,7 +195,7 @@ def main():
             t2 = t2 if t2 and t2[-1] in "!?" else t2 + "!"
             if len(t2) < 18 or PROF.search(t2): print("title has profanity, skipped:", j["title"]); made_skip = True; continue
             j["title"] = t2
-        meta = {"title": re.sub(r"\s+([!?])", r"\1", j["title"]).strip()[:90] + " #Shorts", "hook": j.get("hook", ""), "source": {"slug": a.slug, "platform": a.platform, "vod": vid, "start_s": round(s0), "end_s": round(e0), "vod_title": v.get("session_title")}, "score": round(sc, 1), "why": j.get("why", ""),
+        meta = {"title": re.sub(r"\s+([!?])", r"\1", j["title"]).strip()[:90] + " #Shorts", "hook": j.get("hook", ""), "source": {"slug": a.slug, "platform": a.platform, "vod": vid, "start_s": round(s0), "end_s": round(e0), "vod_title": v.get("session_title")}, "score": round(sc, 1), "why": j.get("why", ""), **({"style": _S.name_of(os.environ["STYLE"])} if ST else {}),
                 "description": f"{j['title']}\n\nClip from {CREDIT_NAME}'s live stream on " + ("Twitch (https://twitch.tv/" if a.platform == "twitch" else "Kick (https://kick.com/") + f"{a.slug}). Unofficial fan channel, not affiliated.\n#Shorts #{a.slug.replace('-', '')}"}
         json.dump(meta, open(mp4.replace(".mp4", ".json"), "w"), ensure_ascii=False, indent=1); made.append((mp4, meta, s0, e0)); print(f"SHORT {len(made)}: {int(s0 // 60)}:{int(s0 % 60):02d}-{int(e0 // 60)}:{int(e0 % 60):02d} ({e0 - s0:.0f}s) score {sc:.1f} | {j['title']}")
     if not made: sys.exit("no short produced")

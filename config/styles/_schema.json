@@ -1,0 +1,970 @@
+{
+ "schema": 1,
+ "how_to_use": "A style file config/styles/<name>.json = {name, label, description, extends (default: nothing, the classic defaults apply), shorts:{section:{key:value}}, long:{...}}. Write only the keys that differ. Select with env STYLE=<name> or --style <name> in scripts/vod_shorts.py / scripts/vod_long.py. scripts/style_from_video.py <url-or-file> writes such a file from a reference video. 'default' = exactly the behaviour before styles existed.",
+ "parameters": {
+  "language.code": {
+   "type": "str",
+   "meaning": "speech language of the stream (Whisper language code: en, he, es ...)",
+   "default_shorts": "en",
+   "default_long": "en",
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "language.name": {
+   "type": "str",
+   "meaning": "language name written into the LLM prompts (titles, hooks, descriptions)",
+   "default_shorts": "English",
+   "default_long": "English",
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "pace.min_clip_s": {
+   "type": "float",
+   "meaning": "Shorts: shortest clip that is accepted (s)",
+   "default_shorts": 20,
+   "default_long": null,
+   "range": [
+    5,
+    180
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "pace.max_clip_s": {
+   "type": "float",
+   "meaning": "Shorts: longest clip that is accepted (s); YouTube Shorts allow up to 3 min, 59 is the safe classic",
+   "default_shorts": 59,
+   "default_long": null,
+   "range": [
+    10,
+    180
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "pace.target_clip_s": {
+   "type": "float",
+   "meaning": "Shorts: a too-short pick is extended with lead-in context up to about this length (s)",
+   "default_shorts": 24,
+   "default_long": null,
+   "range": [
+    5,
+    180
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "pace.max_leadin_s": {
+   "type": "float",
+   "meaning": "Shorts: setup/lead-in before the peak is searched up to this many seconds",
+   "default_shorts": 25,
+   "default_long": null,
+   "range": [
+    3,
+    90
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "pace.min_llm_score": {
+   "type": "float",
+   "meaning": "Shorts: minimum LLM moment score (1-10) to render a candidate",
+   "default_shorts": 6,
+   "default_long": null,
+   "range": [
+    1,
+    10
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "pace.dead_air_trim_s": {
+   "type": "float",
+   "meaning": "jump-cut pace: silences longer than this many seconds are cut out (0 = off, nothing is cut)",
+   "default_shorts": 0,
+   "default_long": 0,
+   "range": [
+    0,
+    30
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "pace.keep_pause_s": {
+   "type": "float",
+   "meaning": "how much of a cut pause is kept so speech does not run together (s)",
+   "default_shorts": 0.35,
+   "default_long": 0.35,
+   "range": [
+    0.05,
+    2
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "pace.silence_db": {
+   "type": "float",
+   "meaning": "below this level (dB) the audio counts as silence",
+   "default_shorts": -42,
+   "default_long": -42,
+   "range": [
+    -70,
+    -20
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "moments.criteria": {
+   "type": "str",
+   "meaning": "Shorts: what the LLM looks for in a moment (free text, goes into the prompt)",
+   "default_shorts": "funny, shocking, dramatic, a story with a punchline",
+   "default_long": null,
+   "formats": [
+    "shorts"
+   ]
+  },
+  "layout.aspect": {
+   "type": "enum",
+   "meaning": "Shorts: output aspect ratio (1080 px wide; 16:9 = 1920x1080)",
+   "default_shorts": "9:16",
+   "default_long": null,
+   "allowed": [
+    "9:16",
+    "1:1",
+    "4:5",
+    "16:9"
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "layout.mode": {
+   "type": "enum",
+   "meaning": "Shorts: how the 16:9 stream fills the frame: blurred copy behind it / centre-crop that fills the frame / solid colour bars",
+   "default_shorts": "blur_fill",
+   "default_long": null,
+   "allowed": [
+    "blur_fill",
+    "crop_fill",
+    "bars"
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "layout.fg_fit": {
+   "type": "enum",
+   "meaning": "blur_fill/bars: stream is scaled to the frame width (classic) or to fit inside the frame (contain)",
+   "default_shorts": "width",
+   "default_long": null,
+   "allowed": [
+    "width",
+    "contain"
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "layout.blur_radius": {
+   "type": "int",
+   "meaning": "blur_fill: box blur radius of the background",
+   "default_shorts": 28,
+   "default_long": null,
+   "range": [
+    0,
+    80
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "layout.blur_power": {
+   "type": "int",
+   "meaning": "blur_fill: blur passes",
+   "default_shorts": 4,
+   "default_long": null,
+   "range": [
+    1,
+    8
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "layout.bg_brightness": {
+   "type": "float",
+   "meaning": "blur_fill: background brightness offset",
+   "default_shorts": -0.12,
+   "default_long": null,
+   "range": [
+    -1,
+    1
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "layout.bg_color": {
+   "type": "color",
+   "meaning": "bars: bar colour",
+   "default_shorts": "#000000",
+   "default_long": null,
+   "formats": [
+    "shorts"
+   ]
+  },
+  "layout.crop_x": {
+   "type": "float",
+   "meaning": "crop_fill: horizontal focus of the crop (0 left, 0.5 centre, 1 right: e.g. where the streamer's face-cam is)",
+   "default_shorts": 0.5,
+   "default_long": null,
+   "range": [
+    0,
+    1
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "captions.enabled": {
+   "type": "bool",
+   "meaning": "burn captions into the video (long videos: off in the classic style)",
+   "default_shorts": true,
+   "default_long": false,
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "captions.font": {
+   "type": "str",
+   "meaning": "font family name (fonts in assets/fonts and the system: Heebo Black, Anton, Bangers, Bebas Neue, Montserrat)",
+   "default_shorts": "Heebo Black",
+   "default_long": "Heebo Black",
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "captions.size": {
+   "type": "int",
+   "meaning": "font size in px on the 1080 px wide (Shorts) or 1920x1080 (long) canvas",
+   "default_shorts": 104,
+   "default_long": 56,
+   "range": [
+    16,
+    220
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "captions.color": {
+   "type": "color",
+   "meaning": "text colour",
+   "default_shorts": "#FFC107",
+   "default_long": "#FFFFFF",
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "captions.highlight_color": {
+   "type": "color",
+   "meaning": "colour of the active word when animation = karaoke",
+   "default_shorts": "#FFC107",
+   "default_long": "#FFC107",
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "captions.outline_color": {
+   "type": "color",
+   "meaning": "outline colour",
+   "default_shorts": "#000000",
+   "default_long": "#000000",
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "captions.outline_px": {
+   "type": "float",
+   "meaning": "outline width",
+   "default_shorts": 9,
+   "default_long": 4,
+   "range": [
+    0,
+    30
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "captions.shadow_px": {
+   "type": "float",
+   "meaning": "shadow depth",
+   "default_shorts": 3,
+   "default_long": 1,
+   "range": [
+    0,
+    20
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "captions.align": {
+   "type": "enum",
+   "meaning": "vertical anchor: 2 = bottom, 5 = middle, 8 = top (ASS numpad)",
+   "default_shorts": 2,
+   "default_long": 2,
+   "allowed": [
+    2,
+    5,
+    8
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "captions.margin_v": {
+   "type": "int",
+   "meaning": "distance from the anchored edge in px (bottom anchor: from the bottom of the frame)",
+   "default_shorts": 520,
+   "default_long": 70,
+   "range": [
+    0,
+    1800
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "captions.margin_h": {
+   "type": "int",
+   "meaning": "left/right margin in px",
+   "default_shorts": 60,
+   "default_long": 120,
+   "range": [
+    0,
+    600
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "captions.words_per_group": {
+   "type": "int",
+   "meaning": "words shown together",
+   "default_shorts": 3,
+   "default_long": 6,
+   "range": [
+    1,
+    12
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "captions.max_group_s": {
+   "type": "float",
+   "meaning": "a caption group is closed after this many seconds",
+   "default_shorts": 1.6,
+   "default_long": 3.0,
+   "range": [
+    0.3,
+    8
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "captions.animation": {
+   "type": "enum",
+   "meaning": "pop = scale 80->100 %, bounce = overshoot, fade = fade in, karaoke = whole group, active word in highlight_color",
+   "default_shorts": "pop",
+   "default_long": "none",
+   "allowed": [
+    "none",
+    "pop",
+    "bounce",
+    "fade",
+    "karaoke"
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "captions.uppercase": {
+   "type": "bool",
+   "meaning": "force upper case",
+   "default_shorts": false,
+   "default_long": false,
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "hook.enabled": {
+   "type": "bool",
+   "meaning": "Shorts: LLM hook text on the first seconds",
+   "default_shorts": true,
+   "default_long": null,
+   "formats": [
+    "shorts"
+   ]
+  },
+  "hook.duration_s": {
+   "type": "float",
+   "meaning": "how long the hook text stays",
+   "default_shorts": 1.8,
+   "default_long": null,
+   "range": [
+    0.5,
+    8
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "hook.size": {
+   "type": "int",
+   "meaning": "font size px",
+   "default_shorts": 64,
+   "default_long": null,
+   "range": [
+    16,
+    200
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "hook.color": {
+   "type": "color",
+   "meaning": "text colour",
+   "default_shorts": "#FFFFFF",
+   "default_long": null,
+   "formats": [
+    "shorts"
+   ]
+  },
+  "hook.border_color": {
+   "type": "color",
+   "meaning": "border colour",
+   "default_shorts": "#000000",
+   "default_long": null,
+   "formats": [
+    "shorts"
+   ]
+  },
+  "hook.border_px": {
+   "type": "int",
+   "meaning": "border width",
+   "default_shorts": 6,
+   "default_long": null,
+   "range": [
+    0,
+    20
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "hook.y": {
+   "type": "int",
+   "meaning": "top of the first line (px from the top)",
+   "default_shorts": 300,
+   "default_long": null,
+   "range": [
+    0,
+    1800
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "hook.line_gap": {
+   "type": "int",
+   "meaning": "distance between the two lines",
+   "default_shorts": 84,
+   "default_long": null,
+   "range": [
+    20,
+    300
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "hook.max_chars": {
+   "type": "int",
+   "meaning": "text is cut to this length",
+   "default_shorts": 40,
+   "default_long": null,
+   "range": [
+    8,
+    80
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "hook.wrap_chars": {
+   "type": "int",
+   "meaning": "longer hooks are wrapped into two centred lines",
+   "default_shorts": 16,
+   "default_long": null,
+   "range": [
+    6,
+    60
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "hook.uppercase": {
+   "type": "bool",
+   "meaning": "force upper case",
+   "default_shorts": true,
+   "default_long": null,
+   "formats": [
+    "shorts"
+   ]
+  },
+  "hook.font": {
+   "type": "str",
+   "meaning": "auto = first Black/Bold font found, or a file name in assets/fonts (e.g. Anton-Regular.ttf)",
+   "default_shorts": "auto",
+   "default_long": null,
+   "formats": [
+    "shorts"
+   ]
+  },
+  "hook.words": {
+   "type": "str",
+   "meaning": "how many words the LLM writes (goes into the prompt)",
+   "default_shorts": "3-6",
+   "default_long": null,
+   "formats": [
+    "shorts"
+   ]
+  },
+  "zoom.enabled": {
+   "type": "bool",
+   "meaning": "punch-in zoom at the peak of the moment (the classic one is a 7 % bump)",
+   "default_shorts": true,
+   "default_long": null,
+   "formats": [
+    "shorts"
+   ]
+  },
+  "zoom.strength": {
+   "type": "float",
+   "meaning": "peak punch-in size (0.07 = 107 %)",
+   "default_shorts": 0.07,
+   "default_long": null,
+   "range": [
+    0,
+    0.5
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "zoom.attack_frames": {
+   "type": "int",
+   "meaning": "frames to reach full zoom (at 30 fps)",
+   "default_shorts": 7,
+   "default_long": null,
+   "range": [
+    1,
+    60
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "zoom.decay_frames": {
+   "type": "int",
+   "meaning": "frames to relax back to 100 %",
+   "default_shorts": 23,
+   "default_long": null,
+   "range": [
+    1,
+    120
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "zoom.extra_every_s": {
+   "type": "float",
+   "meaning": "additional small punch-ins about every N seconds, snapped to caption starts (0 = only the peak)",
+   "default_shorts": 0,
+   "default_long": null,
+   "range": [
+    0,
+    60
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "zoom.extra_strength": {
+   "type": "float",
+   "meaning": "size of the additional punch-ins",
+   "default_shorts": 0.04,
+   "default_long": null,
+   "range": [
+    0,
+    0.3
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "zoom.max_extra": {
+   "type": "int",
+   "meaning": "maximum number of additional punch-ins",
+   "default_shorts": 6,
+   "default_long": null,
+   "range": [
+    0,
+    30
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "sfx.mode": {
+   "type": "enum",
+   "meaning": "env = only when SHORTS_SFX=1 (classic), on / off = the style decides",
+   "default_shorts": "env",
+   "default_long": null,
+   "allowed": [
+    "env",
+    "on",
+    "off"
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "sfx.file": {
+   "type": "str",
+   "meaning": "file in assets/sfx",
+   "default_shorts": "boom.wav",
+   "default_long": null,
+   "formats": [
+    "shorts"
+   ]
+  },
+  "sfx.volume_db": {
+   "type": "float",
+   "meaning": "volume of the effect",
+   "default_shorts": -9,
+   "default_long": null,
+   "range": [
+    -40,
+    6
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "sfx.at": {
+   "type": "strlist",
+   "meaning": "when it plays: at the peak, at the first frame, at every extra zoom",
+   "default_shorts": [
+    "peak"
+   ],
+   "default_long": null,
+   "allowed": [
+    "peak",
+    "start",
+    "zoom"
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "music.enabled": {
+   "type": "bool",
+   "meaning": "mix a music bed (needs a royalty-free file in assets/music or an absolute path; never music you do not have the licence for)",
+   "default_shorts": false,
+   "default_long": false,
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "music.file": {
+   "type": "str",
+   "meaning": "file name in assets/music or a path",
+   "default_shorts": "",
+   "default_long": "",
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "music.volume_db": {
+   "type": "float",
+   "meaning": "music level before ducking",
+   "default_shorts": -24,
+   "default_long": -24,
+   "range": [
+    -50,
+    0
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "music.duck": {
+   "type": "bool",
+   "meaning": "lower the music while someone talks (sidechain)",
+   "default_shorts": true,
+   "default_long": true,
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "intro.bumper_s": {
+   "type": "float",
+   "meaning": "logo bumper at the start in seconds (0 = none). Long videos: the 2.5 s ClipGlobe bumper",
+   "default_shorts": 0,
+   "default_long": 2.5,
+   "range": [
+    0,
+    8
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "watermark.enabled": {
+   "type": "bool",
+   "meaning": "logo watermark in a corner",
+   "default_shorts": true,
+   "default_long": true,
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "watermark.size_px": {
+   "type": "int",
+   "meaning": "logo width",
+   "default_shorts": 130,
+   "default_long": 120,
+   "range": [
+    20,
+    600
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "watermark.opacity": {
+   "type": "float",
+   "meaning": "logo opacity",
+   "default_shorts": 0.9,
+   "default_long": 0.85,
+   "range": [
+    0.05,
+    1
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "watermark.corner": {
+   "type": "enum",
+   "meaning": "which corner",
+   "default_shorts": "tl",
+   "default_long": "br",
+   "allowed": [
+    "tl",
+    "tr",
+    "bl",
+    "br"
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "watermark.margin_x": {
+   "type": "int",
+   "meaning": "distance from the left/right edge",
+   "default_shorts": 30,
+   "default_long": 32,
+   "range": [
+    0,
+    400
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "watermark.margin_y": {
+   "type": "int",
+   "meaning": "distance from the top/bottom edge",
+   "default_shorts": 140,
+   "default_long": 32,
+   "range": [
+    0,
+    600
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "loudness.enabled": {
+   "type": "bool",
+   "meaning": "EBU R128 loudness normalisation (loudnorm)",
+   "default_shorts": true,
+   "default_long": false,
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "loudness.lufs": {
+   "type": "float",
+   "meaning": "integrated loudness target",
+   "default_shorts": -14,
+   "default_long": -14,
+   "range": [
+    -30,
+    -8
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "loudness.tp": {
+   "type": "float",
+   "meaning": "true-peak limit dBTP",
+   "default_shorts": -1.5,
+   "default_long": -1.5,
+   "range": [
+    -9,
+    0
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "loudness.lra": {
+   "type": "float",
+   "meaning": "loudness range",
+   "default_shorts": 7,
+   "default_long": 11,
+   "range": [
+    1,
+    20
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "export.fps": {
+   "type": "int",
+   "meaning": "Shorts frame rate",
+   "default_shorts": 30,
+   "default_long": null,
+   "range": [
+    24,
+    60
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
+  "export.crf": {
+   "type": "int",
+   "meaning": "x264 quality (lower = better)",
+   "default_shorts": 18,
+   "default_long": 19,
+   "range": [
+    12,
+    30
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "export.preset": {
+   "type": "enum",
+   "meaning": "x264 preset",
+   "default_shorts": "veryfast",
+   "default_long": "veryfast",
+   "allowed": [
+    "ultrafast",
+    "superfast",
+    "veryfast",
+    "faster",
+    "fast",
+    "medium"
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "export.audio_kbps": {
+   "type": "int",
+   "meaning": "AAC bitrate",
+   "default_shorts": 192,
+   "default_long": 192,
+   "range": [
+    96,
+    320
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  }
+ }
+}

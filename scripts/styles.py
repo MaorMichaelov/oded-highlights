@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """EDITING STYLE PROFILES: the parameters that make one edit look different from another (pace, captions, zoom, sfx, music, intro, loudness, layout, hook, language).
 A style is a JSON file config/styles/<name>.json:  {"name":..., "extends":"default", "shorts":{section:{key:value}}, "long":{...}}.  Only the keys that differ from the base need to be written.
-Resolution order for every parameter:  code DEFAULTS (= the behaviour of the pipeline before styles existed)  <-  config/styles/default.json  <-  the chosen style (its "extends" chain first).
-Without a style the pipeline never touches this module's render code: behaviour is exactly as before.
+Resolution order for every parameter:  code DEFAULTS (= the behaviour of the pipeline before styles existed)  <-  the chosen style (its "extends" chain first). The product ships ONE style, config/styles/signature.json.
+Without a style the pipeline keeps its original code path untouched. With signature (= the same values spelled out) it goes through scripts/style_render.py, which builds the identical ffmpeg commands (checked by scripts/test_styles.py).
 Select a style:  env STYLE=<name>  or  --style <name>  (vod_shorts.py / vod_long.py);  or a path to a .json file (e.g. one made by scripts/style_from_video.py).
 CLI:  styles.py list | show <name> [shorts|long] | validate [name...] | schema  (schema writes config/styles/_schema.json)
 Library: resolve(name_or_dict_or_None, "shorts"|"long") -> full parameter dict;  make_ass(words, s, e, path, caption_params, W, H, ...) ;  hex_to_ass('#FFC107') -> '&H0007C1FF'"""
@@ -180,7 +180,7 @@ def write_schema(path=None):
         c = sp["constraint"]
         if c: params[p]["range" if sp["type"] in ("int", "float") else "allowed"] = c
         params[p]["formats"] = [f for f in ("shorts", "long") if sp[f] is not NA]
-    doc = {"schema": 1, "how_to_use": "A style file config/styles/<name>.json = {name, label, description, extends (default: nothing, the classic defaults apply), shorts:{section:{key:value}}, long:{...}}. Write only the keys that differ. Select with env STYLE=<name> or --style <name> in scripts/vod_shorts.py / scripts/vod_long.py. scripts/style_from_video.py <url-or-file> writes such a file from a reference video. 'default' = exactly the behaviour before styles existed.", "parameters": params}
+    doc = {"schema": 1, "how_to_use": "A style file config/styles/<name>.json = {name, label, description, extends (optional base style), shorts:{section:{key:value}}, long:{...}}. Write only the keys that differ. Select with env STYLE=<name> or --style <name> in scripts/vod_shorts.py / scripts/vod_long.py. scripts/style_from_video.py <url-or-file> writes such a file from a reference video. 'default' = exactly the behaviour before styles existed.", "parameters": params}
     os.makedirs(os.path.dirname(path), exist_ok=True); json.dump(doc, open(path, "w", encoding="utf-8"), indent=1, ensure_ascii=False); open(path, "a").write("\n"); return path
 # ---- captions (ASS) ---------------------------------------------------------------------------------------------------------------------------------------------------
 def group_words(words, s, e, per=3, max_s=1.6):
