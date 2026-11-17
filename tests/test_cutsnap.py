@@ -47,3 +47,9 @@ class FastTalker(unittest.TestCase):
             t += 0.33
         s, e, info = CS.align_span(10.0, 38.0, ws, min_len=20, max_len=30)
         self.assertTrue(20 <= e - s <= 30); self.assertTrue(info.get("phrase_level"))
+class Lag(unittest.TestCase):
+    def test_estimate_lag(self):
+        words, x, sents = scene(); p = os.path.join(tempfile.mkdtemp(), "a.wav"); synth.write_wav(p, x); env, hop = CS.energy_db(p)
+        for lag in (0.0, 0.12, -0.25):
+            k = int(round(lag / hop)); other = np.roll(env, k)
+            got, conf = CS.estimate_lag(env, other, hop); self.assertAlmostEqual(got, lag, 2); self.assertGreater(conf, 0.5)

@@ -41,7 +41,7 @@ def _offset(env, hop, t0, lo, hi, floor, thr=10, sustain=0.06):
     for i in range(i1, i0 - 1, -1):
         if (env[i:i + n] > floor + thr).all(): return t0 + (i + n) * hop
     return None
-def snap_start(t, words, env, hop, t0, lead=0.18):
+def snap_start(t, words, env, hop, t0, lead=0.18, pre=0.15):
     """t = the first word start the LLM/sentence logic chose (absolute seconds)."""
     words = _clamp(words)
     first = min((w for w in words if abs(w["start"] - t) < 0.6), key=lambda w: abs(w["start"] - t), default=None)
@@ -50,10 +50,10 @@ def snap_start(t, words, env, hop, t0, lead=0.18):
     for a, b in _gaps(words, ft - 1.5, ft + 0.1):   # the pause that ends at this first word
         if abs(b - ft) < 0.25 and b - a > lead + 0.02: s = max(ft - lead, a + 0.02) if b - a < 0.8 else ft - lead; break
     fl = _floor(env); on = _onset(env, hop, t0, ft - 0.5, ft + 0.3, fl)
-    if on is not None and ft - 0.5 <= on <= ft + 0.3 and (on - 0.5 * lead) < s + 0.6: s = on - 0.15   # real onset found: start 150 ms before it (ASR starts are often early: never trust them alone)
+    if on is not None and ft - 0.5 <= on <= ft + 0.3 and (on - 0.5 * lead) < s + 0.6: s = on - pre   # real onset found: start 150 ms before it (ASR starts are often early: never trust them alone)
     while _inside_word(s, words) and s > ft - 1.0: s -= 0.03
     return _quiet(env, hop, t0, s, fl)
-def snap_end(t, words, env, hop, t0, tail=0.30):
+def snap_end(t, words, env, hop, t0, tail=0.30, after=0.25):
     """t = the last word end (absolute seconds)."""
     words = _clamp(words)
     last = min((w for w in words if abs(w["end"] - t) < 1.6), key=lambda w: abs(w["end"] - t), default=None)
@@ -63,7 +63,7 @@ def snap_end(t, words, env, hop, t0, tail=0.30):
         if abs(a - lt) < 0.25:
             e = min(lt + tail, b - 0.02) if b - a < 0.9 else lt + tail; break
     fl = _floor(env); off = _offset(env, hop, t0, lt - 1.0, lt + 0.9, fl)
-    if off is not None and off >= lt - 1.0: e = (off + 0.25) if off < lt - 0.3 else (max(e, off + 0.25) if off <= lt + 0.5 else lt + tail)   # off well before the word end = the word was stretched over silence: trust the audio   # real end of the last sound + 250 ms (a laugh/breath tail up to 0.5 s is kept)
+    if off is not None and off >= lt - 1.0: e = (off + after) if off < lt - 0.3 else (max(e, off + after) if off <= lt + 0.5 else lt + tail)   # off well before the word end = the word was stretched over silence: trust the audio   # real end of the last sound + 250 ms (a laugh/breath tail up to 0.5 s is kept)
     nxt = min((w["start"] for w in words if w["start"] > lt + 0.05), default=None)
     if nxt is not None and e > nxt - 0.04: e = max(lt + 0.1, nxt - 0.04)
     while _inside_word(e, words) and e < lt + 1.2: e += 0.03
@@ -140,3 +140,21 @@ def trim_dead_air(a, b, words, env, hop, t0, max_lead=0.6, max_tail=0.6):
     if on is not None and on - a > max_lead and (first is None or first["start"] - a > max_lead): a = on - 0.25
     if off is not None and b - off > max_tail and (last is None or b - last["end"] > max_tail): b = off + 0.25
     return a, b
+def energy_db_seek(path, start, dur, sr=16000, hop=0.01):
+    """energy envelope of [start, start+dur] of a media file / HLS url (accurate seek); frame i = start + i*hop"""
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-ss", f"{start:.3f}", "-t", f"{dur:.3f}", "-i", path, "-vn", "-ac", "1", "-ar", str(sr), "-f", "s16le", "-"], capture_output=True).stdout
+    x = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768.0; n = int(sr * hop); m = len(x) // n
+    if m == 0: return np.zeros(1), hop
+    return 20 * np.log10(np.sqrt((x[:m * n].reshape(m, n) ** 2).mean(1) + 1e-10)), hop
+def estimate_lag(ref, other, hop, max_lag=0.8):
+    """Time offset between two recordings of the same audio (e.g. the 480p track the ASR ran on and the 1080p track the clip is cut from).
+    Returns (lag_seconds, confidence 0..1): other[t] ~ ref[t - lag], i.e. a sound at time T in `ref` is at T + lag in `other`. Cross-correlation of the mean-removed dB envelopes (floor clipped to the 20th percentile)."""
+    n = min(len(ref), len(other))
+    if n < 300: return 0.0, 0.0
+    a = np.maximum(ref[:n], np.percentile(ref[:n], 20)); b = np.maximum(other[:n], np.percentile(other[:n], 20)); a = a - a.mean(); b = b - b.mean(); m = int(max_lag / hop); best, bl = -1e9, 0; sa = float(np.sqrt((a ** 2).sum()) + 1e-9); sb = float(np.sqrt((b ** 2).sum()) + 1e-9); scores = {}
+    for L in range(-m, m + 1):
+        x = a[max(0, -L):n - max(0, L)]; y = b[max(0, L):n - max(0, -L)]
+        if len(x) < 200: continue
+        c = float((x * y).sum() / (sa * sb)); scores[L] = c
+        if c > best: best, bl = c, L
+    return bl * hop, max(0.0, min(1.0, best))
