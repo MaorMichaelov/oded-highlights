@@ -144,6 +144,11 @@ const tool = (name, args) => ({ tool: name, args });
   const t5 = mk([{ reply: "x" }], { profile: { autonomy: { budgets: { llm_calls_per_day: 2 } } } }); await t5.init(); await A.handleMessage(t5.deps, { cid: "c1", messages: [{ role: "user", content: "a" }] }); t5.llm.calls.length = 0; const t5s = [{ reply: "y" }, { reply: "z" }]; t5.deps.llm = mockLLM(t5s);
   await A.handleMessage(t5.deps, { cid: "c1", messages: [{ role: "user", content: "b" }] }); r = await A.handleMessage(t5.deps, { cid: "c1", messages: [{ role: "user", content: "c" }] }); assert.equal(r.budget, true); assert.equal(t5.deps.llm.calls.length, 1, "no LLM call after the daily budget"); ok("loop: plain text, outage, step cap, clarifying question, daily LLM budget");
 }
+{   // a caller with a lower role can only LOWER the autonomy, never raise it
+  const t = mk([tool("add_rule", { kind: "ban_word", text: "xx" }), tool("list_drafts", {}), { reply: "ok" }], { level: 3 }); await t.init();
+  const r = await A.handleMessage(t.deps, { cid: "c1", messages: [{ role: "user", content: "x" }], capLevel: 0 }); assert.deepEqual(r.actions.map((a) => a.status), ["denied", "done"]); assert.equal((await A.effectiveProfile(t.deps, "c1", 9)).autonomy.level, 3); assert.equal((await A.effectiveProfile(t.deps, "c1")).autonomy.level, 3);
+  assert.equal((await A.executeTool(t.deps, "c1", "start_job", { when: "yesterday" }, { capLevel: 1 })).reason, "suggest_only"); ok("capLevel lowers autonomy for viewer-like callers");
+}
 // ---------- 7. LLM adapter
 {
   const kv = new KV(); const log = []; const P = (name, fn, o = {}) => ({ name, ...o, async call(r) { log.push(name); return fn(r); } });

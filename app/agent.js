@@ -94,6 +94,11 @@ async function bump(deps, key, ttlS = 2 * 86400) { const n = parseInt((await dep
 const count = async (deps, key) => parseInt((await deps.kv.get(key)) || "0", 10);
 
 export async function loadProfile(deps, cid) { cid = safeCid(cid); const p = await kget(deps, KEY.prof(cid)); return p ? normalizeProfile({ ...p, customer_id: cid }) : emptyProfile(cid); }
+// The profile as the policy sees it for THIS caller: capLevel (e.g. 0 for a read-only "viewer" role) can only lower the stored autonomy level, never raise it; auto-publish is switched off when capped below 4.
+export async function effectiveProfile(deps, cid, capLevel) {
+  const p = await loadProfile(deps, cid); if (capLevel != null && p.autonomy.level > capLevel) p.autonomy = { ...p.autonomy, level: Math.max(0, capLevel), auto_publish: { ...p.autonomy.auto_publish, enabled: p.autonomy.auto_publish.enabled && capLevel >= 4 } };
+  return p;
+}
 // updateProfile: read -> fn(copy) -> normalize -> version+1 -> save, and keep the previous version in a 10-entry history ring so every change can be rolled back and shown ("who changed what when").
 export async function updateProfile(deps, cid, fn, why = "", by = "agent") {
   cid = safeCid(cid); const before = await loadProfile(deps, cid); const draft = JSON.parse(JSON.stringify(before)); const r = await fn(draft);
@@ -362,8 +367,8 @@ export function validateArgs(spec, args) {
 export const toolDocs = () => Object.entries(TOOLS).map(([n, t]) => `${n}: ${t.doc}`).join("\n");
 
 // execute one tool call through the policy. Returns {status: done|pending|denied|error, ...}. `confirmed` is set only by confirmPending() (a human action), never by the model.
-export async function executeTool(deps, cid, tool, rawArgs, { actor = "agent", confirmed = false, ops, profile } = {}) {
-  cid = safeCid(cid); profile = profile || (await loadProfile(deps, cid)); ops = ops || deps.ops;
+export async function executeTool(deps, cid, tool, rawArgs, { actor = "agent", confirmed = false, ops, profile, capLevel } = {}) {
+  cid = safeCid(cid); profile = profile || (await effectiveProfile(deps, cid, capLevel)); ops = ops || deps.ops;
   const spec = TOOLS[tool]; const entry = { actor, tool, args: rawArgs, level: profile.autonomy.level };
   if (!spec) { await audit(deps, cid, { ...entry, decision: "deny", reason: "unknown_tool", ok: false }); return { status: "denied", reason: "unknown_tool", message: "no such tool: " + String(tool).slice(0, 40) }; }
   const v = validateArgs(spec, rawArgs); if (v.error) { await audit(deps, cid, { ...entry, decision: "deny", reason: "bad_args", ok: false, result: v.error }); return { status: "error", error: v.error }; }
@@ -384,9 +389,9 @@ const summarize = (tool, a) => ({ start_job: `start a job (${a.when}${a.from_min
 
 // ---- confirmations: a human action only (a chat "yes" detected below, or a UI button). The model has no way to call this.
 export async function listPending(deps, cid) { return (await kget(deps, KEY.pend(safeCid(cid)), [])).filter((p) => p.expires > nowMs(deps)); }
-export async function confirmPending(deps, cid, id, { ops, by = "customer" } = {}) {
+export async function confirmPending(deps, cid, id, { ops, by = "customer", capLevel } = {}) {
   cid = safeCid(cid); const all = await kget(deps, KEY.pend(cid), []); const p = all.find((x) => x.id === id && x.expires > nowMs(deps)); if (!p) return { status: "error", error: "no_such_pending" };
-  await kput(deps, KEY.pend(cid), all.filter((x) => x.id !== id)); return executeTool(deps, cid, p.tool, p.args, { actor: by, confirmed: true, ops });
+  await kput(deps, KEY.pend(cid), all.filter((x) => x.id !== id)); return executeTool(deps, cid, p.tool, p.args, { actor: by, confirmed: true, ops, capLevel });
 }
 export async function dismissPending(deps, cid, id) { cid = safeCid(cid); const all = await kget(deps, KEY.pend(cid), []); await kput(deps, KEY.pend(cid), all.filter((x) => x.id !== id)); await audit(deps, cid, { actor: "customer", tool: "dismiss_pending", args: { id }, decision: "allow", ok: true }); return { ok: true }; }
 export const isYes = (t) => /^\s*(כן|בטח|אוקיי?|סבבה|יאללה|אשר|מאשר|בצע|תבצע|תעשה|yes|y|ok|okay|sure|do it|go|go ahead|confirm)\s*[.!]*\s*$/i.test(t || "");
@@ -418,11 +423,11 @@ const clipText = (t, n) => (t.length > n ? t.slice(0, n) + "..." : t);
 const L = (profile, he, en) => (profile.language === "en" ? en : he);
 
 // handleMessage(deps, {cid, messages:[{role:"user"|"assistant", content}], ops?}) -> {reply, actions[], pending[], steps}
-export async function handleMessage(deps, { cid, messages, ops }) {
-  cid = safeCid(cid); ops = ops || deps.ops; const profile = await loadProfile(deps, cid); const last = [...messages].reverse().find((m) => m.role === "user"); const userText = txt(last && last.content, 2000); const actions = [];
+export async function handleMessage(deps, { cid, messages, ops, capLevel }) {   // capLevel: lower the autonomy for this caller (e.g. 0 for a viewer role)
+  cid = safeCid(cid); ops = ops || deps.ops; const profile = await effectiveProfile(deps, cid, capLevel); const last = [...messages].reverse().find((m) => m.role === "user"); const userText = txt(last && last.content, 2000); const actions = [];
   // 1) deterministic yes/no for a waiting confirmation (no LLM, no cost, and the model cannot self-confirm)
   const pend = await listPending(deps, cid);
-  if (pend.length === 1 && isYes(userText)) { const r = await confirmPending(deps, cid, pend[0].id, { ops }); actions.push({ type: "confirmed", tool: pend[0].tool, status: r.status });
+  if (pend.length === 1 && isYes(userText)) { const r = await confirmPending(deps, cid, pend[0].id, { ops, capLevel }); actions.push({ type: "confirmed", tool: pend[0].tool, status: r.status, ...(r.result && r.result.job_id ? { job_id: r.result.job_id } : {}) });
     return { reply: r.status === "done" ? L(profile, "בוצע.", "Done.") + (r.result && r.result.job_id ? " (" + r.result.job_id + ")" : "") : L(profile, "לא הצלחתי לבצע: ", "Could not do it: ") + (r.message || r.error || (r.result && r.result.error) || r.status), actions, pending: await listPending(deps, cid), steps: 0 }; }
   if (pend.length && isNo(userText)) { for (const p of pend) await dismissPending(deps, cid, p.id); return { reply: L(profile, "בסדר, ביטלתי.", "OK, cancelled."), actions: [{ type: "dismissed", n: pend.length }], pending: [], steps: 0 }; }
   if (!(await llmBudgetOk(deps, cid))) return { reply: L(profile, "הגעתי למכסת ה-AI היומית שלך. כללים, טיוטות והגדרות עדיין עובדים; נמשיך מחר או עם מפתח AI משלך.", "I reached today's AI budget. Rules, drafts and settings still work; we can continue tomorrow or with your own AI key."), actions, pending: pend, steps: 0, budget: true };
@@ -433,7 +438,7 @@ export async function handleMessage(deps, { cid, messages, ops }) {
     const j = parseJSON(r.text); if (!j) return { reply: txt(r.text, 1500) || "?", actions, pending: await listPending(deps, cid), steps: step };   // plain text from a small model: show it
     if (typeof j.reply === "string") return { reply: j.reply.slice(0, 2000), actions, pending: await listPending(deps, cid), steps: step, provider: r.provider };
     if (typeof j.tool !== "string") return { reply: txt(r.text, 1500), actions, pending: await listPending(deps, cid), steps: step };
-    const prof = await loadProfile(deps, cid); const res = await executeTool(deps, cid, j.tool, j.args || {}, { ops, profile: prof }); actions.push({ type: "tool", tool: j.tool, status: res.status });
+    const prof = await effectiveProfile(deps, cid, capLevel); const res = await executeTool(deps, cid, j.tool, j.args || {}, { ops, profile: prof }); actions.push({ type: "tool", tool: j.tool, status: res.status, ...(res.result && res.result.job_id ? { job_id: res.result.job_id } : {}) });
     if (j.tool === "ask_customer" && res.status === "done") return { reply: res.result.asked, actions, pending: await listPending(deps, cid), steps: step, asked: true };
     const shown = res.status === "pending" ? { status: "waiting_for_customer_confirmation", summary: res.summary, instruction: "tell the customer what you are about to do and ask them to confirm" } : res.status === "done" ? res.result : { status: res.status, reason: res.reason || res.error, message: res.message };
     m.push({ role: "assistant", content: JSON.stringify({ tool: j.tool, args: j.args || {} }) }, { role: "user", content: wrapResult(j.tool, shown) });
