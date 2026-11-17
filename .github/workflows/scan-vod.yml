@@ -1,0 +1,37 @@
+name: scan-vod
+# Finds LONG highlight videos (reactions, games, guests, events) in a VOD of a Kick/Twitch streamer with cheap speech samples + the LLM, and starts the long-video workflow for each candidate.
+on:
+  workflow_dispatch:
+    inputs:
+      slug: { required: true }
+      platform: { required: false, default: "kick" }
+      vod: { required: false, default: "auto" }
+      from_min: { required: false, default: "0" }
+      to_min: { required: false, default: "240" }
+      credit: { required: false, default: "" }
+      k: { required: false, default: "3" }
+      dispatch: { description: "start the long-video workflow for every candidate", required: false, default: "true" }
+      upload: { description: "the started long videos upload as PRIVATE drafts to the English channel", required: false, default: "false" }
+concurrency: { group: "scan-${{ inputs.slug }}", cancel-in-progress: false }
+permissions: { contents: write, actions: write }
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install -q numpy yt-dlp
+      - name: Scan
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
+        run: python3 -u scripts/scan_vod.py --slug "${{ inputs.slug }}" --platform "${{ inputs.platform }}" --vod "${{ inputs.vod }}" --from-min "${{ inputs.from_min }}" --to-min "${{ inputs.to_min }}" --credit "${{ inputs.credit }}" --k "${{ inputs.k }}" ${{ inputs.dispatch == 'true' && '--dispatch' || '' }} ${{ inputs.upload == 'true' && '--upload' || '' }}
+      - name: Record
+        if: always()
+        run: |
+          git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
+          git add state/${{ inputs.slug }}/scan_*.json 2>/dev/null; git diff --cached --quiet || { git commit -q -m "scan: ${{ inputs.slug }}"; for i in 1 2 3 4 5 6 7 8 9 10; do git pull --rebase -q && git push -q && break; sleep $((i*2)); done; }

@@ -22,6 +22,26 @@ def main():
         for w in V.whisper(mp3): words.append({"word": w["word"], "start": t0 + c0 + w["start"], "end": t0 + c0 + w["end"]})
         envs.append((t0 + c0, mp3)); print(f"chunk {int(c0 / 60)}-{int((c0 + d) / 60)} min: {len(words)} words", flush=True); time.sleep(2)
     if len(words) < 200: sys.exit("too little speech in the window")
+    # the plan comes from coarse samples (+-5 min): let the LLM find where the session really starts/ends inside the transcript of the first and last 8 minutes
+    try:
+        def lines_of(lo, hi): return "\n".join(f"[{int(w0)}] " + " ".join(x["word"].strip() for x in grp) for w0, grp in _groups(words, lo, hi))
+        def _groups(ws, lo, hi):
+            out_, cur_, t_ = [], [], None
+            for w in ws:
+                if not (lo <= w["start"] < hi): continue
+                if t_ is None: t_ = w["start"]
+                cur_.append(w)
+                if w["end"] - t_ >= 8: out_.append((t_, cur_)); cur_, t_ = [], None
+            if cur_: out_.append((t_, cur_))
+            return out_
+        head = lines_of(t0, t0 + 480); tail = lines_of(t0 + dur - 480, t0 + dur)
+        rj = V.llm(f"A long highlight video was planned from the streamer {credit}'s stream; the topic hint is: '{a.title_hint}'. The planned window may start a few minutes too early or end a few minutes too late. Below are the first and the last 8 minutes of the window as [absolute second] text. "
+                   "Return JSON only: {\"start_second\": the absolute second where the real session/topic begins (the first sentence that belongs to it; skip greetings, unrelated chatter and waiting before it), \"end_second\": the absolute second where it really ends (the end of the last sentence that belongs to it; skip goodbyes and unrelated chatter after it), \"why\": \"\"}. Keep the whole window if it is already right.\n\nSTART:\n" + head[:4500] + "\n\nEND:\n" + tail[:4500])
+        if rj:
+            ns, ne = float(rj["start_second"]), float(rj["end_second"])
+            if t0 - 1 <= ns <= t0 + 540 and t0 + dur - 540 <= ne <= t0 + dur + 1 and ne - ns >= 600:
+                print(f"LLM edge refinement: start {t0:.0f}->{ns:.0f}, end {t0 + dur:.0f}->{ne:.0f} ({rj.get('why')})"); words = [w for w in words if ns - 2 <= w["start"] <= ne + 2]; t0, dur = ns, ne - ns
+    except Exception as e: print("edge refinement skipped:", e)
     # edges: the first and last audio chunk give the energy envelope around the cut points
     s0 = max(t0, min(w["start"] for w in words)); e0 = max(w["end"] for w in words); s1, e1 = s0 - 0.2, min(t0 + dur, e0 + 0.4)
     try:
