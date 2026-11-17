@@ -1,29 +1,29 @@
 {
- "generated": "2026-11-17T12:32:19Z",
+ "generated": "2026-11-17T12:45:39Z",
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1880,
   "views": 17558,
-  "videos": 13
+  "videos": 11
  },
  "totals": {
-  "videos_total": 31,
-  "videos_public": 15,
-  "views": 24003,
-  "likes": 235,
-  "est_hours_low": 1295.6,
-  "est_hours_high": 3022.8
+  "videos_total": 28,
+  "videos_public": 12,
+  "views": 18770,
+  "likes": 172,
+  "est_hours_low": 934.6,
+  "est_hours_high": 2180.6
  },
  "by_kind": {
   "other": {
-   "n": 11,
-   "views": 21193,
-   "est_hours_mid": 1873.5
+   "n": 10,
+   "views": 18659,
+   "est_hours_mid": 1552.8
   },
   "reaction": {
-   "n": 3,
-   "views": 2810,
-   "est_hours_mid": 285.6
+   "n": 1,
+   "views": 111,
+   "est_hours_mid": 5.0
   },
   "short": {
    "n": 1,
@@ -32,18 +32,18 @@
   }
  },
  "top_views": [
-  "KwS6vxsn-VQ",
   "7pMRRSwuhu0",
+  "KwS6vxsn-VQ",
   "U2vvrhOr5AI",
-  "3ahtxhmle3o",
-  "UvCY4MqRuUk"
+  "UvCY4MqRuUk",
+  "ZA70shTHhSk"
  ],
  "top_est_hours": [
   "U2vvrhOr5AI",
   "KwS6vxsn-VQ",
-  "3ahtxhmle3o",
   "7pMRRSwuhu0",
-  "vuVbQellgSU"
+  "UvCY4MqRuUk",
+  "ZA70shTHhSk"
  ],
  "videos": [
   {
@@ -52,14 +52,14 @@
    "published": "2026-11-17",
    "privacy": "public",
    "duration_min": 93.8,
-   "views": 10,
-   "likes": 4,
+   "views": 9,
+   "likes": 3,
    "comments": 0,
    "est_hours": [
-    2.3,
-    5.3
+    2.0,
+    4.7
    ],
-   "views_per_day": 94.6,
+   "views_per_day": 78.2,
    "kind": "other"
   },
   {
@@ -124,54 +124,6 @@
     0.0
    ],
    "views_per_day": 0.0,
-   "kind": "other"
-  },
-  {
-   "id": "aWOw52IYBf4",
-   "title": "עודד מגיב ל\"המשלוח הראשון של GTA VI\" של חדשות 13",
-   "published": "2026-11-16",
-   "privacy": "public",
-   "duration_min": 5.3,
-   "views": 1663,
-   "likes": 10,
-   "comments": 0,
-   "est_hours": [
-    39.5,
-    92.3
-   ],
-   "views_per_day": 1666.7,
-   "kind": "reaction"
-  },
-  {
-   "id": "vuVbQellgSU",
-   "title": "עודד מגיב ל\"משחקי הרעב במציאות\" של מיסטר ביסט!",
-   "published": "2026-11-16",
-   "privacy": "public",
-   "duration_min": 51.8,
-   "views": 1036,
-   "likes": 22,
-   "comments": 0,
-   "est_hours": [
-    128.8,
-    300.5
-   ],
-   "views_per_day": 1025.7,
-   "kind": "reaction"
-  },
-  {
-   "id": "3ahtxhmle3o",
-   "title": "עודד ואשתו אור מבשלים פסטה בלייב ובוחרים שם לכלב!",
-   "published": "2026-11-16",
-   "privacy": "public",
-   "duration_min": 23.2,
-   "views": 2663,
-   "likes": 30,
-   "comments": 0,
-   "est_hours": [
-    197.7,
-    461.3
-   ],
-   "views_per_day": 2615.9,
    "kind": "other"
   },
   {
@@ -315,7 +267,7 @@
     27.0,
     63.1
    ],
-   "views_per_day": 624.3,
+   "views_per_day": 621.1,
    "kind": "other"
   },
   {
@@ -331,7 +283,7 @@
     0.1,
     0.1
    ],
-   "views_per_day": 0.6,
+   "views_per_day": 0.5,
    "kind": "other"
   },
   {
@@ -372,14 +324,14 @@
    "published": "2026-11-13",
    "privacy": "public",
    "duration_min": 4.7,
-   "views": 70,
+   "views": 71,
    "likes": 3,
    "comments": 0,
    "est_hours": [
     1.5,
     3.5
    ],
-   "views_per_day": 17.0,
+   "views_per_day": 17.3,
    "kind": "other"
   },
   {
@@ -388,14 +340,14 @@
    "published": "2026-11-13",
    "privacy": "public",
    "duration_min": 14.9,
-   "views": 2534,
+   "views": 2572,
    "likes": 16,
    "comments": 0,
    "est_hours": [
-    121.0,
-    282.2
+    122.8,
+    286.5
    ],
-   "views_per_day": 614.1,
+   "views_per_day": 621.9,
    "kind": "other"
   },
   {
@@ -404,14 +356,14 @@
    "published": "2026-11-13",
    "privacy": "public",
    "duration_min": 9.6,
-   "views": 4993,
+   "views": 5017,
    "likes": 46,
    "comments": 3,
    "est_hours": [
-    216.1,
-    504.2
+    217.1,
+    506.6
    ],
-   "views_per_day": 1203.9,
+   "views_per_day": 1207.0,
    "kind": "other"
   },
   {
@@ -427,7 +379,7 @@
     57.0,
     133.0
    ],
-   "views_per_day": 282.9,
+   "views_per_day": 282.3,
    "kind": "other"
   },
   {
@@ -443,7 +395,7 @@
     4.6,
     10.7
    ],
-   "views_per_day": 10.2,
+   "views_per_day": 10.1,
    "kind": "other"
   },
   {
@@ -452,14 +404,14 @@
    "published": "2026-11-12",
    "privacy": "public",
    "duration_min": 30.9,
-   "views": 4495,
+   "views": 4497,
    "likes": 22,
    "comments": 1,
    "est_hours": [
-    333.0,
-    777.0
+    333.1,
+    777.3
    ],
-   "views_per_day": 912.7,
+   "views_per_day": 911.4,
    "kind": "other"
   },
   {
@@ -484,14 +436,14 @@
    "published": "2026-11-12",
    "privacy": "public",
    "duration_min": 11.4,
-   "views": 4965,
+   "views": 5031,
    "likes": 48,
    "comments": 3,
    "est_hours": [
-    180.9,
-    422.0
+    183.3,
+    427.6
    ],
-   "views_per_day": 992.1,
+   "views_per_day": 1003.4,
    "kind": "other"
   },
   {
@@ -507,7 +459,7 @@
     8.2,
     19.1
    ],
-   "views_per_day": 31.5,
+   "views_per_day": 31.4,
    "kind": "other"
   },
   {
@@ -516,14 +468,14 @@
    "published": "2026-11-11",
    "privacy": "public",
    "duration_min": 9.7,
-   "views": 46,
+   "views": 45,
    "likes": 4,
    "comments": 0,
    "est_hours": [
     2.0,
-    4.7
+    4.6
    ],
-   "views_per_day": 7.9,
+   "views_per_day": 7.7,
    "kind": "other"
   },
   {
