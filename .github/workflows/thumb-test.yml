@@ -19,7 +19,8 @@ jobs:
           GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
         run: |
           mkdir -p state/thumb_tests w; n=0
-          for u in ${{ inputs.urls }}; do n=$((n+1)); yt-dlp -q -f "best[height<=720]/best" -o "w/v$n.%(ext)s" "$u" || continue
+          URLS="${{ inputs.urls }}"; case "$URLS" in auto:*) URLS=$(yt-dlp --flat-playlist --playlist-end 4 --print "%(url)s" "https://www.twitch.tv/${URLS#auto:}/clips?filter=clips&range=7d");; esac; echo "$URLS"
+          for u in $URLS; do n=$((n+1)); yt-dlp -q -f "best[height<=720]/best" -o "w/v$n.%(ext)s" "$u" || continue
             python3 scripts/thumb_pro.py w/v$n.* state/thumb_tests/t$n.jpg --text "${{ inputs.text }}" || true
           done
           git config user.name highlights-bot; git config user.email highlights-bot@users.noreply.github.com
