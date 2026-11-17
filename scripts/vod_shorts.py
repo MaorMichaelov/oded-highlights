@@ -123,7 +123,7 @@ def main():
         pk = t0 + p; ws = [w for w in words if pk - 45 <= w["start"] <= pk + 20]
         if len(ws) < 15: continue
         txt = " ".join(f"[{w['start']:.0f}]{w['word'].strip()}" for w in ws)[:5500]
-        j = llm("You edit YouTube Shorts from a live stream of a big streamer. Below: words with [second] for the window around an audio/speech peak at second %d. Decide if it is a clip-worthy moment (funny, shocking, dramatic, a story with a punchline). REJECT (reject=true) gambling/casino/giveaway/promo-code talk, unreleased or leaked game footage, close-up graphic violence, sponsored reads, slurs, sexual content, self-harm, minors, or random chatter. Return JSON only: {\"score\":1-10,\"start\":second where the SETUP sentence starts (8-25 s before the peak, a sentence start),\"end\":second where the PAYOFF/reaction sentence ends (+0.4 s allowed),\"title\":\"English YouTube Shorts title 40-70 chars, hook first, quote the funniest line if it is clean, ends with ! or ?\",\"hook\":\"3-6 word on-screen text\",\"reject\":false,\"why\":\"\"}\n\n%s" % (pk, txt))
+        j = llm("You edit YouTube Shorts from a live stream of a big streamer. Below: words with [second] for the window around an audio/speech peak at second %d. Decide if it is a clip-worthy moment (funny, shocking, dramatic, a story with a punchline). REJECT (reject=true) gambling/casino/giveaway/promo-code talk, unreleased or leaked game footage, close-up graphic violence, sponsored reads, slurs, sexual content, self-harm, minors, or random chatter. Return JSON only: {\"score\":1-10,\"start\":second where the SETUP sentence starts (8-25 s before the peak, a sentence start),\"end\":second where the PAYOFF/reaction sentence ends (+0.4 s allowed),\"title\":\"English YouTube Shorts title 40-70 chars, hook first, put the streamer's display name in it when natural (e.g. Kai Cenat / N3on), quote the funniest line only if it is clean, ends with ! or ?\",\"hook\":\"3-6 word on-screen text\",\"reject\":false,\"why\":\"\"}\n\n%s" % (pk, txt))
         if j and not j.get("reject") and float(j.get("score", 0)) >= 6: cands.append((float(j["score"]) + float(S[p]) / 3, pk, j))
     cands.sort(reverse=True); made = []
     # 3. cut + 9:16 render
@@ -148,6 +148,9 @@ def main():
             if wi:
                 s1 = CS.snap_start(wi[0]["start"], words, env, hop, t0b); e1 = CS.snap_end(min(wi[-1]["end"], wi[-1]["start"] + 1.4), words, env, hop, t0b); chk = CS.check_boundaries(s1, e1, env, hop, t0b)
                 print(f"snap: start {s0:.2f}->{s1:.2f}  end {e0:.2f}->{e1:.2f}  boundary check {chk}")
+                if not chk["ok"]:   # boundary still on loud audio (game sound/music): look for a quieter frame up to 0.8 s away and keep it only if it is really better
+                    fl_ = CS._floor(env); e2 = CS._quiet(env, hop, t0b, e1, fl_, 0.8); s2 = CS._quiet(env, hop, t0b, s1, fl_, 0.4); chk2 = CS.check_boundaries(s2, e2, env, hop, t0b)
+                    if chk2["end_db_over_floor"] + chk2["start_db_over_floor"] < chk["end_db_over_floor"] + chk["start_db_over_floor"]: s1, e1, chk = s2, e2, chk2; print("snap: moved to quieter boundaries", chk)
                 if 18 <= e1 - s1 <= 60: s0, e0 = s1, e1
         except Exception as e_: print("cutsnap failed (keeping word-based points):", e_)
         rel = [{"word": w["word"], "start": w["start"] - body_t0, "end": w["end"] - body_t0} for w in words if body_t0 <= w["start"] <= e0 + pad]
