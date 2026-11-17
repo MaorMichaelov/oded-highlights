@@ -10,8 +10,9 @@ import vod_shorts as V, cutsnap as CS, cutqa as Q
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--slug", required=True); ap.add_argument("--platform", default="kick"); ap.add_argument("--vod", default="auto"); ap.add_argument("--from-min", type=float, required=True); ap.add_argument("--to-min", type=float, required=True); ap.add_argument("--credit", default=""); ap.add_argument("--out", default=None); ap.add_argument("--title-hint", default=""); ap.add_argument("--style", default=None, help="editing style name (config/styles/<name>.json) or path; default env STYLE; none = classic"); a = ap.parse_args()
     if a.style: os.environ["STYLE"] = a.style
-    import styles as _S; ST = V.style_active("long"); PC = ST or _S.resolve(None, "long"); LANG, LANGN = PC["language"]["code"], PC["language"]["name"]   # PC = parameters in force (classic defaults = the old behaviour)
-    if ST: print("STYLE", _S.name_of(os.environ["STYLE"]), "| captions", PC["captions"]["enabled"], "| dead-air cut", PC["pace"]["dead_air_trim_s"], "| loudness", PC["loudness"]["enabled"], "| bumper", PC["intro"]["bumper_s"], flush=True)
+    import styles as _S; ST = V.style_active("long"); STN = _S.name_of(os.environ["STYLE"]) if ST else None; PC = ST or _S.resolve(None, "long"); LANG, LANGN = PC["language"]["code"], PC["language"]["name"]   # PC = parameters in force (classic defaults = the old behaviour)
+    if ST == _S.resolve(None, "long"): ST = None   # a style equal to the classic defaults (signature) runs the classic code path unchanged
+    if STN: print("STYLE", STN, "| captions", PC["captions"]["enabled"], "| dead-air cut", PC["pace"]["dead_air_trim_s"], "| loudness", PC["loudness"]["enabled"], "| bumper", PC["intro"]["bumper_s"], flush=True)
     out = a.out or f"state/{a.slug}/long"; os.makedirs(out, exist_ok=True); credit = a.credit or a.slug
     if a.platform == "twitch":
         tv = V.twitch_pick(a.slug, a.vod); vid = str(tv["id"]); AUDIO, VIDEO = V.twitch_urls(vid); vtitle = tv["title"]

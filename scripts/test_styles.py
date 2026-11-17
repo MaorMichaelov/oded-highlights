@@ -40,6 +40,7 @@ def main():
            "-map", "[v]", "-map", "0:a:0", "-c:v", "libx264", "-preset", "veryfast", "-crf", "19", "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2", "-af", "afade=t=in:d=0.02,afade=t=out:st=%.3f:d=0.05" % (dd - 0.05), "-t", f"{dd:.3f}", "-movflags", "+faststart", "OUT"]
     new = SR.long_encode_cmd(lg, "VID", 77.25, dd, None, [], brand.LOGO, "OUT"); check("Long cmd identical", old == new, "\n OLD " + " ".join(old) + "\n NEW " + " ".join(new))
     if "--render" in sys.argv: render_tests(tmp, sig, ws); feature_tests(tmp)
+    if "--roundtrip" in sys.argv: roundtrip_tests(tmp)
     print("\nALL PASS" if not FAIL else "\nFAILED: " + ", ".join(FAIL)); sys.exit(1 if FAIL else 0)
 def render_tests(tmp, sig, ws):
     import re
@@ -48,7 +49,7 @@ def render_tests(tmp, sig, ws):
     V.sh = lambda c, **k: subprocess.run(c, capture_output=True, text=True, **k)
     SH.make_ass(ws, 0.5, 6.0, tmp + "/l.ass"); _t = open(tmp + "/l.ass").read().replace("&H0028E678", "&H0007C1FF"); open(tmp + "/l.ass", "w").write(_t)
     os.environ.pop("STYLE", None); ok1 = V.render2(src, 0.5, 6.0, tmp + "/l.ass", tmp + "/legacy.mp4", "Hook test line", 3.0)
-    os.environ["STYLE"] = "signature"; SR.shorts_captions(sig, ws, 0.5, 6.0, tmp + "/n.ass", "Hook test line", []); ok2 = V.render2(src, 0.5, 6.0, tmp + "/n.ass", tmp + "/new.mp4", "Hook test line", 3.0)
+    SR.shorts_captions(sig, ws, 0.5, 6.0, tmp + "/n.ass", "Hook test line", []); ok2 = SR.render_shorts(src, 0.5, 6.0, tmp + "/n.ass", tmp + "/new.mp4", "Hook test line", 3.0, sig)   # the style renderer itself, not the classic code
     check("both renders ran", ok1 and ok2)
     r = subprocess.run(["ffmpeg", "-v", "info", "-i", tmp + "/legacy.mp4", "-i", tmp + "/new.mp4", "-lavfi", "psnr", "-f", "null", "-"], capture_output=True, text=True).stderr
     m = re.search(r"average:(\S+)", r); psnr = float(m.group(1)) if m and m.group(1) != "inf" else 99.0; check("video PSNR classic vs signature >= 60 dB (identical)", psnr >= 60, f"psnr={psnr}")
@@ -81,4 +82,25 @@ def feature_tests(tmp):
     r = subprocess.run(SR.long_encode_cmd(lg, src, 0.0, 20.0, ass, cuts, brand.LOGO, out), capture_output=True, text=True)
     L = dur(out) if r.returncode == 0 else 0; check(f"Long [captions+cuts+loudness+music] renders, length {L:.1f}s", r.returncode == 0 and abs(L - (20 - ST.total_cut(cuts))) < 0.6, r.stderr[-400:])
     print("feature outputs in", tmp)
+def roundtrip_tests(tmp):
+    """render clips with KNOWN style parameters, run the measurer + style builder on them (no Gemini) and check the parameters are recovered"""
+    import style_from_video as M
+    V.sh = lambda c, **k: subprocess.run(c, capture_output=True, text=True, **k)
+    random.seed(1); ws = []; t = 0.3
+    for i in range(16): d = random.uniform(.2, .4); ws.append({"word": " Word%d" % i, "start": t, "end": t + d}); t += d + 0.05
+    cases = [("amber104", {}, 3.0), ("green72-nozoom", {"captions": {"size": 72, "margin_v": 700, "color": "#00FF99"}, "zoom": {"enabled": False}}, None), ("white128-zoom12", {"captions": {"size": 128, "margin_v": 300, "color": "#FFFFFF", "outline_px": 10}, "zoom": {"strength": 0.12}}, 3.0)]
+    for name, ov, peak in cases:
+        st = ST.resolve({"extends": None, "shorts": ov}, "shorts"); ass = f"{tmp}/r_{name}.ass"; SR.shorts_captions(st, ws, 0.5, 6.3, ass, "Hook line", []); out = f"{tmp}/r_{name}.mp4"
+        SR.render_shorts("/tmp/bt/w/body.mp4", 0.5, 6.3, ass, out, "Hook line", peak, st); m = M.measure(out, 60, log=lambda *a: None); sty = M.build_style("rt", out, m, None); got = sty["shorts"]; c = got.get("captions", {}); e = st["captions"]
+        def rgb(h): h = ST.norm_color(h)[1:]; return [int(h[i:i + 2], 16) for i in (0, 2, 4)]
+        check(f"[{name}] style validates", ST.validate(sty) == [], str(ST.validate(sty)))
+        check(f"[{name}] caption colour recovered {c.get('color')} vs {e['color']}", "color" in c and max(abs(a - b) for a, b in zip(rgb(c["color"]), rgb(e["color"]))) <= 45)
+        check(f"[{name}] caption size recovered {c.get('size')} vs {e['size']} (+-30 %)", abs(c.get("size", 0) - e["size"]) <= 0.3 * e["size"])
+        check(f"[{name}] caption margin_v recovered {c.get('margin_v')} vs {e['margin_v']} (+-90 px)", abs(c.get("margin_v", -999) - e["margin_v"]) <= 90)
+        z = got.get("zoom", {}); check(f"[{name}] zoom recovered {z}", z.get("enabled") == st["zoom"]["enabled"] and (not z.get("enabled") or abs(z.get("strength", 0) - st["zoom"]["strength"]) <= 0.04))
+        check(f"[{name}] loudness recovered {got.get('loudness', {}).get('lufs')}", abs(got.get("loudness", {}).get("lufs", 0) - (-14)) <= 1.0)
+        check(f"[{name}] layout blur_fill recovered", got.get("layout", {}).get("mode") == "blur_fill")
+    # Gemini answer merged (fake answer: the merge + validation path)
+    fake = {"summary": "test", "language": "en", "language_name": "English", "captions": {"present": True, "closest_font": "Anton", "animation": "bounce", "uppercase": True, "words_per_group": 2, "highlight_color_hex": ""}, "hook_text": {"present": True}, "zoom": {"used": True}, "sfx": {"used": True, "kinds": "boom"}, "music": {"used": True, "kind": "lofi"}, "intro": {"present": False, "seconds": 0}, "must_reproduce": ["captions two words"]}
+    sty = M.build_style("fake", "x.mp4", m, fake); check("Gemini answer merges into a valid style", ST.validate(sty) == [] and sty["shorts"]["captions"]["font"] == "Anton" and sty["shorts"]["sfx"]["mode"] == "on", str(ST.validate(sty)))
 if __name__ == "__main__": main()

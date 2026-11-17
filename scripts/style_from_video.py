@@ -73,8 +73,8 @@ def analyse_text(frames, step, y_lo=0.0, y_hi=1.0):
     res = {"coverage": round(float(present.mean()), 2), "frames": len(frames), "present_flags": present.tolist()}
     if present.sum() == 0: return res
     pm = ms[present]; rows = pm.sum(2)   # (n, H) pixels per row
-    ys = []; hs = []; bots = []; tops = []
-    for r in rows:
+    ys = []; hs = []; bots = []; tops = []; sel_runs = []
+    for fi_, r in zip(np.where(present)[0], rows):
         if r.sum() < 5: continue
         on = r >= max(2.0, 0.12 * r.max()); runs = []; i = 0; gap = max(3, int(H * 0.012))
         while i < H:   # contiguous runs of text rows (gaps up to ~1.2 % of the height are bridged)
@@ -87,10 +87,12 @@ def analyse_text(frames, step, y_lo=0.0, y_hi=1.0):
             else: i += 1
         if not runs: continue
         mx = max(x[2] for x in runs); lo_ = [x for x in runs if x[2] >= 0.4 * mx][-1]   # the lowest substantial run = the caption (a hook above it is a separate run)
-        ys.append((lo_[0] + lo_[1]) / 2.0); tops.append(lo_[0]); bots.append(lo_[1]); hs.append(lo_[1] - lo_[0] + 1)
-    if ys:
+        ys.append((lo_[0] + lo_[1]) / 2.0); tops.append(lo_[0]); bots.append(lo_[1]); hs.append(lo_[1] - lo_[0] + 1); sel_runs.append((fi_, lo_[0], lo_[1]))
+    if ys:   # keep only the frames whose text sits where most of it sits (drops the hook line that shows alone during the first seconds)
+        med = float(np.median(ys)); keep = [i for i, y in enumerate(ys) if abs(y - med) <= 0.06 * H]
+        ys, tops, bots, hs, sel_runs = ([x[i] for i in keep] for x in (ys, tops, bots, hs, sel_runs))
         res.update({"y_center": round(float(np.median(ys)) / H, 3), "y_top": round(float(np.percentile(tops, 20)) / H, 3), "y_bottom": round(float(np.percentile(bots, 80)) / H, 3), "band_h": round(float(np.median(hs)) / H, 3)})
-    px = np.concatenate([frames[i][ms[i]] for i in np.where(present)[0]]); px = px[:200000].astype(np.int16)
+    px = np.concatenate([frames[i][lo:hi + 1][ms[i][lo:hi + 1]] for i, lo, hi in sel_runs] or [np.zeros((0, 3), np.uint8)]); px = px[:200000].astype(np.int16)
     mx, mn = px.max(1), px.min(1); white = (mn >= 205) & ((mx - mn) < 40); col = ~white
     res["white_share"] = round(float(white.mean()), 2)
     if col.sum() > 30:
@@ -129,22 +131,25 @@ def measure_zoom(path, info, seconds=60.0, fps=30, w=160):
     dur = len(ks) / fps
     strengths = [x for x in (refine_strength(path, info, t) for t, _ in ev[:12]) if x is not None]
     return {"events": len(ev), "events_per_min": round(len(ev) / dur * 60, 1), "median_strength": round(float(np.median(strengths)), 3) if strengths else (round(float(np.median([r for _, r in ev])), 3) if ev else 0.0), "event_times": [round(t, 2) for t, _ in ev][:100], "analysed_s": round(dur, 1)}
-def refine_strength(path, info, t, w=320, seconds=1.3):
+def refine_strength(path, info, t, w=320, seconds=1.7):
     """punch-in size of one detected event: best zoom factor s (1.00-1.30) that maps the frame before the event onto a later frame (normalised correlation outside text pixels)"""
-    h = int(round(w * info["h"] / info["w"] / 2) * 2); fr = list(read_frames(path, f"fps=30,scale={w}:{h}", w, h, max(0.0, t - 0.15), seconds, ch=3))
+    h = int(round(w * info["h"] / info["w"] / 2) * 2); fr = list(read_frames(path, f"fps=30,scale={w}:{h}", w, h, max(0.0, t - 0.1), seconds, ch=3))
     if len(fr) < 8: return None
     g = [f.astype(np.float32).mean(2) for f in fr]; ok = ~_dilate(text_mask(fr[0]), 5)
     yy, xx = np.mgrid[0:h, 0:w].astype(np.float32); cy, cx = h / 2, w / 2; A = g[0]; best = (0.0, 1.0)
     def warp(img, sc):   # zoom in by sc around the centre (bilinear)
         y = (yy - cy) / sc + cy; x = (xx - cx) / sc + cx; y0 = np.clip(np.floor(y).astype(int), 0, h - 2); x0 = np.clip(np.floor(x).astype(int), 0, w - 2); fy, fx = y - y0, x - x0
         return (img[y0, x0] * (1 - fy) * (1 - fx) + img[y0 + 1, x0] * fy * (1 - fx) + img[y0, x0 + 1] * (1 - fy) * fx + img[y0 + 1, x0 + 1] * fy * fx)
-    wins = np.zeros((h, w), bool); wins[int(h * .1):int(h * .9), int(w * .1):int(w * .9)] = True; ok = ok & wins
-    for j in range(3, len(g), 2):
-        B = g[j]; bs = (-1.0, 1.0)
-        for sc in np.arange(1.0, 1.301, 0.01):
-            Aw = warp(A, sc); a = Aw[ok] - Aw[ok].mean(); b = B[ok] - B[ok].mean(); c = float((a * b).sum() / (np.sqrt((a * a).sum() * (b * b).sum()) + 1e-6))
+    wins = np.zeros((h, w), bool); wins[int(h * .1):int(h * .9), int(w * .1):int(w * .9)] = True
+    P = [1.0]; step = 3   # local scale between frames 0.1 s apart (small motion -> reliable), chained; the event size = the largest rise of the chained scale
+    for j in range(step, len(g), step):
+        A_, B_ = g[j - step], g[j]; okj = wins & ~_dilate(text_mask(fr[j - step]), 5) & ~_dilate(text_mask(fr[j]), 5); bs = (-2.0, 1.0)
+        for sc in np.arange(0.97, 1.081, 0.004):
+            Aw = warp(A_, sc); a = Aw[okj] - Aw[okj].mean(); b = B_[okj] - B_[okj].mean(); c = float((a * b).sum() / (np.sqrt((a * a).sum() * (b * b).sum()) + 1e-6))
             if c > bs[0]: bs = (c, sc)
-        if bs[0] > best[0]: best = bs
+        P.append(P[-1] * (bs[1] if bs[0] >= 0.5 else 1.0))
+    P = np.array(P); rise = max(float(P[i:].max() / P[i]) - 1.0 for i in range(len(P)))
+    best = (0, 1.0 + rise)
     return round(best[1] - 1.0, 3)
 # ---- everything ------------------------------------------------------------------------------------------------------------------------------------------------------
 def measure(path, seconds=180.0, log=say):
@@ -249,7 +254,7 @@ def build_style(name, src, m, g, fmt=None):
     if fmt == "shorts":
         if z["events"] >= 1:
             put("zoom", "enabled", True); put("zoom", "strength", round(_clamp(z["median_strength"], 0.02, 0.2), 3)); epm = z["events_per_min"]
-            if epm >= 4: put("zoom", "extra_every_s", round(_clamp(60 / epm, 2, 30), 1))
+            if epm >= 4 and z["events"] >= 3: put("zoom", "extra_every_s", round(_clamp(60 / epm, 2, 30), 1))
         else: put("zoom", "enabled", False)
     ad = m["audio"]
     if ad.get("lufs") is not None and ad["lufs"] > -60:

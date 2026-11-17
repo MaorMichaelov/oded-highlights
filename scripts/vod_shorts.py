@@ -94,8 +94,9 @@ def truthful_title(title, words_in, names=(), extra="", style="English YouTube S
 def render2(body, s, e, ass, out, hook, peak):
     """9:16 render with the research rules: blurred fill + centred stream, hook text on frame 0 (0-1.8 s), one punch-in (100->112%) at the peak, an impact SFX at the peak (assets/sfx/boom.wav, quiet), burned-in captions, -14 LUFS."""
     import shorts as SH
-    _st = style_active("shorts")   # an editing style (env STYLE / --style) renders through style_render; without one this function is exactly the classic render
-    if _st:
+    _st = style_active("shorts")   # an editing style (env STYLE / --style) renders through style_render; without one - or with one that equals the classic defaults (signature) - this function's own code below runs
+    import styles as _S0
+    if _st and _st != _S0.resolve(None, "shorts"):
         import style_render as SR
         return SR.render_shorts(body, s, e, ass, out, hook, peak, _st)
     fonts = [os.path.join(d, f) for d in SH.FONTS for f in (os.listdir(d) if os.path.isdir(d) else []) if f.lower().endswith(".ttf") and ("black" in f.lower() or "bold" in f.lower())]
@@ -121,10 +122,11 @@ def render2(body, s, e, ass, out, hook, peak):
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--slug", required=True); ap.add_argument("--vod", default="auto"); ap.add_argument("--from-min", type=float, default=0); ap.add_argument("--to-min", type=float, default=60); ap.add_argument("--n", type=int, default=3); ap.add_argument("--out", default=None); ap.add_argument("--platform", default="kick"); ap.add_argument("--credit", default=""); ap.add_argument("--style", default=None, help="editing style name (config/styles/<name>.json) or path; default env STYLE; none = classic"); a = ap.parse_args()
     if a.style: os.environ["STYLE"] = a.style
-    import styles as _S; ST = style_active("shorts"); PC = _S.resolve(None, "shorts") if not ST else ST   # PC = parameters in force (classic defaults = the old constants)
+    import styles as _S; ST = style_active("shorts"); STN = _S.name_of(os.environ["STYLE"]) if ST else None; PC = ST or _S.resolve(None, "shorts")   # PC = parameters in force (classic defaults = the old constants)
+    if ST == _S.resolve(None, "shorts"): ST = None   # a style equal to the classic defaults (signature) runs the classic code path unchanged
     LANG, LANGN, CRIT, HOOKW = PC["language"]["code"], PC["language"]["name"], PC["moments"]["criteria"].replace("%", "%%"), PC["hook"]["words"]
     MINC, MAXC, TARC, LEAD, MINSC = float(PC["pace"]["min_clip_s"]), float(PC["pace"]["max_clip_s"]), float(PC["pace"]["target_clip_s"]), float(PC["pace"]["max_leadin_s"]), float(PC["pace"]["min_llm_score"])
-    if ST: print("STYLE", _S.name_of(os.environ["STYLE"]), "| clip", MINC, "-", MAXC, "s | captions", PC["captions"]["animation"], "| zoom", PC["zoom"]["enabled"], "| dead-air cut", PC["pace"]["dead_air_trim_s"], flush=True)
+    if STN: print("STYLE", STN, "| clip", MINC, "-", MAXC, "s | captions", PC["captions"]["animation"], "| zoom", PC["zoom"]["enabled"], "| dead-air cut", PC["pace"]["dead_air_trim_s"], flush=True)
     out = a.out or f"state/{a.slug}/shorts"; os.makedirs(out, exist_ok=True)
     if a.platform == "twitch":
         tv = twitch_pick(a.slug, a.vod); vid = str(tv["id"]); v = {"id": vid, "session_title": tv["title"], "duration": tv["dur_s"] * 1000}; AUDIO_SRC, VIDEO_SRC = twitch_urls(vid)
@@ -219,7 +221,7 @@ def main():
             j["title"] = t2
         cw = [w for w in words if w["end"] > s0 and w["start"] < e0]   # the words that are really in the finished clip
         j["title"], _tt, _tok = truthful_title(j["title"], cw, [CREDIT_NAME, a.slug], v.get("session_title") or "", "English YouTube Shorts title, 40-70 chars, hook first, ends with ! or ?", v.get("session_title") or "", CREDIT_NAME)
-        meta = {"title": re.sub(r"\s+([!?])", r"\1", j["title"]).strip()[:90] + " #Shorts", "hook": j.get("hook", ""), "source": {"slug": a.slug, "platform": a.platform, "vod": vid, "start_s": round(s0), "end_s": round(e0), "start_exact": round(s0, 2), "end_exact": round(e0, 2), "vod_title": v.get("session_title")}, "score": round(sc, 1), "why": j.get("why", ""), **({"style": _S.name_of(os.environ["STYLE"])} if ST else {}),
+        meta = {"title": re.sub(r"\s+([!?])", r"\1", j["title"]).strip()[:90] + " #Shorts", "hook": j.get("hook", ""), "source": {"slug": a.slug, "platform": a.platform, "vod": vid, "start_s": round(s0), "end_s": round(e0), "start_exact": round(s0, 2), "end_exact": round(e0, 2), "vod_title": v.get("session_title")}, "score": round(sc, 1), "why": j.get("why", ""), **({"style": STN} if STN else {}),
                 "description": f"{j['title']}\n\nClip from {CREDIT_NAME}'s live stream on " + ("Twitch (https://twitch.tv/" if a.platform == "twitch" else "Kick (https://kick.com/") + f"{a.slug}). Unofficial fan channel, not affiliated.\n#Shorts #{a.slug.replace('-', '')}"}
         try:   # automatic grade of the finished draft (sync, cut cleanliness, captions, title truth): a failing draft gets qa_fail=true and upload_shorts.py skips it
             Q.save_words(mp4[:-4] + ".words.json", cw, s0)

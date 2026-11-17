@@ -89,6 +89,8 @@ _T = [
  ("export.crf", "int", 18, 19, (12, 30), "x264 quality (lower = better)"),
  ("export.preset", "enum", "veryfast", "veryfast", ["ultrafast", "superfast", "veryfast", "faster", "fast", "medium"], "x264 preset"),
  ("export.audio_kbps", "int", 192, 192, (96, 320), "AAC bitrate"),
+ ("export.fade_in_s", "float", 0.03, 0.02, (0, 1), "audio fade-in at the start (removes a click when a cut lands inside sound)"),
+ ("export.fade_out_s", "float", 0.12, 0.05, (0, 2), "audio fade-out at the end"),
 ]
 SPEC = {}; DEFAULTS = {"shorts": {}, "long": {}}
 for _p, _t, _s, _l, _c, _d in _T:

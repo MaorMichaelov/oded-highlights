@@ -110,7 +110,9 @@
    "fps": 30,
    "crf": 18,
    "preset": "veryfast",
-   "audio_kbps": 192
+   "audio_kbps": 192,
+   "fade_in_s": 0.03,
+   "fade_out_s": 0.12
   }
  },
  "long": {
@@ -166,7 +168,9 @@
   "export": {
    "crf": 19,
    "preset": "veryfast",
-   "audio_kbps": 192
+   "audio_kbps": 192,
+   "fade_in_s": 0.02,
+   "fade_out_s": 0.05
   }
  }
 }

@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "how_to_use": "A style file config/styles/<name>.json = {name, label, description, extends (default: nothing, the classic defaults apply), shorts:{section:{key:value}}, long:{...}}. Write only the keys that differ. Select with env STYLE=<name> or --style <name> in scripts/vod_shorts.py / scripts/vod_long.py. scripts/style_from_video.py <url-or-file> writes such a file from a reference video. 'default' = exactly the behaviour before styles existed.",
+ "how_to_use": "A style file config/styles/<name>.json = {name, label, description, extends (optional base style), shorts:{section:{key:value}}, long:{...}}. Write only the keys that differ. Select with env STYLE=<name> or --style <name> in scripts/vod_shorts.py / scripts/vod_long.py. scripts/style_from_video.py <url-or-file> writes such a file from a reference video. 'default' = exactly the behaviour before styles existed.",
  "parameters": {
   "language.code": {
    "type": "str",
@@ -960,6 +960,34 @@
    "range": [
     96,
     320
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "export.fade_in_s": {
+   "type": "float",
+   "meaning": "audio fade-in at the start (removes a click when a cut lands inside sound)",
+   "default_shorts": 0.03,
+   "default_long": 0.02,
+   "range": [
+    0,
+    1
+   ],
+   "formats": [
+    "shorts",
+    "long"
+   ]
+  },
+  "export.fade_out_s": {
+   "type": "float",
+   "meaning": "audio fade-out at the end",
+   "default_shorts": 0.12,
+   "default_long": 0.05,
+   "range": [
+    0,
+    2
    ],
    "formats": [
     "shorts",

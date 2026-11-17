@@ -160,6 +160,7 @@ def build_shorts_cmd(body, s, e, ass, out, hook, peak, st, side=None, env=None):
     a_src = "[0:a]"; af = ""
     if cuts: af += f"[0:a]aselect='{_sel(cuts)}',asetpts=N/SR/TB[as];"; a_src = "[as]"
     lnorm = f"loudnorm=I={_n(ld['lufs'])}:TP={_n(ld['tp'])}:LRA={_n(ld['lra'])}," if ld["enabled"] else ""
+    FADE = (f",afade=t=in:d={_n(ex['fade_in_s'])},afade=t=out:st={max(0.0, clip_len - float(ex['fade_out_s'])):.3f}:d={_n(ex['fade_out_s'])}" if ex["fade_in_s"] or ex["fade_out_s"] else "")
     if mp:   # music bed under the speech, optionally ducked by the speech
         af += f"{a_src}asplit=2[sp][sc];[{mus_i}:a]volume={_n(mu['volume_db'])}dB,atrim=0:{clip_len:.3f}[mraw];" + (f"[mraw][sc]sidechaincompress=threshold=0.04:ratio=9:attack=15:release=350[mus];" if mu["duck"] else "[mraw]anull[mus];[sc]anullsink;")
         a_src = "[sp]"; mix_in = "[mus]"
@@ -171,8 +172,8 @@ def build_shorts_cmd(body, s, e, ass, out, hook, peak, st, side=None, env=None):
             for i, t in enumerate(sfx_times): af += f"[q{i}]adelay={int(t * 1000)}|{int(t * 1000)},volume={_n(sfx['volume_db'])}dB[x{i}];"; sx.append(f"[x{i}]")
     else: sx = []
     ins = [a_src] + sx + ([mix_in] if mix_in else [])
-    if len(ins) > 1: af += "".join(ins) + f"amix=inputs={len(ins)}:normalize=0:duration=first,{lnorm}aresample=48000[aud]"
-    else: af += f"{a_src}{lnorm}aresample=48000[aud]"
+    if len(ins) > 1: af += "".join(ins) + f"amix=inputs={len(ins)}:normalize=0:duration=first,{lnorm}aresample=48000{FADE}[aud]"
+    else: af += f"{a_src}{lnorm}aresample=48000{FADE}[aud]"
     cmd += [vf + ";" + af, "-map", "[v]", "-map", "[aud]", "-c:v", "libx264", "-preset", ex["preset"], "-crf", str(int(ex["crf"])), "-pix_fmt", "yuv420p", "-r", str(fps), "-c:a", "aac", "-b:a", f"{int(ex['audio_kbps'])}k"] + (["-ac", "2"] if st["intro"]["bumper_s"] > 0 else []) + ["-movflags", "+faststart", out]
     return cmd
 def render_shorts(body, s, e, ass, out, hook, peak, st):
@@ -209,7 +210,7 @@ def long_encode_cmd(st, video, s1, dd, ass, cuts, logo, out):
     if chain: pre = src + ",".join(chain) + "[sv];"; src = "[sv]"
     if logo_i is not None: fc = pre + f"[{logo_i}:v]format=rgba,scale={int(wm['size_px'])}:-1,colorchannelmixer=aa={_n(wm['opacity'])}[wm];{src}[wm]overlay={_wm_pos(wm)}:shortest=1,format=yuv420p[v]"
     else: fc = pre + f"{src}format=yuv420p[v]"
-    fade = f"afade=t=in:d=0.02,afade=t=out:st={clip_len - 0.05:.3f}:d=0.05"; cutaf = (f"aselect='{_sel(cuts)}',asetpts=N/SR/TB," if cuts else "")
+    fade = f"afade=t=in:d={_n(ex['fade_in_s'])},afade=t=out:st={clip_len - float(ex['fade_out_s']):.3f}:d={_n(ex['fade_out_s'])}"; cutaf = (f"aselect='{_sel(cuts)}',asetpts=N/SR/TB," if cuts else "")
     lnorm = f"loudnorm=I={_n(ld['lufs'])}:TP={_n(ld['tp'])}:LRA={_n(ld['lra'])}," if ld["enabled"] else ""
     cmd += ["-filter_complex"]
     if mp:
