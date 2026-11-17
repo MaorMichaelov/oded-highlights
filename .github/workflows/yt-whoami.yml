@@ -23,6 +23,8 @@ jobs:
           python3 - <<'PY'
           import json, os, subprocess, urllib.parse
           w = os.environ["WHICH"]; rt, cid, cs = (os.environ["EN_RT"], os.environ["EN_ID"], os.environ["EN_SECRET"]) if w == "en" else (os.environ["MAIN_RT"], os.environ["MAIN_ID"], os.environ["MAIN_SECRET"])
+          def shape(name, v, pre): return f"{name}: len={len(v)} startswith_{pre}={v.startswith(pre)} has_space_or_newline={any(ch.isspace() for ch in v)}"
+          print("WHOAMI| client id (public value):", cid); print("WHOAMI|", shape("secret", cs, "GOCSPX-")); print("WHOAMI|", shape("refresh_token", rt, "1//"))
           if not (rt and cid and cs): print("WHOAMI| missing secrets for", w, "(need refresh token, client id, client secret)"); raise SystemExit(1)
           r = subprocess.run(["curl", "-sS", "-X", "POST", "https://oauth2.googleapis.com/token", "-d", "grant_type=refresh_token", "--data-urlencode", "refresh_token=" + rt, "-d", "client_id=" + cid, "-d", "client_secret=" + cs], capture_output=True, text=True)
           tok = json.loads(r.stdout)
