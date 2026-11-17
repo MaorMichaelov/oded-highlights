@@ -215,3 +215,4 @@
 {"t": "2026-11-17T09:21:38Z", "kind": "stage", "text": "✂️ נחתך מהשידור: TEST normal cut (delete)", "clip": "test_fast_cut3"}
 {"t": "2026-11-17T09:23:55Z", "kind": "stage", "text": "🎬 נערך: נוספו פתיחה, כתוביות ירוקות, סטינג ופופאפ הרשמה", "clip": "test_fast_cut3"}
 {"t": "2026-11-17T09:23:59Z", "kind": "stage", "text": "✅ עבר בדיקת איכות: 1920x1080 60.0fps, 12.2Mbps, 2:41 דק׳", "clip": "test_fast_cut3"}
+{"t": "2026-11-17T09:25:01Z", "kind": "qa", "text": "בדיקת איכות אוטומטית (Gemini צפה בקטע מהקליפ): ציון ?/10", "clip": "test_fast_cut3"}
