@@ -1,9 +1,73 @@
 {
-  "_doc": "Channels the system watches. odedsvr runs in live-loop.yml (state/). Others run in live-loop-channel.yml with their own state dir. yt = which YouTube channel the drafts go to (main = ODED HIGHLIGHTS secrets YT_*, en = the English channel secrets YT2_*).",
-  "channels": [
-    {"slug": "odedsvr", "kick_id": "7685090", "lang": "he", "state": "state", "yt": "main", "credit": "עודד (OdedSVR)", "enabled": true},
-    {"slug": "adinross", "kick_id": "", "lang": "en", "state": "state/adinross", "yt": "en", "credit": "Adin Ross", "enabled": false},
-    {"slug": "xqc", "kick_id": "", "lang": "en", "state": "state/xqc", "yt": "en", "credit": "xQc", "enabled": false},
-    {"slug": "trainwreckstv", "kick_id": "", "lang": "en", "state": "state/trainwreckstv", "yt": "en", "credit": "Trainwreck", "enabled": false}
-  ]
+ "_doc": "Channels the system watches. odedsvr runs in live-loop.yml (state/). Others run in live-loop-channel.yml with their own state dir. yt = which YouTube channel the drafts go to (main = ODED HIGHLIGHTS secrets YT_*, en = the English channel secrets YT2_*). The English channel (yt=en) is called WORLD CLIPS (owner, 17 Nov): Kai Cenat / N3on reactions and clips go ONLY there, never to ODED HIGHLIGHTS. Nothing is uploaded there until the owner connects it (YT2_* secrets).",
+ "channels": [
+  {
+   "slug": "odedsvr",
+   "kick_id": "7685090",
+   "lang": "he",
+   "state": "state",
+   "yt": "main",
+   "credit": "עודד (OdedSVR)",
+   "enabled": true
+  },
+  {
+   "slug": "adinross",
+   "kick_id": "",
+   "lang": "en",
+   "state": "state/adinross",
+   "yt": "en",
+   "credit": "Adin Ross",
+   "enabled": false
+  },
+  {
+   "slug": "xqc",
+   "kick_id": "",
+   "lang": "en",
+   "state": "state/xqc",
+   "yt": "en",
+   "credit": "xQc",
+   "enabled": false
+  },
+  {
+   "slug": "trainwreckstv",
+   "kick_id": "",
+   "lang": "en",
+   "state": "state/trainwreckstv",
+   "yt": "en",
+   "credit": "Trainwreck",
+   "enabled": false
+  },
+  {
+   "slug": "n3on",
+   "kick_id": "1227772",
+   "lang": "en",
+   "state": "state/n3on",
+   "yt": "en",
+   "credit": "N3on",
+   "enabled": false
+  },
+  {
+   "slug": "kaicenat",
+   "platform": "twitch",
+   "kick_id": "",
+   "lang": "en",
+   "state": "state/kaicenat",
+   "yt": "en",
+   "credit": "Kai Cenat",
+   "enabled": false,
+   "note": "streams on Twitch+YouTube, not Kick; needs a Twitch app key"
+  }
+ ],
+ "youtube_channels": {
+  "main": {
+   "name": "ODED HIGHLIGHTS",
+   "secrets": "YT_*",
+   "content": "Oded (OdedSVR) only, Hebrew"
+  },
+  "en": {
+   "name": "WORLD CLIPS",
+   "secrets": "YT2_*",
+   "content": "English: Kai Cenat, N3on and other big streamers (reactions, clips, Shorts); NOT connected yet"
+  }
+ }
 }
