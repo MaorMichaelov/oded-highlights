@@ -379,6 +379,20 @@
   "auto": true
  },
  {
+  "id": "test_fast_en",
+  "title": "TEST english fast cut (delete)",
+  "brief": {
+   "about": "הקלאיפ מציג את עודד במצב משחק אינטנסיבי ב‑Rob Run עם צחוקים וטעויות בתרגום.",
+   "who": "עודד, מיכאל, דניאל, דיוויד, הצ'אט, אשתו",
+   "peak": "11:45"
+  },
+  "stages": {},
+  "draft": null,
+  "draft_at": null,
+  "quality_errors": null,
+  "auto": true
+ },
+ {
   "id": "test_shiber",
   "title": "בדיקה (גרסה חדשה): עודד מחפש את המספר של ביגי ומתקשר לעמית שיבר!",
   "brief": {
