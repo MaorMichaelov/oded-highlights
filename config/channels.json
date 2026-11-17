@@ -44,7 +44,9 @@
    "state": "state/n3on",
    "yt": "en",
    "credit": "N3on",
-   "enabled": false
+   "enabled": false,
+   "platform": "kick",
+   "note": "Kick, 1.26M followers; skip Jack.com / gambling / giveaway streams"
   },
   {
    "slug": "kaicenat",
@@ -55,7 +57,8 @@
    "yt": "en",
    "credit": "Kai Cenat",
    "enabled": false,
-   "note": "streams on Twitch+YouTube, not Kick; needs a Twitch app key"
+   "note": "Twitch (+YouTube simulcast). Owner brings the Twitch app key (client id/secret) on 17 Nov; until then not started.",
+   "twitch_login": "kaicenat"
   }
  ],
  "youtube_channels": {
@@ -69,5 +72,20 @@
    "secrets": "YT2_*",
    "content": "English: Kai Cenat, N3on and other big streamers (reactions, clips, Shorts); NOT connected yet"
   }
+ },
+ "world_clips_plan": {
+  "start_with": [
+   "n3on (Kick)",
+   "kaicenat (Twitch)"
+  ],
+  "candidates_to_check": [
+   "xqc (Kick)",
+   "trainwreckstv (Kick)",
+   "adinross (Kick)"
+  ],
+  "youtube_only_not_possible": [
+   "ishowspeed (YouTube lives cannot be downloaded from the cloud)"
+  ],
+  "priority": "precision of start/end first, then speed (be first to upload)"
  }
 }

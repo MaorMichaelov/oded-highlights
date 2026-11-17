@@ -63,3 +63,5 @@ GROK BOT'S INSTRUCTIONS (owner pasted 14 Nov): drafts = private + full Hebrew ti
 - HOW A NEWS/VIDEO REACTION IS EDITED (watched with Gemini, 16 Nov, see docs/GROK_EXAMPLES.md): highlight stitch, not raw stretch: ~14 cuts per 5 min, a hook of the 3 strongest moments, the body starts where the reacted video/article starts and ends when he closes it; keep his props/funny monologues, drop dry parts and chat-reading; one source per video.
 
 - TWO CHANNELS (owner, 17 Nov): ODED HIGHLIGHTS = Oded only (Hebrew). WORLD CLIPS (the English channel, yt=en, secrets YT2_*) = Kai Cenat / N3on reactions and clips, long videos and Shorts. Never mix them. Nothing is uploaded to WORLD CLIPS until the owner connects the channel; until then the English Shorts stay as workflow artifacts.
+
+- WORLD CLIPS streamers (owner, 17 Nov): start with N3on (Kick) and Kai Cenat (TWITCH; the owner brings the Twitch app key today); then maybe xQc / Trainwreck / Adin Ross (Kick). Priorities for the new channel: (1) PRECISION of where each clip starts and ends, (2) SPEED (being first to upload matters).
