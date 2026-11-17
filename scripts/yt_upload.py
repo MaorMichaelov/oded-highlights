@@ -24,7 +24,23 @@ hdr = run(["curl", "-sS", "-i", "-m", "60", "-X", "POST", "https://www.googleapi
 loc = [l.split(":", 1)[1].strip() for l in hdr.splitlines() if l.lower().startswith("location:")]
 if not loc: print("init failed:", hdr[:600]); sys.exit(1)
 print("uploading", round(size / 1e6), "MB ...", flush=True)
-r = run(["curl", "-sS", "-m", "1800", "-X", "PUT", loc[0], "-H", "Content-Type: video/mp4", "--data-binary", f"@{video}"])
+# bug 16 Nov: `--data-binary @file` loads the WHOLE file into RAM: an 8 GB (93 min) clip killed the runner ("lost communication"). Stream from disk with -T, and resume from the last byte YouTube has on failure.
+def put(offset):
+    if offset == 0: return run(["curl", "-sS", "-m", "5400", "-X", "PUT", loc[0], "-H", "Content-Type: video/mp4", "-T", video])
+    p1 = subprocess.Popen(["tail", "-c", f"+{offset + 1}", video], stdout=subprocess.PIPE)
+    r_ = subprocess.run(["curl", "-sS", "-m", "5400", "-X", "PUT", loc[0], "-H", "Content-Type: video/mp4", "-H", f"Content-Range: bytes {offset}-{size - 1}/{size}", "-H", f"Content-Length: {size - offset}", "-T", "-"], stdin=p1.stdout, capture_output=True, text=True)
+    p1.stdout.close(); p1.wait(); return r_
+def resume_offset():
+    h = run(["curl", "-sS", "-i", "-m", "60", "-X", "PUT", loc[0], "-H", "Content-Length: 0", "-H", f"Content-Range: bytes */{size}"]).stdout
+    m = re.search(r"(?im)^range:\s*bytes=0-(\d+)", h); return int(m.group(1)) + 1 if m else 0
+import re
+r = put(0)
+for attempt in range(3):
+    try: json.loads(r.stdout); break
+    except Exception:
+        off = resume_offset(); print(f"upload interrupted ({r.stderr[:120]}); resuming at byte {off}", flush=True)
+        if off >= size: break
+        r = put(off)
 try: res = json.loads(r.stdout)
 except Exception: print("upload response:", r.stdout[:500], r.stderr[:300]); sys.exit(1)
 if "id" not in res: print("upload error:", json.dumps(res)[:600]); sys.exit(1)
