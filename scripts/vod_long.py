@@ -95,11 +95,12 @@ def main():
     desc = f"Clips from {credit}'s live streams on {src_line} | Unofficial fan channel, not affiliated.\n{j.get('description', '').strip()}\n" + (f"\nChapters:\n{chap}\n" if chap else "") + f"\nClip from the live stream: {src_line}\nThis is an unofficial fan channel: all clips are taken from {credit}'s streams. It is not {credit}'s official channel.\n\n" + " ".join(hs)
     meta = {"title": j["title"].strip()[:98], "description": desc, "tags": (j.get("tags") or [])[:12] + [credit, "highlights"], "privacy": "private", "score": 100, "source": {"slug": a.slug, "platform": a.platform, "vod": vid, "start_s": round(s1), "end_s": round(e1), "minutes": round(dd / 60, 1)}}
     json.dump(meta, open(mp4[:-4] + ".json", "w"), ensure_ascii=False, indent=1)
-    try:   # pro thumbnail from a real face frame (thumb_pro.py): 2-4 literal words
-        tj = V.llm(f"Give a 2 to 4 word YouTube thumbnail hook for a video titled '{meta['title']}'. Literal and true to the title, no hype words, no profanity, no clickbait claims. Return JSON {{\"text\": \"...\"}}")
-        tt = (tj or {}).get("text") or " ".join(meta["title"].split()[:3])
-        if HYPE.search(tt): tt = " ".join(meta["title"].split()[:3])
-        r_ = subprocess.run([sys.executable, os.path.join(HERE, "thumb_pro.py"), mp4, mp4[:-4] + ".jpg", "--text", tt, "--hint", meta["title"]], capture_output=True, text=True); print("thumb:", (r_.stdout + r_.stderr)[-200:].strip())
-    except Exception as e: print("thumbnail skipped:", str(e)[:120])
+    if os.environ.get("THUMB_PRO") == "1":   # opt-in only: the owner does not want auto-designed thumbnails
+      try:   # pro thumbnail from a real face frame (thumb_pro.py): 2-4 literal words
+          tj = V.llm(f"Give a 2 to 4 word YouTube thumbnail hook for a video titled '{meta['title']}'. Literal and true to the title, no hype words, no profanity, no clickbait claims. Return JSON {{\"text\": \"...\"}}")
+          tt = (tj or {}).get("text") or " ".join(meta["title"].split()[:3])
+          if HYPE.search(tt): tt = " ".join(meta["title"].split()[:3])
+          r_ = subprocess.run([sys.executable, os.path.join(HERE, "thumb_pro.py"), mp4, mp4[:-4] + ".jpg", "--text", tt, "--hint", meta["title"]], capture_output=True, text=True); print("thumb:", (r_.stdout + r_.stderr)[-200:].strip())
+      except Exception as e: print("thumbnail skipped:", str(e)[:120])
     print(f"LONG READY {mp4} ({dd / 60:.1f} min, {os.path.getsize(mp4) // 1_000_000} MB) | {meta['title']}")
 if __name__ == "__main__": main()
