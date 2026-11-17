@@ -5,7 +5,7 @@ We combine (a) the gaps between words and (b) the real audio energy (10 ms RMS i
   END:   the pause just after the last word  -> end 300 ms after that word (a laugh/breath tail is kept only if it is part of the word list), never inside a word.
 Boundary check: energy at both cut points must be within 8 dB of the local noise floor, otherwise the point slides to the quietest frame within +-150 ms.
 API: energy_db(path) -> (env, hop);  snap_start(t, words, env, hop, t0);  snap_end(t, words, env, hop, t0);  check_boundaries(...)"""
-import subprocess
+import re, subprocess
 import numpy as np
 def energy_db(path, sr=16000, hop=0.01):
     raw = subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-vn", "-ac", "1", "-ar", str(sr), "-f", "s16le", "-"], capture_output=True).stdout
@@ -70,3 +70,65 @@ def snap_end(t, words, env, hop, t0, tail=0.30):
     return _quiet(env, hop, t0, e, fl)
 def check_boundaries(s, e, env, hop, t0):
     fl = _floor(env); return {"start_db_over_floor": round(_at(env, hop, t0, s) - fl, 1), "end_db_over_floor": round(_at(env, hop, t0, e) - fl, 1), "ok": _at(env, hop, t0, s) <= fl + 10 and _at(env, hop, t0, e) <= fl + 10}
+# ---------------------------------------------------------------- sentence-aware spans (added 17 Nov: the LLM's start/end seconds are only roughly right, they often fall in the middle of a sentence)
+END_PUNCT = re.compile(r"[.!?…]['\"”’)]*$")
+def _ws(words): return _clamp(sorted(words, key=lambda w: w["start"]))
+def sentence_breaks(words, pause=0.45):
+    """indices i such that a sentence ENDS after words[i]: the word ends with . ! ? (when the ASR gives punctuation) or the next word starts >= `pause` s later. The last word counts as an end."""
+    ws = _ws(words); out = []
+    for i, w in enumerate(ws):
+        if i == len(ws) - 1 or END_PUNCT.search(w["word"].strip()) or ws[i + 1]["start"] - w["end"] >= pause: out.append(i)
+    return out
+def sentence_start_near(t, words, back=5.0, fwd=2.5, pause=0.45):
+    """start time of the sentence start nearest to t: a sentence that begins at or up to `back` s before t is preferred (the setup must stay in), else the first one up to `fwd` s after t. None when the words do not reach t."""
+    ws = _ws(words)
+    if not ws: return None
+    br = set(sentence_breaks(ws, pause)); starts = [0] + [i + 1 for i in sorted(br) if i + 1 < len(ws)]
+    before = [i for i in starts if t - back <= ws[i]["start"] <= t + 0.05]; after = [i for i in starts if t + 0.05 < ws[i]["start"] <= t + fwd]
+    if before: return ws[before[-1]]["start"]   # the closest sentence start at or before t
+    if after: return ws[after[0]]["start"]
+    return None
+def sentence_end_near(t, words, back=1.5, fwd=5.0, pause=0.45):
+    """end time of the sentence end nearest to t: the first sentence end at or after t-back (finish the sentence the LLM ended inside), up to `fwd` s later; else the last one before. None when nothing is in reach."""
+    ws = _ws(words)
+    if not ws: return None
+    ends = sentence_breaks(ws, pause); after = [i for i in ends if t - back <= ws[i]["end"] <= t + fwd]; before = [i for i in ends if t - back - 4.0 <= ws[i]["end"] < t - back]
+    if after: return ws[after[0]]["end"]
+    if before: return ws[before[-1]]["end"]
+    return None
+def align_span(s, e, words, min_len=20.0, max_len=58.0, pause=0.45):
+    """LLM start/end seconds -> (first word start, last word end, info) aligned to sentence boundaries: start on a sentence start (setup kept), end after the sentence that holds the punchline.
+    Too long -> the end moves back to the previous sentence end that fits; too short -> the end extends over following sentences (<= max_len), then the start goes back by whole sentences."""
+    ws = _ws(words)
+    if not ws: return s, e, {"aligned": False}
+    s2 = sentence_start_near(s, ws, 5.0, 2.5, pause); e2 = sentence_end_near(e, ws, 1.5, 5.0, pause); info = {"aligned": s2 is not None and e2 is not None}
+    if s2 is None: s2 = min((w["start"] for w in ws if w["start"] >= s - 0.2), default=s)
+    if e2 is None: e2 = max((w["end"] for w in ws if w["end"] <= e + 0.3), default=e)
+    ends = [ws[i]["end"] for i in sentence_breaks(ws, pause)]
+    if e2 - s2 > max_len:
+        fit = [x for x in ends if s2 + min_len <= x <= s2 + max_len]
+        if fit: e2 = fit[-1]; info["end_pulled_back"] = True
+    if e2 - s2 < min_len:
+        more = [x for x in ends if e2 < x <= s2 + max_len]
+        for x in more:
+            e2 = x
+            if e2 - s2 >= min_len: break
+        info["end_extended"] = True
+    if e2 - s2 < min_len:
+        st = [ws[0]["start"]] + [ws[i + 1]["start"] for i in sentence_breaks(ws, pause) if i + 1 < len(ws)]
+        for x in sorted((x for x in st if x < s2), reverse=True):
+            if e2 - x > max_len: break
+            s2 = x; info["start_extended"] = True
+            if e2 - s2 >= min_len: break
+    return s2, e2, info
+def pause_after(words, t, look=1.5):
+    """length of the silence (no word) after time t, capped at `look`; used to prefer natural pauses when several sentence ends are possible"""
+    nxt = min((w["start"] for w in words if w["start"] > t + 0.02), default=t + look); return min(look, max(0.0, nxt - t))
+def trim_dead_air(a, b, words, env, hop, t0, max_lead=0.6, max_tail=0.6):
+    """[a, b] = planned cut. If more than max_lead/max_tail seconds of near-silence (energy < floor+10 dB, no word) precede the first / follow the last sound, pull the cut in so that at most ~0.25 s of it remains. Never moves inside a word."""
+    ws = _ws(words); fl = _floor(env)
+    first = min((w for w in ws if w["end"] > a), key=lambda w: w["start"], default=None); last = max((w for w in ws if w["start"] < b), key=lambda w: w["end"], default=None)
+    on = _onset(env, hop, t0, a, b, fl); off = _offset(env, hop, t0, a, b, fl)
+    if on is not None and on - a > max_lead and (first is None or first["start"] - a > max_lead): a = on - 0.25
+    if off is not None and b - off > max_tail and (last is None or b - last["end"] > max_tail): b = off + 0.25
+    return a, b

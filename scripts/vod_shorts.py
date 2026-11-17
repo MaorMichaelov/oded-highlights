@@ -8,6 +8,7 @@ env: GROQ_API_KEY"""
 import argparse, json, os, re, subprocess, sys, tempfile, time
 import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE); sys.path.insert(0, os.path.join(HERE, "stations")); sys.path.insert(0, HERE)
+import cutsnap as CS, cutqa as Q
 GAMBLING = re.compile(r"jack\.?com|gambl|giveaway|casino|stake\.|slots?\b|roulette|promo code|use code|sportsbook|betting|\bbets?\b|18\+", re.I)
 def sh(c, **k): return subprocess.run(c, capture_output=True, text=True, **k)
 def style_active(fmt="shorts"):
@@ -76,6 +77,20 @@ def whisper(path, lang="en"):   # Groq whisper large-v3-turbo with word timestam
     print("groq whisper gave nothing (" + r.stdout[:90].replace("\n", " ") + ") -> local faster-whisper", flush=True)
     try: return local_whisper(path, lang or "en")
     except Exception as e: print("local whisper failed:", str(e)[:150]); return []
+def truthful_title(title, words_in, names=(), extra="", style="English YouTube Shorts title, 40-70 chars, ends with ! or ?", stream_title="", streamer=""):
+    """Title truth gate (owner rule: titles literal and true): every name / number / quote of the title must occur in the transcript of the clip itself (names also in the stream title). One rewrite by the LLM with the unsupported parts named; -> (title, truth_report, ok). ok=False means the title is still unverified (the caller flags the draft qa_fail)."""
+    txt = " ".join(w["word"].strip() for w in words_in)
+    if len(txt.split()) < 20: return title, None, True
+    tt = Q.title_truth(title, txt, names, extra + " " + stream_title)
+    if not (tt["bad_quotes"] or tt["missing_names"]): return title, tt, True
+    print("title not supported by the transcript:", {k: tt[k] for k in ("bad_quotes", "missing_names")}, "-", title, flush=True)
+    j2 = llm(f"Rewrite this title so that EVERY name, number and quoted line in it really occurs in the transcript below. Transcript text is automatic, names may be misspelled; the stream title '{stream_title}' and the streamer name '{streamer}' may be used for names. Previous title: '{title}'. Not supported: {tt['bad_quotes'] + tt['missing_names']}. "
+             f"Describe only what happens in the transcript; no hype words (epic, insane, crazy, shocking, reveal, surprise), no invented facts. Style: {style}. Return JSON only: {{\"title\": \"...\"}}\n\nTranscript:\n{txt[:6000]}")
+    t2 = ((j2 or {}).get("title") or "").strip()
+    if t2:
+        tt2 = Q.title_truth(t2, txt, names, extra + " " + stream_title)
+        if not (tt2["bad_quotes"] or tt2["missing_names"]) and not Q.title_flags(t2): return t2, tt2, True
+    return title, tt, False
 def render2(body, s, e, ass, out, hook, peak):
     """9:16 render with the research rules: blurred fill + centred stream, hook text on frame 0 (0-1.8 s), one punch-in (100->112%) at the peak, an impact SFX at the peak (assets/sfx/boom.wav, quiet), burned-in captions, -14 LUFS."""
     import shorts as SH
@@ -97,7 +112,8 @@ def render2(body, s, e, ass, out, hook, peak):
           f"[v0]zoompan=z='{z}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s=1080x1920:fps=30[v1];[v1]subtitles={ass.replace(':', chr(92) + ':')}" + (":fontsdir=" + SH.FONTS[0] if SH.FONTS else "") + dt + "[vt];[1:v]format=rgba,scale=130:-1,colorchannelmixer=aa=0.9[wm];[vt][wm]overlay=30:140[v]")
     sfx = os.path.join(ROOT, "assets", "sfx", "boom.wav"); have = peak and os.path.exists(sfx) and os.environ.get("SHORTS_SFX") == "1"   # research 16 Nov: the Shorts/clips that travel on Kai/N3on are raw single takes; SFX/zoom spam reads as AI slop, so SFX is off by default
     cmd = ["ffmpeg", "-v", "error", "-y", "-ss", f"{s:.3f}", "-i", body, "-loop", "1", "-i", os.path.join(ROOT, "assets", "world_clips", "logo_clipglobe.png")] + (["-i", sfx] if have else []) + ["-t", f"{e - s:.3f}", "-filter_complex"]
-    af = (f"[2:a]adelay={int(P * 1000)}|{int(P * 1000)},volume=-9dB[sx];[0:a][sx]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-14:TP=-1.5:LRA=7,aresample=48000[aud]" if have else "[0:a]loudnorm=I=-14:TP=-1.5:LRA=7,aresample=48000[aud]")
+    FADE = f"afade=t=in:d=0.03,afade=t=out:st={max(0.0, e - s - 0.12):.3f}:d=0.12"   # 17 Nov quality pass: a cut inside a loud tail ended with a click; 30 ms in / 120 ms out
+    af = (f"[2:a]adelay={int(P * 1000)}|{int(P * 1000)},volume=-9dB[sx];[0:a][sx]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-14:TP=-1.5:LRA=7,aresample=48000,{FADE}[aud]" if have else f"[0:a]loudnorm=I=-14:TP=-1.5:LRA=7,aresample=48000,{FADE}[aud]")
     cmd += [vf + ";" + af, "-map", "[v]", "-map", "[aud]", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p", "-r", "30", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out]
     r = sh(cmd)
     if r.returncode: print("render2 failed:", r.stderr[-700:]); return False
@@ -158,11 +174,17 @@ def main():
         if len(made) >= a.n: break
         try: s = float(j["start"]); e_ = float(j["end"])
         except Exception: continue
-        s = max(s, pk - LEAD); e_ = min(max(e_, pk + 3), s + (MAXC - 1))
-        s0 = max([w["start"] for w in words if w["start"] <= s], default=s) - 0.2; e0 = min([w["end"] for w in words if w["end"] >= e_], default=e_) + 0.45
-        if e0 - s0 < MINC:   # the model often picks only the punchline (15-19 s): give it lead-in context (60%) and a short tail (40%) up to ~24 s, snapped to word starts
-            need = TARC - (e0 - s0); s0 = max([w["start"] for w in words if w["start"] <= s0 - need * 0.6], default=s0) - 0.2; e0 = min([w["end"] for w in words if w["end"] >= e0 + need * 0.4], default=e0) + 0.45
-        if not (MINC <= e0 - s0 <= MAXC) or any(s0 < y and x < e0 for x, y in [(m[2], m[3]) for m in made]): print("rejected", round(s0), round(e0), j.get("title")); continue
+        s = max(s, pk - LEAD); e_ = max(e_, pk + 3)
+        try:   # 17 Nov quality pass: the LLM seconds land mid-sentence; start on a sentence start (setup kept), end after the sentence that holds the punchline
+            s_al, e_al, ainfo = CS.align_span(s, e_, words, MINC + 0.5, MAXC - 3); s0 = s_al - 0.2; e0 = e_al + 0.45
+            if ainfo.get("aligned") is False or ainfo.get("end_pulled_back") or ainfo.get("end_extended") or ainfo.get("start_extended"): print("align:", {k: v for k, v in ainfo.items()}, f"LLM {s:.1f}-{e_:.1f} -> {s_al:.2f}-{e_al:.2f}")
+        except Exception as ex_:
+            print("align failed, word-based points:", ex_); e_ = min(e_, s + (MAXC - 1))
+            s0 = max([w["start"] for w in words if w["start"] <= s], default=s) - 0.2; e0 = min([w["end"] for w in words if w["end"] >= e_], default=e_) + 0.45
+            if e0 - s0 < MINC:
+                need = TARC - (e0 - s0); s0 = max([w["start"] for w in words if w["start"] <= s0 - need * 0.6], default=s0) - 0.2; e0 = min([w["end"] for w in words if w["end"] >= e0 + need * 0.4], default=e0) + 0.45
+        prev = [(m[2], m[3]) for m in made] + ([] if os.environ.get("ALLOW_DUP") == "1" else [(x["start"], x["end"]) for x in Q.existing_ranges(a.slug, vid, kinds=("shorts",))])   # also refuse a moment an earlier run already made (17 Nov: three overlapping Shorts of the same song)
+        if not (MINC <= e0 - s0 <= MAXC) or any(Q.overlap(s0, e0, x, y) >= 0.3 for x, y in prev): print("rejected (length or duplicate)", round(s0), round(e0), j.get("title")); continue
         body = f"{tmp}/b{int(s0)}.mp4"; pad = 2.0; body_t0 = s0 - pad
         r = sh(["ffmpeg", "-v", "error", "-y", "-ss", f"{s0 - pad:.2f}", "-t", f"{e0 - s0 + 2 * pad:.2f}", "-i", VIDEO_SRC, "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "aac", "-b:a", "192k", body])
         if r.returncode: print("cut failed", r.stderr[-300:]); continue
@@ -195,8 +217,18 @@ def main():
             t2 = t2 if t2 and t2[-1] in "!?" else t2 + "!"
             if len(t2) < 18 or PROF.search(t2): print("title has profanity, skipped:", j["title"]); made_skip = True; continue
             j["title"] = t2
-        meta = {"title": re.sub(r"\s+([!?])", r"\1", j["title"]).strip()[:90] + " #Shorts", "hook": j.get("hook", ""), "source": {"slug": a.slug, "platform": a.platform, "vod": vid, "start_s": round(s0), "end_s": round(e0), "vod_title": v.get("session_title")}, "score": round(sc, 1), "why": j.get("why", ""), **({"style": _S.name_of(os.environ["STYLE"])} if ST else {}),
+        cw = [w for w in words if w["end"] > s0 and w["start"] < e0]   # the words that are really in the finished clip
+        j["title"], _tt, _tok = truthful_title(j["title"], cw, [CREDIT_NAME, a.slug], v.get("session_title") or "", "English YouTube Shorts title, 40-70 chars, hook first, ends with ! or ?", v.get("session_title") or "", CREDIT_NAME)
+        meta = {"title": re.sub(r"\s+([!?])", r"\1", j["title"]).strip()[:90] + " #Shorts", "hook": j.get("hook", ""), "source": {"slug": a.slug, "platform": a.platform, "vod": vid, "start_s": round(s0), "end_s": round(e0), "start_exact": round(s0, 2), "end_exact": round(e0, 2), "vod_title": v.get("session_title")}, "score": round(sc, 1), "why": j.get("why", ""), **({"style": _S.name_of(os.environ["STYLE"])} if ST else {}),
                 "description": f"{j['title']}\n\nClip from {CREDIT_NAME}'s live stream on " + ("Twitch (https://twitch.tv/" if a.platform == "twitch" else "Kick (https://kick.com/") + f"{a.slug}). Unofficial fan channel, not affiliated.\n#Shorts #{a.slug.replace('-', '')}"}
+        try:   # automatic grade of the finished draft (sync, cut cleanliness, captions, title truth): a failing draft gets qa_fail=true and upload_shorts.py skips it
+            Q.save_words(mp4[:-4] + ".words.json", cw, s0)
+            g = Q.grade(mp4, "short", title=meta["title"], words=[{"word": w["word"], "start": w["start"] - s0, "end": w["end"] - s0} for w in cw], window_text_=Q.words_text(cw), ass=ass, ignore_names=[CREDIT_NAME, a.slug], extra_text=v.get("session_title") or "")
+            meta["qa"] = {"score": g["score"], "fail": g["fail"], "warn": g["warn"]}
+            if not _tok: meta["qa"]["fail"].append("title not supported by the transcript (rewrite failed)")
+            if meta["qa"]["fail"]: meta["qa_fail"] = True
+            print("QA", meta["qa"], flush=True)
+        except Exception as ex_: print("qa grade failed (draft kept as is):", str(ex_)[:150])
         json.dump(meta, open(mp4.replace(".mp4", ".json"), "w"), ensure_ascii=False, indent=1); made.append((mp4, meta, s0, e0)); print(f"SHORT {len(made)}: {int(s0 // 60)}:{int(s0 % 60):02d}-{int(e0 // 60)}:{int(e0 % 60):02d} ({e0 - s0:.0f}s) score {sc:.1f} | {j['title']}")
     if not made: sys.exit("no short produced")
 if __name__ == "__main__": main()
