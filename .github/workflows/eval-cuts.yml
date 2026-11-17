@@ -1,0 +1,43 @@
+name: eval-cuts
+# Grades FINISHED media (artifacts of earlier long-video / shorts / clipshorts runs) with scripts/cutqa.py: dead air at both ends, abrupt audio end, loudness, A/V sync, captions, and (asr=true) whether the first/last word is clipped.
+# Writes state/eval_media.json + docs/QUALITY_REPORT.md. Never uploads anything.
+on:
+  workflow_dispatch:
+    inputs:
+      prefixes: { description: "artifact name prefixes (comma separated)", required: false, default: "long-,shorts-,clipshorts-" }
+      max_artifacts: { required: false, default: "12" }
+      max_mb: { description: "skip artifacts larger than this", required: false, default: "1200" }
+      asr: { description: "transcribe the first/last 8 s of every file (Groq whisper)", required: false, default: "true" }
+concurrency: { group: eval-cuts, cancel-in-progress: false }
+permissions: { contents: write, actions: read }
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install -q numpy pillow faster-whisper
+      - name: Grade the artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          set -u
+          gh api "repos/${{ github.repository }}/actions/artifacts?per_page=100" --jq '.artifacts[] | select(.expired==false) | [.name, .size_in_bytes, .workflow_run.id] | @tsv' > /tmp/arts.tsv
+          PFX="${{ inputs.prefixes }}"; MAXMB="${{ inputs.max_mb }}"; N="${{ inputs.max_artifacts }}"; ASR=""; [ "${{ inputs.asr }}" = "true" ] && ASR="--asr"
+          awk -F'\t' -v pf="$PFX" -v mx="$MAXMB" 'BEGIN{n=split(pf,P,",")} {ok=0; for(i=1;i<=n;i++) if(index($1,P[i])==1) ok=1; if(ok && $2/1048576<=mx) print}' /tmp/arts.tsv | head -n "$N" > /tmp/pick.tsv
+          cat /tmp/pick.tsv
+          while IFS=$'\t' read -r name size run; do
+            rm -rf /tmp/a; mkdir -p /tmp/a
+            gh run download "$run" -n "$name" -D /tmp/a || { echo "download failed: $name"; continue; }
+            python3 -u scripts/eval_cuts.py --media /tmp/a $ASR --no-report || echo "eval failed: $name"
+          done < /tmp/pick.tsv
+          python3 scripts/eval_cuts.py
+      - name: Record
+        if: always()
+        run: |
+          git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
+          git add docs/QUALITY_REPORT.md state/eval_media.json state/eval_cuts.json 2>/dev/null; git diff --cached --quiet || { git commit -q -m "eval-cuts: quality report"; for i in 1 2 3 4 5 6 7 8 9 10 11 12; do git pull --rebase -q && git push -q && break; sleep $((i%4+1)); done; }

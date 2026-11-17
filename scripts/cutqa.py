@@ -120,9 +120,8 @@ def caption_report(ass_path, duration_s=None, max_lines=2):
     -> {"n", "overflow": [{"t","text","lines","widest_px"}], "worst_px", "avail_px", "max_cps", "past_end": captions ending after the video, "overlap": simultaneous captions}. overflow = a single word wider than the box or more than max_lines lines."""
     if not ass_path or not os.path.exists(ass_path): return {}
     txt = open(ass_path, encoding="utf-8").read(); px = int((re.search(r"PlayResX:\s*(\d+)", txt) or [0, 1080])[1]); size = 104; ml = mr = 60
-    m = re.search(r"^Style:\s*[^,]*,[^,]*,(\d+),(?:[^,]*,){10}\s*\d+,\s*\d+,\s*\d+,\s*\d+,\s*(\d+),\s*(\d+),\s*(\d+)", txt, re.M)
     m2 = re.search(r"^Style:\s*Cap,([^,]*),(\d+),.*?,(\d+),(\d+),(\d+),(\d+)\s*$", txt, re.M)   # Cap,font,size,...,Alignment,MarginL,MarginR,MarginV,Encoding
-    if m2: size = int(m2.group(2)); ml, mr = int(m2.group(4)), int(m2.group(5))
+    if m2: size = int(m2.group(2)); ml, mr = int(m2.group(3)), int(m2.group(4))
     avail = px - ml - mr; font = _font(None, size); ev = []; overflow = []; worst = 0.0; max_cps = 0.0; past = 0
     for l in txt.splitlines():
         if not l.startswith("Dialogue:"): continue
@@ -144,27 +143,35 @@ EN_STOP = set("a an the of and or to in on at for with from by is are was were b
 HE_STOP = set("של על את עם אני אתה הוא היא הם הן זה זאת זו לא כן גם אבל או אם כי מה מי איך למה כל רק כמו אל מן עוד כבר היה היו יש אין הזה הזאת".split())
 GENERIC = set("discusses discuss shares share talks talk talking meets reacts reaction highlights struggles struggle plans plan tells tell says say asks ask shows show explains explain gets goes comes makes takes".split())
 def _norm(w): return re.sub(r"[’`]", "'", w.lower()).strip("'\"-.,!?:;()")
-def tokens(text):
-    return [_norm(t) for t in re.findall(r"[A-Za-z][A-Za-z'’\-]*|\d[\d,\.]*\d|\d|[\u0590-\u05FF]+(?:[\"'״׳][\u0590-\u05FF]+)?", text or "")]
+TOK = r"[A-Za-z][A-Za-z0-9'’\-]*|\d[\d,\.]*\d|\d|[\u0590-\u05FF]+(?:[\"'״׳][\u0590-\u05FF]+)?"
+def tokens(text): return [_norm(t) for t in re.findall(TOK, text or "")]
 def _stem(t):
+    """crude stem: English suffixes dropped, first 4 letters (skating/skate/skaters -> skat); Hebrew: one prefix letter dropped, first 4 letters. Lenient on purpose (a stem match only means 'supported')."""
     t = re.sub(r"'s$", "", t)
     if re.match(r"[\u0590-\u05FF]", t):
         t2 = t.replace('"', "").replace("'", "")
         return t2[1:5] if len(t2) > 4 and t2[0] in "הוכלבמש" else t2[:5]
-    return t[:5] if len(t) >= 6 else t
-def title_truth(title, text, ignore=()):
+    if re.match(r"\d", t): return t.replace(",", "")
+    for suf in ("ing", "ed", "es", "er", "ly", "s", "e"):
+        if t.endswith(suf) and len(t) - len(suf) >= 4: t = t[:-len(suf)]; break
+    return t[:4] if len(t) >= 5 else t
+def _latin_frac(toks):
+    return sum(1 for t in toks if re.match(r"[a-z]", t)) / max(1, len(toks))
+def title_truth(title, text, ignore=(), extra=""):
     """Which parts of a title are NOT supported by the transcript window `text`?
     -> {"missing_words": content words with no stem match, "missing_names": capitalised words/numbers (strong claims) with no fuzzy match, "bad_quotes": quoted strings that are not (mostly) in the transcript, "ratio": missing/checked, "checked": n}
     Names that are the streamer's own (ignore) and generic title verbs are not checked. A transcript is automatic (misspelled names): names use a fuzzy match (difflib >= 0.8)."""
     title = re.sub(r"#\w+", " ", title or ""); ign = {_norm(x) for x in ignore for x in re.split(r"[\s/]+", str(x)) if x}
-    tt = tokens(text); tset = {_stem(t) for t in tt}; tfull = set(tt)
+    tt = tokens(text + " " + (extra or "")); tset = {_stem(t) for t in tt}; tfull = set(tt); lf = _latin_frac(tokens(text))   # extra = text the title may legitimately draw on (the stream title)
     bad_q = []
     for q in re.findall(r"[\"“”]([^\"“”]{3,})[\"“”]|(?:(?<=\s)|^)'([^']{4,})'(?=\s|$|[!?.,])", title):
         q = q[0] or q[1]; qt = [t for t in tokens(q) if t not in EN_STOP]
         if qt and sum(1 for t in qt if _stem(t) in tset) / len(qt) < 0.6: bad_q.append(q)
-    pat = r"[A-Za-z][A-Za-z'’\-]*|\d[\d,\.]*\d|\d|[\u0590-\u05FF]+(?:[\"'״׳][\u0590-\u05FF]+)?"; words = []
-    for m in re.finditer(pat, title):
+    words = []
+    for m in re.finditer(TOK, title):
         w = m.group(0); n = _norm(w)
+        if re.match(r"[a-z]", n) and lf < 0.2: continue   # Hebrew transcript: Latin words (game / brand names) cannot be matched across scripts
+        if re.match(r"[\u0590-\u05FF]", n) and lf > 0.8: continue
         if n in ign or n in EN_STOP or n in HE_STOP or n in GENERIC or (len(n) < 3 and not n.isdigit()): continue
         cap = w[0].isupper() and m.start() > 0 and not title[:m.start()].rstrip().endswith(("-", "–", ":")) and not re.match(r"[A-Z]{2,}$", w)
         words.append((n, w, cap or n[0].isdigit()))
@@ -214,7 +221,7 @@ def existing_ranges(slug, vod, root=None, kinds=("shorts", "long")):
     return out
 # ---------------------------------------------------------------- grade
 THRESH = {"lead_max": 0.7, "trail_max": 0.9, "tail_loud_db": 22.0, "head_loud_db": 22.0, "short_lufs": (-14.0, 2.0), "long_lufs": (-16.0, 5.0), "sync_max": 0.35, "max_silence": 8.0}
-def grade(path, kind="short", title=None, words=None, window_text_=None, ass=None, skip_head=0.0, ignore_names=(), audio=None, expected_dur=None):
+def grade(path, kind="short", title=None, words=None, window_text_=None, ass=None, skip_head=0.0, ignore_names=(), audio=None, expected_dur=None, extra_text=""):
     """Grade a finished draft. kind: 'short' | 'long'. -> {"fail": [reasons that must block the upload], "warn": [...], "metrics": {...}, "score": 0-100}
     sync (stream durations / start times / expected duration), cut cleanliness (dead air at both ends, chopped audio at the end, start inside a loud sound, word cut when words are given),
     loudness vs target, captions (overflow), title truth (words/names/quotes not in the transcript). Never raises: a measurement that cannot be taken is just left out."""
@@ -256,7 +263,7 @@ def grade(path, kind="short", title=None, words=None, window_text_=None, ass=Non
     if title is not None:
         tf = title_flags(title); warn += tf; m["title_flags"] = tf
         if window_text_ and len(window_text_.split()) >= 25:
-            tt = title_truth(title, window_text_, ignore_names); m["title_truth"] = tt
+            tt = title_truth(title, window_text_, ignore_names, extra_text); m["title_truth"] = tt
             if tt["bad_quotes"]: fail.append("quoted text in the title is not in the transcript: " + "; ".join(tt["bad_quotes"])[:80])
             if len(tt["missing_names"]) >= 2: fail.append("names/numbers in the title never occur in the transcript: " + ", ".join(tt["missing_names"])[:80])
             elif tt["missing_names"]: warn.append("name/number not in the transcript: " + ", ".join(tt["missing_names"]))

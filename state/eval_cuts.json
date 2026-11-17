@@ -1,0 +1,114 @@
+{
+ "items": 52,
+ "duplicates": [
+  [
+   "n3on/short_137878318_1650",
+   "n3on/short_137878318_1652",
+   0.94,
+   "same"
+  ],
+  [
+   "n3on/short_137878318_1650",
+   "n3on/short_137878318_1660",
+   1.0,
+   "same"
+  ],
+  [
+   "n3on/short_137878318_1652",
+   "n3on/short_137878318_1660",
+   1.0,
+   "same"
+  ],
+  [
+   "n3on/short_137878318_3150",
+   "n3on/short_137878318_3153",
+   1.0,
+   "same"
+  ],
+  [
+   "clip/137995265_12887",
+   "clip/137995265_9901",
+   0.98,
+   "same"
+  ],
+  [
+   "clip/137995265_9037",
+   "clip/137995265_9039",
+   1.0,
+   "same"
+  ],
+  [
+   "clip/137995265_9037",
+   "clip/137995265_9082",
+   1.0,
+   "same"
+  ],
+  [
+   "clip/137995265_9039",
+   "clip/137995265_9082",
+   1.0,
+   "same"
+  ]
+ ],
+ "flags": {
+  "n3on/long_138250688_321": [
+   "7/8 chapter titles have no support in the transcript at that time (00:32 Skate contest brief)",
+   "chapters cover only 45% of the video"
+  ],
+  "kaicenat/clip_723617784": [
+   "TITLE hype word: Surprise"
+  ],
+  "n3on/short_137878318_1244": [
+   "TITLE hype word: Crazy"
+  ],
+  "n3on/short_137878318_1650": [
+   "DUPLICATE of n3on/short_137878318_1652 (94% overlap)",
+   "DUPLICATE of n3on/short_137878318_1660 (100% overlap)"
+  ],
+  "n3on/short_137878318_1652": [
+   "DUPLICATE of n3on/short_137878318_1650 (94% overlap)",
+   "DUPLICATE of n3on/short_137878318_1660 (100% overlap)"
+  ],
+  "n3on/short_137878318_1660": [
+   "DUPLICATE of n3on/short_137878318_1650 (100% overlap)",
+   "DUPLICATE of n3on/short_137878318_1652 (100% overlap)"
+  ],
+  "n3on/short_137878318_3150": [
+   "TITLE profanity in title",
+   "DUPLICATE of n3on/short_137878318_3153 (100% overlap)"
+  ],
+  "n3on/short_137878318_3153": [
+   "DUPLICATE of n3on/short_137878318_3150 (100% overlap)"
+  ],
+  "clip/137995265_12887": [
+   "DUPLICATE of clip/137995265_9901 (98% overlap)"
+  ],
+  "clip/137995265_16470": [
+   "START cuts through a sentence (10.9s into: \"יא בוטים. אני לא עושה כלום, כאילו, אבל אין להם עציץ.\")",
+   "end is not after a sentence end"
+  ],
+  "clip/137995265_2242": [
+   "START cuts through a sentence (5.81s into: \"רגע, אז תסבירי מה את עושה, מה מנה, מה זה הדיש?\")"
+  ],
+  "clip/137995265_3291": [
+   "START cuts through a sentence (3.02s into: \"שמתי מים רותחים,\")",
+   "end is not after a sentence end"
+  ],
+  "clip/137995265_9037": [
+   "DUPLICATE of clip/137995265_9039 (100% overlap)",
+   "DUPLICATE of clip/137995265_9082 (100% overlap)"
+  ],
+  "clip/137995265_9039": [
+   "START cuts through a sentence (0.34s into: \"15 דברים שהיו חסרים לנו ב-GTA 6!\")",
+   "DUPLICATE of clip/137995265_9037 (100% overlap)",
+   "DUPLICATE of clip/137995265_9082 (100% overlap)"
+  ],
+  "clip/137995265_9082": [
+   "DUPLICATE of clip/137995265_9037 (100% overlap)",
+   "DUPLICATE of clip/137995265_9039 (100% overlap)"
+  ],
+  "clip/137995265_9901": [
+   "DUPLICATE of clip/137995265_12887 (98% overlap)"
+  ]
+ }
+}
