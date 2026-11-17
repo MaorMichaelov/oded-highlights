@@ -582,15 +582,6 @@
    "clip_worthy": false,
    "why": "קטעים 5 דקות שלא מצטברים ל-15 דקות קוהרנטיות",
    "closed": true
-  },
-  {
-   "from": 9300,
-   "to": 9600,
-   "title": "סיכום ופרספקטיבה",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "קטע 5 דקות בלבד",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -789,5 +780,5 @@
   }
  ],
  "transcript_end": 9670,
- "updated": "2026-11-17T10:04:08Z"
+ "updated": "2026-11-17T10:09:11Z"
 }
