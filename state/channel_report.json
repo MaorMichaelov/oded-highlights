@@ -1,29 +1,29 @@
 {
- "generated": "2026-11-17T18:46:30Z",
+ "generated": "2026-11-17T19:16:49Z",
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
   "views": 18716,
-  "videos": 17
+  "videos": 14
  },
  "totals": {
-  "videos_total": 34,
-  "videos_public": 18,
-  "views": 25968,
-  "likes": 255,
-  "est_hours_low": 1409.7,
-  "est_hours_high": 3289.1
+  "videos_total": 29,
+  "videos_public": 13,
+  "views": 19702,
+  "likes": 182,
+  "est_hours_low": 986.0,
+  "est_hours_high": 2300.7
  },
  "by_kind": {
   "other": {
-   "n": 13,
-   "views": 23028,
-   "est_hours_mid": 2054.6
+   "n": 11,
+   "views": 19588,
+   "est_hours_mid": 1638.2
   },
   "reaction": {
-   "n": 4,
-   "views": 2940,
-   "est_hours_mid": 294.6
+   "n": 1,
+   "views": 114,
+   "est_hours_mid": 5.2
   },
   "short": {
    "n": 1,
@@ -36,30 +36,30 @@
   "KwS6vxsn-VQ",
   "U2vvrhOr5AI",
   "UvCY4MqRuUk",
-  "3ahtxhmle3o"
+  "ZA70shTHhSk"
  ],
  "top_est_hours": [
   "U2vvrhOr5AI",
   "KwS6vxsn-VQ",
-  "3ahtxhmle3o",
   "7pMRRSwuhu0",
-  "UvCY4MqRuUk"
+  "UvCY4MqRuUk",
+  "ZA70shTHhSk"
  ],
  "videos": [
   {
    "id": "UYZ1XfFnneE",
-   "title": "עודד חושף לסנסיי את מונופול הסאבתון",
+   "title": "עודד חושף לסנסיי את מונופול של הסאבתון",
    "published": "2026-11-17",
    "privacy": "public",
    "duration_min": 19.0,
-   "views": 1,
-   "likes": 1,
+   "views": 4,
+   "likes": 3,
    "comments": 0,
    "est_hours": [
-    0.1,
-    0.1
+    0.2,
+    0.6
    ],
-   "views_per_day": 20.0,
+   "views_per_day": 80.0,
    "kind": "other"
   },
   {
@@ -68,14 +68,14 @@
    "published": "2026-11-17",
    "privacy": "public",
    "duration_min": 93.8,
-   "views": 39,
+   "views": 42,
    "likes": 6,
    "comments": 0,
    "est_hours": [
-    8.8,
-    20.5
+    9.5,
+    22.1
    ],
-   "views_per_day": 106.7,
+   "views_per_day": 108.6,
    "kind": "other"
   },
   {
@@ -123,7 +123,7 @@
     0.1,
     0.2
    ],
-   "views_per_day": 1.2,
+   "views_per_day": 1.1,
    "kind": "other"
   },
   {
@@ -140,86 +140,6 @@
     0.0
    ],
    "views_per_day": 0.0,
-   "kind": "other"
-  },
-  {
-   "id": "CA5H-ZUSYf8",
-   "title": "עודד מגיב ל\"זינוק במחירי המחשבים\" של חדשות 13!",
-   "published": "2026-11-16",
-   "privacy": "public",
-   "duration_min": 8.7,
-   "views": 120,
-   "likes": 1,
-   "comments": 0,
-   "est_hours": [
-    4.7,
-    10.9
-   ],
-   "views_per_day": 101.0,
-   "kind": "reaction"
-  },
-  {
-   "id": "aWOw52IYBf4",
-   "title": "עודד מגיב ל\"המשלוח הראשון של GTA VI\" של חדשות 13",
-   "published": "2026-11-16",
-   "privacy": "public",
-   "duration_min": 5.3,
-   "views": 1665,
-   "likes": 10,
-   "comments": 0,
-   "est_hours": [
-    39.6,
-    92.4
-   ],
-   "views_per_day": 1323.9,
-   "kind": "reaction"
-  },
-  {
-   "id": "vuVbQellgSU",
-   "title": "עודד מגיב ל\"משחקי הרעב במציאות\" של מיסטר ביסט!",
-   "published": "2026-11-16",
-   "privacy": "public",
-   "duration_min": 51.8,
-   "views": 1041,
-   "likes": 22,
-   "comments": 0,
-   "est_hours": [
-    129.4,
-    302.0
-   ],
-   "views_per_day": 819.8,
-   "kind": "reaction"
-  },
-  {
-   "id": "3ahtxhmle3o",
-   "title": "עודד ואשתו אור מבשלים פסטה בלייב ובוחרים שם לכלב!",
-   "published": "2026-11-16",
-   "privacy": "public",
-   "duration_min": 23.2,
-   "views": 2685,
-   "likes": 34,
-   "comments": 0,
-   "est_hours": [
-    199.3,
-    465.1
-   ],
-   "views_per_day": 2101.2,
-   "kind": "other"
-  },
-  {
-   "id": "ZFrsrP_iaSs",
-   "title": "אור, אשתו של עודד, עונה לצ'אט ושותה טבסקו בלייב!",
-   "published": "2026-11-16",
-   "privacy": "public",
-   "duration_min": 21.4,
-   "views": 722,
-   "likes": 8,
-   "comments": 0,
-   "est_hours": [
-    49.4,
-    115.2
-   ],
-   "views_per_day": 564.6,
    "kind": "other"
   },
   {
@@ -363,7 +283,7 @@
     27.0,
     63.1
    ],
-   "views_per_day": 545.9,
+   "views_per_day": 540.4,
    "kind": "other"
   },
   {
@@ -427,7 +347,7 @@
     1.5,
     3.6
    ],
-   "views_per_day": 16.7,
+   "views_per_day": 16.6,
    "kind": "other"
   },
   {
@@ -436,14 +356,14 @@
    "published": "2026-11-13",
    "privacy": "public",
    "duration_min": 14.9,
-   "views": 2748,
+   "views": 2764,
    "likes": 16,
    "comments": 0,
    "est_hours": [
-    131.2,
-    306.1
+    131.9,
+    307.8
    ],
-   "views_per_day": 626.5,
+   "views_per_day": 627.2,
    "kind": "other"
   },
   {
@@ -452,14 +372,14 @@
    "published": "2026-11-13",
    "privacy": "public",
    "duration_min": 9.6,
-   "views": 5259,
+   "views": 5189,
    "likes": 47,
    "comments": 3,
    "est_hours": [
-    227.6,
-    531.0
+    224.6,
+    524.0
    ],
-   "views_per_day": 1193.3,
+   "views_per_day": 1171.8,
    "kind": "other"
   },
   {
@@ -468,14 +388,14 @@
    "published": "2026-11-13",
    "privacy": "public",
    "duration_min": 15.0,
-   "views": 1217,
+   "views": 1214,
    "likes": 18,
    "comments": 2,
    "est_hours": [
-    58.5,
-    136.6
+    58.4,
+    136.3
    ],
-   "views_per_day": 273.6,
+   "views_per_day": 271.6,
    "kind": "other"
   },
   {
@@ -500,14 +420,14 @@
    "published": "2026-11-12",
    "privacy": "public",
    "duration_min": 30.9,
-   "views": 4695,
+   "views": 4685,
    "likes": 24,
    "comments": 1,
    "est_hours": [
-    347.8,
-    811.5
+    347.1,
+    809.8
    ],
-   "views_per_day": 905.6,
+   "views_per_day": 900.0,
    "kind": "other"
   },
   {
@@ -523,7 +443,7 @@
     3.1,
     7.2
    ],
-   "views_per_day": 21.7,
+   "views_per_day": 21.6,
    "kind": "reaction"
   },
   {
@@ -532,14 +452,14 @@
    "published": "2026-11-12",
    "privacy": "public",
    "duration_min": 11.4,
-   "views": 5297,
+   "views": 5325,
    "likes": 49,
    "comments": 4,
    "est_hours": [
-    193.0,
-    450.2
+    194.0,
+    452.6
    ],
-   "views_per_day": 1006.2,
+   "views_per_day": 1007.4,
    "kind": "other"
   },
   {
@@ -555,7 +475,7 @@
     8.5,
     19.9
    ],
-   "views_per_day": 31.3,
+   "views_per_day": 31.2,
    "kind": "other"
   },
   {
@@ -571,7 +491,7 @@
     2.1,
     4.8
    ],
-   "views_per_day": 7.8,
+   "views_per_day": 7.7,
    "kind": "other"
   },
   {

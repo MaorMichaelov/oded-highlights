@@ -1,21 +1,21 @@
 {
- "fetched_at": "2026-11-17T18:46:30Z",
- "fetched_epoch": 1794941190.040527,
+ "fetched_at": "2026-11-17T19:16:49Z",
+ "fetched_epoch": 1794943009.0669384,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
   "views": 18716,
-  "videos": 17
+  "videos": 14
  },
  "videos": [
   {
    "id": "UYZ1XfFnneE",
-   "title": "עודד חושף לסנסיי את מונופול הסאבתון",
+   "title": "עודד חושף לסנסיי את מונופול של הסאבתון",
    "published": "2026-11-17T18:43:03Z",
    "privacy": "public",
    "duration": "PT18M59S",
-   "views": 1,
-   "likes": 1,
+   "views": 4,
+   "likes": 3,
    "comments": 0
   },
   {
@@ -24,7 +24,7 @@
    "published": "2026-11-17T10:00:01Z",
    "privacy": "public",
    "duration": "PT1H33M46S",
-   "views": 39,
+   "views": 42,
    "likes": 6,
    "comments": 0
   },
@@ -66,56 +66,6 @@
    "duration": "PT25M51S",
    "views": 0,
    "likes": 0,
-   "comments": 0
-  },
-  {
-   "id": "CA5H-ZUSYf8",
-   "title": "עודד מגיב ל\"זינוק במחירי המחשבים\" של חדשות 13!",
-   "published": "2026-11-16T14:15:56Z",
-   "privacy": "public",
-   "duration": "PT8M40S",
-   "views": 120,
-   "likes": 1,
-   "comments": 0
-  },
-  {
-   "id": "aWOw52IYBf4",
-   "title": "עודד מגיב ל\"המשלוח הראשון של GTA VI\" של חדשות 13",
-   "published": "2026-11-16T12:35:30Z",
-   "privacy": "public",
-   "duration": "PT5M17S",
-   "views": 1665,
-   "likes": 10,
-   "comments": 0
-  },
-  {
-   "id": "vuVbQellgSU",
-   "title": "עודד מגיב ל\"משחקי הרעב במציאות\" של מיסטר ביסט!",
-   "published": "2026-11-16T12:17:55Z",
-   "privacy": "public",
-   "duration": "PT51M48S",
-   "views": 1041,
-   "likes": 22,
-   "comments": 0
-  },
-  {
-   "id": "3ahtxhmle3o",
-   "title": "עודד ואשתו אור מבשלים פסטה בלייב ובוחרים שם לכלב!",
-   "published": "2026-11-16T12:06:24Z",
-   "privacy": "public",
-   "duration": "PT23M12S",
-   "views": 2685,
-   "likes": 34,
-   "comments": 0
-  },
-  {
-   "id": "ZFrsrP_iaSs",
-   "title": "אור, אשתו של עודד, עונה לצ'אט ושותה טבסקו בלייב!",
-   "published": "2026-11-16T12:05:12Z",
-   "privacy": "public",
-   "duration": "PT21M22S",
-   "views": 722,
-   "likes": 8,
    "comments": 0
   },
   {
@@ -254,7 +204,7 @@
    "published": "2026-11-13T09:30:26Z",
    "privacy": "public",
    "duration": "PT14M55S",
-   "views": 2748,
+   "views": 2764,
    "likes": 16,
    "comments": 0
   },
@@ -264,7 +214,7 @@
    "published": "2026-11-13T09:00:02Z",
    "privacy": "public",
    "duration": "PT9M37S",
-   "views": 5259,
+   "views": 5189,
    "likes": 47,
    "comments": 3
   },
@@ -274,7 +224,7 @@
    "published": "2026-11-13T08:00:35Z",
    "privacy": "public",
    "duration": "PT15M2S",
-   "views": 1217,
+   "views": 1214,
    "likes": 18,
    "comments": 2
   },
@@ -294,7 +244,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 4695,
+   "views": 4685,
    "likes": 24,
    "comments": 1
   },
@@ -314,7 +264,7 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 5297,
+   "views": 5325,
    "likes": 49,
    "comments": 4
   },
