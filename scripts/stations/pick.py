@@ -8,7 +8,7 @@ usage: pick.py [--vod ID] [--dry-run] [--state DIR] [--hold 300]"""
 import argparse, json, os, re, subprocess, sys, time
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(os.path.dirname(HERE)); sys.path.insert(0, os.path.dirname(HERE))
 MODEL = os.environ.get("PICK_MODEL", "openai/gpt-oss-120b")
-MIN_LEN, MAX_LEN, PRE = 900, 2400, 3.0
+MIN_LEN, MAX_LEN, PRE = 900, 2400, 1.0   # pre-roll before the first sentence: 3.0 s used to include the tail of the previous topic (owner: precision of the start)
 MAX_SESSION = 7200   # a great SESSION (game, challenge, pack opening, event, guest) is kept whole up to 60 min: viewers ask for the full thing (owner, 15 Nov)   # owner rule (15 Nov): every clip 15-40 minutes, a COMPLETE topic
 PRESETS = ["game_launch", "phone_call", "heist", "lawsuit", "courtroom_ban", "airport_leave", "birthday", "quiz_game", "rant", "money", "ai_tech", "reaction_video", "date_show", "gaming_fail", "sleeping_drunk"]
 DONATION = re.compile(r"תרם |תרמת |תרמו |דונ(?:ייט|יישן|ציה)|גיפט|\d+ דולר|(?:שלושה|חמישה|עשרה|עשרים|חמישים) דולר|קיקס ")   # donation reading (owner rule: never in a clip)
