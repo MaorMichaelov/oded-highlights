@@ -5,6 +5,15 @@ Auth: env YT_REFRESH_FILE (json with refresh_token) -> access token via oauth2 t
 Client credentials (client_id/secret) are injected by the environment proxy locally, or passed as
 YT_CLIENT_ID / YT_CLIENT_SECRET in CI."""
 import json, os, subprocess, sys, urllib.parse
+# GLOBAL UPLOAD HOLD (owner request): while state/UPLOAD_HOLD holds a future UTC timestamp, nothing is uploaded to either channel.
+try:
+    import datetime as _dt
+    _hf = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "state", "UPLOAD_HOLD")
+    if os.path.exists(_hf):
+        _until = _dt.datetime.fromisoformat(open(_hf).read().strip().replace("Z", "+00:00"))
+        if _dt.datetime.now(_dt.timezone.utc) < _until: print("UPLOAD_HOLD until", _until.isoformat(), "- not uploading"); sys.exit(4)
+except SystemExit: raise
+except Exception as _e: print("hold check error (ignored):", _e)
 video, meta_f = sys.argv[1], sys.argv[2]; thumb = sys.argv[3] if len(sys.argv) > 3 else None
 meta = json.load(open(meta_f))
 rt = json.load(open(os.environ["YT_REFRESH_FILE"]))["refresh_token"] if os.environ.get("YT_REFRESH_FILE") else os.environ["YT_REFRESH_TOKEN"]
