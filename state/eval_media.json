@@ -3,21 +3,22 @@
   "kind": "en-long",
   "fail": [],
   "warn": [
-   "true peak 0.7 dBFS (clipping)",
+   "audio ends abruptly (just before the end it is only -1 dB below the speech level)",
+   "clip starts inside a loud sound (4 dB below the speech level)",
    "first word starts at 0.00s (probably clipped: 'It's')"
   ],
-  "score": 94,
+  "score": 88,
   "audio": {
    "duration_s": 1199.52,
    "floor_db": -25.0,
-   "lead_silence_s": 0.09,
-   "trail_silence_s": 0.14,
-   "tail_rms_db": -14.4,
-   "tail_over_floor": 10.5,
-   "head_over_floor": 8.4,
    "speech_db": -13.2,
-   "lufs": -14.0,
-   "tp": 0.7,
+   "tail_rms_db": -12.4,
+   "tail_rel_speech_db": 0.8,
+   "head_rel_speech_db": -3.5,
+   "lead_silence_s": 0.0,
+   "trail_silence_s": 0.04,
+   "lufs": -13.9,
+   "tp": null,
    "sync": {
     "v_dur": 1199.5,
     "a_dur": 1199.5,
@@ -608,5 +609,339 @@
   },
   "captions": null,
   "title": "Kai Cenat Turns into Dog! Watch the Surprise! #Shorts"
+ },
+ "short_137878318_1652": {
+  "kind": "en-short",
+  "fail": [
+   "A/V duration differ by 10.50s (sync)"
+  ],
+  "warn": [
+   "audio ends abruptly (just before the end it is only 6 dB below the speech level)",
+   "clip starts inside a loud sound (3 dB below the speech level)",
+   "first word starts at 0.00s (probably clipped: 'I'm')"
+  ],
+  "score": 63,
+  "audio": {
+   "duration_s": 44.2,
+   "floor_db": -20.9,
+   "speech_db": -13.3,
+   "tail_rms_db": -19.4,
+   "tail_rel_speech_db": -6.1,
+   "head_rel_speech_db": -3.4,
+   "lead_silence_s": 0.06,
+   "trail_silence_s": 0.01,
+   "lufs": -14.2,
+   "tp": -1.5,
+   "sync": {
+    "v_dur": 44.2,
+    "a_dur": 33.7,
+    "dur_diff_s": 10.5,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.0,
+   "asr_last_gap_s": null,
+   "asr_first_word": "I'm",
+   "asr_last_word": null
+  },
+  "captions": null,
+  "title": "He Played His Song Live At TwitchCon! #Shorts"
+ },
+ "short_137878318_2751": {
+  "kind": "en-short",
+  "fail": [],
+  "warn": [
+   "audio ends abruptly (just before the end it is only 1 dB below the speech level)",
+   "clip starts inside a loud sound (4 dB below the speech level)",
+   "first word starts at 0.00s (probably clipped: 'Good')",
+   "last word ends -0.44s before the end (probably clipped: 'sorry.')"
+  ],
+  "score": 88,
+  "audio": {
+   "duration_s": 32.33,
+   "floor_db": -22.5,
+   "speech_db": -13.6,
+   "tail_rms_db": -14.6,
+   "tail_rel_speech_db": -1.1,
+   "head_rel_speech_db": -3.6,
+   "lead_silence_s": 0.0,
+   "trail_silence_s": 0.01,
+   "lufs": -14.1,
+   "tp": -1.9,
+   "sync": {
+    "v_dur": 32.333333,
+    "a_dur": 32.33,
+    "dur_diff_s": 0.003,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.0,
+   "asr_last_gap_s": -0.44,
+   "asr_first_word": "Good",
+   "asr_last_word": "sorry."
+  },
+  "captions": null,
+  "title": "He Forgot What Part Of The US He's From?! #Shorts"
+ },
+ "short_137878318_12149": {
+  "kind": "en-short",
+  "fail": [],
+  "warn": [
+   "audio ends abruptly (just before the end it is only 6 dB below the speech level)",
+   "clip starts inside a loud sound (3 dB below the speech level)"
+  ],
+  "score": 88,
+  "audio": {
+   "duration_s": 21.87,
+   "floor_db": -21.3,
+   "speech_db": -12.9,
+   "tail_rms_db": -18.6,
+   "tail_rel_speech_db": -5.8,
+   "head_rel_speech_db": -3.2,
+   "lead_silence_s": 0.0,
+   "trail_silence_s": 0.01,
+   "lufs": -14.4,
+   "tp": -1.5,
+   "sync": {
+    "v_dur": 21.866016,
+    "a_dur": 21.87,
+    "dur_diff_s": 0.004,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 6.0,
+   "asr_last_gap_s": 1.56,
+   "asr_first_word": "There",
+   "asr_last_word": "doing?"
+  },
+  "captions": null,
+  "title": "I Don't Even Stream On This Platform Anymore! #Shorts"
+ },
+ "short_137878318_1650": {
+  "kind": "en-short",
+  "fail": [],
+  "warn": [
+   "audio ends abruptly (just before the end it is only 4 dB below the speech level)",
+   "clip starts inside a loud sound (2 dB below the speech level)",
+   "first word starts at 0.02s (probably clipped: 'Have')",
+   "last word ends -0.42s before the end (probably clipped: 'pounds.')"
+  ],
+  "score": 88,
+  "audio": {
+   "duration_s": 34.43,
+   "floor_db": -20.7,
+   "speech_db": -13.1,
+   "tail_rms_db": -17.3,
+   "tail_rel_speech_db": -4.2,
+   "head_rel_speech_db": -1.7,
+   "lead_silence_s": 0.0,
+   "trail_silence_s": 0.0,
+   "lufs": -14.0,
+   "tp": -1.5,
+   "sync": {
+    "v_dur": 34.433333,
+    "a_dur": 34.43,
+    "dur_diff_s": 0.003,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.02,
+   "asr_last_gap_s": -0.42,
+   "asr_first_word": "Have",
+   "asr_last_word": "pounds."
+  },
+  "captions": null,
+  "title": "He played his song live at TwitchCon! #Shorts"
+ },
+ "short_137878318_3150": {
+  "kind": "en-short",
+  "fail": [],
+  "warn": [
+   "audio ends abruptly (just before the end it is only 5 dB below the speech level)",
+   "clip starts inside a loud sound (5 dB below the speech level)",
+   "profanity in title",
+   "first word starts at 0.00s (probably clipped: 'What's')",
+   "last word ends -0.28s before the end (probably clipped: 'up.')"
+  ],
+  "score": 82,
+  "audio": {
+   "duration_s": 25.47,
+   "floor_db": -21.8,
+   "speech_db": -12.4,
+   "tail_rms_db": -17.7,
+   "tail_rel_speech_db": -5.2,
+   "head_rel_speech_db": -4.6,
+   "lead_silence_s": 0.0,
+   "trail_silence_s": 0.01,
+   "lufs": -13.8,
+   "tp": -1.5,
+   "sync": {
+    "v_dur": 25.466667,
+    "a_dur": 25.45,
+    "dur_diff_s": 0.017,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.0,
+   "asr_last_gap_s": -0.28,
+   "asr_first_word": "What's",
+   "asr_last_word": "up."
+  },
+  "captions": null,
+  "title": "Megamind hijacks the stream – “What the fuck am I looking at?”! #Shorts"
+ },
+ "short_137878318_3338": {
+  "kind": "en-short",
+  "fail": [],
+  "warn": [
+   "audio ends abruptly (just before the end it is only 3 dB below the speech level)",
+   "clip starts inside a loud sound (4 dB below the speech level)"
+  ],
+  "score": 88,
+  "audio": {
+   "duration_s": 21.03,
+   "floor_db": -21.1,
+   "speech_db": -13.6,
+   "tail_rms_db": -16.4,
+   "tail_rel_speech_db": -2.8,
+   "head_rel_speech_db": -3.8,
+   "lead_silence_s": 0.0,
+   "trail_silence_s": 0.01,
+   "lufs": -13.9,
+   "tp": -0.1,
+   "sync": {
+    "v_dur": 21.033333,
+    "a_dur": 21.03,
+    "dur_diff_s": 0.003,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.84,
+   "asr_last_gap_s": 1.66,
+   "asr_first_word": "That's",
+   "asr_last_word": "guy."
+  },
+  "captions": null,
+  "title": "Wait, Is That The Real Jake From State Farm?! #Shorts"
+ },
+ "short_137878318_502": {
+  "kind": "en-short",
+  "fail": [],
+  "warn": [
+   "audio ends abruptly (just before the end it is only 9 dB below the speech level)",
+   "clip starts inside a loud sound (2 dB below the speech level)",
+   "first word starts at 0.00s (probably clipped: 'Wait,')"
+  ],
+  "score": 88,
+  "audio": {
+   "duration_s": 25.2,
+   "floor_db": -22.8,
+   "speech_db": -13.1,
+   "tail_rms_db": -22.0,
+   "tail_rel_speech_db": -8.9,
+   "head_rel_speech_db": -1.9,
+   "lead_silence_s": 0.0,
+   "trail_silence_s": 0.0,
+   "lufs": -13.7,
+   "tp": -1.5,
+   "sync": {
+    "v_dur": 25.2,
+    "a_dur": 25.19,
+    "dur_diff_s": 0.01,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.0,
+   "asr_last_gap_s": 0.62,
+   "asr_first_word": "Wait,",
+   "asr_last_word": "Okay."
+  },
+  "captions": null,
+  "title": "When a Fan Asks for a Stream Collab! #Shorts"
+ },
+ "short_137878318_7371": {
+  "kind": "en-short",
+  "fail": [],
+  "warn": [
+   "first word starts at 0.00s (probably clipped: 'You')"
+  ],
+  "score": 100,
+  "audio": {
+   "duration_s": 28.77,
+   "floor_db": -31.4,
+   "speech_db": -12.5,
+   "tail_rms_db": -31.0,
+   "tail_rel_speech_db": -18.5,
+   "head_rel_speech_db": -15.4,
+   "lead_silence_s": 0.21,
+   "trail_silence_s": 0.24,
+   "lufs": -14.1,
+   "tp": -1.5,
+   "sync": {
+    "v_dur": 28.766667,
+    "a_dur": 28.77,
+    "dur_diff_s": 0.003,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.0,
+   "asr_last_gap_s": 0.18,
+   "asr_first_word": "You",
+   "asr_last_word": "righty."
+  },
+  "captions": null,
+  "title": "Twitch CEO Tells Kick Streamer To Come Back! #Shorts"
+ },
+ "short_137878318_8094": {
+  "kind": "en-short",
+  "fail": [],
+  "warn": [
+   "clip starts inside a loud sound (6 dB below the speech level)",
+   "last word ends -0.32s before the end (probably clipped: 'size.')"
+  ],
+  "score": 94,
+  "audio": {
+   "duration_s": 25.3,
+   "floor_db": -26.4,
+   "speech_db": -12.7,
+   "tail_rms_db": -23.4,
+   "tail_rel_speech_db": -10.7,
+   "head_rel_speech_db": -5.6,
+   "lead_silence_s": 0.0,
+   "trail_silence_s": 0.0,
+   "lufs": -14.1,
+   "tp": -1.5,
+   "sync": {
+    "v_dur": 25.3,
+    "a_dur": 25.29,
+    "dur_diff_s": 0.01,
+    "start_diff_s": 0,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0,
+   "asr_first_word_s": 0.16,
+   "asr_last_gap_s": -0.32,
+   "asr_first_word": "I",
+   "asr_last_word": "size."
+  },
+  "captions": null,
+  "title": "She Said My Lips Look Too Big on Instagram?! #Shorts"
  }
 }
