@@ -59,6 +59,7 @@ jobs:
       - name: "Station 5 - DRAFT (private upload)"
         if: ${{ inputs.upload == 'true' && ((inputs.yt != 'en' && env.HAS_YT == 'true') || (inputs.yt == 'en' && env.HAS_YT2 == 'true')) }}   # WORLD CLIPS (yt=en) uploads only with its own YT2_* secrets, never with the ODED HIGHLIGHTS ones
         env:
+          CHANNEL_YT: ${{ inputs.yt }}
           YT_REFRESH_TOKEN: ${{ inputs.yt == 'en' && secrets.YT2_REFRESH_TOKEN || secrets.YT_REFRESH_TOKEN }}
           YT_CLIENT_ID: ${{ inputs.yt == 'en' && secrets.YT2_CLIENT_ID || secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ inputs.yt == 'en' && secrets.YT2_CLIENT_SECRET || secrets.YT_CLIENT_SECRET }}

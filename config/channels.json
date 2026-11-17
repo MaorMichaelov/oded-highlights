@@ -70,7 +70,9 @@
   "en": {
    "name": "WORLD CLIPS",
    "secrets": "YT2_*",
-   "content": "English: Kai Cenat, N3on and other big streamers (reactions, clips, Shorts); NOT connected yet"
+   "content": "English: Kai Cenat, N3on and other big streamers (reactions, clips, Shorts); NOT connected yet",
+   "channel_id": "",
+   "note": "NOT CONNECTED: the YT2 token currently belongs to RONEN HIGHLIGHTS (UCSxfaoSBUtKddThesb2zfvg), which must never receive uploads. Uploads with yt=en are refused until channel_id is set to the verified WORLD CLIPS id."
   }
  },
  "world_clips_plan": {
