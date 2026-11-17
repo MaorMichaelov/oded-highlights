@@ -116,6 +116,7 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
     if not T or T.get("vod") != vod or not T.get("spans"): return None
     if ps.setdefault(vod, {}).get("seg_v") != T.get("seg_v"): ps[vod]["spans_done"] = []; ps[vod]["seg_v"] = T.get("seg_v")   # re-evaluate spans after the criteria changed (overlap with existing clips is still checked)
     seen = ps[vod].setdefault("spans_done", []); made = []
+    stat = {"not_worthy": 0, "short": 0, "overlap": 0, "open": 0}   # why spans are skipped silently (shown once per change in the app feed)
     SESS = ("game", "event", "guest", "call", "reaction")
     sp_all = sorted(T["spans"], key=lambda x: x["from"]); mg = []
     for x in sp_all:   # one game / event / guest session = ONE video: join its consecutive spans (the segmenter cuts every ~15 min), bridging short chat/idle gaps (owner, 15 Nov: 1.5 h of game must be 40+ min clips, not 15)
@@ -131,10 +132,12 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
     except Exception: pass
     for sp in mg:
         key = f"{sp['from']}-{sp['to']}"
-        if key in seen or not sp.get("closed") or not sp.get("clip_worthy") or sp["to"] > closed: continue
+        if key in seen: continue
+        if not sp.get("closed") or sp["to"] > closed: stat["open"] += 1; continue
+        if not sp.get("clip_worthy"): stat["not_worthy"] += 1; continue
         dur = sp["to"] - sp["from"]; mn = sp.get("min") or (360 if sp.get("kind") == "reaction" else 900)   # owner (15 Nov): a reaction to articles/videos of other creators is wanted even at 6-8 min, few cuts
-        if dur < mn - 60: seen.append(key); continue
-        if sum(max(0, min(sp["to"], y) - max(sp["from"], x)) for x, y in done) > (0.8 if sp.get("forced") else 0.3) * dur: seen.append(key); print("span overlaps existing clips, skipped:", sp["title"]); continue   # a forced span is not exempt from duplicates (16-17 Nov: the forced game span was re-picked after a state reset and rendered twice)
+        if dur < mn - 60: seen.append(key); stat["short"] += 1; continue
+        if sum(max(0, min(sp["to"], y) - max(sp["from"], x)) for x, y in done) > (0.8 if sp.get("forced") else 0.3) * dur: seen.append(key); stat["overlap"] += 1; print("span overlaps existing clips, skipped:", sp["title"]); continue   # a forced span is not exempt from duplicates (16-17 Nov: the forced game span was re-picked after a state reset and rendered twice)
         a, b = (sp["from"], sp["to"]) if sp.get("forced") else (refine(rows, sp["from"], sp["to"], sp["title"], "start"), refine(rows, sp["from"], sp["to"], sp["title"], "end"))
         if b - a < mn - 60: a, b = sp["from"], sp["to"]
         mx = MAX_SESSION if sp.get("kind") in ("game", "event", "guest", "call", "reaction") else MAX_LEN
@@ -234,6 +237,8 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
         rt = ps[vod].setdefault("retry", {}); rt[key] = rt.get(key, 0) + (1 if failed else 0)
         if not failed or rt[key] >= 4: seen.append(key)   # a part whose title/meta failed is retried (max 4 times) instead of being lost silently: the other parts of the session were cut, this one must not vanish
         elif failed: print("will retry span", key, rt[key])
+    sm = f"סיכום בדיקת נושאים: {stat['overlap']} כבר נחתכו, {stat['not_worthy']} לא ראויים לקליפ (צ'אט/המתנה), {stat['short']} קצרים מדי, {stat['open']} עדיין פתוחים/לא נסגרו"
+    if ps[vod].get("last_summary") != sm and not dry: ps[vod]["last_summary"] = sm; __import__("events").event("pick_skip", "🔎 " + sm)
     ps[vod]["last_run"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     if not dry: json.dump(ps, open(os.path.join(ST, "pick_state.json"), "w"), indent=1)
     if made and not dry and not os.environ.get("NO_DISPATCH"):
