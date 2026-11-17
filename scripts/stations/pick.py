@@ -134,7 +134,7 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
         if key in seen or not sp.get("closed") or not sp.get("clip_worthy") or sp["to"] > closed: continue
         dur = sp["to"] - sp["from"]; mn = sp.get("min") or (360 if sp.get("kind") == "reaction" else 900)   # owner (15 Nov): a reaction to articles/videos of other creators is wanted even at 6-8 min, few cuts
         if dur < mn - 60: seen.append(key); continue
-        if sum(max(0, min(sp["to"], y) - max(sp["from"], x)) for x, y in done) > (0.8 if sp.get("forced") else 0.3) * dur:   # a forced span is not exempt from duplicates (16-17 Nov: the forced game span was re-picked after a state reset and rendered twice) seen.append(key); print("span overlaps existing clips, skipped:", sp["title"]); continue
+        if sum(max(0, min(sp["to"], y) - max(sp["from"], x)) for x, y in done) > (0.8 if sp.get("forced") else 0.3) * dur: seen.append(key); print("span overlaps existing clips, skipped:", sp["title"]); continue   # a forced span is not exempt from duplicates (16-17 Nov: the forced game span was re-picked after a state reset and rendered twice)
         a, b = (sp["from"], sp["to"]) if sp.get("forced") else (refine(rows, sp["from"], sp["to"], sp["title"], "start"), refine(rows, sp["from"], sp["to"], sp["title"], "end"))
         if b - a < mn - 60: a, b = sp["from"], sp["to"]
         mx = MAX_SESSION if sp.get("kind") in ("game", "event", "guest", "call", "reaction") else MAX_LEN
