@@ -1,0 +1,22 @@
+name: live-check
+# Prints whether streamers are live right now (Twitch via yt-dlp, Kick via the public API, YouTube channel /live page).
+on:
+  workflow_dispatch:
+    inputs:
+      twitch: { description: "space separated Twitch logins", required: false, default: "kaicenat ishowspeed xqc" }
+      kick: { description: "space separated Kick slugs", required: false, default: "n3on" }
+      youtube: { description: "space separated YouTube handles (without @)", required: false, default: "IShowSpeed KaiCenat" }
+permissions: { contents: read }
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: pip install -q yt-dlp
+      - env:
+          TW: ${{ inputs.twitch }}
+          KK: ${{ inputs.kick }}
+          YT: ${{ inputs.youtube }}
+        run: |
+          for c in $TW; do case "$c" in *[!A-Za-z0-9_]*) continue;; esac; printf "twitch %-14s " "$c"; yt-dlp --simulate --print "%(is_live)s | %(title).70s" "https://www.twitch.tv/$c" 2>&1 | tail -1 | cut -c1-120; done
+          for c in $KK; do case "$c" in *[!A-Za-z0-9_-]*) continue;; esac; printf "kick   %-14s " "$c"; curl -sS -m 20 -A "Mozilla/5.0" "https://kick.com/api/v2/channels/$c" | python3 -c "import sys,json;d=json.load(sys.stdin);l=d.get('livestream');print('LIVE' if l else 'offline', '|', (l or {}).get('session_title','')[:70])" 2>&1 | tail -1; done
+          for c in $YT; do case "$c" in *[!A-Za-z0-9_.-]*) continue;; esac; printf "youtube %-13s " "$c"; yt-dlp --simulate --print "%(is_live)s | %(title).70s" "https://www.youtube.com/@$c/live" 2>&1 | tail -1 | cut -c1-140; done
