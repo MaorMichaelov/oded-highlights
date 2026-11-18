@@ -1,18 +1,18 @@
 {
- "generated": "2026-11-18T12:00:10Z",
+ "generated": "2026-11-18T12:30:14Z",
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
   "views": 23918,
-  "videos": 14
+  "videos": 13
  },
  "totals": {
-  "videos_total": 30,
-  "videos_public": 14,
-  "views": 20924,
-  "likes": 193,
-  "est_hours_low": 1051.6,
-  "est_hours_high": 2453.6
+  "videos_total": 31,
+  "videos_public": 15,
+  "views": 20993,
+  "likes": 195,
+  "est_hours_low": 1054.3,
+  "est_hours_high": 2459.7
  },
  "by_kind": {
   "short": {
@@ -20,20 +20,20 @@
    "views": 0,
    "est_hours_mid": 0.0
   },
+  "reaction": {
+   "n": 2,
+   "views": 117,
+   "est_hours_mid": 5.5
+  },
   "other": {
    "n": 11,
-   "views": 20809,
-   "est_hours_mid": 1747.4
-  },
-  "reaction": {
-   "n": 1,
-   "views": 115,
-   "est_hours_mid": 5.2
+   "views": 20876,
+   "est_hours_mid": 1751.4
   }
  },
  "top_views": [
-  "KwS6vxsn-VQ",
   "7pMRRSwuhu0",
+  "KwS6vxsn-VQ",
   "U2vvrhOr5AI",
   "UvCY4MqRuUk",
   "ZA70shTHhSk"
@@ -47,8 +47,8 @@
  ],
  "videos": [
   {
-   "id": "oVu8HC8nE6o",
-   "title": "מיכאל מגיב ל-GTA 6 בפעם הראשונה, הוא השתגע?",
+   "id": "E-OUUMvLrK8",
+   "title": "מאור מגיב ל-GTA 6 בפעם הראשונה, הוא השתגע?",
    "published": "2026-11-18",
    "privacy": "public",
    "duration_min": 0,
@@ -63,6 +63,22 @@
    "kind": "short"
   },
   {
+   "id": "oVu8HC8nE6o",
+   "title": "מיכאל מגיב ל-GTA 6 בפעם הראשונה, הוא השתגע?",
+   "published": "2026-11-18",
+   "privacy": "public",
+   "duration_min": 27.8,
+   "views": 2,
+   "likes": 1,
+   "comments": 0,
+   "est_hours": [
+    0.2,
+    0.4
+   ],
+   "views_per_day": 40.0,
+   "kind": "reaction"
+  },
+  {
    "id": "UYZ1XfFnneE",
    "title": "עודד חושף לסנסיי את מונופול של הסאבתון",
    "published": "2026-11-17",
@@ -75,7 +91,7 @@
     3.0,
     7.1
    ],
-   "views_per_day": 69.4,
+   "views_per_day": 67.5,
    "kind": "other"
   },
   {
@@ -91,7 +107,7 @@
     11.5,
     26.8
    ],
-   "views_per_day": 47.1,
+   "views_per_day": 46.2,
    "kind": "other"
   },
   {
@@ -299,7 +315,7 @@
     27.0,
     63.1
    ],
-   "views_per_day": 405.3,
+   "views_per_day": 402.3,
    "kind": "other"
   },
   {
@@ -363,7 +379,7 @@
     1.6,
     3.7
    ],
-   "views_per_day": 14.8,
+   "views_per_day": 14.7,
    "kind": "other"
   },
   {
@@ -379,7 +395,7 @@
     137.3,
     320.4
    ],
-   "views_per_day": 563.7,
+   "views_per_day": 561.4,
    "kind": "other"
   },
   {
@@ -395,7 +411,7 @@
     242.3,
     565.4
    ],
-   "views_per_day": 1092.5,
+   "views_per_day": 1088.0,
    "kind": "other"
   },
   {
@@ -411,7 +427,7 @@
     60.4,
     140.9
    ],
-   "views_per_day": 242.9,
+   "views_per_day": 241.9,
    "kind": "other"
   },
   {
@@ -427,7 +443,7 @@
     5.8,
     13.4
    ],
-   "views_per_day": 10.7,
+   "views_per_day": 10.6,
    "kind": "other"
   },
   {
@@ -443,7 +459,7 @@
     373.2,
     870.8
    ],
-   "views_per_day": 853.5,
+   "views_per_day": 850.5,
    "kind": "other"
   },
   {
@@ -468,14 +484,14 @@
    "published": "2026-11-12",
    "privacy": "public",
    "duration_min": 11.4,
-   "views": 5552,
-   "likes": 52,
+   "views": 5619,
+   "likes": 53,
    "comments": 4,
    "est_hours": [
-    202.2,
-    471.9
+    204.7,
+    477.6
    ],
-   "views_per_day": 928.1,
+   "views_per_day": 936.0,
    "kind": "other"
   },
   {
@@ -491,7 +507,7 @@
     9.1,
     21.1
    ],
-   "views_per_day": 29.8,
+   "views_per_day": 29.7,
    "kind": "other"
   },
   {

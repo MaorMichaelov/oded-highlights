@@ -1,21 +1,31 @@
 {
- "fetched_at": "2026-11-18T12:00:10Z",
- "fetched_epoch": 1795003210.3488579,
+ "fetched_at": "2026-11-18T12:30:14Z",
+ "fetched_epoch": 1795005014.514531,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
   "views": 23918,
-  "videos": 14
+  "videos": 13
  },
  "videos": [
   {
-   "id": "oVu8HC8nE6o",
-   "title": "מיכאל מגיב ל-GTA 6 בפעם הראשונה, הוא השתגע?",
-   "published": "2026-11-18T11:53:55Z",
+   "id": "E-OUUMvLrK8",
+   "title": "מאור מגיב ל-GTA 6 בפעם הראשונה, הוא השתגע?",
+   "published": "2026-11-18T12:16:31Z",
    "privacy": "public",
    "duration": "P0D",
    "views": 0,
    "likes": 0,
+   "comments": 0
+  },
+  {
+   "id": "oVu8HC8nE6o",
+   "title": "מיכאל מגיב ל-GTA 6 בפעם הראשונה, הוא השתגע?",
+   "published": "2026-11-18T12:09:02Z",
+   "privacy": "public",
+   "duration": "PT27M46S",
+   "views": 2,
+   "likes": 1,
    "comments": 0
   },
   {
@@ -274,8 +284,8 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 5552,
-   "likes": 52,
+   "views": 5619,
+   "likes": 53,
    "comments": 4
   },
   {
@@ -309,5 +319,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 100
+ "total_uploads_incl_private": 101
 }
