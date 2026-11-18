@@ -2,7 +2,7 @@
 """ONE iteration of the release-day Shorts loop for a streamer who is live (or whose newest VOD is still growing): takes the next 30-minute window of the current VOD that is not processed yet, cuts the best 2 Shorts (vod_shorts.py: peaks + LLM + precise edges + 9:16 + logo) and optionally uploads them as private drafts to the English channel.
 State: state/<slug>/live_state.json {vod, done_to_min}.  usage: live_shorts.py --slug kaicenat --platform twitch --credit "Kai Cenat" [--upload --max-upload 2] [--focus "GTA 6 first reactions"] [--force]
 --force: ignore the live check and treat the newest VOD as current (tests / backfill)."""
-import argparse, json, os, subprocess, sys, time
+import argparse, json, os, re, subprocess, sys, time
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 import vod_shorts as V
 def newest(slug, platform):
@@ -13,6 +13,13 @@ def newest(slug, platform):
     d = V.jget(f"https://kick.com/api/v2/channels/{slug}/videos")
     if not d or not d[0].get("source"): return None
     base = d[0]["source"].rsplit("/master.m3u8", 1)[0]; return {"vod": str(d[0]["id"]), "title": d[0].get("session_title") or "", "audio": f"{base}/480p30/playlist.m3u8"}
+def media_minutes(url):
+    """Length of the (possibly still growing) stream in minutes. A live HLS playlist has no duration for ffprobe ("N/A"), so fall back to the sum of its #EXTINF segment lengths."""
+    r = V.sh(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", url])
+    try: return float(r.stdout.strip()) / 60
+    except Exception: pass
+    txt = V.sh(["curl", "-sS", "-m", "40", "-L", url]).stdout
+    return sum(float(x) for x in re.findall(r"#EXTINF:([0-9.]+)", txt)) / 60
 def is_live(slug, platform):
     if platform == "twitch": return V.sh(["yt-dlp", "--simulate", "--print", "%(is_live)s", f"https://www.twitch.tv/{slug}"]).stdout.strip() == "True"
     try: return bool(V.jget(f"https://kick.com/api/v2/channels/{slug}").get("livestream"))
@@ -26,7 +33,7 @@ def main():
     if not a.force and not is_live(a.slug, a.platform): print("offline"); return 0
     cur = newest(a.slug, a.platform)
     if not cur: print("no VOD yet"); return 0
-    r = V.sh(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", cur["audio"]]); dur = float(r.stdout.strip() or 0) / 60
+    dur = media_minutes(cur["audio"])
     sf = f"state/{a.slug}/live_state.json"; st = json.load(open(sf)) if os.path.exists(sf) else {}
     if st.get("vod") != cur["vod"]: st = {"vod": cur["vod"], "done_to_min": max(0, int(dur) - a.window) if not a.force else 0}   # a new stream: start with the latest window, not the whole past
     a_, b_ = st["done_to_min"], st["done_to_min"] + a.window
