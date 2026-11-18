@@ -1,0 +1,40 @@
+{
+ "title": "N3on discusses sandalwood scent, escape rooms, and picking a fight partner on BIG LA EVENT",
+ "description": "Clips from N3on's live streams on Kick (https://kick.com/n3on) | Unofficial fan channel, not affiliated.\nN3on talks about a sandalwood fragrance and gives out souvenirs early in the stream. The conversation shifts to escape rooms, ice‑cream choices, and fashion shopping at JD's. Midway, N3on answers the question, \"If you could fight one girl right now, who would it be?\" with a humorous response.\n\nClip from the live stream: Kick (https://kick.com/n3on)\nThis is an unofficial fan channel: all clips are taken from N3on's streams. It is not N3on's official channel.\n\n#n3on #BIGLAEVENT #kickstream #escapeRoom #fashionHaul #Kick #ClipGlobe",
+ "tags": [
+  "N3on",
+  "BIG LA EVENT",
+  "kick live stream",
+  "sandalwood scent",
+  "escape room talk",
+  "ice cream conversation",
+  "fashion shopping JD's",
+  "fight girl question",
+  "N3on",
+  "highlights"
+ ],
+ "privacy": "private",
+ "score": 100,
+ "source": {
+  "slug": "n3on",
+  "platform": "kick",
+  "vod": "136432502",
+  "start_s": 1800,
+  "end_s": 2699,
+  "start_exact": 1800.23,
+  "end_exact": 2698.88,
+  "bumper_s": 2.5,
+  "vod_title": "BIG LA EVENT",
+  "minutes": 15.0
+ },
+ "qa": {
+  "score": 69,
+  "fail": [
+   "starts inside the word 'Sandalwood'"
+  ],
+  "warn": [
+   "true peak 0.4 dBFS (clipping)"
+  ]
+ },
+ "qa_fail": true
+}
