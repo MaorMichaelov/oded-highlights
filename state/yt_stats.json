@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-18T16:01:01Z",
- "fetched_epoch": 1795017661.9644032,
+ "fetched_at": "2026-11-18T16:31:04Z",
+ "fetched_epoch": 1795019464.4910986,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -14,7 +14,7 @@
    "published": "2026-11-18T13:48:16Z",
    "privacy": "public",
    "duration": "PT26M28S",
-   "views": 4,
+   "views": 2,
    "likes": 1,
    "comments": 0
   },
@@ -23,9 +23,9 @@
    "title": "דושי משחק GTA 6 לראשונה, התגובה שלו מטורפת!",
    "published": "2026-11-18T12:59:59Z",
    "privacy": "public",
-   "duration": "PT23M4S",
-   "views": 8,
-   "likes": 3,
+   "duration": "PT25M3S",
+   "views": 5,
+   "likes": 2,
    "comments": 0
   },
   {
@@ -44,7 +44,7 @@
    "published": "2026-11-18T12:09:02Z",
    "privacy": "public",
    "duration": "PT26M25S",
-   "views": 24,
+   "views": 9,
    "likes": 4,
    "comments": 0
   },
@@ -54,7 +54,7 @@
    "published": "2026-11-17T18:43:03Z",
    "privacy": "public",
    "duration": "PT18M59S",
-   "views": 57,
+   "views": 50,
    "likes": 3,
    "comments": 0
   },
@@ -64,7 +64,7 @@
    "published": "2026-11-17T10:00:01Z",
    "privacy": "public",
    "duration": "PT1H33M46S",
-   "views": 59,
+   "views": 58,
    "likes": 7,
    "comments": 0
   },
@@ -234,7 +234,7 @@
    "published": "2026-11-13T10:00:09Z",
    "privacy": "public",
    "duration": "PT4M43S",
-   "views": 76,
+   "views": 75,
    "likes": 3,
    "comments": 0
   },
@@ -244,7 +244,7 @@
    "published": "2026-11-13T09:30:26Z",
    "privacy": "public",
    "duration": "PT14M55S",
-   "views": 2930,
+   "views": 2920,
    "likes": 16,
    "comments": 0
   },
@@ -264,7 +264,7 @@
    "published": "2026-11-13T08:00:35Z",
    "privacy": "public",
    "duration": "PT15M2S",
-   "views": 1260,
+   "views": 1259,
    "likes": 19,
    "comments": 2
   },
@@ -284,7 +284,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 5116,
+   "views": 5092,
    "likes": 28,
    "comments": 1
   },
