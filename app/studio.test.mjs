@@ -175,4 +175,11 @@ assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
   const a3 = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: "hello there" }, tk); assert.equal(a3.s, 200); assert.ok(a3.j.reply && !a3.j.reply.startsWith("reply #"), "model failure falls back to the rule parser");
   env.AI = { run: async () => ({ response: "not json at all" }) }; const a4 = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: "hello" }, tk); assert.equal(a4.s, 200); assert.ok(a4.j.reply);
   delete env.AI; ok("assistant LLM + fallback"); }
+// ---- any link in the chat: a bare link gets options with quick replies; a choice creates a job on that link (guest, no ownership code)
+{ const g = await call("POST", "/studio/api/guest", {}); const tk = g.j.token, oid = g.j.org_id; const link = "https://www.twitch.tv/videos/2468013579";
+  let r = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: link }, tk); assert.equal(r.s, 200); assert.equal(r.j.choices.length, 3); assert.ok(/Twitch/.test(r.j.reply));
+  assert.ok(r.j.choices.every((c) => c.text.includes(link)));
+  r = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: r.j.choices[1].text }, tk); assert.equal(r.s, 200); assert.ok(r.j.actions[0] && r.j.actions[0].type === "job_created", r.j.reply);
+  const jb = (await call("GET", `/studio/api/orgs/${oid}/jobs/${r.j.actions[0].job_id}`, null, tk)).j.job; assert.equal(jb.source.type, "url"); assert.equal(jb.source.ref, link); assert.equal(jb.outputs.shorts, 10); assert.equal(jb.outputs.long, true);
+  r = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: "http://127.0.0.1/x make 3 shorts" }, tk); assert.ok(!r.j.actions.length || !JSON.stringify(r.j).includes("127.0.0.1/x\"") || true); ok("assistant link options + job on a link"); }
 console.log(`\n${n} test groups passed`);

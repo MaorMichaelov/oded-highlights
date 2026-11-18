@@ -279,11 +279,21 @@ function smallTalk(text, L, turn, always) {
   let cat = stCategory(String(text || "")); if (!cat) { if (!always) return null; cat = "idk"; } const pool = ST[cat][L] || ST[cat].en; let i = ((turn || 0) + String(text).length) % pool.length; let r = pool[i]; if (r === stLast) r = pool[(i + 1) % pool.length]; stLast = r; return r;
 }
 
+const LINK_RE = /https?:\/\/[^\s<>"']+/i;
+function safeLink(raw) { try { const x = new URL(String(raw).replace(/[).,!?]+$/, "")); if (!/^https?:$/.test(x.protocol)) return null; const h = x.hostname.toLowerCase(); if (!h.includes(".") || /^(localhost|127\.|10\.|192\.168\.|169\.254\.|0\.)/.test(h) || /^\d+\.\d+\.\d+\.\d+$/.test(h)) return null; return x.toString().slice(0, 300); } catch (e) { return null; } }
+const linkSite = (l) => { const h = new URL(l).hostname.replace(/^www\./, ""); return /kick\.com/.test(h) ? "Kick" : /twitch\.tv/.test(h) ? "Twitch" : /youtu/.test(h) ? "YouTube" : /tiktok/.test(h) ? "TikTok" : h; };
+function linkChoices(L, link) { return L === "he" ? [{ label: "5 שורטס", text: `תכין 5 שורטס מ ${link}` }, { label: "10 שורטס + סרטון ארוך", text: `תכין 10 שורטס וסרטון ארוך מ ${link}` }, { label: "סרטון ארוך בלבד", text: `תכין סרטון ארוך מ ${link}` }] : [{ label: "5 Shorts", text: `make 5 Shorts from ${link}` }, { label: "10 Shorts + a long video", text: `make 10 Shorts and a long video from ${link}` }, { label: "Long video only", text: `make a long video from ${link}` }]; }
 async function assistant(env, org, me, role, b, store) {
-  const u = understand(b.message); const L = u.he ? "he" : "en"; let reply, actions = [];
+  const rawMsg = String(b.message || ""); const lm = rawMsg.match(LINK_RE); const link = lm ? safeLink(lm[0]) : null;
+  const u = understand(link ? rawMsg.replace(lm[0], " ") : rawMsg); if (link) u.text = clean(rawMsg, 500); u.link = link; const L = (link && !u.he && (b.lang === "he" || b.lang === "en")) ? b.lang : (u.he ? "he" : "en"); let reply, actions = [];
   if (!u.text) return { reply: HELP[L], actions };
   let llm = null;
-  try {
+  if (link && u.intent === "help") {   // a bare link: offer the options (what to make) as quick replies; the cost is shown up front
+    const site = linkSite(link); reply = L === "he" ? `קיבלתי קישור מ-${site}. מה לעשות איתו? אפשר לבחור למטה או לכתוב בעצמך (למשל "8 שורטס מצחיקים"). העלות היא קרדיט אחד לכל שעת שידור, ואעדכן כשאדע את האורך המדויק.` : `Got a ${site} link. What should I do with it? Pick below or write your own (e.g. "8 funny Shorts"). Cost is one credit per hour of source, and I'll update you once I know the exact length.`;
+    const hist1 = (await kget(env, K.chat(org.id))) || []; hist1.push({ r: "user", t: now(), text: u.text }, { r: "bot", t: now(), text: reply }); await kput(env, K.chat(org.id), hist1.slice(-40));
+    return { reply, actions, mode: "basic", choices: linkChoices(L, link), parsed: { intent: "link", link } };
+  }
+  if (!link) try {
     const hist0 = (await kget(env, K.chat(org.id))) || [];
     const chs = (await kgetMany(env, await klist(env, K.chansOfOrg(org.id)))).filter((c) => c.status === "verified").map((c) => `${c.platform}/${c.slug}`);
     const js = (await kgetMany(env, (await klist(env, K.jobsOfOrg(org.id), 500)).map((k) => K.job(k.split(":")[3])))).sort((a, c) => (a.created < c.created ? 1 : -1)).slice(0, 3).map((j) => `${j.status} ${j.progress}%`);
@@ -301,15 +311,18 @@ async function assistant(env, org, me, role, b, store) {
     if (j) actions.push({ type: "show_job", job_id: j.id });
   } else if (!can(role, "job.create")) reply = L === "he" ? "לצופים אין הרשאה ליצור עבודות. בקשו מהבעלים להפוך אתכם לעורכים." : "Viewers can't create jobs. Ask the owner to make you an editor.";
   else {
-    const chans = (await kgetMany(env, await klist(env, K.chansOfOrg(org.id)))).filter((c) => c.status === "verified"); const ch = chans.find((c) => c.id === b.channel_id) || chans[0];
+    let chans = (await kgetMany(env, await klist(env, K.chansOfOrg(org.id)))).filter((c) => c.status === "verified");
+    if (!chans.length && u.link && me && me.guest) { const gch = { id: "c_" + rnd(6), org: org.id, platform: "link", slug: "guest", status: "verified", style_id: DEFAULT_STYLE, yt: { status: "not_connected" }, guest: true, created: now() }; await kput(env, K.chan(org.id, gch.id), gch); chans = [gch]; }   // preview phase: a guest works on any link without an ownership code (the render worker still applies its own source rules)
+    const ch = chans.find((c) => c.id === b.channel_id) || chans[0];
     if (!ch) reply = L === "he" ? "קודם נחבר ערוץ: הוסיפו את הערוץ שלכם בעמוד ההתחלה ואמתו בעלות. זה לוקח דקה." : "First let's connect a channel: add your channel on the setup page and verify ownership. Takes a minute.";
     else {
-      const source = { type: "auto", when: u.when, duration_min: null }, credits = estimateCredits(source); const fresh = await kget(env, K.org(org.id));
+      const source = u.link ? { type: "url", ref: u.link, duration_min: null } : { type: "auto", when: u.when, duration_min: null }, credits = estimateCredits(source); const fresh = await kget(env, K.org(org.id));
       if (fresh.credits < credits) reply = L === "he" ? `נגמרו הקרדיטים (צריך ${credits}, יש ${fresh.credits}). אפשר להוסיף בעמוד הקרדיטים.` : `Out of credits (need ${credits}, have ${fresh.credits}). You can top up on the Credits page.`;
       else {
         const job = await createJob(env, org, { channel_id: ch.id, kind: "edit", source, style_id: ch.style_id, outputs: { shorts: u.shorts, long: u.long }, credits, hints: { mood: u.mood, text: u.text } });
         const what = [u.shorts ? (L === "he" ? `${u.shorts} שורטס${u.mood ? " " + MOOD_TXT[u.mood].he : ""}` : `${u.shorts} ${u.mood ? MOOD_TXT[u.mood].en + " " : ""}Shorts`) : "", u.long ? (L === "he" ? "סרטון ארוך" : "a long video") : ""].filter(Boolean).join(L === "he" ? " ו" : " and ");
-        reply = L === "he" ? `סבבה! מכין ${what} ${WHEN_TXT[u.when].he}. אעדכן כאן כשהטיוטות מוכנות. אפשר לבטל כל עוד זה בתור.` : `On it! Making ${what} ${WHEN_TXT[u.when].en}. I'll update you here when drafts are ready. You can cancel while it's queued.`;
+        const whenT = u.link ? { he: "מהקישור שלך", en: "from your link" } : WHEN_TXT[u.when];
+        reply = L === "he" ? `סבבה! מכין ${what} ${whenT.he}. אעדכן כאן כשהטיוטות מוכנות. אפשר לבטל כל עוד זה בתור.` : `On it! Making ${what} ${whenT.en}. I'll update you here when drafts are ready. You can cancel while it's queued.`;
         actions.push({ type: "job_created", job_id: job.id });
       }
     }
