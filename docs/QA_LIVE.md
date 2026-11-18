@@ -2,6 +2,19 @@
 
 Format: time (UTC), what was tested, PASS/FAIL, evidence, suspected cause. Maintained by the QA runner.
 
+## 2026-11-18 17:55Z
+
+Owner decision (17:40Z): the Kai / Speed / N3on / xQc live loops are dropped; assistant and chat probes are stopped until 00:00 UTC (Workers AI free allocation of 10k neurons/day is used up).
+
+| What | Result | Evidence / cause |
+|---|---|---|
+| Owner's job, studio-worker run 44356846447 (kick channel igz, 5 Shorts requested) | PARTIAL | Run success, but job j_748f82aca5669050 delivered 1 draft: `SHORT 26:38-27:07 (29s) qa=88 "Crazy Sony Talk: They Only Have Sony!"`, 427 s of work, preview + full file uploaded. Only a 30 min window was analysed and Gemini answered 429 (quota) on every key from 17:30 to 17:34. The log does not say how many Shorts were requested vs found. |
+| Same run, job j_3c3f47c75888f778 | FAIL | `too_short: source is shorter than 30s` after 34 s (owner unknown; possibly an orphan of the cancelled e2e run 44356795402). |
+| Queue latency | NOTE | That run was created 17:16:39 but its worker started 17:28:36: it waited ~11 min behind another studio-worker run in the same concurrency group (the one serving the QA e2e job, cancelled 17:27). A QA e2e run can delay the owner's job: QA no longer starts studio-e2e-job. |
+| studio-worker cron | FAIL, FIXED by 0b8474f | Zero scheduled runs ever (6 runs, all dispatch); repo-wide schedule events are hours apart. studio-poller.yml (45 s queue watch) added; status text updated. Poller reviewed: logic OK (queue check, one worker at a time, self-chain at 5.5 h). Unverified: that the poller actually starts a worker for a fresh job. |
+| Status report grammar | FIXED 7f28b4e | "1 טיוטות" / "1 drafts are" -> singular wording, test added. |
+| Suites on 9732857 | PASS | node: agent 24, studio 41, youtube_connect 28 + integration; lint 0. Python: 221 tests, only the 3 known test_agent_hooks failures. |
+
 ## 2026-11-18 17:32Z
 
 | What | Result | Evidence / cause |
