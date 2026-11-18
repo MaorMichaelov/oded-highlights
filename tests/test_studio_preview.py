@@ -93,7 +93,7 @@ class Previews(Base):
         self.studio.add_job("j_p0"); w = self.worker(fake_outcome_ok(2), publisher=self.pub()); w.run_forever(once=True)
         d = self.studio.jobs["j_p0"]["drafts"]; self.assertEqual(len(d), 2); tag = self.gh.releases[1]["tag_name"]; self.assertRegex(tag, r"^studio-preview-j_p0-[0-9a-f]{8}$"); self.assertTrue(self.gh.releases[1]["prerelease"])
         self.assertEqual([x["preview_url"] for x in d], ["https://github.com/%s/releases/download/%s/short_%d.mp4" % (REPO, tag, i) for i in range(2)])
-        self.assertEqual(sorted(a[0] for a in self.gh.assets["1"]), ["short_0.mp4", "short_1.mp4"]); self.assertTrue(all(a[2] == "video/mp4" for a in self.gh.assets["1"]))
+        self.assertEqual(sorted(a[0] for a in self.gh.assets["1"]), ["full_short_0.mp4", "full_short_1.mp4", "short_0.mp4", "short_1.mp4"]); self.assertTrue(all(a[2] == "video/mp4" for a in self.gh.assets["1"]))
         out = os.path.join(self.cfg["out_dir"], "j_p0"); self.assertFalse([n for n in os.listdir(out) if n.startswith(".preview_")], "temporary renditions must be removed")
         self.assertEqual(json.load(open(os.path.join(out, "manifest.json")))["drafts"][0]["preview_url"], d[0]["preview_url"])
         self.assertNotIn("ghs_faketoken", self.logbuf.getvalue())

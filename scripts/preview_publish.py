@@ -71,6 +71,13 @@ class GithubReleasePublisher:
                 if st not in (200, 201): raise RuntimeError("asset upload failed: HTTP %s" % st)
                 out[os.path.basename(d["file"])] = "https://github.com/%s/releases/download/%s/%s" % (self.repo, tag, name)
                 self.log("preview_uploaded", file=name, kb=len(data) // 1024)
+                try:   # the customer can download the draft in full quality (asset full_<name>); best effort, up to 150 MB
+                    orig = os.path.join(dest, os.path.basename(d["file"]))
+                    if os.path.exists(orig) and os.path.getsize(orig) <= 150 * 1024 * 1024:
+                        with open(orig, "rb") as f2: full = f2.read()
+                        self.http("POST", "%s?name=%s" % (upload, urllib.request.quote("full_" + name)), self._h({"content-type": "video/mp4", "content-length": str(len(full))}), full)
+                        self.log("full_uploaded", file="full_" + name, kb=len(full) // 1024)
+                except Exception as e2: self.log("full_failed", level="warn", file=name, error=str(e2)[:120])
             except Exception as e: self.log("preview_failed", level="warn", file=name, error=str(e)[:150])
             finally:
                 try: os.remove(small)
