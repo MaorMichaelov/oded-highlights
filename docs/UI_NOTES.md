@@ -1,7 +1,12 @@
 # Studio UI notes
 
 Page: `app/studio.html` (single file, vanilla JS/CSS, no build; served by the Worker as a string through `app/studio.js` + `app/deploy.py`).
-Fonts: Inter + Heebo + Rubik from Google Fonts (system fallbacks work offline). No other external resources.
+Fonts: IBM Plex Sans Hebrew (body), Barlow Condensed (Latin display, Heebo 800 for Hebrew display), IBM Plex Mono (timecode/labels) from Google Fonts; system fallbacks work offline. No other external resources.
+
+## Visual identity (edit bay, not an "AI app")
+Ink/graphite panels with hairlines (dark) or paper/ink (light), ONE signal colour: tally amber (buttons, playhead, active nav). Red is only REC/reject/errors, green only approved/ok.
+Motifs: timecode clock in the top bar, waveform bars (generated from a seed, used for job progress and clip posters), a scrubbing timeline with a playhead on the landing page, viewfinder corner brackets and REC tag on the clip player, in/out/duration cells on clip cards, clapperboard stripe on the verify code, SMPTE colour bars for empty states, a VU/LED meter for credits, hardware-key buttons (flat, 3px bottom edge, 4px radius). No gradients, glow, glass or sparkles.
+`?theme=light|dark|auto` overrides the saved theme (handy for screenshots).
 
 ## Demo (no backend)
 * `app/studio.html?demo=1` runs the whole UI against an in-memory fake API (same endpoints/shapes as `studio.js`, jobs progress live).
