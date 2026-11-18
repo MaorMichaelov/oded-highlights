@@ -152,7 +152,7 @@ def default_cfg(env=None):
 
 
 FRIENDLY = {"no_recording": "No recording of your stream was found yet.", "no_file": "We could not find that file.", "bad_url": "That link cannot be used. Paste a direct video link or upload the file.",
-            "host_not_allowed": "That site cannot be downloaded. Restream to our ingest or upload the file.", "download_failed": "We could not download that link.", "too_short": "The video is too short to clip.",
+            "host_not_allowed": "That site cannot be downloaded. Restream to our ingest or upload the file.", "download_failed": "We could not download that link.", "too_short": "The video is too short to clip. Paste a link to a longer stream (at least a few minutes).",
             "too_long": "The video is longer than we can process in one job.", "no_audio": "The video has no audio.", "unreadable_media": "We could not read that video file.", "no_moments": "We found no moment worth clipping in this stream.",
             "path_not_allowed": "That file location is not allowed.", "no_video": "The source has no video track."}
 

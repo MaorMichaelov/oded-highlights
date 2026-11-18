@@ -273,6 +273,7 @@ def run_job(job, workdir, cfg=None, emit=None, deps=None):
             print("short skipped (%s): %s" % (type(ex).__name__, str(ex)[:160]), flush=True); continue
         if d_: drafts.append(d_); made.append(d_); prev_ranges.append((d_["start_s"], d_["end_s"]))
 
+    print("SUMMARY requested=%s candidates=%s kept=%s (source %.1f min, LLM-judged=%s)" % (n_short, len(cands), len(made), dur / 60, any((c[2].get("why") or "") != "audio/speech peak (no LLM review)" for c in cands) if cands else False), flush=True)
     # 5. optional long video
     if want_long:
         try:

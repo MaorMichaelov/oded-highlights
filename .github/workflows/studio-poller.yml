@@ -1,0 +1,34 @@
+name: studio-poller
+# GitHub throttles scheduled workflows (the studio-worker cron never ran), so this loop does the watching: every 45 s it asks the Studio queue, and when a job waits it starts studio-worker (once at a time). Self-chains every ~5.5 h. Start: gh workflow run studio-poller.yml
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "17 * * * *"
+permissions:
+  contents: read
+  actions: write
+concurrency: { group: studio-poller, cancel-in-progress: false }
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - name: Watch the queue
+        env:
+          STUDIO_URL: ${{ secrets.STUDIO_URL || 'https://studio-app.odedhl.workers.dev' }}
+          GH_RUN_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set +x
+          end=$((SECONDS+20100)); last=0
+          while [ $SECONDS -lt $end ]; do
+            resp=$(printf 'header = "x-worker-key: %s"\n' "$GH_RUN_TOKEN" | curl -sS -m 20 -K - -X POST "$STUDIO_URL/studio/worker/queue" 2>/dev/null) || resp=""
+            n=$(printf '%s' "$resp" | jq -r '.queued // 0' 2>/dev/null || echo 0); case "$n" in ''|*[!0-9]*) n=0 ;; esac
+            if [ "$n" -gt 0 ]; then
+              busy=$(gh run list --repo "$REPO" --workflow studio-worker.yml --json status -q '[.[]|select(.status=="in_progress" or .status=="queued" or .status=="waiting" or .status=="pending")]|length' 2>/dev/null || echo 0)
+              if [ "${busy:-0}" = "0" ]; then echo "$(date -u +%H:%M:%S) $n job(s) queued -> starting studio-worker"; gh workflow run studio-worker.yml --repo "$REPO" --ref main || true; fi
+            fi
+            sleep 45
+          done
+          gh workflow run studio-poller.yml --repo "$REPO" --ref main
