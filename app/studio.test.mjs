@@ -246,5 +246,6 @@ assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
   jk.updated = new Date(Date.now() - 30 * 60000).toISOString(); await env.KV.put("studio:j:" + jid, JSON.stringify(jk)); r = await ask("למה זה תקוע"); assert.ok(/תקועה/.test(r.reply), r.reply);
   jk.status = "draft_ready"; jk.result = { drafts: [{ title: "a" }, { title: "b" }] }; await env.KV.put("studio:j:" + jid, JSON.stringify(jk)); r = await ask("מה קורה עם הקליפים"); assert.ok(/2 טיוטות/.test(r.reply), r.reply);
   jk.result = { drafts: [{ title: "a" }] }; await env.KV.put("studio:j:" + jid, JSON.stringify(jk)); r = await ask("מה קורה עם הקליפים"); assert.ok(/טיוטה אחת/.test(r.reply) && !/1 טיוטות/.test(r.reply), r.reply);
+  assert.equal(renderMsg("draft_ready", { n: 1 }).en, "1 draft is ready - take a look!"); assert.ok(/טיוטה אחת/.test(renderMsg("draft_ready", { n: 1 }).he)); assert.equal(renderMsg("draft_ready", { n: 3 }).en, "3 drafts are ready - take a look!");
   ok("assistant status report"); }
 console.log(`\n${n} test groups passed`);

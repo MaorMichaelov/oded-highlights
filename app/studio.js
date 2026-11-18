@@ -298,12 +298,13 @@ export const MSG = {
   rendering: { he: "מכינים קליפ {i} מתוך {n}...", en: "Making clip {i} of {n}..." },
   qa: { he: "בודקים איכות...", en: "Quality check..." },
   draft_ready: { he: "{n} טיוטות מוכנות - תעברו עליהן!", en: "{n} drafts are ready - take a look!" },
+  draft_ready_one: { he: "טיוטה אחת מוכנה - תעברו עליה!", en: "1 draft is ready - take a look!" },
   approved: { he: "אושר. מעולה!", en: "Approved. Nice!" },
   rejected: { he: "נדחה. אפשר לבקש גרסה אחרת בצ'אט.", en: "Rejected. Ask in the chat for another take." },
   failed: { he: "משהו השתבש. החזרנו לכם את הקרדיט.", en: "Something went wrong. Your credit is back." },
   cancelled: { he: "בוטל. החזרנו לכם את הקרדיט.", en: "Cancelled. Your credit is back." },
 };
-export const renderMsg = (key, vars = {}) => { const t = MSG[key]; if (!t) return null; const f = (s) => s.replace(/\{(\w+)\}/g, (_, k) => (vars[k] != null ? String(vars[k]).slice(0, 20) : "")); return { he: f(t.he), en: f(t.en) }; };
+export const renderMsg = (key, vars = {}) => { const t = MSG[key === "draft_ready" && vars.n != null && Number(vars.n) === 1 ? "draft_ready_one" : key]; if (!t) return null; const f = (s) => s.replace(/\{(\w+)\}/g, (_, k) => (vars[k] != null ? String(vars[k]).slice(0, 20) : "")); return { he: f(t.he), en: f(t.en) }; };
 const setStatusText = (job, key, vars) => { const m = renderMsg(key, vars); if (m) job.status_text = m; };
 
 // ---------- assistant chat: plain language -> a job (rule based; TODO(LLM): env.AI/Haiku-class model for free-form requests, same output shape) ----------
