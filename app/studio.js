@@ -441,6 +441,9 @@ async function statusReport(env, org, jobs, L) {
   const head = he ? (anyStuck ? "יש עבודה שנראית תקועה:" : anyMoving ? "המערכת עובדת עכשיו:" : "זה המצב:") : (anyStuck ? "A job looks stuck:" : anyMoving ? "The system is working right now:" : "Here is the status:");
   return head + "\n" + lines.join("\n");
 }
+
+// ---------- conversation log for improving the assistant (owner-only read via the worker API): what customers asked, how it was answered
+async function logChat(env, org, text, outcome) { try { await env.KV.put("studio:alog:" + Date.now() + ":" + rnd(3), JSON.stringify({ t: now(), org: String(org.id).slice(-4), q: String(text || "").slice(0, 240), ...outcome }), { expirationTtl: 30 * 86400 }); } catch (e) { /* never block a reply */ } }
 async function assistant(env, org, me, role, b, store) {
   const rawMsg = String(b.message || ""); const lm = rawMsg.match(LINK_RE); const link = lm ? safeLink(lm[0]) : null;
   const u = understand(link ? rawMsg.replace(lm[0], " ") : rawMsg); if (link) u.text = clean(rawMsg, 500); u.link = link; const L = (link && !u.he && (b.lang === "he" || b.lang === "en")) ? b.lang : (u.he ? "he" : "en"); let reply, actions = [];
@@ -449,11 +452,11 @@ async function assistant(env, org, me, role, b, store) {
   if (link && u.intent === "help") {   // a bare link: offer the options (what to make) as quick replies; the cost is shown up front
     const site = linkSite(link); reply = L === "he" ? `קיבלתי קישור מ-${site}. מה לעשות איתו? אפשר לבחור למטה או לכתוב בעצמך (למשל "8 שורטס מצחיקים"). העלות היא קרדיט אחד לכל שעת שידור, ואעדכן כשאדע את האורך המדויק.` : `Got a ${site} link. What should I do with it? Pick below or write your own (e.g. "8 funny Shorts"). Cost is one credit per hour of source, and I'll update you once I know the exact length.`;
     const hist1 = await loadHist(env, org.id); hist1.push({ r: "user", t: now(), text: u.text }, { r: "bot", t: now(), text: reply }); await saveHist(env, org.id, hist1.slice(-40));
-    return { reply, actions, mode: "basic", choices: linkChoices(L, link), parsed: { intent: "link", link } };
+    await logChat(env, org, u.text, { mode: "link" }); return { reply, actions, mode: "basic", choices: linkChoices(L, link), parsed: { intent: "link", link } };
   }
   const fq = !link ? faqMatch(u.text, L) : null;
   if (fq) { if (fq.id === "credits" && /כמה|how many|נשאר|יתרה|balance|left/i.test(u.text)) { const fo = await kget(env, K.org(org.id)).catch(() => null); const bal = fo ? fo.credits : org.credits; if (Number.isFinite(Number(bal))) fq.reply = (L === "he" ? `יש לך ${bal} קרדיטים. ` : `You have ${bal} credits. `) + fq.reply; }
-    const histF = await loadHist(env, org.id); histF.push({ r: "user", t: now(), text: u.text }, { r: "bot", t: now(), text: fq.reply }); await saveHist(env, org.id, histF.slice(-40)); return { reply: fq.reply, actions, mode: "ai", faq: fq.id, parsed: { intent: "faq" } }; }
+    const histF = await loadHist(env, org.id); histF.push({ r: "user", t: now(), text: u.text }, { r: "bot", t: now(), text: fq.reply }); await saveHist(env, org.id, histF.slice(-40)); await logChat(env, org, u.text, { mode: "faq", faq: fq.id }); return { reply: fq.reply, actions, mode: "ai", faq: fq.id, parsed: { intent: "faq" } }; }
   if (!link) try {
     const hist0 = await loadHist(env, org.id);
     const cc = CTX_CACHE.get(org.id); let chs = [], js = [], drs = [];   // channel/job lists cost KV list() calls (free plan: 1000/day): cache them for 2 minutes per workspace
@@ -491,7 +494,7 @@ async function assistant(env, org, me, role, b, store) {
     }
   }
   const hist = await loadHist(env, org.id); hist.push({ r: "user", t: now(), text: u.text }, { r: "bot", t: now(), text: reply }); await saveHist(env, org.id, hist.slice(-40));   // TODO(D1): per-user threads
-  return { reply, actions, mode: llm ? "ai" : "basic", why: llm ? undefined : String(LLM_DIAG.fail || LLM_DIAG.last || "no-ai").slice(0, 400), parsed: { intent: u.intent, shorts: u.shorts, long: u.long, when: u.when, mood: u.mood } };
+  await logChat(env, org, u.text, { mode: llm ? "llm" : "basic", intent: u.intent, reply: String(reply || "").slice(0, 120) }); return { reply, actions, mode: llm ? "ai" : "basic", why: llm ? undefined : String(LLM_DIAG.fail || LLM_DIAG.last || "no-ai").slice(0, 400), parsed: { intent: u.intent, shorts: u.shorts, long: u.long, when: u.when, mood: u.mood } };
 }
 
 // ---------- the router ----------
@@ -734,6 +737,7 @@ async function workerApi(req, env, p, m) {
   if (!authed && /^gh[sp]_[A-Za-z0-9_.-]{20,400}$/.test(got)) authed = await ghActionsTokenOk(env, got);   // the repo's own GitHub Actions run proves itself with its run token: no shared secret to store anywhere
   if (!authed) { if (await limited(env, req, "workerkey_fail", 60)) return err(429, "rate_limited"); return err(401, "unauthorized"); }   // only FAILED attempts count (the real worker polls often)
   if (p === "/studio/worker/waitlist" && m === "GET") { const ks = await env.KV.list({ prefix: "studio:wl:", limit: 500 }); const rows = []; for (const k of ks.keys) { const v = await env.KV.get(k.name, "json"); rows.push({ email: k.name.slice(10), ...(v || {}) }); } return json({ count: rows.length, rows }); }
+  if (p === "/studio/worker/chatlog" && m === "GET") { const ks = await env.KV.list({ prefix: "studio:alog:", limit: 1000 }); const names = ks.keys.map((k) => k.name).sort().slice(-300); const rows = []; for (const n of names) { const v = await env.KV.get(n, "json"); if (v) rows.push(v); } return json({ count: rows.length, rows }); }
   if (p === "/studio/worker/testguest" && m === "POST") {   // diagnostics from GitHub Actions: a guest workspace without an invite code (worker auth only)
     const uid = "u_" + rnd(8), orgId = "o_" + rnd(8), email = "guest-" + rnd(6) + "@guest.invalid";
     await Promise.all([kput(env, K.user(uid), { id: uid, email, name: "Guest", guest: true, pw: await hashPassword(rnd(24)), created: now() }), env.KV.put(K.email(email), uid), kput(env, K.org(orgId), { id: orgId, name: "Test studio", owner: uid, plan: "trial", credits: TRIAL_CREDITS, created: now() })]);
