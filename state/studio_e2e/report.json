@@ -1,74 +1,73 @@
 {
  "base": "https://studio-app.odedhl.workers.dev",
- "started": "2026-11-18T12:07:07.717Z",
+ "started": "2026-11-18T12:10:47.326Z",
  "profiles": {
   "desktop-en": {
    "steps": [
     {
      "name": "landing",
      "ok": true,
-     "ms": 2493
+     "ms": 2332
     },
     {
      "name": "guest-entry",
      "ok": true,
-     "ms": 2382
+     "ms": 2900
     },
     {
      "name": "setup-channel-errors",
      "ok": true,
-     "ms": 43
+     "ms": 47
     },
     {
      "name": "setup-wrong-channel-then-back",
      "ok": true,
-     "ms": 2354
+     "ms": 2571
     },
     {
      "name": "verify-real-channel-states",
      "ok": true,
-     "ms": 1573
+     "ms": 2005
     },
     {
      "name": "setup-timer-polls-and-cleanup",
      "ok": true,
-     "ms": 11343
+     "ms": 11228
     },
     {
      "name": "reload-mid-verification",
-     "ok": false,
-     "ms": 12038,
-     "error": "page.waitForSelector: Timeout 12000ms exceeded."
+     "ok": true,
+     "ms": 1067
     },
     {
      "name": "verify-success",
      "ok": true,
-     "ms": 1
+     "ms": 0
     },
     {
      "name": "logout",
      "ok": true,
-     "ms": 1677
+     "ms": 1633
     },
     {
      "name": "email-signup-login-wrong-password",
      "ok": true,
-     "ms": 7059
+     "ms": 6604
     },
     {
      "name": "token-expiry",
      "ok": true,
-     "ms": 100
+     "ms": 83
     },
     {
      "name": "deep-links-and-back",
      "ok": true,
-     "ms": 8198
+     "ms": 8267
     },
     {
      "name": "offline-and-slow-network",
      "ok": true,
-     "ms": 5411
+     "ms": 5492
     }
    ],
    "issues": [],
@@ -123,37 +122,14 @@
     "workspace-create-switch (no verified channel)",
     "channel-remove (no verified channel)"
    ],
-   "net": [
-    {
-     "step": "reload-mid-verification",
-     "m": "GET",
-     "p": "/studio/api/me",
-     "s": 200,
-     "t": 3648
-    },
-    {
-     "step": "reload-mid-verification",
-     "m": "GET",
-     "p": "/studio/api/orgs/o_*/channels",
-     "s": 200,
-     "t": 3648,
-     "b": "{\"channels\":[]}"
-    },
-    {
-     "step": "reload-mid-verification",
-     "m": "GET",
-     "p": "/studio/api/orgs/o_*/jobs",
-     "s": 200,
-     "t": 3648
-    }
-   ]
+   "net": []
   },
   "mobile-he": {
    "steps": [
     {
      "name": "landing",
      "ok": true,
-     "ms": 1952
+     "ms": 2142
     },
     {
      "name": "guest-entry",
@@ -163,28 +139,27 @@
     {
      "name": "setup-channel-errors",
      "ok": true,
-     "ms": 51
+     "ms": 66
     },
     {
      "name": "setup-wrong-channel-then-back",
      "ok": true,
-     "ms": 2251
+     "ms": 3092
     },
     {
      "name": "verify-real-channel-states",
      "ok": true,
-     "ms": 1399
+     "ms": 2260
     },
     {
      "name": "setup-timer-polls-and-cleanup",
      "ok": true,
-     "ms": 11463
+     "ms": 11199
     },
     {
      "name": "reload-mid-verification",
-     "ok": false,
-     "ms": 12041,
-     "error": "page.waitForSelector: Timeout 12000ms exceeded."
+     "ok": true,
+     "ms": 1062
     },
     {
      "name": "verify-success",
@@ -194,27 +169,27 @@
     {
      "name": "logout",
      "ok": true,
-     "ms": 1569
+     "ms": 799
     },
     {
      "name": "email-signup-login-wrong-password",
      "ok": true,
-     "ms": 6071
+     "ms": 7269
     },
     {
      "name": "token-expiry",
      "ok": true,
-     "ms": 79
+     "ms": 74
     },
     {
      "name": "deep-links-and-back",
      "ok": true,
-     "ms": 8333
+     "ms": 9381
     },
     {
      "name": "offline-and-slow-network",
      "ok": true,
-     "ms": 5200
+     "ms": 5408
     }
    ],
    "issues": [],
@@ -300,7 +275,7 @@
     "verify message for a non-existing Kick channel: עוד לא רואים את הקוד. ודא שהוא בביו/בתיאור או בכותרת הסטרים ושמרת.",
     "verify message for kick.com/odedsvr without the code: עוד לא רואים את הקוד. ודא שהוא בביו/בתיאור או בכותרת הסטרים ושמרת.",
     "wrong password message: הסיסמה לא נכונה לאימייל הזה.",
-    "bad invite link while signed in: דלג לתוכן STUDIO 14:08:50:10 02 00 / שלושה צעדים ומתחילים שלושה צעדים ומתחילים "
+    "bad invite link while signed in: דלג לתוכן STUDIO 14:12:11:11 02 00 / שלושה צעדים ומתחילים שלושה צעדים ומתחילים "
    ],
    "skipped": [
     "verification success + everything after it: no WORKER_KEY (the real owner of the channel must put the code in the bio)",
@@ -319,39 +294,16 @@
     "workspace-create-switch (no verified channel)",
     "channel-remove (no verified channel)"
    ],
-   "net": [
-    {
-     "step": "reload-mid-verification",
-     "m": "GET",
-     "p": "/studio/api/me",
-     "s": 200,
-     "t": 3702
-    },
-    {
-     "step": "reload-mid-verification",
-     "m": "GET",
-     "p": "/studio/api/orgs/o_*/jobs",
-     "s": 200,
-     "t": 3703
-    },
-    {
-     "step": "reload-mid-verification",
-     "m": "GET",
-     "p": "/studio/api/orgs/o_*/channels",
-     "s": 200,
-     "t": 3702,
-     "b": "{\"channels\":[]}"
-    }
-   ]
+   "net": []
   }
  },
  "summary": {
-  "failedSteps": 2,
+  "failedSteps": 0,
   "errorIssues": 0,
   "perProfile": {
    "desktop-en": {
     "steps": 13,
-    "failed": 1,
+    "failed": 0,
     "bugs": 0,
     "issues": 0,
     "layout": 0,
@@ -361,7 +313,7 @@
    },
    "mobile-he": {
     "steps": 13,
-    "failed": 1,
+    "failed": 0,
     "bugs": 0,
     "issues": 0,
     "layout": 0,
@@ -379,5 +331,5 @@
   "mobile-he-02-setup-channel.png",
   "mobile-he-03-setup-verify.png"
  ],
- "finished": "2026-11-18T12:08:55.670Z"
+ "finished": "2026-11-18T12:12:16.902Z"
 }
