@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-18T17:31:19Z",
+ "generated": "2026-11-18T18:01:23Z",
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -9,21 +9,21 @@
  "totals": {
   "videos_total": 33,
   "videos_public": 17,
-  "views": 21454,
-  "likes": 208,
-  "est_hours_low": 1080.0,
-  "est_hours_high": 2519.7
+  "views": 21484,
+  "likes": 209,
+  "est_hours_low": 1082.3,
+  "est_hours_high": 2525.2
  },
  "by_kind": {
   "other": {
    "n": 14,
-   "views": 21330,
-   "est_hours_mid": 1793.3
+   "views": 21345,
+   "est_hours_mid": 1795.1
   },
   "reaction": {
    "n": 2,
-   "views": 124,
-   "est_hours_mid": 6.5
+   "views": 139,
+   "est_hours_mid": 8.6
   },
   "short": {
    "n": 1,
@@ -52,14 +52,14 @@
    "published": "2026-11-18",
    "privacy": "public",
    "duration_min": 26.5,
-   "views": 2,
+   "views": 5,
    "likes": 1,
    "comments": 0,
    "est_hours": [
-    0.2,
-    0.4
+    0.4,
+    1.0
    ],
-   "views_per_day": 12.9,
+   "views_per_day": 28.4,
    "kind": "other"
   },
   {
@@ -67,15 +67,15 @@
    "title": "דושי משחק GTA 6 לראשונה, התגובה שלו מטורפת!",
    "published": "2026-11-18",
    "privacy": "public",
-   "duration_min": 25.1,
-   "views": 5,
-   "likes": 2,
+   "duration_min": 23.1,
+   "views": 17,
+   "likes": 3,
    "comments": 0,
    "est_hours": [
-    0.4,
-    0.9
+    1.3,
+    2.9
    ],
-   "views_per_day": 26.5,
+   "views_per_day": 81.2,
    "kind": "other"
   },
   {
@@ -91,7 +91,7 @@
     0.4,
     0.9
    ],
-   "views_per_day": 20.1,
+   "views_per_day": 18.2,
    "kind": "other"
   },
   {
@@ -100,14 +100,14 @@
    "published": "2026-11-18",
    "privacy": "public",
    "duration_min": 26.4,
-   "views": 9,
+   "views": 24,
    "likes": 4,
    "comments": 0,
    "est_hours": [
-    0.8,
-    1.8
+    2.0,
+    4.7
    ],
-   "views_per_day": 40.2,
+   "views_per_day": 98.1,
    "kind": "reaction"
   },
   {
@@ -123,7 +123,7 @@
     3.5,
     8.2
    ],
-   "views_per_day": 61.0,
+   "views_per_day": 59.7,
    "kind": "other"
   },
   {
@@ -139,7 +139,7 @@
     13.1,
     30.5
    ],
-   "views_per_day": 44.2,
+   "views_per_day": 43.5,
    "kind": "other"
   },
   {
@@ -187,7 +187,7 @@
     0.1,
     0.2
    ],
-   "views_per_day": 0.6,
+   "views_per_day": 0.5,
    "kind": "other"
   },
   {
@@ -347,7 +347,7 @@
     27.0,
     63.1
    ],
-   "views_per_day": 374.5,
+   "views_per_day": 371.9,
    "kind": "other"
   },
   {
@@ -411,7 +411,7 @@
     1.6,
     3.8
    ],
-   "views_per_day": 14.3,
+   "views_per_day": 14.2,
    "kind": "other"
   },
   {
@@ -427,7 +427,7 @@
     139.4,
     325.2
    ],
-   "views_per_day": 547.4,
+   "views_per_day": 545.3,
    "kind": "other"
   },
   {
@@ -443,7 +443,7 @@
     247.9,
     578.4
    ],
-   "views_per_day": 1069.6,
+   "views_per_day": 1065.5,
    "kind": "other"
   },
   {
@@ -459,7 +459,7 @@
     60.6,
     141.3
    ],
-   "views_per_day": 233.3,
+   "views_per_day": 232.4,
    "kind": "other"
   },
   {
@@ -491,7 +491,7 @@
     383.0,
     893.7
    ],
-   "views_per_day": 843.1,
+   "views_per_day": 840.2,
    "kind": "other"
   },
   {
@@ -523,7 +523,7 @@
     208.9,
     487.5
    ],
-   "views_per_day": 923.3,
+   "views_per_day": 920.2,
    "kind": "other"
   },
   {
@@ -539,7 +539,7 @@
     9.1,
     21.1
    ],
-   "views_per_day": 28.8,
+   "views_per_day": 28.7,
    "kind": "other"
   },
   {

@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-18T17:31:19Z",
- "fetched_epoch": 1795023079.2827399,
+ "fetched_at": "2026-11-18T18:01:23Z",
+ "fetched_epoch": 1795024883.2636209,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -14,7 +14,7 @@
    "published": "2026-11-18T13:48:16Z",
    "privacy": "public",
    "duration": "PT26M28S",
-   "views": 2,
+   "views": 5,
    "likes": 1,
    "comments": 0
   },
@@ -23,9 +23,9 @@
    "title": "דושי משחק GTA 6 לראשונה, התגובה שלו מטורפת!",
    "published": "2026-11-18T12:59:59Z",
    "privacy": "public",
-   "duration": "PT25M3S",
-   "views": 5,
-   "likes": 2,
+   "duration": "PT23M4S",
+   "views": 17,
+   "likes": 3,
    "comments": 0
   },
   {
@@ -44,7 +44,7 @@
    "published": "2026-11-18T12:09:02Z",
    "privacy": "public",
    "duration": "PT26M25S",
-   "views": 9,
+   "views": 24,
    "likes": 4,
    "comments": 0
   },
