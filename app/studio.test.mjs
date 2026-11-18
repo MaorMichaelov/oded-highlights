@@ -160,6 +160,8 @@ assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
   const inv = await lcall("POST", `/studio/api/orgs/${LO}/invites`, { email: "lag@x.com", role: "editor" }, LT); assert.equal((await lcall("GET", `/studio/api/orgs/${LO}/members`, null, LT)).j.invites.length, 1); assert.equal((await lcall("GET", `/studio/api/orgs/${LO}/members`, null, LT)).j.members.length, 1);
   await lcall("DELETE", `/studio/api/orgs/${LO}/channels/${lc.id}`, null, LT); lenv.KV.hidden.clear(); assert.equal((await lcall("GET", `/studio/api/orgs/${LO}/channels`, null, LT)).j.channels.length, 0);   // deletes leave the index too
   ok("lagging KV list(): index documents keep channels/jobs/members/invites/orgs visible"); }
+{ const bad = { KV: { get: async () => { throw new Error("kv down"); }, put: async () => { throw new Error("kv down"); }, list: async () => { throw new Error("kv down"); }, delete: async () => {} } }; const q = console.error; console.error = () => {};
+  const res = await handleStudio(new Request("https://app.test/studio/api/guest", { method: "POST", body: "{}" }), bad, fakeFetch); console.error = q; assert.equal(res.status, 500); assert.equal((await res.json()).error, "server_error"); ok("storage failure answers JSON 500, not a raw platform error page"); }
 // ---- guest entry (no email / password)
 { const g = await call("POST", "/studio/api/guest", {}); assert.equal(g.s, 200); assert.ok(g.j.token && g.j.org_id);
   const me = await call("GET", "/studio/api/me", null, g.j.token); assert.equal(me.s, 200);
