@@ -231,4 +231,10 @@ assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
   for (const [m, id] of [["בכמה כסף זה", "price"], ["איך אני מעלה את זה לטיקטוק", "other_platforms"], ["הקליפ יצא ארוך מדי, אפשר קצר יותר", "shorten"], ["מה אתה יכול לעשות בשבילי", "capabilities"], ["אפשר לראות דוגמה לקליפ", "example"], ["what can you do", "capabilities"]]) assert.equal((await ask(m)).faq, id, m);
   for (const m of ["תן לי כותרת בשביל טיקטוק", "יש לי דוגמה לכותרת טובה?", "כמה שעות סטרים אפשר להעלות"]) assert.ok(!(await ask(m)).faq, m);
   ok("assistant FAQ answers"); }
+// ---- demo verification: a guest can use a channel without the ownership code; a real account cannot
+{ const g = await call("POST", "/studio/api/guest", {}); const tk = g.j.token, oid = g.j.org_id; const me = await call("GET", "/studio/api/me", null, tk); assert.equal(me.j.user.guest, true);
+  const ch = (await call("POST", `/studio/api/orgs/${oid}/channels`, { url: "https://kick.com/igz" }, tk)).j.channel; assert.equal(ch.status, "pending");
+  const dv = await call("POST", `/studio/api/orgs/${oid}/channels/${ch.id}/demo-verify`, {}, tk); assert.equal(dv.s, 200); assert.equal(dv.j.channel.status, "verified"); assert.equal(dv.j.channel.demo, true);
+  const real = await call("POST", "/studio/api/signup", { email: "real@user.io", password: "longenough1" }); const ro = real.j.org_id;
+  const ch2 = (await call("POST", `/studio/api/orgs/${ro}/channels`, { url: "https://kick.com/igz2" }, real.j.token)).j.channel; assert.equal((await call("POST", `/studio/api/orgs/${ro}/channels/${ch2.id}/demo-verify`, {}, real.j.token)).s, 403); ok("demo verification for guests only"); }
 console.log(`\n${n} test groups passed`);

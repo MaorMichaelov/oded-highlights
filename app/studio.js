@@ -547,7 +547,7 @@ async function handleStudioInner(req, env, fetchImpl) {
   const ses = await session(req, env); if (!ses) return err(401, "unauthorized");
   const me = ses.user; let mt;
   if (path === "/logout" && m === "POST") { await env.KV.delete(K.sess(ses.hash)); return json({ ok: true }); }
-  if (path === "/me" && m === "GET") return json({ user: { id: me.id, email: me.email, name: me.name }, orgs: await orgsOf(env, me.id) });
+  if (path === "/me" && m === "GET") return json({ user: { id: me.id, email: me.email, name: me.name, guest: !!me.guest }, orgs: await orgsOf(env, me.id) });
   if (path === "/styles" && m === "GET") return json({ default: DEFAULT_STYLE, styles: await listStyles(env, fetchImpl) });   // the app shows only "our style"; the list exists for later
   if (path === "/invites/accept" && m === "POST") {
     const h = await sha256(String(b.token || "")); const inv = await kget(env, K.inv(h)); if (!inv || inv.exp < Date.now()) return err(404, "invite_invalid");
@@ -599,6 +599,11 @@ async function handleStudioInner(req, env, fetchImpl) {
   if ((x = sub.match(/^\/channels\/(c_[a-f0-9]+)(\/[a-z-]+)?$/))) {
     const ch = await kget(env, K.chan(orgId, x[1])); if (!ch) return err(404, "not_found"); const act = x[2] || "";
     if (act === "" && m === "DELETE") { let d = need("channel.manage"); if (d) return d; await kdel(env, K.chan(orgId, ch.id)); if (ch.status === "verified") await env.KV.delete(K.claim(ch.platform, ch.slug)); return json({ ok: true }); }
+    if (act === "/demo-verify" && m === "POST") {   // preview phase: a guest workspace may use a channel without the ownership code (a demo for a prospective customer); flagged demo, no exclusive claim. Disable with env STUDIO_DEMO_VERIFY=0
+      let d = need("channel.manage"); if (d) return d; if (env.STUDIO_DEMO_VERIFY === "0" || !(me && me.guest)) return err(403, "demo_verify_not_allowed");
+      if (ch.status !== "verified") { Object.assign(ch, { status: "verified", demo: true, verified_at: now(), verified_via: "demo" }); await kput(env, K.chan(orgId, ch.id), ch); }
+      return json({ channel: ch });
+    }
     if (act === "/verify" && m === "POST") {
       let d = need("channel.manage"); if (d) return d; if (ch.status === "verified") return json({ channel: ch });
       if (await limited(env, req, "verify:" + ch.id, 200)) return err(429, "rate_limited");   // the page re-checks every 8-30 s while open
