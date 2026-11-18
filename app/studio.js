@@ -312,7 +312,7 @@ const NUMW = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eig
 export function understand(text) {
   const raw = clean(text, 500), t = raw.toLowerCase(), he = /[֐-׿]/.test(raw);
   let count = (t.match(/\d+/) || [])[0]; if (count) count = parseInt(count); else for (const w of t.split(/[\s,.!?]+/)) if (NUMW[w]) { count = NUMW[w]; break; }
-  const status = /status|progress|ready yet|how.*(going|long)|what.?s up|where (is|are) (it|they|the)|is it (moving|working|stuck)|what is (the system|it) doing|any (news|update)|מה המצב|התקדמות|מוכן כבר|עוד כמה|איפה (זה|המערכת|העבודה)|עומד|זז(?=[\s?!.,]|$)|תקוע|מה (המערכת|הוא|היא) עושה|מה קורה עם|מה עם (העבודה|הקליפים|הטיוטות)|הגיע(ו)? (משהו|טיוטות)|יש (משהו|טיוטות|קליפים)/.test(t);
+  const status = /status|progress|ready yet|how.*(going|long)|what.?s up|where (is|are) (it|they|the)|is it (moving|working|stuck)|what is (the system|it) doing|any (news|update)|מה המצב|התקדמות|מוכן כבר|עוד כמה|איפה (זה|הוא|היא|המערכת|העבודה|הקליפים)( נמצא| נמצאת| עומד| עומדת)?|(הוא|היא|זה) נמצא|נמצאת? כרגע|וכרגע|מה הוא עושה|מה היא עושה|עומד|זז(?=[\s?!.,]|$)|תקוע|מה (המערכת|הוא|היא) עושה|מה קורה עם|מה עם (העבודה|הקליפים|הטיוטות)|הגיע(ו)? (משהו|טיוטות)|יש (משהו|טיוטות|קליפים)/.test(t);
   const wantsLong = /\blong\b|full video|compilation|סרטון ארוך|וידאו ארוך|סרטון מלא|סיכום|קומפילציה|יוטיוב ארוך/.test(t);
   const wantsShorts = /short|clip|reel|tiktok|שורט|קליפ|קצר/.test(t);
   const when = /yesterday|אתמול/.test(t) ? "yesterday" : /last week|this week|past week|שבוע שעבר|השבוע|מהשבוע|שבוע האחרון|בשבוע/.test(t) ? "week" : /\blive\b|right now|currently|מהלייב|בלייב|מהשידור (הנוכחי|הזה|עכשיו)|שידור (חי|נוכחי)|עכשיו|כרגע/.test(t) ? "live_now" : "last_stream";   // default: the latest stream
@@ -470,8 +470,13 @@ async function assistant(env, org, me, role, b, store) {
   } catch (e) { llm = null; }
   if (llm && u.intent !== "status") { if (llm.intent === "create" && (llm.shorts > 0 || llm.long)) { u.intent = "create"; u.shorts = llm.shorts; u.long = llm.long; u.when = llm.when; u.mood = llm.mood; } else if (llm.intent === "status") u.intent = "status"; else u.intent = "chat"; }
   const turnN = (HIST_MEM.get(org.id) || []).length;
-  if (u.intent === "chat") reply = llm ? llm.reply : (smallTalk(u.text, L, turnN, true) || HELP[L]);
-  else if (u.intent === "help") reply = smallTalk(u.text, L, turnN, true) || HELP[L];
+  const questionLike = /^(איפה|מתי|עד מתי|כמה זמן|למה|מה (קורה|עם|הוא|היא|זה)|where|when|how long|why|what.?s)|\?\s*$/i.test(u.text);
+  const fallbackReply = async () => {   // no model: if the customer has jobs and asks something question-like that no rule recognised, the useful answer is the status of their work
+    if (questionLike && !smallTalk(u.text, L, turnN, false)) { try { const js = (await kgetMany(env, (await klist(env, K.jobsOfOrg(org.id), 500)).map((k) => K.job(k.split(":")[3])))).sort((a, c) => (a.created < c.created ? 1 : -1)); if (js.length) { actions.push({ type: "show_job", job_id: js[0].id }); return await statusReport(env, org, js, L); } } catch (e) {} }
+    return smallTalk(u.text, L, turnN, true) || HELP[L];
+  };
+  if (u.intent === "chat") reply = llm ? llm.reply : await fallbackReply();
+  else if (u.intent === "help") reply = await fallbackReply();
   else if (u.intent === "status") {
     const jobs = (await kgetMany(env, (await klist(env, K.jobsOfOrg(org.id), 500)).map((k) => K.job(k.split(":")[3])))).sort((a, c) => (a.created < c.created ? 1 : -1));
     reply = await statusReport(env, org, jobs, L); if (jobs[0]) actions.push({ type: "show_job", job_id: jobs[0].id });

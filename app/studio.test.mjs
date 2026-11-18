@@ -250,4 +250,6 @@ assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
   ok("assistant status report"); }
 // ---- "from the live stream" picks live_now (the worker then takes the newest part of the recording, a few minutes behind the live edge)
 assert.equal(understand("תכין 5 שורטס מהלייב עכשיו").when, "live_now"); assert.equal(understand("make 3 shorts from the live stream").when, "live_now"); assert.equal(understand("5 שורטס מאתמול").when, "yesterday"); ok("live_now intent");
+// ---- the owner's real phrasings of "where is it" are status questions
+for (const q of ["איפה הוא נמצא כרגע מה הוא עושה?", "וכרגע איפה הוא", "איפה הוא נמצא מי מה שביקשתי", "איפה זה נמצא"]) assert.equal(understand(q).intent, "status", q); ok("status phrasings from the log");
 console.log(`\n${n} test groups passed`);

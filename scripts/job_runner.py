@@ -209,7 +209,7 @@ def llm_prompt(pk, txt, PC, hints, profile, CP, lang_name):
     mood = (hints or {}).get("mood"); ask = (hints or {}).get("text")
     extra = ""
     if mood: extra += "The customer wants mostly %s moments. " % mood
-    if ask: extra += "The customer asked: %s. " % re.sub(r"[\r\n]+", " ", str(ask))[:200]
+    if ask: extra += "The customer asked: %s. FOLLOW THE REQUEST: if it names a topic, game or kind of moment, accept ONLY moments that match it (set reject=true for the rest). " % re.sub(r"[\r\n]+", " ", str(ask))[:200]
     if CP and profile:
         try: extra += "\n" + CP.prompt_additions(profile, query=txt[:1500]) + "\n"
         except Exception: pass
