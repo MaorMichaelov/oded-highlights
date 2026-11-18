@@ -245,5 +245,6 @@ assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
   const jk = await env.KV.get("studio:j:" + jid, "json"); jk.status = "running"; jk.progress = 33; jk.updated = new Date().toISOString(); await env.KV.put("studio:j:" + jid, JSON.stringify(jk)); r = await ask("זז?"); assert.ok(/זזה כרגיל/.test(r.reply), r.reply);
   jk.updated = new Date(Date.now() - 30 * 60000).toISOString(); await env.KV.put("studio:j:" + jid, JSON.stringify(jk)); r = await ask("למה זה תקוע"); assert.ok(/תקועה/.test(r.reply), r.reply);
   jk.status = "draft_ready"; jk.result = { drafts: [{ title: "a" }, { title: "b" }] }; await env.KV.put("studio:j:" + jid, JSON.stringify(jk)); r = await ask("מה קורה עם הקליפים"); assert.ok(/2 טיוטות/.test(r.reply), r.reply);
+  jk.result = { drafts: [{ title: "a" }] }; await env.KV.put("studio:j:" + jid, JSON.stringify(jk)); r = await ask("מה קורה עם הקליפים"); assert.ok(/טיוטה אחת/.test(r.reply) && !/1 טיוטות/.test(r.reply), r.reply);
   ok("assistant status report"); }
 console.log(`\n${n} test groups passed`);
