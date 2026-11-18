@@ -2,17 +2,17 @@
  "overall": "critical",
  "checks": {
   "live_loop": {
-   "status": "ok",
-   "detail": "1 run(s) active"
+   "status": "critical",
+   "detail": "live-loop is NOT running (monitor / the Cloudflare watchdog should restart it; start it by hand: gh workflow run live-loop.yml)"
   },
   "channel_loops": {
    "status": "ok",
-   "detail": "0 channel loop run(s) active, 0 enabled streamer(s)"
+   "detail": "4 channel loop run(s) active, 0 enabled streamer(s)"
   },
   "state_fresh": {
-   "status": "critical",
-   "detail": "live_status is 61 min old while a loop run is active: the loop is stuck (a step hangs or git push keeps failing)",
-   "age_min": 61.5
+   "status": "ok",
+   "detail": "live_status 0.3 min old",
+   "age_min": 0.3
   },
   "transcription": {
    "status": "ok",
@@ -20,22 +20,21 @@
   },
   "last_upload": {
    "status": "ok",
-   "detail": "last draft 23.2 h ago",
-   "age_h": 23.2,
+   "detail": "last draft 32.2 h ago",
+   "age_h": 32.2,
    "last": "2026-11-17T06:18:46Z"
   },
   "upload_hold": {
-   "status": "info",
-   "detail": "UPLOAD_HOLD active until 2026-11-18T06:00:00+00:00: nothing is uploaded (by owner request)",
-   "until": "2026-11-18T06:00:00+00:00"
+   "status": "ok",
+   "detail": "no hold, no quota wait"
   },
   "failed_runs": {
-   "status": "ok",
-   "detail": "0 failed run(s) in 3 h"
+   "status": "warn",
+   "detail": "4 failed run(s) in 3 h: ['live-shorts']"
   },
   "cancelled_runs": {
-   "status": "ok",
-   "detail": "0 cancelled loop run(s) in 2 h"
+   "status": "warn",
+   "detail": "8 loop run(s) cancelled in 2 h (concurrency group or manual cancels fighting each other?)"
   },
   "queue_stall": {
    "status": "ok",
@@ -55,10 +54,12 @@
   }
  },
  "hc_problems": [
-  "state_fresh: live_status is 61 min old while a loop run is active: the loop is stuck (a step hangs or git push keeps failing)",
+  "live_loop: live-loop is NOT running (monitor / the Cloudflare watchdog should restart it; start it by hand: gh workflow run live-loop.yml)",
+  "failed_runs: 4 failed run(s) in 3 h: ['live-shorts']",
+  "cancelled_runs: 8 loop run(s) cancelled in 2 h (concurrency group or manual cancels fighting each other?)",
   "duplicates: duplicate draft titles: [['137995265_9037', '137995265_9082']]; overlapping ledger entries: []"
  ],
- "hc_checked_at": "2026-11-18T05:29:51Z",
+ "hc_checked_at": "2026-11-18T14:31:38Z",
  "live_loop_running": false,
  "state_age_min": 0.1,
  "live": false,
