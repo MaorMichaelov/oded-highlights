@@ -106,6 +106,10 @@ r = await call("GET", `/studio/api/orgs/${ORG}/jobs/${J3}`, null, T1); assert.eq
 r = await call("POST", `/studio/api/orgs/${ORG}/billing/checkout`, {}, T1); assert.equal(r.s, 501); assert.equal((await call("POST", `/studio/api/orgs/${ORG}/billing/checkout`, {}, TE)).s, 403); ok("billing stub + perms");
 r = await call("GET", `/studio/api/orgs/${ORG}/assistant`, null, T1); assert.ok(r.j.history.length >= 6); ok("assistant history");
 r = await call("POST", "/studio/api/logout", null, T1); assert.equal((await call("GET", "/studio/api/me", null, T1)).s, 401); ok("logout");
+// per-account login throttle: 10 wrong passwords lock the account for an hour whatever the IP; bad worker key attempts are counted
+for (let i = 0; i < 10; i++) await call("POST", "/studio/api/login", { email: "victim@x.com", password: "wrong" + i }, null, { "cf-connecting-ip": "9.9.9." + i });
+r = await call("POST", "/studio/api/login", { email: "victim@x.com", password: "wrong" }, null, { "cf-connecting-ip": "8.8.8.8" }); assert.equal(r.s, 429); ok("per-account login throttle");
+r = await call("GET", "/studio"); assert.ok(r.s === 200); { const h = (await handleStudio(new Request("https://app.test/studio"), env, fakeFetch)).headers; assert.equal(h.get("x-frame-options"), "DENY"); assert.equal(h.get("x-content-type-options"), "nosniff"); } ok("security headers");
 // the owner app's keys are never touched
 assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
 console.log(`\n${n} test groups passed`);

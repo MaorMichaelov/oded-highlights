@@ -10,6 +10,7 @@ const hex = (b) => [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, 
 export const sha256 = async (t) => hex(await crypto.subtle.digest("SHA-256", enc.encode(t)));
 const rnd = (n = 16) => hex(crypto.getRandomValues(new Uint8Array(n)));
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+const SEC = { "x-content-type-options": "nosniff", "x-frame-options": "DENY", "referrer-policy": "no-referrer", "content-security-policy": "frame-ancestors 'none'; base-uri 'none'; object-src 'none'" };
 const err = (s, code, extra = {}) => json({ error: code, ...extra }, s);
 const now = () => new Date().toISOString();
 const ALPHA = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   // no 0/O/1/I: a code typed from a screenshot must not be ambiguous
@@ -222,7 +223,7 @@ async function assistant(env, org, me, role, b, store) {
 // ---------- the router ----------
 export async function handleStudio(req, env, fetchImpl = fetch) {
   const u = new URL(req.url); const p = u.pathname.replace(/\/+$/, "") || "/studio"; const m = req.method;
-  if (p === "/studio") return new Response(STUDIO_HTML, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" } });
+  if (p === "/studio") return new Response(STUDIO_HTML, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache", ...SEC } });
   if (p === "/studio/api/health") return json({ ok: true, t: now() });
 
   // --- render-worker API (machine to machine; secret lives in KV studio:cfg:worker_key or env.STUDIO_WORKER_KEY)
@@ -247,8 +248,9 @@ export async function handleStudio(req, env, fetchImpl = fetch) {
     if (await limited(env, req, "login", 20)) return err(429, "rate_limited");
     const email = clean(b.email, 254).toLowerCase(); const uid = await env.KV.get(K.email(email)); const usr = uid && await kget(env, K.user(uid));
     const bad = () => err(401, "bad_credentials");
-    if (!usr) { await hashPassword(String(b.password || ""), rnd(16)); return bad(); }   // equalise timing
-    const h = await hashPassword(String(b.password || ""), usr.pw.salt, usr.pw.iter); if (!safeEq(h.hash, usr.pw.hash)) return bad();
+    if (email) { const ak = K.rl("acct:" + email.slice(0, 120)); const fails = parseInt((await env.KV.get(ak)) || "0"); if (fails >= 10) return err(429, "rate_limited"); b._ak = ak; b._fails = fails; }   // per-account: 10 wrong passwords per hour, whatever the IP
+    if (!usr) { await hashPassword(String(b.password || ""), rnd(16)); if (b._ak) await env.KV.put(b._ak, String(b._fails + 1), { expirationTtl: 3600 }); return bad(); }   // equalise timing
+    const h = await hashPassword(String(b.password || ""), usr.pw.salt, usr.pw.iter); if (!safeEq(h.hash, usr.pw.hash)) { if (b._ak) await env.KV.put(b._ak, String(b._fails + 1), { expirationTtl: 3600 }); return bad(); }
     return json({ token: await newSession(env, uid), user: { id: uid, email: usr.email, name: usr.name } });
   }
   if (path === "/invites/preview" && m === "POST") {   // public: lets an invitee see what they are joining before signup
@@ -265,8 +267,8 @@ export async function handleStudio(req, env, fetchImpl = fetch) {
   if (path === "/invites/accept" && m === "POST") {
     const h = await sha256(String(b.token || "")); const inv = await kget(env, K.inv(h)); if (!inv || inv.exp < Date.now()) return err(404, "invite_invalid");
     if (inv.email && inv.email !== me.email) return err(403, "invite_for_other_email");
-    await addMember(env, inv.org, me.id, me.email, inv.role); await Promise.all([env.KV.delete(K.inv(h)), env.KV.delete(K.invOfOrg(inv.org, h))]);
-    return json({ ok: true, org_id: inv.org, role: inv.role });
+    const have = await roleIn(env, inv.org, me.id); const RANK = { viewer: 1, editor: 2, owner: 3 }; if (!have || RANK[inv.role] > RANK[have]) await addMember(env, inv.org, me.id, me.email, inv.role); await Promise.all([env.KV.delete(K.inv(h)), env.KV.delete(K.invOfOrg(inv.org, h))]);
+    return json({ ok: true, org_id: inv.org, role: have && RANK[have] >= RANK[inv.role] ? have : inv.role });
   }
 
   // --- org-scoped routes: /orgs/:id/...
@@ -391,7 +393,7 @@ export async function createJob(env, org, f) {
 // ---------- render worker API ----------
 async function workerApi(req, env, p, m) {
   const key = await cfg(env, "worker_key"); const got = req.headers.get("x-worker-key") || "";
-  if (!key || !safeEq(await sha256(got), await sha256(key))) return err(401, "unauthorized");
+  if (!key || !safeEq(await sha256(got), await sha256(key))) { if (await limited(env, req, "workerkey_fail", 60)) return err(429, "rate_limited"); return err(401, "unauthorized"); }   // only FAILED attempts count (the real worker polls often)
   if (p === "/studio/worker/claim" && m === "POST") {
     // TODO(D1): KV is eventually consistent, two workers could claim the same job. With one worker it is fine; with several use a Durable Object/D1 UPDATE ... WHERE status='queued'.
     for (const k of await klist(env, "studio:q:", 20)) {
