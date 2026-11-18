@@ -75,13 +75,13 @@ function legalPage(kind) { const d = LEGAL[kind]; const sec = (x) => x[1].map((r
 
 // ---------- curated answers for the questions customers ask most (written in natural Hebrew/English; instant, no model needed, so the assistant is never vague or wrong about the product) ----------
 const FAQ = [
-  { id: "how_start", re: /איך (אני )?(מתחיל|מתחילים|מתחילה|להתחיל|מתחילות)|מאיפה (מתחילים|מתחיל|להתחיל)|how (do i|can i|to) (start|begin|get started)|where (do i|to) start/i,
+  { id: "how_start", re: /(איך (אני )?(מתחיל|מתחילים|מתחילה|להתחיל|מתחילות)|מאיפה (מתחילים|מתחיל|להתחיל))(?=\s*(\?|!|\.|$|פה|כאן|עם (זה|studio|סטודיו|המערכת|האפליקציה)))|how (do i|can i|to) (start|begin|get started)(?! (to|a |an |my |the |streaming))|where (do i|to) start/i,
     he: "ההתחלה קצרה, שלושה צעדים:\n1. מדביקים כאן קישור לערוץ שלך (Kick או Twitch) ומאמתים שהוא שלך. מקבלים קוד קצר, מדביקים אותו בביו של הערוץ או בכותרת השידור, ולוחצים לבדוק.\n2. מבקשים ממני מה לחתוך, למשל \"5 שורטס מצחיקים מאתמול\", או סתם מדביקים קישור לשידור.\n3. הטיוטות מגיעות ללשונית \"אישורים\": מחליקים ימינה לאשר, שמאלה לדחות.\nרוצה שנתחיל עם קישור לערוץ?",
     en: "It's three short steps:\n1. Paste your channel link (Kick or Twitch) and verify it's yours: you get a short code, put it in the channel bio or the stream title, then press check.\n2. Tell me what to cut, e.g. \"5 funny Shorts from yesterday\", or just paste a stream link.\n3. Drafts land in the Review tab: swipe right to approve, left to reject.\nShall we start with your channel link?" },
-  { id: "how_works", re: /איך (זה )?עובד|מה זה (בעצם )?(האפליקציה|המערכת|סטודיו|studio)|תסביר (לי )?(על )?(זה|המערכת)|how (does|do) (it|this|studio) work|what is (this|studio)|explain/i,
+  { id: "how_works", re: /איך (זה )?עובד|מה זה (בעצם )?(האפליקציה|המערכת|סטודיו|studio)|תסביר (לי )?(על )?(זה|המערכת)|how (does|do) (it|this|studio) work|what is (this|studio)|explain (this|it|how|studio)/i,
     he: "Studio הופך שידורים חיים לקליפים מוכנים. המערכת מקשיבה לשידור, מזהה רגעים חזקים (צחוק, מתח, ריאקשן, סיפור), חותכת בתחילת משפט ובסוף הפאנץ', מוסיפה כתוביות ולוגו, ובודקת איכות. מה שיוצא הוא שורטס וסרטונים ארוכים כטיוטות פרטיות. אתה רואה, מאשר או דוחה, ורק מה שאישרת יוצא החוצה.",
     en: "Studio turns live streams into ready clips. It listens to the stream, finds strong moments (laughs, tension, reactions, stories), cuts at the start of a sentence and right after the punchline, adds captions and a logo, and runs a quality check. You get Shorts and long videos as private drafts; you approve or reject, and only what you approve goes out." },
-  { id: "price", re: /כמה (זה )?(עולה|עלות|תשלום|לשלם|יעלה)|מה המחיר|מחיר|תמחור|price|pricing|how much (does|is|will)|cost/i,
+  { id: "price", re: /כמה (זה )?(עולה|עלות|תשלום|לשלם|יעלה)|מה המחיר|מחירים|המחיר שלכם|מחיר (השירות|החבילה|המנוי)|תמחור|prices?\b|pricing|how much (does|is|will)|\bcosts?\b/i,
     he: "בשלב הבטא זה חינם: יש לך כמה קרדיטים לניסיון. קרדיט אחד מכסה שעה אחת של שידור מקור. מחירים סופיים עוד לא נקבעו, ובקרוב נציג חבילות חודשיות. את היתרה אפשר לראות בלשונית \"קרדיטים\".",
     en: "During the beta it's free: you get a few trial credits. One credit covers one hour of source stream. Final prices aren't set yet; monthly plans are coming. You can see your balance in the Credits tab." },
   { id: "credits", re: /מה (זה )?קרדיט|קרדיטים (זה|הם)|how do credits work|what (is|are) (a )?credits?/i,
@@ -96,7 +96,7 @@ const FAQ = [
   { id: "review", re: /איפה (אני )?(מאשר|רואה את הטיוטות|הטיוטות)|איך (מאשרים|מאשר|רואים)|where (do i|can i) (approve|see (the )?drafts)|how (do i )?approve/i,
     he: "הטיוטות נמצאות בלשונית \"אישורים\". לכל טיוטה יש נגן, כותרת שאפשר לערוך, וכפתורי אישור ודחייה (גם בהחלקה ימינה ושמאלה, או בחצים במקלדת). דחייה ואישור אפשר לבטל תוך 5 שניות.",
     en: "Drafts are in the Review tab. Each draft has a player, an editable title, and approve / reject buttons (also swipe right/left, or the arrow keys). You can undo within 5 seconds." },
-  { id: "team", re: /איך (אני )?(מוסיף|מזמין|מוסיפים|מזמינים) (עורך|חבר צוות|צוות|עובד)|עורך שלי|team members?|invite (an )?editor|add (an )?editor/i,
+  { id: "team", re: /איך (אני )?(מוסיף|מזמין|מוסיפים|מזמינים) (עורך|חבר צוות|צוות|עובד)|איך (נותנים|אני נותן|לתת) (לעורך|לעורכת|לו|לה) גישה|(להוסיף|להזמין) (את )?(ה)?(עורך|עורכת)|team members?|invite (an )?editor|add (an )?editor/i,
     he: "בלשונית \"צוות\" מזמינים עורך עם קישור הזמנה: בעלים רואה ומנהל הכול, עורך יוצר עבודות ומאשר טיוטות, צופה רק רואה. את הקישור שולחים לעורך (למשל בוואטסאפ).",
     en: "In the Team tab you invite an editor with an invite link: the owner manages everything, an editor creates jobs and approves drafts, a viewer only looks. Send the link to your editor, for example on WhatsApp." },
   { id: "youtube", re: /(לחבר|חיבור|להעלות) (ל)?יוטיוב|העלאה (ל)?יוטיוב|(connect|upload) (to )?youtube|youtube (connect|upload)/i,
@@ -117,11 +117,11 @@ const FAQ = [
   { id: "cancel", re: /איך (מבטלים|לבטל|מוחקים|למחוק)|ביטול עבודה|how (do i )?(cancel|delete)/i,
     he: "עבודה שעדיין בתור אפשר לבטל בלשונית \"פעילות\" ולקבל את הקרדיט בחזרה. טיוטה שלא רוצים פשוט דוחים. מחיקת חשבון ומידע: כתוב לי כאן ונטפל.",
     en: "A job that's still queued can be cancelled in the Activity tab and the credit comes back. A draft you don't want you simply reject. To delete your account and data, write it here and we'll take care of it." },
-  { id: "style", re: /סגנון (עריכה)?|בסגנון (של|הזה)|תעריך (כמו|בסגנון)|my (editing )?style|edit (like|in the style)|style of (this|a) video/i,
+  { id: "style", re: /סגנון (ה)?עריכה|בסגנון הזה|תעריך (כמו|בסגנון)|my (editing )?style|edit (like|in the style)|style of (this|a) video/i,
     he: "כרגע יש סגנון עריכה אחד קבוע: חיתוך בתחילת משפט, כתוביות צהובות, זום עדין ולוגו. הכנו גם כלי שמנתח סרטון שאתה אוהב (קצב, כתוביות, זום) ובונה ממנו סגנון, וחיבור שלו לאפליקציה בדרך. כשהוא יהיה מוכן תדביק קישור לסרטון ותקבל עריכה בסגנון שלו.",
     en: "For now there's one fixed editing style: cuts at the start of a sentence, yellow captions, gentle zoom and a logo. We also built a tool that analyses a video you like (pace, captions, zoom) and builds a style from it; connecting it to the app is on the way. When it's ready you'll paste a video link and get edits in its style." },
 ];
-function faqMatch(text, L) { const t = String(text || "").trim(); if (t.length < 4) return null; for (const f of FAQ) if (f.re.test(t)) return { id: f.id, reply: f[L] || f.en }; return null; }
+function faqMatch(text, L) { const t = String(text || "").trim(); if (t.length < 4 || t.length > 120) return null; if (/^(תן|תני|תעשה|תעשי|תכין|תכיני|צור|כתוב|תכתוב|תחתוך|תחתכי|make|create|write|give me|generate|cut)(?=\s|$)/i.test(t)) return null; for (const f of FAQ) if (f.re.test(t)) return { id: f.id, reply: f[L] || f.en }; return null; }
 
 // ---------- KV key layout (all under "studio:" so the owner app's keys are never touched) ----------
 const K = {

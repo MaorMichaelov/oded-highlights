@@ -222,5 +222,9 @@ assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
 { const g = await call("POST", "/studio/api/guest", {}); const tk = g.j.token, oid = g.j.org_id; const ask = async (m) => (await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: m }, tk)).j;
   const cases = [["איך מתחילים", "how_start"], ["איך זה עובד?", "how_works"], ["כמה זה עולה לי בחודש", "price"], ["מה זה קרדיט", "credits"], ["מה ההבדל בין שורט לסרטון ארוך", "shorts_vs_long"], ["מה ההבדל בין ריאקשן לדרמה בקליפ", "kinds"], ["איפה אני מאשר טיוטות", "review"], ["איך מוסיפים עורך", "team"], ["לחבר ליוטיוב", "youtube"], ["זה בטוח? מי רואה", "privacy"], ["למה אין לי טיוטות", "why_nothing"], ["how do i start", "how_start"], ["how much does it cost", "price"]];
   for (const [m, id] of cases) { const r = await ask(m); assert.equal(r.faq, id, m + " -> " + r.faq); assert.ok(r.reply.length > 40); }
-  const r2 = await ask("make 3 funny shorts from yesterday"); assert.ok(!r2.faq, "a real request is not an FAQ"); ok("assistant FAQ answers"); }
+  const r2 = await ask("make 3 funny shorts from yesterday"); assert.ok(!r2.faq, "a real request is not an FAQ");
+  // QA regressions: a title/task request that merely contains an FAQ keyword must reach the model, not get a canned answer
+  for (const m of ["תן לי כותרת בסגנון מצחיק לקליפ", "הסרטון של העורך שלי יצא גרוע", "I want a costume video title", "explain the difference between a short and a vlog", "איך להתחיל לצעוק פחות בשידור", "תכין לי כותרת על המחיר של המשחק החדש"]) { const r = await ask(m); assert.ok(!r.faq, m + " wrongly matched FAQ " + r.faq); }
+  assert.equal((await ask("תעשה לי סגנון עריכה כמו של MrBeast")).faq, undefined);
+  ok("assistant FAQ answers"); }
 console.log(`\n${n} test groups passed`);
