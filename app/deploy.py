@@ -19,5 +19,6 @@ meta = {"main_module": "worker.js", "compatibility_date": "2025-11-01", "keep_bi
 r = cf("PUT", f"/workers/scripts/{NAME}", F=["metadata=" + json.dumps(meta) + ";type=application/json", f"worker.js=@{os.path.join(BD, 'worker.bundle.js')};type=application/javascript+module;filename=worker.js", f"studio.js=@{os.path.join(BD, 'studio.bundle.js')};type=application/javascript+module;filename=studio.js", f"youtube_connect.js=@{os.path.join(HERE, 'youtube_connect.js')};type=application/javascript+module;filename=youtube_connect.js"])   # youtube_connect.js has no placeholders: uploaded as is
 print("upload:", r.get("success"), r.get("errors"))
 print("subdomain:", cf("POST", f"/workers/scripts/{NAME}/subdomain", h=["Content-Type: application/json"], d=json.dumps({"enabled": True})).get("success"))
-print("cron:", cf("PUT", f"/workers/scripts/{NAME}/schedules", h=["Content-Type: application/json"], d=json.dumps([{"cron": "*/5 * * * *"}])).get("success"))
+if NAME == "oded-app": print("cron:", cf("PUT", f"/workers/scripts/{NAME}/schedules", h=["Content-Type: application/json"], d=json.dumps([{"cron": "*/5 * * * *"}])).get("success"))
+else: print("cron: skipped (only the production owner app runs the watchdog cron)")
 print(f"URL: https://{NAME}.odedhl.workers.dev")
