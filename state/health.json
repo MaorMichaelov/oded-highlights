@@ -6,5 +6,65 @@
  "stuck_clips": [],
  "pending_candidates": 0,
  "problems": [],
- "checked_at": "2026-11-18T04:28:18Z"
+ "checked_at": "2026-11-18T04:28:18Z",
+ "overall": "critical",
+ "checks": {
+  "live_loop": {
+   "status": "ok",
+   "detail": "1 run(s) active"
+  },
+  "channel_loops": {
+   "status": "ok",
+   "detail": "0 channel loop run(s) active, 0 enabled streamer(s)"
+  },
+  "state_fresh": {
+   "status": "critical",
+   "detail": "live_status is 61 min old while a loop run is active: the loop is stuck (a step hangs or git push keeps failing)",
+   "age_min": 61.5
+  },
+  "transcription": {
+   "status": "ok",
+   "detail": "lag 710 segments, live=False"
+  },
+  "last_upload": {
+   "status": "ok",
+   "detail": "last draft 23.2 h ago",
+   "age_h": 23.2,
+   "last": "2026-11-17T06:18:46Z"
+  },
+  "upload_hold": {
+   "status": "info",
+   "detail": "UPLOAD_HOLD active until 2026-11-18T06:00:00+00:00: nothing is uploaded (by owner request)",
+   "until": "2026-11-18T06:00:00+00:00"
+  },
+  "failed_runs": {
+   "status": "ok",
+   "detail": "0 failed run(s) in 3 h"
+  },
+  "cancelled_runs": {
+   "status": "ok",
+   "detail": "0 cancelled loop run(s) in 2 h"
+  },
+  "queue_stall": {
+   "status": "ok",
+   "detail": "no stalled queue"
+  },
+  "stuck_clips": {
+   "status": "ok",
+   "detail": "no stuck clips"
+  },
+  "state_integrity": {
+   "status": "ok",
+   "detail": "core state files parse"
+  },
+  "duplicates": {
+   "status": "warn",
+   "detail": "duplicate draft titles: [['137995265_9037', '137995265_9082']]; overlapping ledger entries: []"
+  }
+ },
+ "hc_problems": [
+  "state_fresh: live_status is 61 min old while a loop run is active: the loop is stuck (a step hangs or git push keeps failing)",
+  "duplicates: duplicate draft titles: [['137995265_9037', '137995265_9082']]; overlapping ledger entries: []"
+ ],
+ "hc_checked_at": "2026-11-18T05:29:51Z"
 }
