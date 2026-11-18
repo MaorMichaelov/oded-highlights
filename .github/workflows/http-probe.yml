@@ -49,3 +49,10 @@ jobs:
         run: |
           case "$BASE" in https://*.workers.dev) ;; *) exit 1;; esac
           printf 'header = "x-worker-key: %s"\n' "$GH_RUN_TOKEN" | curl -sS -m 30 -K - -X POST -w '\nHTTP %{http_code}\n' "$BASE/studio/worker/queue" | head -c 400
+      - env:
+          BASE: ${{ inputs.base }}
+        run: |
+          case "$BASE" in https://*.workers.dev) ;; *) exit 1;; esac
+          echo "== config"; curl -sS -m 30 "$BASE/studio/api/config"; echo
+          echo "== guest without code"; curl -sS -m 30 -X POST -H 'content-type: application/json' -d '{}' "$BASE/studio/api/guest"; echo
+          echo "== terms"; curl -sS -m 30 -o /dev/null -w "%{http_code}\n" "$BASE/studio/terms"
