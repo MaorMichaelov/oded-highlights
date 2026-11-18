@@ -42,3 +42,10 @@ jobs:
           import json
           d=json.load(open('/tmp/g')); print("keys:", list(d.keys())[:6]); print("repos:", [r.get("full_name") for r in d.get("repositories", [])] if isinstance(d.get("repositories"), list) else d.get("message"))
           PY
+      - name: studio worker queue with the run token (body only)
+        env:
+          BASE: ${{ inputs.base }}
+          GH_RUN_TOKEN: ${{ github.token }}
+        run: |
+          case "$BASE" in https://*.workers.dev) ;; *) exit 1;; esac
+          printf 'header = "x-worker-key: %s"\n' "$GH_RUN_TOKEN" | curl -sS -m 30 -K - -X POST -w '\nHTTP %{http_code}\n' "$BASE/studio/worker/queue" | head -c 400
