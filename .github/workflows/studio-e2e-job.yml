@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       login: { description: "Twitch login whose finished VOD is used", required: false, default: "kaicenat" }
+      kick: { description: "Kick slug: test a channel (demo-verify + last stream) instead of a Twitch VOD link", required: false, default: "" }
       base: { required: false, default: "https://studio-app.odedhl.workers.dev" }
 permissions:
   contents: read
@@ -18,17 +19,23 @@ jobs:
         env:
           BASE: ${{ inputs.base }}
           LOGIN: ${{ inputs.login }}
+          KICK: ${{ inputs.kick }}
           GH_RUN_TOKEN: ${{ github.token }}
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
           case "$BASE" in https://*.workers.dev) ;; *) exit 1;; esac
           case "$LOGIN" in *[!A-Za-z0-9_]*) exit 1;; esac
-          URL=$(yt-dlp --flat-playlist --playlist-end 3 --print "%(url)s" "https://www.twitch.tv/$LOGIN/videos?filter=archives&sort=time" | sed -n 2p)
-          echo "vod: $URL"; [ -n "$URL" ] || { echo "no VOD found"; exit 1; }
+          case "$KICK" in *[!A-Za-z0-9_-]*) exit 1;; esac
+          if [ -z "$KICK" ]; then URL=$(yt-dlp --flat-playlist --playlist-end 3 --print "%(url)s" "https://www.twitch.tv/$LOGIN/videos?filter=archives&sort=time" | sed -n 2p); echo "vod: $URL"; [ -n "$URL" ] || { echo "no VOD found"; exit 1; }; fi
           G=$(printf 'header = "x-worker-key: %s"\n' "$GH_RUN_TOKEN" | curl -sS -m 30 -K - -X POST -H 'content-type: application/json' -d '{}' "$BASE/studio/worker/testguest")
           TK=$(echo "$G" | python3 -c "import sys,json;print(json.load(sys.stdin)['token'])"); OID=$(echo "$G" | python3 -c "import sys,json;print(json.load(sys.stdin)['org_id'])")
-          R1=$(curl -sS -m 90 -X POST -H "authorization: Bearer $TK" -H 'content-type: application/json' -d "{\"message\":\"make 3 Shorts from $URL\"}" "$BASE/studio/api/orgs/$OID/assistant"); echo "assistant: $(echo "$R1" | head -c 300)"
+          if [ -n "$KICK" ]; then
+            CH=$(curl -sS -m 30 -X POST -H "authorization: Bearer $TK" -H 'content-type: application/json' -d "{\"url\":\"https://kick.com/$KICK\"}" "$BASE/studio/api/orgs/$OID/channels" | python3 -c "import sys,json;print(json.load(sys.stdin)['channel']['id'])")
+            curl -sS -m 30 -X POST -H "authorization: Bearer $TK" -H 'content-type: application/json' -d '{}' "$BASE/studio/api/orgs/$OID/channels/$CH/demo-verify" >/dev/null
+            MSG="make 3 Shorts from my last stream"
+          else MSG="make 3 Shorts from $URL"; fi
+          R1=$(curl -sS -m 90 -X POST -H "authorization: Bearer $TK" -H 'content-type: application/json' -d "{\"message\":\"$MSG\",\"channel_id\":\"$CH\"}" "$BASE/studio/api/orgs/$OID/assistant"); echo "assistant: $(echo "$R1" | head -c 300)"
           JID=$(echo "$R1" | python3 -c "import sys,json;print(json.load(sys.stdin)['actions'][0]['job_id'])")
           echo "job: $JID"; gh workflow run studio-worker.yml --repo "$REPO" --ref main || true
           for i in $(seq 1 120); do
