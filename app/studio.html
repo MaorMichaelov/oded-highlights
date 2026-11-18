@@ -776,7 +776,7 @@ function renderApp() {
   applyChrome(); cleanups.forEach((f) => f()); cleanups = [];
   if (!token && !DEMO) return renderAuth();
   if (DEMO && demoLanding) return renderAuth();
-  if (!S.ready) { $("#app").replaceChildren(h("div", { class: "boot" }, h("span", { class: "spin" }))); return boot(); }
+  if (!S.ready) { $("#app").replaceChildren(h("div", { class: "boot", role: "main" }, h("span", { class: "spin" }))); return boot(); }
   if (S.inviteToken) return renderInvite();
   if (!S.org) return renderNoOrg();
   renderShell(); parseRoute(); renderRoute(true);
@@ -787,10 +787,10 @@ async function boot() {
   try {
     if (S.inviteToken && !S.invitePreview) { try { S.invitePreview = await api("POST", "/invites/preview", { token: S.inviteToken }); } catch (e) { S.inviteToken = null; } }
     await loadCore(); await loadYt(); schedulePoll();
-  } catch (e) { if (e && e._status === 401) { booting = false; return; } $("#app").replaceChildren(h("div", { class: "boot stack" }, h("p", null, errText(e)), h("button", { class: "btn", onclick: () => { booting = false; renderApp(); } }, t("retry")))); booting = false; return; }
+  } catch (e) { if (e && e._status === 401) { booting = false; return; } $("#app").replaceChildren(h("div", { class: "boot stack", role: "main" }, h("p", null, errText(e)), h("button", { class: "btn", onclick: () => { booting = false; renderApp(); } }, t("retry")))); booting = false; return; }
   booting = false; renderApp();
 }
-function renderNoOrg() { $("#app").replaceChildren(h("div", { class: "auth" }, h("div", { class: "card stack" }, h("h2", null, t("se_ws_new")), createOrgForm(), h("button", { class: "btn ghost", onclick: logout }, t("se_logout"))))); }
+function renderNoOrg() { $("#app").replaceChildren(h("div", { class: "auth", role: "main" }, h("div", { class: "card stack" }, h("h2", null, t("se_ws_new")), createOrgForm(), h("button", { class: "btn ghost", onclick: logout }, t("se_logout"))))); }
 
 function renderShell() {
   const brand = () => h("a", { class: "brand", href: "#/home" }, h("span", { class: "logo" }), h("span", null, "Studio"));
@@ -853,7 +853,7 @@ function renderAuth() {
     try { const r = await api("POST", "/guest", {}); token = r.token; LS.set("studio_token", token); demoLanding = false; S.ready = false; renderApp(); }
     catch (e2) { err.textContent = errText(e2); b.disabled = false; b.replaceChildren(h("span", null, t("guest_go")), icon("arrow", "flip")); } } }, h("span", null, t("guest_go")), icon("arrow", "flip"));
   const title = t("hero_title"), cut = title.indexOf(". "), a = cut > 0 ? title.slice(0, cut + 1) : title, b = cut > 0 ? title.slice(cut + 2) : "";
-  $("#app").replaceChildren(h("div", { class: "auth" },
+  $("#app").replaceChildren(h("div", { class: "auth", role: "main" },
     h("div", { class: "auth-top" }, h("a", { class: "brand", href: "#" }, h("span", { class: "logo" }), h("span", null, "Studio")), h("div", { class: "grp" }, langSwitch(), themeBtn())),
     h("section", { class: "landing" }, h("div", { class: "eyebrow" }, h("span", { class: "rec" }), h("b", null, "REC"), h("span", { "data-tc": "" }, nowTc()), h("span", null, "· " + t("hero_eb"))),
       h("h1", { class: "display" }, a, " ", b ? h("span", { class: "hot" }, b) : null), h("p", { class: "lead" }, t("hero_sub")),
@@ -864,7 +864,7 @@ const langSwitch = () => h("div", { class: "seg", role: "group", "aria-label": t
 const themeBtn = () => h("button", { class: "iconbtn", type: "button", "aria-label": t("se_theme"), onclick: () => { const dark = document.documentElement.getAttribute("data-theme") === "dark" || (S.theme === "auto" && !matchMedia("(prefers-color-scheme: light)").matches); setTheme(dark ? "light" : "dark"); renderApp(); } }, icon("moon"));
 function renderInvite() {
   const p = S.invitePreview || {}, msg = h("div", { class: "errtxt", role: "alert" });
-  $("#app").replaceChildren(h("div", { class: "auth" }, h("div", { class: "card authcard stack" }, h("div", { class: "empty" }, h("div", { class: "art" }, icon("users")), h("h2", null, t("invite_title")), h("p", null, t("invite_for", { org: p.org || "", role: t("r_" + (p.role || "editor")) }))), msg,
+  $("#app").replaceChildren(h("div", { class: "auth", role: "main" }, h("div", { class: "card authcard stack" }, h("div", { class: "empty" }, h("div", { class: "art" }, icon("users")), h("h2", null, t("invite_title")), h("p", null, t("invite_for", { org: p.org || "", role: t("r_" + (p.role || "editor")) }))), msg,
     h("button", { class: "btn lg block", onclick: async (e) => { e.currentTarget.disabled = true; try { const ar = await api("POST", "/invites/accept", { token: S.inviteToken }); if (ar && ar.org_id) { LS.set("studio_org", ar.org_id); S.org = null; S.chat = null; S.members = null; S.inviteOut = null; S.fresh = {}; } S.inviteToken = null; S.invitePreview = null; S.ready = false; renderApp(); } catch (x) { msg.textContent = errText(x); e.currentTarget.disabled = false; } } }, t("invite_join")),
     h("button", { class: "btn ghost block", onclick: () => { S.inviteToken = null; S.invitePreview = null; renderApp(); } }, t("invite_later")))));
 }

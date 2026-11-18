@@ -42,6 +42,14 @@ const LAYOUT = () => {
   for (const e of ints) { const r = e.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > W) continue; const cx = Math.min(Math.max(r.left + r.width / 2, 1), W - 1), cy = Math.min(Math.max(r.top + r.height / 2, 1), innerHeight - 1); const top = document.elementFromPoint(cx, cy); if (top && !top.closest("#toasts,header.top") && !e.contains(top) && !top.contains(e) && !(e.closest("label") && e.closest("label").contains(top))) out.push({ k: "covered", el: desc(e), by: desc(top) }); }
   window.scrollTo(0, 0); return out.slice(0, 40);
 };
+const A11Y = () => {   // every visible control needs a name for screen readers; images/icons are aria-hidden
+  const out = [], vis = (el) => { const cs = getComputedStyle(el), r = el.getBoundingClientRect(); return cs.display !== "none" && cs.visibility !== "hidden" && r.width > 0 && r.height > 0; };
+  for (const el of document.querySelectorAll("button,a[href],input:not([type=hidden]),textarea,select,[role=button]")) { if (!vis(el) || el.closest("details:not([open]) > :not(summary)")) continue;
+    const lbl = (el.id && document.querySelector(`label[for="${el.id}"]`)) || el.closest("label"); const name = (el.getAttribute("aria-label") || el.innerText || el.title || (lbl && lbl.innerText) || el.placeholder || "").trim();
+    if (!name) out.push({ k: "no-accessible-name", el: el.tagName.toLowerCase() + (el.id ? "#" + el.id : "") + (el.className ? "." + String(el.className).trim().split(/\s+/)[0] : "") }); }
+  if (!document.querySelector("main,[role=main]")) out.push({ k: "no-main-landmark" }); if (!document.documentElement.lang) out.push({ k: "no-html-lang" });
+  return out.slice(0, 20);
+};
 const TEXTS = (lang) => {
   const out = [], seen = new Set(); const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   while (w.nextNode()) { const n = w.currentNode, tx = (n.nodeValue || "").trim(); if (!tx || n.parentElement.closest("script,style,noscript,code,.ltr,.mail,#toasts,[aria-hidden=true]")) continue; const el = n.parentElement, cs = getComputedStyle(el); if (cs.display === "none" || cs.visibility === "hidden") continue; if (seen.has(tx)) continue; seen.add(tx);
@@ -66,7 +74,7 @@ async function runProfile(browser, name, P) {
     page.on("dialog", (d) => d.accept().catch(() => {}));
   };
   const shot = async (page, label, key) => { const f = `${name}-${label}.png`; try { await sleep(450); await page.screenshot({ path: path.join(OUT, f), fullPage: false }); if (key) (report.keyShots = report.keyShots || []).push(f); } catch {} };
-  const check = async (page, label) => { try { const l = await page.evaluate(LAYOUT); for (const x of l) R.layout.push({ at: label, ...x }); const tx = await page.evaluate(TEXTS, await page.evaluate(() => document.documentElement.lang)); for (const x of tx) R.texts.push({ at: label, ...x }); } catch (e) { R.notes.push("check failed at " + label + ": " + e.message); } };
+  const check = async (page, label) => { try { const l = await page.evaluate(LAYOUT); for (const x of l) R.layout.push({ at: label, ...x }); for (const x of await page.evaluate(A11Y)) R.layout.push({ at: label, ...x }); const tx = await page.evaluate(TEXTS, await page.evaluate(() => document.documentElement.lang)); for (const x of tx) R.texts.push({ at: label, ...x }); } catch (e) { R.notes.push("check failed at " + label + ": " + e.message); } };
   const step = async (title, fn, opt = {}) => {
     if (ONLY && !title.includes(ONLY)) return; cur = title; allow = opt.allow || []; const t0 = Date.now();
     if (opt.needs === "channel" && !state.verified) { R.skipped.push(title + " (no verified channel)"); return; }
@@ -139,6 +147,15 @@ async function runProfile(browser, name, P) {
   await step("reload-mid-verification", async () => {
     await page.reload(); await page.waitForSelector(".code-box code"); if ((await txt(".code-box code")) !== state.code) throw new Error("code changed after reload"); await settle();
   }, { allow: [/502|403/] });
+
+  await step("twitch-channel-states-and-blocked-site", async () => {   // swap the pending Kick channel for a real public Twitch channel, look at its error states, then go back to Kick
+    await ctl({ twitch: "1", twitch_bio: "" }); await page.locator("button.btn.ghost.sm").click(); await page.waitForSelector("#chIn");
+    await page.locator("#chIn").fill("https://www.twitch.tv/kaicenat"); await page.locator("form button[type=submit]").click(); await page.waitForSelector(".code-box code"); await page.locator('.card button.btn:not(.ghost):not(.secondary)').last().click();
+    await exp(async () => (await txt('[role="status"].small')).length > 3, "twitch verify message", 20000); const tm = await txt('[role="status"].small'); R.notes.push("twitch.tv/kaicenat verify message: " + tm); if (/^(משהו השתבש|Something went wrong)/.test(tm)) throw new Error("twitch verify shows the generic error: " + tm); await check(page, "setup-2-twitch"); await shot(page, "04b-verify-twitch");
+    if (LOCAL) { await ctl({ kick_status: "403" }); }   // Kick blocking us: the page must explain the manual flow, not show a stack trace
+    await page.locator("button.btn.ghost.sm").click(); await page.waitForSelector("#chIn"); await page.locator("#chIn").fill("kick.com/" + slug); await page.locator("form button[type=submit]").click(); await page.waitForSelector(".code-box code"); state.code = await txt(".code-box code");
+    if (LOCAL) { await page.locator('.card button.btn:not(.ghost):not(.secondary)').last().click(); await exp(async () => /(לא מאפשר|isn't letting)/.test(await txt('[role="status"].small')), "blocked-site message", 15000); await shot(page, "04c-verify-blocked"); await ctl({ kick_status: "200" }); }
+  }, { allow: [/502|403|404/] });
 
   await step("verify-success", async () => {
     if (LOCAL) { await ctl({ kick_bio: "bio " + state.code.toLowerCase() }); await page.locator('.card button.btn:not(.ghost):not(.secondary)').last().click(); await exp(async () => !(await page.locator(".code-box").count()), "left verify step", 15000); state.verified = true; }
@@ -220,6 +237,15 @@ async function runProfile(browser, name, P) {
     const job = (await jobsApi()).find((j) => j.id === state.jobs[0]); if (job.status !== "approved" || job.result.drafts.some((d) => !d.decision)) throw new Error("job not closed: " + job.status);
     const j2 = (await sapi(state.token, "POST", `/orgs/${state.orgId}/jobs/${state.jobs[0]}/drafts/0/approve`)); if (j2.s !== 409) throw new Error("approving a closed job should be 409, got " + j2.s);
   }, { needs: "channel", allow: [/409/] });
+
+  await step("failed-job-refund-and-job-deeplink", async () => {
+    await goTo("chat"); const ta = page.locator("#chatIn"); const before = (await jobsApi()).length; await ta.fill(tx("תכין שורט אחד", "make 1 short")); await ta.press("Enter");
+    await exp(async () => (await jobsApi()).length === before + 1, "job created from the chat", 15000); const j3 = (await jobsApi()).find((j) => !state.jobs.includes(j.id)); state.jobs.push(j3.id); if ((await sapi(state.token, "GET", `/orgs/${state.orgId}`)).j.org.credits !== 0) throw new Error("credit not held");
+    const c = await wapi("/claim", { job_id: j3.id }); if (!c.j.job) throw new Error("claim failed"); await wapi("/jobs/" + j3.id, { progress: 20, msg: "transcribing", vars: { pct: 20 } }); await wapi("/jobs/" + j3.id, { status: "failed", error: "e2e: simulated render failure" });
+    await page.goto(BASE + "/studio#/jobs/" + j3.id); await page.reload(); await page.waitForSelector(`#job-${j3.id}`); await exp(async () => (await page.locator(`#job-${j3.id} .notice.bad`).count()) === 1, "failed notice shown");
+    await exp(async () => parseInt((await txt("#creditPill")).replace(/\D/g, ""), 10) === 1, "credit back after the failure"); await check(page, "activity-failed"); await shot(page, "12b-job-failed");
+    if (!(await page.locator(`#job-${j3.id} .tl`).count())) bug("deep-linked job shows no timeline");
+  }, { needs: "channel" });
 
   await step("credits-page", async () => {
     await goTo("credits"); await check(page, "credits"); await shot(page, "14-credits"); if (!(await txt(".big-num"))) throw new Error("no credit number");
