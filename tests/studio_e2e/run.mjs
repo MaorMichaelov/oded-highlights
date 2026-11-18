@@ -3,7 +3,7 @@
 //   env: PROFILES=mobile-he,mobile-en,desktop-he,desktop-en  WORKER_KEY=<x-worker-key, optional: enables the verified-channel part>  LOCAL=1 (talks to tests/studio_e2e/local_server.mjs controls)
 //   CHROME=/usr/bin/google-chrome (optional)  ONLY=<step-name substring>
 // Output: OUT/report.json (+ screenshots). Exit code 1 when any step failed or any error-level issue was collected.
-import { chromium } from "playwright";
+import { chromium, webkit, devices } from "playwright";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -11,8 +11,9 @@ const BASE = (process.env.BASE || "http://localhost:8787").replace(/\/+$/, "");
 const OUT = process.env.OUT || "state/studio_e2e";
 const LOCAL = process.env.LOCAL === "1" || /localhost|127\.0\.0\.1/.test(BASE);
 const WORKER_KEY = process.env.WORKER_KEY || (LOCAL ? "wk_local_e2e" : "");
-const ALL = { "mobile-he": { w: 390, h: 844, lang: "he", mobile: true }, "mobile-en": { w: 390, h: 844, lang: "en", mobile: true }, "desktop-he": { w: 1280, h: 800, lang: "he", mobile: false }, "desktop-en": { w: 1280, h: 800, lang: "en", mobile: false } };
-const PROFILES = (process.env.PROFILES || Object.keys(ALL).join(",")).split(",").filter((x) => ALL[x]);
+const ALL = { "mobile-he": { w: 390, h: 844, lang: "he", mobile: true }, "mobile-en": { w: 390, h: 844, lang: "en", mobile: true }, "desktop-he": { w: 1280, h: 800, lang: "he", mobile: false }, "desktop-en": { w: 1280, h: 800, lang: "en", mobile: false },
+  "ios-he": { w: 390, h: 844, lang: "he", mobile: true, engine: "webkit", device: "iPhone 14" } };   // ios-he = real WebKit (Safari engine) with the iPhone 14 profile; only on runners that have webkit installed
+const PROFILES = (process.env.PROFILES || Object.keys(ALL).filter((k) => !ALL[k].engine).join(",")).split(",").filter((x) => ALL[x]);
 const ONLY = process.env.ONLY || "";
 fs.mkdirSync(OUT, { recursive: true });
 for (const f of fs.readdirSync(OUT)) if (/\.(png|json)$/.test(f)) fs.rmSync(path.join(OUT, f));
@@ -62,7 +63,7 @@ const TEXTS = (lang) => {
 // ---- per-profile journey
 async function runProfile(browser, name, P) {
   const R = { steps: [], issues: [], layout: [], texts: [], notes: [], skipped: [] }; report.profiles[name] = R;
-  const mkctx = async (extra = {}) => { const c = await browser.newContext({ viewport: { width: P.w, height: P.h }, isMobile: P.mobile, hasTouch: P.mobile, deviceScaleFactor: 1, locale: P.lang === "he" ? "he-IL" : "en-US", timezoneId: "Asia/Jerusalem", ...extra }); c.setDefaultTimeout(12000); return c; };
+  const mkctx = async (extra = {}) => { const c = await browser.newContext({ ...(P.device ? devices[P.device] : {}), viewport: { width: P.w, height: P.h }, isMobile: P.mobile, hasTouch: P.mobile, deviceScaleFactor: 1, locale: P.lang === "he" ? "he-IL" : "en-US", timezoneId: "Asia/Jerusalem", ...extra }); c.setDefaultTimeout(12000); return c; };
   let cur = "init", allow = [];
   const note = (type, text, extra) => { const t = String(text).slice(0, 300); if (allow.some((a) => a.test(type + " " + t))) return; R.issues.push({ step: cur, type, text: t, ...extra }); };
   const hook = (page, tag) => {
@@ -352,9 +353,9 @@ async function runProfile(browser, name, P) {
   await ctx.close(); if (ctx2) await ctx2.close();
 }
 
-const browser = await chromium.launch({ executablePath: process.env.CHROME || (fs.existsSync("/usr/bin/google-chrome") && LOCAL ? "/usr/bin/google-chrome" : undefined), args: ["--no-sandbox"] });
-for (const p of PROFILES) { console.log("== profile", p); try { await runProfile(browser, p, ALL[p]); } catch (e) { report.profiles[p] = Object.assign(report.profiles[p] || {}, { fatal: String(e.stack || e) }); } }
-await browser.close();
+const engines = {}; const launch = (eng) => engines[eng] || (engines[eng] = eng === "webkit" ? webkit.launch() : chromium.launch({ executablePath: process.env.CHROME || (fs.existsSync("/usr/bin/google-chrome") && LOCAL ? "/usr/bin/google-chrome" : undefined), args: ["--no-sandbox"] }));
+for (const p of PROFILES) { console.log("== profile", p); try { await runProfile(await launch(ALL[p].engine || "chromium"), p, ALL[p]); } catch (e) { report.profiles[p] = Object.assign(report.profiles[p] || {}, { fatal: String(e.stack || e) }); } }
+for (const b of Object.values(engines)) await (await b).close().catch(() => {});
 // ---- summary
 let failed = 0, errs = 0; const sum = {};
 for (const [n, R] of Object.entries(report.profiles)) { const f = (R.steps || []).filter((s) => !s.ok).length; const e = (R.issues || []).filter((i) => i.type !== "console-warn").length; failed += f + (R.fatal ? 1 : 0) + (R.bugs || []).length; errs += e; sum[n] = { steps: (R.steps || []).length, failed: f, bugs: (R.bugs || []).length, issues: (R.issues || []).length, layout: (R.layout || []).length, texts: (R.texts || []).length, skipped: (R.skipped || []).length, fatal: !!R.fatal }; }

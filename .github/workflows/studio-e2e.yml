@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       url: { description: "studio worker base url", required: true, default: "https://studio-app.odedhl.workers.dev" }
-      profiles: { description: "comma list of mobile-he,mobile-en,desktop-he,desktop-en", required: false, default: "mobile-he,mobile-en,desktop-he,desktop-en" }
+      profiles: { description: "comma list of mobile-he,mobile-en,desktop-he,desktop-en,ios-he (ios-he = WebKit/Safari engine)", required: false, default: "mobile-he,mobile-en,desktop-he,desktop-en,ios-he" }
 concurrency: { group: studio-e2e, cancel-in-progress: false }
 permissions: { contents: write }
 jobs:
@@ -29,12 +29,12 @@ jobs:
       - name: Install Playwright
         run: |
           npm install --no-save --no-audit --no-fund playwright@1.49.1
-          npx playwright install --with-deps chromium
+          npx playwright install --with-deps chromium webkit
       - name: Journey
         id: journey
         env: { OUT: /tmp/e2e_full }
         run: |
-          export BASE="$IN_URL" PROFILES="${IN_PROFILES:-mobile-he,mobile-en,desktop-he,desktop-en}" WORKER_KEY="$STUDIO_WORKER_KEY"
+          export BASE="$IN_URL" PROFILES="${IN_PROFILES:-mobile-he,mobile-en,desktop-he,desktop-en,ios-he}" WORKER_KEY="$STUDIO_WORKER_KEY"
           node tests/studio_e2e/run.mjs   # exit 1 when a step failed or an error-level issue (console error, uncaught exception, failed request, 4xx/5xx nobody allowed) was collected
       - uses: actions/upload-artifact@v4
         if: always()
@@ -45,5 +45,5 @@ jobs:
           rm -rf state/studio_e2e; mkdir -p state/studio_e2e
           [ -f /tmp/e2e_full/report.json ] || { echo "no report"; exit 0; }
           cp /tmp/e2e_full/report.json state/studio_e2e/
-          node -e 'const r=require("/tmp/e2e_full/report.json"),fs=require("fs");const ks=new Set((r.keyShots||[]).filter(f=>/^(mobile-he|desktop-en)-/.test(f)));for(const f of fs.readdirSync("/tmp/e2e_full"))if(/^[a-z-]+-FAIL-.*\.png$/.test(f))ks.add(f);for(const f of [...ks].slice(0,30))fs.copyFileSync("/tmp/e2e_full/"+f,"state/studio_e2e/"+f)'
+          node -e 'const r=require("/tmp/e2e_full/report.json"),fs=require("fs");const ks=new Set((r.keyShots||[]).filter(f=>/^(mobile-he|desktop-en|ios-he)-/.test(f)));for(const f of fs.readdirSync("/tmp/e2e_full"))if(/^[a-z-]+-FAIL-.*\.png$/.test(f))ks.add(f);for(const f of [...ks].slice(0,30))fs.copyFileSync("/tmp/e2e_full/"+f,"state/studio_e2e/"+f)'
           bash scripts/git_sync.sh "state: studio e2e report" state/studio_e2e
