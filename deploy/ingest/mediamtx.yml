@@ -1,0 +1,38 @@
+# MediaMTX config for the customer restream ingest (docs/INGEST.md). Free, single binary (https://github.com/bluenviron/mediamtx).
+# Customers stream to   rtmp://<host>:1935/live/<ingest_key>   or   srt://<host>:8890?streamid=publish:live/<ingest_key>
+# Every publish is checked by scripts/ingest_watcher.py (auth hook below): unknown keys are refused. Recording = 5-minute MPEG-TS segments in ./recordings/live/<key>/.
+logLevel: info
+
+# --- authentication: only known restream keys may publish; reading is localhost only
+authMethod: http
+authHTTPAddress: http://127.0.0.1:8899/auth
+authHTTPExclude:
+  - action: api
+  - action: metrics
+  - action: pprof
+
+# --- protocols: only the two ingest protocols are on; nothing is playable from outside
+rtmp: yes
+rtmpAddress: :1935
+srt: yes
+srtAddress: :8890
+rtsp: no
+hls: no
+webrtc: no
+playback: no
+api: no
+metrics: no
+pprof: no
+
+pathDefaults:
+  record: no
+
+paths:
+  # a path is "live/ik_" + 32 hex characters (the key the studio gave the customer). The regex also stops random path names from being recorded.
+  "~^live/ik_[a-f0-9]{32}$":
+    record: yes
+    recordFormat: mpegts
+    recordPath: ./recordings/%path/%Y%m%d-%H%M%S
+    recordSegmentDuration: 5m
+    recordDeleteAfter: 0s       # the watcher moves/deletes segments itself
+    overridePublisher: yes      # a reconnecting OBS replaces the stale connection instead of being refused
