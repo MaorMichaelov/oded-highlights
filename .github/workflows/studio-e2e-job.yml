@@ -33,7 +33,7 @@ jobs:
           if [ -n "$KICK" ]; then
             CH=$(curl -sS -m 30 -X POST -H "authorization: Bearer $TK" -H 'content-type: application/json' -d "{\"url\":\"https://kick.com/$KICK\"}" "$BASE/studio/api/orgs/$OID/channels" | python3 -c "import sys,json;print(json.load(sys.stdin)['channel']['id'])")
             curl -sS -m 30 -X POST -H "authorization: Bearer $TK" -H 'content-type: application/json' -d '{}' "$BASE/studio/api/orgs/$OID/channels/$CH/demo-verify" >/dev/null
-            MSG="make 3 Shorts from my last stream"
+            MSG="make 3 Shorts from the live stream right now"
           else MSG="make 3 Shorts from $URL"; fi
           R1=$(curl -sS -m 90 -X POST -H "authorization: Bearer $TK" -H 'content-type: application/json' -d "{\"message\":\"$MSG\",\"channel_id\":\"$CH\"}" "$BASE/studio/api/orgs/$OID/assistant"); echo "assistant: $(echo "$R1" | head -c 300)"
           JID=$(echo "$R1" | python3 -c "import sys,json;print(json.load(sys.stdin)['actions'][0]['job_id'])")
