@@ -266,8 +266,11 @@ class Worker:
         if busy >= self.cfg["concurrency"] or self.stop.is_set(): return False
         if self.deadline is not None and self.deadline - self.clock() < self.cfg.get("min_claim_s", 300): self.log("budget_reached", seconds_left=int(self.deadline - self.clock())); self.out_of_time = True; return False
         if self.free_gb() < self.cfg["min_free_gb"]: self.log("disk_low", "warn", free_gb=round(self.free_gb(), 1)); self.cleanup(); self.queue_empty = True; return False
+        mj = int(os.environ.get("WORKER_MAX_JOBS", "0") or 0)   # one job per worker run on GitHub Actions: the next job always starts on the newest code (the poller starts the next run)
+        if mj and getattr(self, "n_claimed", 0) >= mj: self.queue_empty = True; return False
         job = self.api.claim()
         if not job: self.queue_empty = True; return False
+        self.n_claimed = getattr(self, "n_claimed", 0) + 1
         jid = job.get("id")
         if not isinstance(jid, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", jid): self.log("bad_job_id", "error"); return False
         if jid in self.done_ids or jid in self.inflight: self.log("duplicate_claim", "warn", job=jid); return False

@@ -70,6 +70,7 @@ jobs:
       contents: write   # only to create/delete the temporary preview releases (scripts/preview_publish.py); the code is checked out read-only without persisted credentials
     env:
       WORKER_CONCURRENCY: "1"
+      WORKER_MAX_JOBS: "1"   # one job per run: the next job runs on the newest code
       WORKER_LOG: text
       WORKER_PLATFORM_VOD: "1"                       # "my last stream" of a trusted org = its newest Kick/Twitch VOD
       WORKER_DOWNLOAD_MAX_MIN: ${{ vars.STUDIO_SOURCE_MAX_MIN || '30' }}

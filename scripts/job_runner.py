@@ -182,6 +182,7 @@ def pick_peaks(S, n_max, thr=0.9, sep=60):
 
 # ---------------------------------------------------------------- moment judging
 
+PROFANE_TITLE = re.compile(r"\b(?:fuck\w*|shit\w*|bitch\w*|cunt\w*|whore\w*|slut\w*|dick\w*|cock\w*|pussy|asshole\w*|bastard|nigg\w*|fagg\w*|retard\w*|zayin|כוס\w*|זונה|שרמוט\w*|מניאק|בן זונה)\b", re.I)
 LANG_MAP = {"hebrew": "he", "english": "en", "he": "he", "en": "en"}
 def detect_language(media, dur, workdir):
     """Which language does the streamer speak? Whisper (Groq) listens to 40 s from the middle of the source and names it. Returns "he" / "en" or None (unknown / not Hebrew-English / no key)."""
@@ -364,6 +365,7 @@ def build_short(media, dur, words, pk, j, sc, ST, MINC, MAXC, TARC, LEAD, out_di
     g = Q.grade(mp4, "short", title=title, words=[{"word": w["word"], "start": w["start"] - s0, "end": w["end"] - s0} for w in cw], window_text_=Q.words_text(cw), ass=ass,
                 ignore_names=[str((job.get("hints") or {}).get("display") or "")], extra_text="")
     fail = list(g["fail"]) + ([] if tok else ["title not supported by the transcript (rewrite failed)"]); warn = list(g["warn"]) + list(verdict.get("reasons") or [])
+    if PROFANE_TITLE.search(title) or re.search(r"\w\*{2,}|\*{3,}", title): fail.append("profanity or a censored slur in the title")   # titles must be clean, starred words included
     if verdict["verdict"] == "warn": fail.append("customer profile: " + "; ".join(verdict["reasons"])[:150])
     if j.get("picker") == "heuristic": warn.append("moment chosen by audio peaks only (no AI review)")
     meta = {"title": title + (" #Shorts" if "#shorts" not in title.lower() else ""), "description": desc + "\n#Shorts", "tags": [], "categoryId": "24", "lang": lang, "privacy": "private", "hook": hook, "kind": "short",
