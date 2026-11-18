@@ -1,0 +1,18 @@
+name: http-probe
+# Fetches a few URLs from a runner and prints status + first bytes (the sandbox cannot reach *.workers.dev).
+on:
+  workflow_dispatch:
+    inputs:
+      base: { required: true }
+permissions: { contents: read }
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          BASE: ${{ inputs.base }}
+        run: |
+          case "$BASE" in https://*.workers.dev) ;; *) echo "only workers.dev"; exit 1;; esac
+          for p in /studio /studio/api/me /studio/?demo=1; do
+            echo "== $p"; curl -sS -m 30 -o /tmp/o -w "%{http_code} %{content_type} %{size_download}B\n" "$BASE$p"; head -c 160 /tmp/o | tr '\n' ' '; echo
+          done
