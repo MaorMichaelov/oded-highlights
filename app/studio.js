@@ -326,7 +326,7 @@ const WHEN_TXT = { yesterday: { he: "מהסטרים של אתמול", en: "from 
 const MOOD_TXT = { funny: { he: "מצחיקים", en: "funny" }, hype: { he: "מטורפים", en: "hype" }, fail: { he: "של פיילים", en: "fail" } };
 const HELP = { he: "אפשר לבקש בשפה חופשית, למשל: \"תכין 5 שורטס מצחיקים מאתמול\" או \"מה המצב?\"", en: "Ask in plain words, e.g. \"make 5 funny Shorts from yesterday\" or \"what's the status?\"" };
 // ---- free-form understanding with a free LLM (Workers AI binding `AI`): replies vary, remember the conversation, answer product questions; the rule parser above stays as the fallback and as the safety net
-const LLM_MODELS = ["@cf/openai/gpt-oss-120b", "@cf/mistralai/mistral-small-3.1-24b-instruct", "@cf/meta/llama-3.3-70b-instruct-fp8-fast", "@cf/meta/llama-3.1-8b-instruct"];   // chosen by a Hebrew comparison on the live Worker: Mistral Small 3.1 gives the most natural Hebrew and is the fastest
+const LLM_MODELS = ["@cf/openai/gpt-oss-120b", "@cf/mistralai/mistral-small-3.1-24b-instruct", "@cf/meta/llama-3.3-70b-instruct-fp8-fast"];   // (llama-3.1-8b was retired by Cloudflare) free allocation: 10,000 neurons a day for the whole account   // chosen by a Hebrew comparison on the live Worker: Mistral Small 3.1 gives the most natural Hebrew and is the fastest
 const LLM_DIAG = { last: "", text: "", fail: "" };   // last model outcome, shown by /studio/api/health?ai=1
 const LLM_USED = new Map(), CTX_CACHE = new Map(), HIST_MEM = new Map();
 async function loadHist(env, orgId) { try { const h = (await kget(env, K.chat(orgId))) || []; HIST_MEM.set(orgId, h); if (HIST_MEM.size > 300) HIST_MEM.clear(); return h; } catch (e) { return HIST_MEM.get(orgId) || []; } }
@@ -358,7 +358,7 @@ Output ONLY JSON: {"reply": "<what you say>", "intent": "create" | "status" | "c
   const messages = [{ role: "system", content: system }, ...hist.slice(-14).map((h) => ({ role: h.r === "bot" ? "assistant" : "user", content: String(h.text || "").slice(0, 400) })), { role: "user", content: clean(text, 500) }];
   for (const m of LLM_MODELS) {
     try {
-      const r = await env.AI.run(m, m.includes("gpt-oss") ? { input: messages, reasoning: { effort: "medium" }, max_output_tokens: 2500 } : { messages, max_tokens: 1200 });
+      const r = await env.AI.run(m, m.includes("gpt-oss") ? { input: messages, reasoning: { effort: "low" }, max_output_tokens: 1100 } : { messages, max_tokens: 700 });
       LLM_DIAG.last = m + ": got " + JSON.stringify(r).slice(0, 160);
       const msgItems = Array.isArray(r.output) ? r.output.filter((o) => o && o.type === "message") : [];   // gpt-oss returns a reasoning item first: read only the final message
       const t = r.response || (r.choices && r.choices[0] && r.choices[0].message && r.choices[0].message.content) || r.output_text || (msgItems.length ? msgItems.map((o) => (o.content || []).map((c) => c.text || "").join("")).join("") : (r.output && r.output.map((o) => (o.content || []).map((c) => c.text || "").join("")).join(""))) || "";
