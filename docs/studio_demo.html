@@ -534,6 +534,7 @@ const I = {
   ck_channel_d: ["הדביקו קישור לקיק או לטוויץ'", "Paste a Kick or Twitch link"], ck_verify_d: ["קוד קצר בביו, בודקים אוטומטית", "A short code in your bio, checked automatically"], ck_yt_d: ["כדי שהטיוטות יעלו לערוץ שלכם (פרטי)", "So drafts land on your channel (private)"], ck_first_d: ["למשל: 5 שורטס מצחיקים מאתמול", "e.g. 5 funny Shorts from yesterday"],
   ck_do_channel: ["הוספה", "Add"], ck_do_verify: ["אימות", "Verify"], ck_do_yt: ["חיבור", "Connect"], ck_do_first: ["לעוזר", "Ask"],
   active_jobs: ["עובדים על זה עכשיו", "Working on it now"], recent: ["לאחרונה", "Recently"], all_activity: ["כל הפעילות", "All activity"], ask_next: ["מה לחתוך עכשיו?", "What should we cut next?"], ask_next_sub: ["לחיצה אחת ושולחים לעוזר:", "One tap and it goes to the assistant:"],
+  mode_basic: ["מצב בסיסי: המודל החכם לא זמין כרגע", "Basic mode: the smart model is unavailable right now"], mode_demo: ["דמו: תשובות מוכנות מראש. הצ'אט החכם עובד באפליקציה החיה", "Demo: canned replies. The smart chat runs in the live app"],
   chip1: ["5 שורטס מצחיקים מאתמול", "5 funny Shorts from yesterday"], chip2: ["סרטון ארוך מהסטרים האחרון", "A long video from the latest stream"], chip3: ["3 רגעים מטורפים מהשבוע", "3 hype Shorts from last week"], chip4: ["מה המצב?", "What's the status?"],
   home_empty_t: ["עוד לא חתכנו כלום", "Nothing cut yet"], home_empty_d: ["כתבו לעוזר מה אתם רוצים ובתוך דקות מתחילים לעבוד.", "Tell the assistant what you want and we start within minutes."],
   need_owner: ["הבעלים צריך לחבר ערוץ", "The owner needs to connect a channel"], need_owner_d: ["אחרי שהבעלים יחבר ויאמת ערוץ, תוכלו ליצור ולאשר קליפים כאן.", "Once the owner connects and verifies a channel you can create and approve clips here."],
@@ -690,9 +691,19 @@ async function loadMe() {
   const me = await api("GET", "/me"); S.user = me.user; S.orgs = me.orgs;
   S.org = S.orgs.find((o) => S.org && o.id === S.org.id) || S.orgs.find((o) => o.id === LS.get("studio_org")) || S.orgs[0] || null; if (S.org) LS.set("studio_org", S.org.id);
 }
+/* KV list() is eventually consistent: a channel/job we just created (or deleted) may be missing from (or still in) the next listing for a while, which made the wizard jump back a step.
+   We remember what this browser created/removed for 90 s and merge it into the listings. */
+const FRESH_MS = 90000;
+const noteFresh = (kind, v, ov) => { if (!v || !v.id) return; ((S.fresh[kind] = S.fresh[kind] || {}))[v.id] = { v, at: Date.now(), ov: !!ov }; };   // ov: the listing may still hold an older copy of this record: prefer ours
+const noteGone = (id) => { (S.fresh.gone = S.fresh.gone || {})[id] = Date.now(); };
+function mergeFresh(list, kind) {
+  const f = S.fresh[kind] = S.fresh[kind] || {}, gone = S.fresh.gone = S.fresh.gone || {}, now = Date.now(), byId = new Map(list.map((x) => [x.id, x]));
+  for (const id in f) { const l = byId.get(id); if (now - f[id].at > FRESH_MS || (l && (!f[id].ov || l.status === f[id].v.status))) delete f[id]; } for (const id in gone) if (now - gone[id] > FRESH_MS) delete gone[id];
+  return [...list.filter((x) => !gone[x.id]).map((x) => (f[x.id] && f[x.id].ov ? f[x.id].v : x)), ...Object.values(f).map((x) => x.v).filter((x) => !byId.has(x.id) && !gone[x.id] && S.org && x.org === S.org.id)];
+}
 async function loadCore() {
   await loadMe(); if (!S.org) return;
-  const [c, j] = await Promise.all([api("GET", op() + "/channels"), api("GET", op() + "/jobs")]); S.channels = c.channels; S.jobs = j.jobs;
+  const [c, j] = await Promise.all([api("GET", op() + "/channels"), api("GET", op() + "/jobs")]); S.channels = mergeFresh(c.channels, "ch"); S.jobs = mergeFresh(j.jobs, "job");
   const sig = JSON.stringify([S.org, S.channels, S.jobs.map((x) => [x.id, x.status, x.progress, x.status_text, x.result && x.result.drafts, x.updated])]);
   const changed = sig !== S.lastSig; S.lastSig = sig; notifyChanges(); S.ready = true; return changed;
 }
@@ -707,7 +718,7 @@ async function loadYt() {
 }
 async function loadMembers() { try { const m = await api("GET", op() + "/members"); S.members = m.members; S.invites = m.invites; } catch (e) { S.members = S.members || []; } }
 async function loadChat() { try { const c = await api("GET", op() + "/assistant"); S.chat = c.history || []; S.chatHint = c.hint || null; } catch (e) { S.chat = S.chat || []; } }
-function sessionExpired() { token = null; LS.del("studio_token"); S.ready = false; S.user = null; S.org = null; S.orgs = []; S.channels = []; S.jobs = []; S.chat = null; S.members = null; S.inviteOut = null; S.prevJobs = null; stopPoll(); renderApp(); toast(t("e_unauthorized"), { kind: "bad", ms: 7000 }); }
+function sessionExpired() { token = null; LS.del("studio_token"); S.ready = false; S.user = null; S.org = null; S.orgs = []; S.channels = []; S.jobs = []; S.chat = null; S.members = null; S.inviteOut = null; S.fresh = {}; S.prevJobs = null; stopPoll(); renderApp(); toast(t("e_unauthorized"), { kind: "bad", ms: 7000 }); }
 
 /* poll: faster while a job is running, pauses while the tab is hidden */
 let pollT = null;
@@ -804,7 +815,7 @@ function renderRoute(enter) {
 }
 function softRender() { updateChrome(); const a = document.activeElement; if (a && $("#view") && $("#view").contains(a) && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) { dirty = true; return; } if (route.name === "chat") return; renderRoute(false); }
 addEventListener("focusout", () => { if (dirty) setTimeout(() => { const a = document.activeElement; if (!(a && /INPUT|TEXTAREA|SELECT/.test(a.tagName))) { dirty = false; renderRoute(false); } }, 50); });
-async function logout() { try { await api("POST", "/logout"); } catch (e) {} token = null; LS.del("studio_token"); S.ready = false; S.user = null; S.org = null; S.orgs = []; S.channels = []; S.jobs = []; S.chat = null; S.members = null; S.inviteOut = null; stopPoll(); if (DEMO) demoLanding = true; history.replaceState(null, "", location.pathname + location.search); renderApp(); }
+async function logout() { try { await api("POST", "/logout"); } catch (e) {} token = null; LS.del("studio_token"); S.ready = false; S.user = null; S.org = null; S.orgs = []; S.channels = []; S.jobs = []; S.chat = null; S.members = null; S.inviteOut = null; S.fresh = {}; stopPoll(); if (DEMO) demoLanding = true; history.replaceState(null, "", location.pathname + location.search); renderApp(); }
 
 /* ---------- 6a. auth + landing ---------- */
 let demoLanding = DEMO && (FORCE_DEMO ? QS.get("auto") !== "1" : QS.get("landing") === "1");
@@ -851,7 +862,7 @@ const themeBtn = () => h("button", { class: "iconbtn", type: "button", "aria-lab
 function renderInvite() {
   const p = S.invitePreview || {}, msg = h("div", { class: "errtxt", role: "alert" });
   $("#app").replaceChildren(h("div", { class: "auth" }, h("div", { class: "card authcard stack" }, h("div", { class: "empty" }, h("div", { class: "art" }, icon("users")), h("h2", null, t("invite_title")), h("p", null, t("invite_for", { org: p.org || "", role: t("r_" + (p.role || "editor")) }))), msg,
-    h("button", { class: "btn lg block", onclick: async (e) => { e.currentTarget.disabled = true; try { const ar = await api("POST", "/invites/accept", { token: S.inviteToken }); if (ar && ar.org_id) { LS.set("studio_org", ar.org_id); S.org = null; S.chat = null; S.members = null; S.inviteOut = null; } S.inviteToken = null; S.invitePreview = null; S.ready = false; renderApp(); } catch (x) { msg.textContent = errText(x); e.currentTarget.disabled = false; } } }, t("invite_join")),
+    h("button", { class: "btn lg block", onclick: async (e) => { e.currentTarget.disabled = true; try { const ar = await api("POST", "/invites/accept", { token: S.inviteToken }); if (ar && ar.org_id) { LS.set("studio_org", ar.org_id); S.org = null; S.chat = null; S.members = null; S.inviteOut = null; S.fresh = {}; } S.inviteToken = null; S.invitePreview = null; S.ready = false; renderApp(); } catch (x) { msg.textContent = errText(x); e.currentTarget.disabled = false; } } }, t("invite_join")),
     h("button", { class: "btn ghost block", onclick: () => { S.inviteToken = null; S.invitePreview = null; renderApp(); } }, t("invite_later")))));
 }
 
@@ -859,7 +870,7 @@ function renderInvite() {
 const parseChan = (s) => { const m = String(s).match(/(?:^|\/\/)(?:www\.|m\.)?(kick\.com|twitch\.tv)\/([A-Za-z0-9_-]{2,25})/i) || String(s).trim().match(/^(kick|twitch)[: ]+@?([A-Za-z0-9_-]{2,25})$/i); return m ? { platform: /kick/i.test(m[1]) ? "kick" : "twitch", slug: m[2].toLowerCase() } : null; };
 const platTag = (p) => h("span", { class: "plat " + p }, h("i"), p === "kick" ? "Kick" : "Twitch");
 ROUTES.setup = function () {
-  const pending = S.channels.find((c) => c.status === "pending"), ver = verifiedCh()[0];
+  const pending = S.channels.filter((c) => c.status === "pending").sort((a, b) => (a.created < b.created ? 1 : -1))[0], ver = verifiedCh()[0];   // newest pending channel
   const forceNew = route.arg === "new" && !pending; const step = forceNew || !S.channels.length || (!pending && !ver) ? 1 : !ver ? 2 : 3; const doneAll = !forceNew && ver && (ytState() === "connected" || LS.get("studio_skip_yt") === "1");
   const stp = (n, lbl) => [h("div", { class: "st " + (step > n ? "done" : step === n ? "now" : "") }, h("b", null, step > n ? icon("check") : pad2(n)), h("span", { class: "lbl-s" }, t(lbl))), n < 3 ? h("div", { class: "ln " + (step > n ? "done" : "") }) : null];
   const root = h("div", { class: "stack" }, head("setup", t("su_title"), t("su_sub")), h("div", { class: "stepper", role: "list" }, stp(1, "su1"), stp(2, "su2"), stp(3, "su3")));
@@ -869,19 +880,19 @@ ROUTES.setup = function () {
     const err = h("div", { class: "errtxt", role: "alert" }), det = h("div", { class: "small muted detect", "aria-live": "polite" }), inp = h("input", { class: "input lg", id: "chIn", dir: "ltr", placeholder: t("su1_ph"), autocomplete: "off", autocapitalize: "off", spellcheck: "false", inputmode: "url" });
     const btn = h("button", { class: "btn lg block", type: "submit" }, t("su1_btn"), icon("arrow", "flip"));
     inp.oninput = () => { const p = parseChan(inp.value); det.replaceChildren(p ? h("span", { class: "chip ok" }, icon("check"), t("su1_detect", { p: p.platform === "kick" ? "Kick" : "Twitch", s: p.slug })) : ""); err.textContent = ""; };
-    root.append(h("form", { class: "card pad-lg stack", onsubmit: async (e) => { e.preventDefault(); if (!parseChan(inp.value)) { err.textContent = t("e_bad_channel"); inp.focus(); return; } btn.disabled = true; try { await api("POST", op() + "/channels", { url: inp.value }); await loadCore(); renderRoute(true); } catch (x) { err.textContent = errText(x); btn.disabled = false; } } },
+    root.append(h("form", { class: "card pad-lg stack", onsubmit: async (e) => { e.preventDefault(); if (!parseChan(inp.value)) { err.textContent = t("e_bad_channel"); inp.focus(); return; } btn.disabled = true; try { const cr = await api("POST", op() + "/channels", { url: inp.value }); noteFresh("ch", cr.channel); await loadCore(); renderRoute(true); } catch (x) { err.textContent = errText(x); btn.disabled = false; } } },
       h("h2", null, t("su1_t")), h("p", { class: "muted" }, t("su1_d")), h("div", { class: "field" }, h("label", { for: "chIn", class: "sr" }, t("su1_t")), inp, det), err, btn)); setTimeout(() => inp.focus(), 80);
   } else if (step === 2) {
     const c = pending; if (S.verifyFor !== c.id) { S.verifyFor = c.id; S.verifyMsg = ""; }   // a message from a previous channel must not show for this one
     const secs = h("span", { class: "tabnum" }, "8"), msg = h("div", { class: "small", role: "status", "aria-live": "polite" }, S.verifyMsg || ""), codeTxt = h("code", null, c.verify_code);
     let left = 8, busy = false, timer = null, tries = 0; const label = h("span", { class: "row small muted" }, h("span", { class: "spin" }), h("span", { class: "wl" }, t("su2_wait", { s: left })));
-    const check = async () => { if (busy) return; busy = true; $(".wl", label).textContent = t("su2_checking"); try { const r = await api("POST", op() + "/channels/" + c.id + "/verify"); if (r.verified || (r.channel && r.channel.status === "verified")) { S.verifyMsg = ""; toast(t("su2_ok")); await loadCore(); renderRoute(true); return; } S.verifyMsg = r[lang] || t("su2_notyet"); msg.textContent = S.verifyMsg; } catch (e) { if (e.error === "code_expired") { await loadCore(); renderRoute(true); toast(t("e_code_expired")); return; } S.verifyMsg = errText(e); msg.textContent = S.verifyMsg; } busy = false; tries++; left = Math.min(30, 8 + tries * 4); };   // back off 8s, 12s, 16s ... 30s so the auto check never trips the server rate limit
+    const check = async () => { if (busy) return; busy = true; $(".wl", label).textContent = t("su2_checking"); try { const r = await api("POST", op() + "/channels/" + c.id + "/verify"); if (r.verified || (r.channel && r.channel.status === "verified")) { S.verifyMsg = ""; noteFresh("ch", r.channel, true); toast(t("su2_ok")); await loadCore(); renderRoute(true); return; } S.verifyMsg = r[lang] || t("su2_notyet"); msg.textContent = S.verifyMsg; } catch (e) { if (e.error === "code_expired") { await loadCore(); renderRoute(true); toast(t("e_code_expired")); return; } S.verifyMsg = errText(e); msg.textContent = S.verifyMsg; } busy = false; tries++; left = Math.min(30, 8 + tries * 4); };   // back off 8s, 12s, 16s ... 30s so the auto check never trips the server rate limit
     timer = setInterval(() => { if (busy || document.hidden) return; left--; if (left <= 0) check(); $(".wl", label).textContent = busy ? t("su2_checking") : t("su2_wait", { s: Math.max(left, 0) }); }, 1000); cleanups.push(() => clearInterval(timer));
     const how = c.platform === "kick" ? "su2_kick" : "su2_twitch";
     root.append(h("div", { class: "card pad-lg stack" }, h("div", { class: "row between wrap" }, h("h2", null, t("su2_t")), platTag(c.platform), ),
       h("p", { class: "muted" }, t("su2_d")), h("div", { class: "code-box" }, codeTxt, h("button", { class: "btn secondary", type: "button", onclick: () => copyText(c.verify_code) }, icon("copy"), t("copy"))),
       h("ol", { class: "steps" }, h("li", null, t(how)), h("li", null, t("su2_paste")), h("li", null, t("su2_back"))), h("div", { class: "row between wrap" }, label, h("button", { class: "btn", type: "button", onclick: check }, t("su2_now"))), msg,
-      h("button", { class: "btn ghost sm", type: "button", onclick: async () => { try { await api("DELETE", op() + "/channels/" + c.id); await loadCore(); renderRoute(true); } catch (e) { toast(errText(e), { kind: "bad" }); } } }, t("su2_other"))));
+      h("button", { class: "btn ghost sm", type: "button", onclick: async () => { try { await api("DELETE", op() + "/channels/" + c.id); noteGone(c.id); await loadCore(); renderRoute(true); } catch (e) { toast(errText(e), { kind: "bad" }); } } }, t("su2_other"))));
   } else {
     root.append(h("div", { class: "card pad-lg stack" }, h("div", { class: "row" }, h("span", { class: "yt-badge" }, icon("yt")), h("div", null, h("h2", null, t("su3_t")), h("p", { class: "muted small" }, t("su3_d")))),
       h("ul", { class: "ticks" }, ...["su3_p1", "su3_p2", "su3_p3"].map((k) => h("li", null, icon("check"), t(k)))), S.ytSoon ? h("div", { class: "notice warn" }, icon("info"), t("su3_soon")) : null,
@@ -1038,13 +1049,13 @@ function askAssistant(text) { S.chatDraft = text; S.chatAuto = true; go("chat");
 ROUTES.chat = function () {
   const root = h("div", { class: "chat-wrap" }), list = h("div", { class: "msgs", "aria-live": "polite", role: "log" }), ver = verifiedCh();
   root.append(head("chat", t("ch_title"), t("ch_sub")), list);
-  const bubble = (m) => { const me = m.r === "user"; return h("div", { class: "msg " + (me ? "me" : "bot") }, h("div", { class: "who" }, me ? null : icon("wave"), me ? t("you_u") : t("ch_title"), m.t ? h("time", null, timeTxt(m.t)) : null), h("div", { class: "bub" }, m.text), m.actions && m.actions.length ? h("div", { class: "act-link" }, ...m.actions.map((a) => h("a", { class: "btn sm secondary", href: a.type === "job_created" || a.type === "show_job" ? "#/jobs/" + a.job_id : "#/review" }, icon("activity"), t("ch_see")))) : null); };
+  const bubble = (m) => { const me = m.r === "user"; return h("div", { class: "msg " + (me ? "me" : "bot") }, h("div", { class: "who" }, me ? null : icon("wave"), me ? t("you_u") : t("ch_title"), m.t ? h("time", null, timeTxt(m.t)) : null), h("div", { class: "bub" }, m.text), m.mode === "basic" || m.mode === "demo" ? h("div", { class: "small muted", style: { marginTop: "4px" } }, t(m.mode === "demo" ? "mode_demo" : "mode_basic")) : null, m.actions && m.actions.length ? h("div", { class: "act-link" }, ...m.actions.map((a) => h("a", { class: "btn sm secondary", href: a.type === "job_created" || a.type === "show_job" ? "#/jobs/" + a.job_id : "#/review" }, icon("activity"), t("ch_see")))) : null); };
   const paint = () => { const msgs = S.chat || []; list.replaceChildren(...[bubble({ r: "bot", text: t("ch_hello") }), ...msgs.map(bubble), S.typing ? h("div", { class: "msg bot" }, h("div", { class: "who" }, icon("wave"), t("ch_title")), h("div", { class: "bub typing" }, h("i"), h("i"), h("i"))) : null].filter(Boolean)); if (document.documentElement.scrollHeight > innerHeight + 4) window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }); };
   const ta = h("textarea", { id: "chatIn", rows: 1, placeholder: t("ch_ph"), "aria-label": t("ch_ph"), maxlength: 500 }), sendB = h("button", { class: "send", type: "submit", "aria-label": t("ch_send"), disabled: true }, icon("send", "flip-send"));
   const grow = () => { ta.style.height = "auto"; ta.style.height = Math.min(ta.scrollHeight, 140) + "px"; sendB.disabled = !ta.value.trim() || !!S.typing; };
   const sendMsg = async (txt) => {
     txt = (txt || ta.value).trim(); if (!txt || S.typing) return; ta.value = ""; grow(); S.chat = (S.chat || []).concat([{ r: "user", text: txt, t: new Date().toISOString() }]); S.typing = true; paint();
-    try { const r = await api("POST", op() + "/assistant", { message: txt, channel_id: (ver[0] || {}).id }); S.chat = S.chat.concat([{ r: "bot", text: r.reply, t: new Date().toISOString(), actions: r.actions || [] }]); if ((r.actions || []).length) loadCore().then(() => updateChrome()).catch(() => {}); }
+    try { const r = await api("POST", op() + "/assistant", { message: txt, channel_id: (ver[0] || {}).id }); S.chat = S.chat.concat([{ r: "bot", text: r.reply, t: new Date().toISOString(), actions: r.actions || [], mode: r.mode }]); const made = (r.actions || []).filter((x) => x.type === "job_created"); if ((r.actions || []).length) Promise.all(made.map((x) => api("GET", op() + "/jobs/" + x.job_id).then((q) => noteFresh("job", q.job)).catch(() => {}))).then(() => loadCore()).then(() => { updateChrome(); if (route.name === "jobs" || route.name === "home") softRender(); }).catch(() => {}); }
     catch (e) { S.chat = S.chat.concat([{ r: "bot", text: errText(e), t: new Date().toISOString() }]); } S.typing = false; paint(); sendB.disabled = !ta.value.trim();
   };
   ta.oninput = grow; ta.onkeydown = (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); sendMsg(); } };
@@ -1094,7 +1105,7 @@ ROUTES.credits = function () {
 /* ---------- 6i. settings + more ---------- */
 function createOrgForm() {
   const inp = h("input", { class: "input", id: "orgName", placeholder: t("se_ws_name"), "aria-label": t("se_ws_name"), maxlength: 80 }); const sub = h("button", { class: "btn", type: "submit" }, t("se_ws_create"));
-  return h("form", { class: "row wrap", onsubmit: async (e) => { e.preventDefault(); if (!inp.value.trim()) return; sub.disabled = true; try { const r = await api("POST", "/orgs", { name: inp.value.trim() }); LS.set("studio_org", r.org_id); S.org = null; S.ready = false; S.chat = null; S.members = null; S.inviteOut = null; renderApp(); } catch (x) { toast(errText(x), { kind: "bad" }); sub.disabled = false; } } }, h("div", { class: "grow" }, inp), sub);
+  return h("form", { class: "row wrap", onsubmit: async (e) => { e.preventDefault(); if (!inp.value.trim()) return; sub.disabled = true; try { const r = await api("POST", "/orgs", { name: inp.value.trim() }); LS.set("studio_org", r.org_id); S.org = null; S.ready = false; S.chat = null; S.members = null; S.inviteOut = null; S.fresh = {}; renderApp(); } catch (x) { toast(errText(x), { kind: "bad" }); sub.disabled = false; } } }, h("div", { class: "grow" }, inp), sub);
 }
 ROUTES.more = function () {
   const item = (r, ic, lbl, sub) => h("a", { class: "menu-item", href: "#/" + r }, icon(ic), h("div", { class: "grow" }, t(lbl), sub ? h("small", null, sub) : null), icon("chev", "flip"));
@@ -1111,7 +1122,7 @@ ROUTES.settings = function () {
   const rows = S.channels.map((c) => { const yt = (c.yt && c.yt.status) || "not_connected", ytc = yt === "connected";
     return h("div", { class: "li wrapli" }, h("div", { class: "grow" }, h("div", { class: "row wrap", style: { gap: "8px" } }, platTag(c.platform), h("b", { class: "ltr" }, c.slug), h("span", { class: "chip " + (c.status === "verified" ? "ok" : "warn") }, t(c.status === "verified" ? "se_verified" : "se_pending"))), c.status === "verified" ? h("div", { class: "small muted", style: { marginTop: "4px" } }, icon("yt"), " ", ytc ? t("yt_ok") + (c.yt.title ? ": " + c.yt.title : "") : yt === "needs_reconnect" ? t("yt_reconnect") : t("yt_none")) : null),
       isOwner() ? h("div", { class: "row wrap" }, c.status === "pending" ? h("button", { class: "btn sm", type: "button", onclick: () => go("setup") }, t("verify_now")) : (ytc ? h("button", { class: "btn secondary sm", type: "button", onclick: async () => { try { await api("POST", "/studio/yt/disconnect", { org_id: S.org.id, channel_id: c.id }); toast(t("yt_disc_ok")); await loadCore(); renderRoute(false); } catch (e) { toast(errText(e), { kind: "bad" }); } } }, t("yt_disconnect")) : h("button", { class: "btn sm", type: "button", onclick: () => connectYouTube(c) }, icon("yt"), yt === "needs_reconnect" ? t("yt_reconnect") : t("yt_connect"))),
-        h("button", { class: "iconbtn", type: "button", "aria-label": t("remove"), onclick: async () => { if (!confirm(t("remove_ch_q"))) return; try { await api("DELETE", op() + "/channels/" + c.id); await loadCore(); renderRoute(false); } catch (e) { toast(errText(e), { kind: "bad" }); } } }, icon("trash"))) : null); });
+        h("button", { class: "iconbtn", type: "button", "aria-label": t("remove"), onclick: async () => { if (!confirm(t("remove_ch_q"))) return; try { await api("DELETE", op() + "/channels/" + c.id); noteGone(c.id); await loadCore(); renderRoute(false); } catch (e) { toast(errText(e), { kind: "bad" }); } } }, icon("trash"))) : null); });
   chSec.append(h("div", { class: "list" }, ...rows), S.ytSoon ? h("div", { class: "notice warn", style: { marginTop: "12px" } }, icon("info"), t("su3_soon")) : null, h("div", { class: "small muted", style: { marginTop: "10px" } }, t("se_style")), isOwner() ? h("button", { class: "btn secondary", style: { marginTop: "12px" }, type: "button", onclick: () => go("setup", "new") }, icon("plus"), t("se_add_channel")) : null);
   root.append(chSec);
   // autonomy placeholder
@@ -1119,7 +1130,7 @@ ROUTES.settings = function () {
   root.append(h("section", { class: "card stack" }, h("div", null, h("h2", null, t("se_auto")), h("p", { class: "small muted" }, t("se_auto_d"))), h("div", { class: "stack tight", role: "radiogroup" }, opt(1, true), opt(2, false), opt(3, false))));
   root.append(h("section", { class: "card stack" }, h("div", null, h("h2", null, t("se_notif")), h("p", { class: "small muted" }, t("se_notif_d"))), ...["nt1", "nt2", "nt3"].map((k) => h("div", { class: "row between" }, h("span", null, t(k), " ", h("span", { class: "chip" }, t("soon"))), h("label", { class: "switch" }, h("input", { type: "checkbox", disabled: true, "aria-label": t(k) }), h("i"))))));
   const multi = S.orgs.length > 1;
-  root.append(h("section", { class: "card stack" }, h("h2", null, t("se_ws")), h("div", { class: "row between wrap" }, h("div", null, h("b", null, S.org.name), h("div", { class: "small muted" }, t("r_" + S.org.role))), multi ? h("select", { class: "input sel", "aria-label": t("se_ws_switch"), onchange: (e) => { S.org = S.orgs.find((o) => o.id === e.target.value); LS.set("studio_org", S.org.id); S.ready = false; S.chat = null; S.members = null; S.inviteOut = null; S.jobs = []; S.channels = []; S.prevJobs = null; renderApp(); } }, ...S.orgs.map((o) => h("option", { value: o.id, selected: o.id === S.org.id }, o.name))) : null),
+  root.append(h("section", { class: "card stack" }, h("h2", null, t("se_ws")), h("div", { class: "row between wrap" }, h("div", null, h("b", null, S.org.name), h("div", { class: "small muted" }, t("r_" + S.org.role))), multi ? h("select", { class: "input sel", "aria-label": t("se_ws_switch"), onchange: (e) => { S.org = S.orgs.find((o) => o.id === e.target.value); LS.set("studio_org", S.org.id); S.ready = false; S.chat = null; S.members = null; S.inviteOut = null; S.fresh = {}; S.jobs = []; S.channels = []; S.prevJobs = null; renderApp(); } }, ...S.orgs.map((o) => h("option", { value: o.id, selected: o.id === S.org.id }, o.name))) : null),
     h("p", { class: "small muted" }, t("se_ws_d")), createOrgForm()));
   root.append(h("div", { class: "notice" }, icon("shield"), t("se_about_d")));
   return root;
@@ -1171,7 +1182,7 @@ function demoTick() {
     else j.status_text = dmsg("rendering", { i: Math.max(1, Math.ceil((j.progress - 58) / 36 * n)), n });
   }
 }
-function demoScenario(s) { demoInit(s); S.ready = false; S.chat = null; S.members = null; S.inviteOut = null; S.jobs = []; S.channels = []; S.prevJobs = null; S.local = {}; S.skipped = []; LS.del("studio_skip_yt"); token = "demo"; demoLanding = false; history.replaceState(null, "", "#/home"); renderApp(); }
+function demoScenario(s) { demoInit(s); S.ready = false; S.chat = null; S.members = null; S.inviteOut = null; S.fresh = {}; S.jobs = []; S.channels = []; S.prevJobs = null; S.local = {}; S.skipped = []; LS.del("studio_skip_yt"); token = "demo"; demoLanding = false; history.replaceState(null, "", "#/home"); renderApp(); }
 const clone = (o) => JSON.parse(JSON.stringify(o));
 function demoUnderstand(text) {
   const raw = String(text).trim(), tl = raw.toLowerCase(), he = /[֐-׿]/.test(raw); let n = (tl.match(/\d+/) || [])[0]; n = n ? Math.min(30, +n) : 0;
@@ -1220,7 +1231,7 @@ async function demoApi(method, path, body) {
     else { org.credits -= 1; const id = "j_" + Math.random().toString(16).slice(2, 10), now = new Date().toISOString(); D.jobs.unshift({ id, org: org.id, channel: "c_demo", kind: "edit", style_id: "signature", outputs: { shorts: u.shorts, long: u.long }, hints: { mood: u.mood, text: u.text }, source: { type: "auto", when: u.when }, status: "queued", status_text: dmsg("queued"), credits_held: 1, created: now, updated: now, progress: 0, result: { drafts: [] }, events: [{ t: now, e: "queued" }] }); actions.push({ type: "job_created", job_id: id });
       const what = [u.shorts ? (L === "he" ? `${u.shorts} שורטס${u.mood ? " " + t(MOOD[u.mood]) : ""}` : `${u.shorts} ${u.mood ? t(MOOD[u.mood]) + " " : ""}Shorts`) : "", u.long ? (L === "he" ? "סרטון ארוך" : "a long video") : ""].filter(Boolean).join(L === "he" ? " ו" : " and ");
       reply = L === "he" ? `סבבה! מכין ${what} ${I[WHENK[u.when]][0]}. אעדכן כאן כשהטיוטות מוכנות. אפשר לבטל כל עוד זה בתור.` : `On it! Making ${what} ${I[WHENK[u.when]][1]}. I'll update you here when drafts are ready. You can cancel while it's queued.`; }
-    const now = new Date().toISOString(); D.chat.push({ r: "user", t: now, text: u.text }, { r: "bot", t: now, text: reply }); return { reply, actions, parsed: u };
+    const now = new Date().toISOString(); D.chat.push({ r: "user", t: now, text: u.text }, { r: "bot", t: now, text: reply }); return { reply, actions, mode: "demo", parsed: u };
   }
   if (sub === "/billing" && method === "GET") return { plan: org.plan, credits: org.credits };
   if (sub === "/billing/checkout") { need("owner"); E(501, "payment_not_implemented"); }
