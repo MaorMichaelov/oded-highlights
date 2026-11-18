@@ -12,7 +12,7 @@ RULES = {
     "SLUG": SLUG, "LOGIN": SLUG, "CHANNEL": SLUG,
     "PLATFORM": r"(kick|twitch)", "YT": r"(main|en)", "WHICH": r"(main|en)", "LANG": r"(en|he)",
     "VOD": r"(auto|[A-Za-z0-9_-]{1,64})",
-    "UPLOAD": r"(true|false)", "FORCE": r"(true|false)", "DISPATCH": r"(true|false)", "SHORTS": r"(true|false)", "THUMBS": r"(true|false)", "ASR": r"(true|false)", "LOCAL": r"(true|false)",
+    "UPLOAD": r"(true|false)", "FOCUS_ONLY": r"(true|false)", "FORCE": r"(true|false)", "DISPATCH": r"(true|false)", "SHORTS": r"(true|false)", "THUMBS": r"(true|false)", "ASR": r"(true|false)", "LOCAL": r"(true|false)",
     "CLIP_ID": r"[A-Za-z0-9][A-Za-z0-9_.-]{0,119}",
     "STATE_DIR": r"state[A-Za-z0-9_-]*(/[A-Za-z0-9][A-Za-z0-9_-]*){0,2}",
     "PRESET": r"[a-z_]{1,40}", "REFS": r"[a-z_,]{1,80}",

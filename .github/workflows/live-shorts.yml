@@ -9,6 +9,7 @@ on:
       focus: { required: false, default: "" }
       upload: { required: false, default: "true" }
       max_upload: { required: false, default: "2" }
+      focus_only: { description: "only clips about the focus topic", required: false, default: "false" }
       window: { description: "minutes of stream per window", required: false, default: "12" }
       shorts_per_window: { required: false, default: "3" }
       long_every: { description: "also make a LONG video for every N finished minutes of the stream (0 = off)", required: false, default: "40" }
@@ -25,6 +26,7 @@ jobs:
       IN_FOCUS: ${{ inputs.focus }}
       IN_MAX_UPLOAD: ${{ inputs.max_upload }}
       IN_LONG_EVERY: ${{ inputs.long_every }}
+      IN_FOCUS_ONLY: ${{ inputs.focus_only }}
       IN_WINDOW: ${{ inputs.window }}
       IN_SHORTS_PER_WINDOW: ${{ inputs.shorts_per_window }}
       IN_UPLOAD: ${{ inputs.upload }}
@@ -56,11 +58,11 @@ jobs:
           end=$((SECONDS+20400))
           while [ $SECONDS -lt $end ]; do
             [ -f "state/${IN_SLUG}/PAUSE" ] && { echo "PAUSE file present, stopping"; exit 0; }
-            python3 -u scripts/live_shorts.py --slug "${IN_SLUG}" --platform "${IN_PLATFORM}" --credit "${IN_CREDIT}" --focus "${IN_FOCUS}" ${{ inputs.upload == 'true' && '--upload' || '' }} --max-upload "${IN_MAX_UPLOAD}" --long-every "${IN_LONG_EVERY}" --window "${IN_WINDOW}" --n "${IN_SHORTS_PER_WINDOW}" ${{ inputs.force == 'true' && '--force' || '' }} || echo "iteration failed (continuing)"
+            python3 -u scripts/live_shorts.py --slug "${IN_SLUG}" --platform "${IN_PLATFORM}" --credit "${IN_CREDIT}" --focus "${IN_FOCUS}" ${{ inputs.upload == 'true' && '--upload' || '' }} --max-upload "${IN_MAX_UPLOAD}" --long-every "${IN_LONG_EVERY}" ${IN_FOCUS_ONLY:+$( [ "$IN_FOCUS_ONLY" = true ] && echo --focus-only )} --window "${IN_WINDOW}" --n "${IN_SHORTS_PER_WINDOW}" ${{ inputs.force == 'true' && '--force' || '' }} || echo "iteration failed (continuing)"
             for f in state/${IN_SLUG}/live_state.json state/${IN_SLUG}/long/*.json state/${IN_SLUG}/shorts/*.json; do [ -e "$f" ] && git add "$f" 2>/dev/null || true; done; git diff --cached --quiet || { git commit -q -m "live shorts: ${IN_SLUG}"; for i in 1 2 3 4 5 6; do git pull --rebase -q && git push -q && break; sleep $((i*2)); done; }
             sleep 240
           done
-          gh workflow run live-shorts.yml --ref main -f slug="${IN_SLUG}" -f platform="${IN_PLATFORM}" -f credit="${IN_CREDIT}" -f focus="${IN_FOCUS}" -f upload="${IN_UPLOAD}" -f max_upload="${IN_MAX_UPLOAD}" -f long_every="${IN_LONG_EVERY}" -f window="${IN_WINDOW}" -f shorts_per_window="${IN_SHORTS_PER_WINDOW}"
+          gh workflow run live-shorts.yml --ref main -f slug="${IN_SLUG}" -f platform="${IN_PLATFORM}" -f credit="${IN_CREDIT}" -f focus="${IN_FOCUS}" -f upload="${IN_UPLOAD}" -f max_upload="${IN_MAX_UPLOAD}" -f long_every="${IN_LONG_EVERY}" -f focus_only="${IN_FOCUS_ONLY}" -f window="${IN_WINDOW}" -f shorts_per_window="${IN_SHORTS_PER_WINDOW}"
       - name: Keep the Shorts
         if: always()
         uses: actions/upload-artifact@v4
