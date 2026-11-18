@@ -212,10 +212,11 @@ const MOOD_TXT = { funny: { he: "מצחיקים", en: "funny" }, hype: { he: "מ
 const HELP = { he: "אפשר לבקש בשפה חופשית, למשל: \"תכין 5 שורטס מצחיקים מאתמול\" או \"מה המצב?\"", en: "Ask in plain words, e.g. \"make 5 funny Shorts from yesterday\" or \"what's the status?\"" };
 // ---- free-form understanding with a free LLM (Workers AI binding `AI`): replies vary, remember the conversation, answer product questions; the rule parser above stays as the fallback and as the safety net
 const LLM_MODELS = ["@cf/mistralai/mistral-small-3.1-24b-instruct", "@cf/openai/gpt-oss-120b", "@cf/meta/llama-3.3-70b-instruct-fp8-fast", "@cf/meta/llama-3.1-8b-instruct"];   // chosen by a Hebrew comparison on the live Worker: Mistral Small 3.1 gives the most natural Hebrew and is the fastest
-const LLM_DIAG = { last: "", text: "" };   // last model outcome, shown by /studio/api/health?ai=1
+const LLM_DIAG = { last: "", text: "", fail: "" };   // last model outcome, shown by /studio/api/health?ai=1
 const LLM_DAILY = 300;   // per workspace; free tier friendly
 function firstJson(text) { const t = String(text || ""); const a = t.indexOf("{"); if (a < 0) return null; let d = 0, q = false, e = false; for (let i = a; i < t.length; i++) { const c = t[i]; if (q) { if (e) e = false; else if (c === "\\") e = true; else if (c === '"') q = false; continue; } if (c === '"') q = true; else if (c === "{") d++; else if (c === "}" && --d === 0) { try { return JSON.parse(t.slice(a, i + 1)); } catch (x) { return null; } } } return null; }
 async function llmUnderstand(env, org, role, text, hist, L, ctx) {
+  LLM_DIAG.fail = "";
   if (!env.AI) return null;
   const day = new Date().toISOString().slice(0, 10), key = `studio:llm:${org.id}:${day}`; const used = parseInt((await env.KV.get(key)) || "0"); if (used >= LLM_DAILY) return null;
   try { await env.KV.put(key, String(used + 1), { expirationTtl: 172800 }); } catch (e) {}
@@ -234,7 +235,9 @@ Output ONLY JSON: {"reply": "<what you say>", "intent": "create" | "status" | "c
       const msgItems = Array.isArray(r.output) ? r.output.filter((o) => o && o.type === "message") : [];   // gpt-oss returns a reasoning item first: read only the final message
       const t = r.response || (r.choices && r.choices[0] && r.choices[0].message && r.choices[0].message.content) || r.output_text || (msgItems.length ? msgItems.map((o) => (o.content || []).map((c) => c.text || "").join("")).join("") : (r.output && r.output.map((o) => (o.content || []).map((c) => c.text || "").join("")).join(""))) || "";
       LLM_DIAG.text = String(t).slice(0, 200);
-      const j = firstJson(t); if (j && typeof j.reply === "string" && j.reply.trim()) { return { reply: clean(j.reply, 1200), intent: ["create", "status", "chat"].includes(j.intent) ? j.intent : "chat", shorts: Math.max(0, Math.min(30, parseInt(j.shorts) || 0)), long: !!j.long, when: ["last_stream", "yesterday", "week"].includes(j.when) ? j.when : "last_stream", mood: ["funny", "hype", "fail"].includes(j.mood) ? j.mood : null }; }
+      const j = firstJson(t); if (!j || typeof j.reply !== "string" || !j.reply.trim()) LLM_DIAG.fail = (LLM_DIAG.fail || "") + m.split("/").pop() + ": no-json " + String(t).slice(0, 80).replace(/\s+/g, " ") + " || ";
+      else if (/[\u0900-\u097F\u0600-\u06FF\u4E00-\u9FFF\u0400-\u04FF]/.test(j.reply)) LLM_DIAG.fail = (LLM_DIAG.fail || "") + m.split("/").pop() + ": foreign-script || ";   // a model that slips into another script is skipped
+      if (j && typeof j.reply === "string" && j.reply.trim() && !/[\u0900-\u097F\u0600-\u06FF\u4E00-\u9FFF\u0400-\u04FF]/.test(j.reply)) { return { reply: clean(j.reply, 1200), intent: ["create", "status", "chat"].includes(j.intent) ? j.intent : "chat", shorts: Math.max(0, Math.min(30, parseInt(j.shorts) || 0)), long: !!j.long, when: ["last_stream", "yesterday", "week"].includes(j.when) ? j.when : "last_stream", mood: ["funny", "hype", "fail"].includes(j.mood) ? j.mood : null }; }
     } catch (e) { LLM_DIAG.last = m + ": " + String(e && e.message || e).slice(0, 200); }
   }
   return null;
@@ -328,7 +331,7 @@ async function assistant(env, org, me, role, b, store) {
     }
   }
   const hist = (await kget(env, K.chat(org.id))) || []; hist.push({ r: "user", t: now(), text: u.text }, { r: "bot", t: now(), text: reply }); await kput(env, K.chat(org.id), hist.slice(-40));   // TODO(D1): per-user threads
-  return { reply, actions, mode: llm ? "ai" : "basic", parsed: { intent: u.intent, shorts: u.shorts, long: u.long, when: u.when, mood: u.mood } };
+  return { reply, actions, mode: llm ? "ai" : "basic", why: llm ? undefined : String(LLM_DIAG.fail || LLM_DIAG.last || "no-ai").slice(0, 400), parsed: { intent: u.intent, shorts: u.shorts, long: u.long, when: u.when, mood: u.mood } };
 }
 
 // ---------- the router ----------
