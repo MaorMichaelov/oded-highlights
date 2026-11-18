@@ -1,0 +1,28 @@
+name: inspect-draft
+# Diagnostics: download a Studio preview/full draft from its release, print stream info and commit a contact sheet (frames) + the first words said, so the output can be looked at.
+on:
+  workflow_dispatch:
+    inputs:
+      tag: { required: true }
+      asset: { required: true }
+permissions: { contents: write }
+jobs:
+  look:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Inspect
+        env:
+          TAG: ${{ inputs.tag }}
+          ASSET: ${{ inputs.asset }}
+          REPO: ${{ github.repository }}
+        run: |
+          case "$TAG" in studio-preview-*) ;; *) exit 1;; esac; case "$ASSET" in *[!A-Za-z0-9_.-]*) exit 1;; esac
+          mkdir -p w state/qa_frames; curl -sSL -o w/d.mp4 "https://github.com/$REPO/releases/download/$TAG/$ASSET"; ls -la w/d.mp4
+          ffprobe -v error -show_entries stream=codec_type,codec_name,width,height,r_frame_rate,start_time,duration -of compact w/d.mp4
+          ffmpeg -v error -y -i w/d.mp4 -vf "fps=1/3,scale=270:-1,tile=6x2" -frames:v 1 state/qa_frames/sheet.jpg
+          ffmpeg -v error -y -i w/d.mp4 -ss 8 -frames:v 1 state/qa_frames/frame8.jpg
+          git config user.name highlights-bot; git config user.email highlights-bot@users.noreply.github.com
+          git add state/qa_frames; git commit -qm "qa frames" || true
+          for i in $(seq 1 15); do git pull --rebase -q && git push -q && break; sleep 2; done
