@@ -118,3 +118,7 @@ State that was never changed by this work: repository visibility, workflows, sec
 ## 7. Status of this work
 
 Built and tested locally: worker loop against a mocked studio (retries, timeouts, concurrency, graceful stop, cleanup, redaction), the real pipeline on a generated video (demo mode), ingest with a real MediaMTX, shell-repo generator (YAML validated). Not tested: Docker image build (no daemon in the sandbox; `docker compose config` validates), a real studio API, real speech models in this environment, SRT, a VPS, GitHub-side steps in section 5. Missing: browser file upload, upload step wiring after approval, dead-man switch alert, multi-worker claim safety (KV is eventually consistent; see TODO(D1) in `app/studio.js`, run one worker until that is fixed).
+
+## 8. Interim: the preview phase on GitHub Actions
+
+Until the private server exists, `.github/workflows/studio-worker.yml` runs `render_worker.py --once --max-minutes N` every 5 minutes (only when a job is queued) and publishes small 720p previews. Setup, limits and the owner commands: `docs/STUDIO_PREVIEW_SETUP.md` (Hebrew first). Actions must not serve paying customers; this is a bridge for the owner's own tests.
