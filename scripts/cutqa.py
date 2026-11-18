@@ -74,7 +74,7 @@ def edge_metrics(env, hop, skip_head=0.0, skip_tail=0.0, thr_over=12.0, abs_floo
     if len(e) < 30: return {}
     fl = float(np.percentile(e, 10)); sp = float(np.percentile(e, 90)); thr = max(min(fl + thr_over, sp - 12.0), abs_floor); loud = e > thr; n = 5
     pw = lambda x: float(10 * np.log10((10 ** (x / 10)).mean()))
-    tail = pw(e[-22:-7]); head = pw(e[:10]); base = {"floor_db": round(fl, 1), "speech_db": round(sp, 1), "tail_rms_db": round(tail, 1), "tail_rel_speech_db": round(tail - sp, 1), "head_rel_speech_db": round(head - sp, 1)}
+    tail = pw(e[-22:-7]); head = pw(e[:10]); base = {"floor_db": round(fl, 1), "speech_db": round(sp, 1), "dyn_db": round(sp - fl, 1), "tail_rms_db": round(tail, 1), "tail_rel_speech_db": round(tail - sp, 1), "head_rel_speech_db": round(head - sp, 1)}
     run = np.convolve(loud.astype(np.int8), np.ones(n, dtype=np.int8), mode="valid") >= n; idx = np.nonzero(run)[0]
     if len(idx) == 0: return dict(base, lead_silence_s=round(len(e) * hop, 2), trail_silence_s=round(len(e) * hop, 2), silent=True)
     return dict(base, lead_silence_s=round(float(idx[0] * hop), 2), trail_silence_s=round(float((len(e) - (idx[-1] + n)) * hop), 2))
@@ -236,8 +236,9 @@ def grade(path, kind="short", title=None, words=None, window_text_=None, ass=Non
         if a.get("silent"): fail.append("audio is silent")
         if a.get("lead_silence_s", 0) > THRESH["lead_max"]: (fail if a["lead_silence_s"] > 1.5 else warn).append(f"leading dead air {a['lead_silence_s']:.2f}s")
         if a.get("trail_silence_s", 0) > THRESH["trail_max"]: (fail if a["trail_silence_s"] > 2.0 else warn).append(f"trailing dead air {a['trail_silence_s']:.2f}s")
-        if a.get("tail_rel_speech_db", -99) > THRESH["tail_rel_db"]: warn.append(f"audio ends abruptly (just before the end it is only {-a['tail_rel_speech_db']:.0f} dB below the speech level)")
-        if a.get("head_rel_speech_db", -99) > THRESH["head_rel_db"]: warn.append(f"clip starts inside a loud sound ({-a['head_rel_speech_db']:.0f} dB below the speech level)")
+        quiet_possible = a.get("dyn_db", 99) >= 20   # a continuously loud stream (crowd / music, speech only ~15 dB above the floor) has no silence to cut into: the level test says nothing there, the ASR edge check does
+        if quiet_possible and a.get("tail_rel_speech_db", -99) > THRESH["tail_rel_db"]: warn.append(f"audio ends abruptly (just before the end it is only {-a['tail_rel_speech_db']:.0f} dB below the speech level)")
+        if quiet_possible and a.get("head_rel_speech_db", -99) > THRESH["head_rel_db"]: warn.append(f"clip starts inside a loud sound ({-a['head_rel_speech_db']:.0f} dB below the speech level)")
         tg, tol = THRESH["short_lufs" if kind == "short" else "long_lufs"]
         if a.get("lufs") is not None:
             if abs(a["lufs"] - tg) > tol: (fail if (a["lufs"] < -26 or a["lufs"] > -8) else warn).append(f"loudness {a['lufs']:.1f} LUFS vs target {tg:.0f}")
