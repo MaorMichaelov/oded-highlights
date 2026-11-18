@@ -15,9 +15,18 @@ permissions: { contents: write }
 jobs:
   clips:
     runs-on: ubuntu-latest
+    env:   # workflow inputs go through env vars, never straight into the shell script (injection)
+      IN_PLATFORM: ${{ inputs.platform }}
+      IN_SLUG: ${{ inputs.slug }}
+      IN_DAYS: ${{ inputs.days }}
+      IN_N: ${{ inputs.n }}
+      IN_CREDIT: ${{ inputs.credit }}
+      IN_MAX_UPLOAD: ${{ inputs.max_upload }}
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
+      - name: Validate inputs
+        run: python3 scripts/ci_check_inputs.py
       - name: Install
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
@@ -31,7 +40,7 @@ jobs:
           GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
           GEMINI_API_KEY_4: ${{ secrets.GEMINI_API_KEY_4 }}
           GEMINI_API_KEY_5: ${{ secrets.GEMINI_API_KEY_5 }}
-        run: python3 -u scripts/clips_to_shorts.py --platform "${{ inputs.platform }}" --slug "${{ inputs.slug }}" --days "${{ inputs.days }}" --n "${{ inputs.n }}" --credit "${{ inputs.credit }}"
+        run: python3 -u scripts/clips_to_shorts.py --platform "${IN_PLATFORM}" --slug "${IN_SLUG}" --days "${IN_DAYS}" --n "${IN_N}" --credit "${IN_CREDIT}"
       - name: Upload as private drafts (English channel)
         if: ${{ inputs.upload == 'true' }}
         env:
@@ -39,7 +48,7 @@ jobs:
           YT_CLIENT_ID: ${{ secrets.YT2_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT2_CLIENT_SECRET }}
           CHANNEL_YT: en
-        run: python3 scripts/upload_shorts.py "${{ inputs.slug }}" "${{ inputs.max_upload }}"
+        run: python3 scripts/upload_shorts.py "${IN_SLUG}" "${IN_MAX_UPLOAD}"
       - name: Keep the Shorts
         if: always()
         uses: actions/upload-artifact@v4
@@ -52,4 +61,4 @@ jobs:
         if: always()
         run: |
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
-          git add state/${{ inputs.slug }}/shorts/*.json 2>/dev/null; git diff --cached --quiet || { git commit -q -m "clip shorts: ${{ inputs.slug }}"; for i in 1 2 3 4 5 6 7 8 9 10; do git pull --rebase -q && git push -q && break; sleep $((i*2)); done; }
+          git add state/${IN_SLUG}/shorts/*.json 2>/dev/null; git diff --cached --quiet || { git commit -q -m "clip shorts: ${IN_SLUG}"; for i in 1 2 3 4 5 6 7 8 9 10; do git pull --rebase -q && git push -q && break; sleep $((i*2)); done; }

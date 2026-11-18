@@ -9,8 +9,13 @@ permissions: { contents: write }
 jobs:
   t:
     runs-on: ubuntu-latest
+    env:   # workflow inputs go through env vars, never straight into the shell script (injection)
+      IN_URLS: ${{ inputs.urls }}
+      IN_TEXT: ${{ inputs.text }}
     steps:
       - uses: actions/checkout@v4
+      - name: Validate inputs
+        run: python3 scripts/ci_check_inputs.py
       - run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; pip install -q numpy pillow yt-dlp opencv-python-headless
       - env:
@@ -19,9 +24,9 @@ jobs:
           GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
         run: |
           mkdir -p state/thumb_tests w; n=0
-          URLS="${{ inputs.urls }}"; case "$URLS" in auto:*) CH=${URLS#auto:}; URLS=$(yt-dlp --flat-playlist --playlist-end 4 --print "%(url)s" "https://www.twitch.tv/$CH/clips?filter=clips&range=7d"); [ -z "$URLS" ] && URLS=$(yt-dlp --flat-playlist --playlist-end 4 --print "%(url)s" "https://www.twitch.tv/$CH/clips?filter=clips&range=30d");; esac; echo "$URLS"
-          for u in $URLS; do n=$((n+1)); yt-dlp -q -f "best[height<=720]/best" -o "w/v$n.%(ext)s" "$u" || continue
-            python3 scripts/thumb_pro.py w/v$n.* state/thumb_tests/t$n.jpg --text "${{ inputs.text }}" || true
+          URLS="${IN_URLS}"; case "$URLS" in auto:*) CH=${URLS#auto:}; URLS=$(yt-dlp --flat-playlist --playlist-end 4 --print "%(url)s" "https://www.twitch.tv/$CH/clips?filter=clips&range=7d"); [ -z "$URLS" ] && URLS=$(yt-dlp --flat-playlist --playlist-end 4 --print "%(url)s" "https://www.twitch.tv/$CH/clips?filter=clips&range=30d");; esac; echo "$URLS"
+          set -f; for u in $URLS; do n=$((n+1)); yt-dlp -q -f "best[height<=720]/best" -o "w/v$n.%(ext)s" -- "$u" || continue
+            python3 scripts/thumb_pro.py w/v$n.* state/thumb_tests/t$n.jpg --text "${IN_TEXT}" || true
           done
           git config user.name highlights-bot; git config user.email highlights-bot@users.noreply.github.com
           git add state/thumb_tests; git commit -qm "thumb tests" || exit 0

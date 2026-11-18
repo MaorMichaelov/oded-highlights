@@ -17,9 +17,19 @@ permissions: { contents: write, actions: write }
 jobs:
   scan:
     runs-on: ubuntu-latest
+    env:   # workflow inputs go through env vars, never straight into the shell script (injection)
+      IN_SLUG: ${{ inputs.slug }}
+      IN_PLATFORM: ${{ inputs.platform }}
+      IN_VOD: ${{ inputs.vod }}
+      IN_FROM_MIN: ${{ inputs.from_min }}
+      IN_TO_MIN: ${{ inputs.to_min }}
+      IN_CREDIT: ${{ inputs.credit }}
+      IN_K: ${{ inputs.k }}
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+      - name: Validate inputs
+        run: python3 scripts/ci_check_inputs.py
       - name: Install
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
@@ -33,9 +43,9 @@ jobs:
           GEMINI_API_KEY_4: ${{ secrets.GEMINI_API_KEY_4 }}
           GEMINI_API_KEY_5: ${{ secrets.GEMINI_API_KEY_5 }}
           GH_TOKEN: ${{ github.token }}
-        run: python3 -u scripts/scan_vod.py --slug "${{ inputs.slug }}" --platform "${{ inputs.platform }}" --vod "${{ inputs.vod }}" --from-min "${{ inputs.from_min }}" --to-min "${{ inputs.to_min }}" --credit "${{ inputs.credit }}" --k "${{ inputs.k }}" ${{ inputs.dispatch == 'true' && '--dispatch' || '' }} ${{ inputs.upload == 'true' && '--upload' || '' }}
+        run: python3 -u scripts/scan_vod.py --slug "${IN_SLUG}" --platform "${IN_PLATFORM}" --vod "${IN_VOD}" --from-min "${IN_FROM_MIN}" --to-min "${IN_TO_MIN}" --credit "${IN_CREDIT}" --k "${IN_K}" ${{ inputs.dispatch == 'true' && '--dispatch' || '' }} ${{ inputs.upload == 'true' && '--upload' || '' }}
       - name: Record
         if: always()
         run: |
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
-          git add state/${{ inputs.slug }}/scan_*.json 2>/dev/null; git diff --cached --quiet || { git commit -q -m "scan: ${{ inputs.slug }}"; for i in 1 2 3 4 5 6 7 8 9 10; do git pull --rebase -q && git push -q && break; sleep $((i*2)); done; }
+          git add state/${IN_SLUG}/scan_*.json 2>/dev/null; git diff --cached --quiet || { git commit -q -m "scan: ${IN_SLUG}"; for i in 1 2 3 4 5 6 7 8 9 10; do git pull --rebase -q && git push -q && break; sleep $((i*2)); done; }

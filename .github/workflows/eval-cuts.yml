@@ -13,9 +13,16 @@ permissions: { contents: write, actions: read }
 jobs:
   eval:
     runs-on: ubuntu-latest
+    env:   # workflow inputs go through env vars, never straight into the shell script (injection)
+      IN_PREFIXES: ${{ inputs.prefixes }}
+      IN_MAX_MB: ${{ inputs.max_mb }}
+      IN_MAX_ARTIFACTS: ${{ inputs.max_artifacts }}
+      IN_ASR: ${{ inputs.asr }}
     timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
+      - name: Validate inputs
+        run: python3 scripts/ci_check_inputs.py
       - name: Install
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
@@ -27,7 +34,7 @@ jobs:
         run: |
           set -u
           gh api "repos/${{ github.repository }}/actions/artifacts?per_page=100" --jq '.artifacts[] | select(.expired==false) | [.name, .size_in_bytes, .workflow_run.id] | @tsv' > /tmp/arts.tsv
-          PFX="${{ inputs.prefixes }}"; MAXMB="${{ inputs.max_mb }}"; N="${{ inputs.max_artifacts }}"; ASR=""; [ "${{ inputs.asr }}" = "true" ] && ASR="--asr"
+          PFX="${IN_PREFIXES}"; MAXMB="${IN_MAX_MB}"; N="${IN_MAX_ARTIFACTS}"; ASR=""; [ "${IN_ASR}" = "true" ] && ASR="--asr"
           awk -F'\t' -v pf="$PFX" -v mx="$MAXMB" 'BEGIN{n=split(pf,P,",")} {ok=0; for(i=1;i<=n;i++) if(index($1,P[i])==1) ok=1; if(ok && $2/1048576<=mx) print}' /tmp/arts.tsv | head -n "$N" > /tmp/pick.tsv
           cat /tmp/pick.tsv
           while IFS=$'\t' read -r name size run; do

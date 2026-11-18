@@ -1,0 +1,33 @@
+name: tests
+# Fast CI on every push / PR: Python unit tests + Worker (studio/agent/youtube_connect) tests + workflow YAML sanity. No secrets, no network, read-only token.
+on:
+  push:
+    paths-ignore: ["state/**"]   # the bot pushes state every few minutes: no need to test those commits
+  pull_request:
+    paths-ignore: ["state/**"]
+  workflow_dispatch: {}
+concurrency: { group: "tests-${{ github.ref }}", cancel-in-progress: true }
+permissions: { contents: read }
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Install test deps
+        run: pip install -q numpy pyyaml
+      - name: Python syntax of every script
+        run: python -m compileall -q scripts app tests
+      - name: Python unit tests
+        run: |
+          python -m unittest discover -s tests -v
+          python -m unittest discover -s scripts -p "test_*.py" -v
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - name: Worker tests (node)
+        run: |
+          for f in app/*.test.mjs; do echo "== $f"; node "$f"; done
+      - name: Workflow sanity (YAML parses, no inputs pasted into shell)
+        run: python scripts/ci_lint_workflows.py

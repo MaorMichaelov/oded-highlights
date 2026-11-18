@@ -16,9 +16,19 @@ permissions: { contents: write }
 jobs:
   long:
     runs-on: ubuntu-latest
+    env:   # workflow inputs go through env vars, never straight into the shell script (injection)
+      IN_SLUG: ${{ inputs.slug }}
+      IN_PLATFORM: ${{ inputs.platform }}
+      IN_VOD: ${{ inputs.vod }}
+      IN_FROM_MIN: ${{ inputs.from_min }}
+      IN_TO_MIN: ${{ inputs.to_min }}
+      IN_CREDIT: ${{ inputs.credit }}
+      IN_TITLE_HINT: ${{ inputs.title_hint }}
     timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
+      - name: Validate inputs
+        run: python3 scripts/ci_check_inputs.py
       - name: Install
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
@@ -31,7 +41,7 @@ jobs:
           GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
           GEMINI_API_KEY_4: ${{ secrets.GEMINI_API_KEY_4 }}
           GEMINI_API_KEY_5: ${{ secrets.GEMINI_API_KEY_5 }}
-        run: python3 -u scripts/vod_long.py --slug "${{ inputs.slug }}" --platform "${{ inputs.platform }}" --vod "${{ inputs.vod }}" --from-min "${{ inputs.from_min }}" --to-min "${{ inputs.to_min }}" --credit "${{ inputs.credit }}" --title-hint "${{ inputs.title_hint }}"
+        run: python3 -u scripts/vod_long.py --slug "${IN_SLUG}" --platform "${IN_PLATFORM}" --vod "${IN_VOD}" --from-min "${IN_FROM_MIN}" --to-min "${IN_TO_MIN}" --credit "${IN_CREDIT}" --title-hint "${IN_TITLE_HINT}"
       - name: Upload as a private draft (English channel)
         if: ${{ inputs.upload == 'true' }}
         env:
@@ -39,7 +49,7 @@ jobs:
           YT_CLIENT_ID: ${{ secrets.YT2_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT2_CLIENT_SECRET }}
           CHANNEL_YT: en
-        run: python3 scripts/upload_shorts.py "${{ inputs.slug }}" 1 long
+        run: python3 scripts/upload_shorts.py "${IN_SLUG}" 1 long
       - name: Keep the video
         if: always()
         uses: actions/upload-artifact@v4
@@ -52,4 +62,4 @@ jobs:
         if: always()
         run: |
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
-          git add state/${{ inputs.slug }}/long/*.json state/${{ inputs.slug }}/long/*.jpg 2>/dev/null; git diff --cached --quiet || { git commit -q -m "long video: ${{ inputs.slug }}"; for i in 1 2 3 4 5 6 7 8 9 10; do git pull --rebase -q && git push -q && break; sleep $((i*2)); done; }
+          git add state/${IN_SLUG}/long/*.json state/${IN_SLUG}/long/*.jpg 2>/dev/null; git diff --cached --quiet || { git commit -q -m "long video: ${IN_SLUG}"; for i in 1 2 3 4 5 6 7 8 9 10; do git pull --rebase -q && git push -q && break; sleep $((i*2)); done; }

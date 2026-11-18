@@ -17,9 +17,14 @@ permissions: { contents: write }
 jobs:
   render:
     runs-on: ubuntu-latest
+    env:   # workflow inputs go through env vars, never straight into the shell script (injection)
+      IN_STATE_DIR: ${{ inputs.state_dir }}
+      IN_CLIP_ID: ${{ inputs.clip_id }}
     timeout-minutes: 300
     steps:
       - uses: actions/checkout@v4
+      - name: Validate inputs
+        run: python3 scripts/ci_check_inputs.py
       - name: Install
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
@@ -30,9 +35,9 @@ jobs:
         env: { CF_API_TOKEN: "${{ secrets.CF_API_TOKEN }}" }
         run: |
           pip install -q rembg onnxruntime
-          python3 scripts/package_clip.py "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}" --seeds 2 || echo "thumbnail step failed (continuing)"
+          python3 scripts/package_clip.py "${IN_STATE_DIR}/clips/${IN_CLIP_ID}" --seeds 2 || echo "thumbnail step failed (continuing)"
       - name: "Station 3 - CUT (1080p60 download + exact trim)"
-        run: python3 scripts/stations/cut.py "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}"
+        run: python3 scripts/stations/cut.py "${IN_STATE_DIR}/clips/${IN_CLIP_ID}"
       - name: Publish progress
         if: always()
         continue-on-error: true
@@ -41,7 +46,7 @@ jobs:
           git add state/events.jsonl 2>/dev/null; git diff --cached --quiet || { git commit -q -m "events: progress"; (git pull --rebase -q && git push -q) || git rebase --abort 2>/dev/null || true; }
       - name: "Station 4 - EDIT (opening, sting, popup, quality gate)"
         env: { GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}" }
-        run: python3 scripts/stations/edit.py "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}"
+        run: python3 scripts/stations/edit.py "${IN_STATE_DIR}/clips/${IN_CLIP_ID}"
       - name: Publish progress
         if: always()
         continue-on-error: true
@@ -49,7 +54,7 @@ jobs:
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
           git add state/events.jsonl 2>/dev/null; git diff --cached --quiet || { git commit -q -m "events: progress"; (git pull --rebase -q && git push -q) || git rebase --abort 2>/dev/null || true; }
       - name: "Station 7 - QUALITY gate (1080p60, > 8 Mbps, sync, dead air, loudness)"
-        run: python3 scripts/stations/quality.py "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}"
+        run: python3 scripts/stations/quality.py "${IN_STATE_DIR}/clips/${IN_CLIP_ID}"
       - name: Publish progress
         if: always()
         continue-on-error: true
@@ -63,7 +68,7 @@ jobs:
           YT_REFRESH_TOKEN: ${{ inputs.yt == 'en' && secrets.YT2_REFRESH_TOKEN || secrets.YT_REFRESH_TOKEN }}
           YT_CLIENT_ID: ${{ inputs.yt == 'en' && secrets.YT2_CLIENT_ID || secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ inputs.yt == 'en' && secrets.YT2_CLIENT_SECRET || secrets.YT_CLIENT_SECRET }}
-        run: python3 scripts/stations/draft.py "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}"
+        run: python3 scripts/stations/draft.py "${IN_STATE_DIR}/clips/${IN_CLIP_ID}"
       - name: "Station 8 - SHORTS (vertical, from the strongest moments)"
         if: ${{ inputs.shorts == 'true' }}
         continue-on-error: true
@@ -72,14 +77,14 @@ jobs:
           YT_REFRESH_TOKEN: ${{ inputs.yt == 'en' && secrets.YT2_REFRESH_TOKEN || secrets.YT_REFRESH_TOKEN }}
           YT_CLIENT_ID: ${{ inputs.yt == 'en' && secrets.YT2_CLIENT_ID || secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ inputs.yt == 'en' && secrets.YT2_CLIENT_SECRET || secrets.YT_CLIENT_SECRET }}
-        run: python3 scripts/stations/shorts.py "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}" ${{ (inputs.upload == 'true' && env.HAS_YT == 'true') && '--upload' || '' }}
+        run: python3 scripts/stations/shorts.py "${IN_STATE_DIR}/clips/${IN_CLIP_ID}" ${{ (inputs.upload == 'true' && env.HAS_YT == 'true') && '--upload' || '' }}
       - name: "QA - Gemini watches an excerpt of the final clip"
         if: ${{ always() }}
         continue-on-error: true
         env: { GEMINI_API_KEY: "${{ secrets.GEMINI_API_KEY }}" }
         run: |
           pip install -q yt-dlp
-          python3 scripts/qa_clip.py "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}" || echo "qa skipped"
+          python3 scripts/qa_clip.py "${IN_STATE_DIR}/clips/${IN_CLIP_ID}" || echo "qa skipped"
       - name: Keep the rendered video (works even without YouTube secrets)
         if: always()
         uses: actions/upload-artifact@v4
@@ -95,5 +100,5 @@ jobs:
         run: |
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
           python3 scripts/stations/index.py || true
-          rm -rf "${{ inputs.state_dir }}/clips/${{ inputs.clip_id }}/work"; git add state/index.json state/events.jsonl state/lessons.json 2>/dev/null; git add ${{ inputs.state_dir }}/clips assets/final_thumbs assets/scenes_ai
-          git commit -m "clip rendered: ${{ inputs.clip_id }}" || echo "nothing to commit"; for i in 1 2 3 4; do git rebase --abort 2>/dev/null || true; git pull --rebase -q && git push -q && break; sleep 3; done; git status -sb | head -2
+          rm -rf "${IN_STATE_DIR}/clips/${IN_CLIP_ID}/work"; git add state/index.json state/events.jsonl state/lessons.json 2>/dev/null; git add ${IN_STATE_DIR}/clips assets/final_thumbs assets/scenes_ai
+          git commit -m "clip rendered: ${IN_CLIP_ID}" || echo "nothing to commit"; for i in 1 2 3 4; do git rebase --abort 2>/dev/null || true; git pull --rebase -q && git push -q && break; sleep 3; done; git status -sb | head -2

@@ -6,6 +6,7 @@ on:
       force_vod: { default: "1" }
       start_seg: { default: "1200" }
       max_segs: { default: "30" }
+permissions: { contents: read }
 jobs:
   test:
     runs-on: ubuntu-latest

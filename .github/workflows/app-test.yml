@@ -4,14 +4,20 @@ on:
   workflow_dispatch:
     inputs:
       url: { description: "worker url", required: true, default: "https://oded-app-test.odedhl.workers.dev" }
+permissions: { contents: read }
 jobs:
   test:
     runs-on: ubuntu-latest
-    env: { GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}" }
+    env:   # workflow inputs go through env vars, never straight into the shell script (injection)
+      IN_URL: ${{ inputs.url }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}   # only ever sent to a validated *.workers.dev URL
     steps:
+      - uses: actions/checkout@v4
+      - name: Validate inputs
+        run: python3 scripts/ci_check_inputs.py
       - name: Test
         run: |
-          U=${{ inputs.url }}; PW="test-pass-12345"
+          U=${IN_URL}; PW="test-pass-12345"
           echo "home: $(curl -s -o /dev/null -w '%{http_code} %{size_download}B' $U/)"; echo "state: $(curl -s $U/api/state)"
           echo "setup: $(curl -s -X POST $U/api/setup -H 'content-type: application/json' -d "{\"password\":\"$PW\"}")"
           echo "feed-nopass: $(curl -s -o /dev/null -w '%{http_code}' $U/api/feed)"

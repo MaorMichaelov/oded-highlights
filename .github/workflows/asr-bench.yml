@@ -9,12 +9,19 @@ on:
         default: "228"
       last_seg:
         default: "242"
+permissions: { contents: read }
 jobs:
   bench:
     runs-on: ubuntu-latest
+    env:   # workflow inputs go through env vars, never straight into the shell script (injection)
+      IN_BASE_URL: ${{ inputs.base_url }}
+      IN_FIRST_SEG: ${{ inputs.first_seg }}
+      IN_LAST_SEG: ${{ inputs.last_seg }}
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+      - name: Validate inputs
+        run: python3 scripts/ci_check_inputs.py
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - run: pip install -q faster-whisper "av==15.1.0"
-      - run: python3 scripts/asr_bench.py "${{ inputs.base_url }}" ${{ inputs.first_seg }} ${{ inputs.last_seg }}
+      - run: python3 scripts/asr_bench.py "${IN_BASE_URL}" ${IN_FIRST_SEG} ${IN_LAST_SEG}

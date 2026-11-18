@@ -17,9 +17,20 @@ permissions: { contents: write }
 jobs:
   shorts:
     runs-on: ubuntu-latest
+    env:   # workflow inputs go through env vars, never straight into the shell script (injection)
+      IN_SLUG: ${{ inputs.slug }}
+      IN_PLATFORM: ${{ inputs.platform }}
+      IN_CREDIT: ${{ inputs.credit }}
+      IN_VOD: ${{ inputs.vod }}
+      IN_FROM_MIN: ${{ inputs.from_min }}
+      IN_TO_MIN: ${{ inputs.to_min }}
+      IN_N: ${{ inputs.n }}
+      IN_MAX_UPLOAD: ${{ inputs.max_upload }}
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
+      - name: Validate inputs
+        run: python3 scripts/ci_check_inputs.py
       - name: Install
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
@@ -33,7 +44,7 @@ jobs:
           GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
           GEMINI_API_KEY_4: ${{ secrets.GEMINI_API_KEY_4 }}
           GEMINI_API_KEY_5: ${{ secrets.GEMINI_API_KEY_5 }}
-        run: python3 -u scripts/vod_shorts.py --slug "${{ inputs.slug }}" --platform "${{ inputs.platform }}" --credit "${{ inputs.credit }}" --vod "${{ inputs.vod }}" --from-min "${{ inputs.from_min }}" --to-min "${{ inputs.to_min }}" --n "${{ inputs.n }}"
+        run: python3 -u scripts/vod_shorts.py --slug "${IN_SLUG}" --platform "${IN_PLATFORM}" --credit "${IN_CREDIT}" --vod "${IN_VOD}" --from-min "${IN_FROM_MIN}" --to-min "${IN_TO_MIN}" --n "${IN_N}"
       - name: QA - Gemini watches the first Shorts
         if: always()
         continue-on-error: true
@@ -45,7 +56,7 @@ jobs:
           GEMINI_API_KEY_5: ${{ secrets.GEMINI_API_KEY_5 }}
         run: |
           pip install -q yt-dlp
-          for f in $(ls state/${{ inputs.slug }}/shorts/*.mp4 2>/dev/null | head -2); do
+          for f in $(ls state/${IN_SLUG}/shorts/*.mp4 2>/dev/null | head -2); do
             echo "WATCH|FILE $f"; python3 scripts/watch_video.py "$f" "QUALITY CHECK of OUR OWN edit (a 9:16 YouTube Short made automatically). Ignore question 3 and 5 of the normal list. Report in Hebrew: (a) is the layout correct, nothing cut off, face/subject visible; (b) are the captions readable, in sync with the speech, not covering the face; (c) is the hook text at the start readable and correct English; (d) is there a zoom punch-in and a boom sound, does it look natural or amateur; (e) does the clip start at the beginning of a sentence and end right after the punchline; (f) is the audio level/clean; (g) is the moment actually funny or interesting (score 1-10 with a reason); (h) list concrete defects to fix." || true
           done
       - name: Upload Shorts as private drafts (English channel)
@@ -55,7 +66,7 @@ jobs:
           YT_CLIENT_ID: ${{ secrets.YT2_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT2_CLIENT_SECRET }}
           CHANNEL_YT: en
-        run: python3 scripts/upload_shorts.py "${{ inputs.slug }}" "${{ inputs.max_upload }}"
+        run: python3 scripts/upload_shorts.py "${IN_SLUG}" "${IN_MAX_UPLOAD}"
       - name: Keep the Shorts
         if: always()
         uses: actions/upload-artifact@v4
@@ -68,4 +79,4 @@ jobs:
         if: always()
         run: |
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
-          git add state/${{ inputs.slug }}/shorts/*.json 2>/dev/null; git diff --cached --quiet || { git commit -q -m "shorts: ${{ inputs.slug }}"; for i in 1 2 3 4 5 6 7 8; do git pull --rebase -q && git push -q && break; sleep $((i*2)); done; }
+          git add state/${IN_SLUG}/shorts/*.json 2>/dev/null; git diff --cached --quiet || { git commit -q -m "shorts: ${IN_SLUG}"; for i in 1 2 3 4 5 6 7 8; do git pull --rebase -q && git push -q && break; sleep $((i*2)); done; }

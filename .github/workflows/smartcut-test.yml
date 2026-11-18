@@ -8,22 +8,26 @@ permissions: { contents: read }
 jobs:
   t:
     runs-on: ubuntu-latest
+    env:   # workflow inputs go through env vars, never straight into the shell script (injection)
+      IN_CLIP_ID: ${{ inputs.clip_id }}
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
+      - name: Validate inputs
+        run: python3 scripts/ci_check_inputs.py
       - name: Install
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - name: Cut
         run: |
-          python3 scripts/stations/cut.py state/clips/${{ inputs.clip_id }} 2>&1 | tail -30
+          python3 scripts/stations/cut.py state/clips/${IN_CLIP_ID} 2>&1 | tail -30
       - name: Probe
         run: |
-          for f in state/clips/${{ inputs.clip_id }}/work/parts/*.mp4 state/clips/${{ inputs.clip_id }}/work/body.mp4; do
+          for f in state/clips/${IN_CLIP_ID}/work/parts/*.mp4 state/clips/${IN_CLIP_ID}/work/body.mp4; do
             echo "== $f"; ffprobe -v error -show_entries stream=codec_type,start_time,duration:format=duration,start_time -of compact "$f"
           done
       - name: Split like render_clip (copy at keyframes) and re-join
         run: |
-          W=state/clips/${{ inputs.clip_id }}/work; mkdir -p $W/split
+          W=state/clips/${IN_CLIP_ID}/work; mkdir -p $W/split
           ffmpeg -hide_banner -loglevel error -y -i $W/body.mp4 -c copy -f segment -segment_times 30 -reset_timestamps 1 $W/split/s%d.mp4
           for f in $W/split/s*.mp4; do echo "== $f"; ffprobe -v error -show_entries stream=codec_type,start_time,duration:format=duration,start_time -of compact "$f"; done
           printf "file '$PWD/$W/split/s0.mp4'\nfile '$PWD/$W/split/s1.mp4'\n" > $W/join.txt

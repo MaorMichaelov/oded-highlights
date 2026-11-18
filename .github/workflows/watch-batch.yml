@@ -26,6 +26,7 @@ jobs:
           pip install -q yt-dlp
           mkdir -p state/yt_research
           for id in $IDS; do
+            [[ "$id" =~ ^[A-Za-z0-9_-]{6,20}$ ]] || { echo "skip bad id"; continue; }
             python3 scripts/watch_video.py "https://www.youtube.com/watch?v=$id" "$Q" > /tmp/w_$id.log 2>&1 || true
             grep -o 'WATCH|.*' /tmp/w_$id.log | grep -v 'available' | cut -c7- > state/yt_research/watch_$id.txt
             sleep 20

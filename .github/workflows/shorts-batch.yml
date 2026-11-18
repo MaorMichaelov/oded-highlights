@@ -17,9 +17,20 @@ permissions: { contents: write }
 jobs:
   batch:
     runs-on: ubuntu-latest
+    env:   # workflow inputs go through env vars, never straight into the shell script (injection)
+      IN_FROM_MIN: ${{ inputs.from_min }}
+      IN_TOTAL_MIN: ${{ inputs.total_min }}
+      IN_SLUG: ${{ inputs.slug }}
+      IN_PLATFORM: ${{ inputs.platform }}
+      IN_CREDIT: ${{ inputs.credit }}
+      IN_VOD: ${{ inputs.vod }}
+      IN_PER_WINDOW: ${{ inputs.per_window }}
+      IN_MAX_UPLOAD: ${{ inputs.max_upload }}
     timeout-minutes: 340
     steps:
       - uses: actions/checkout@v4
+      - name: Validate inputs
+        run: python3 scripts/ci_check_inputs.py
       - name: Install
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
@@ -34,14 +45,14 @@ jobs:
           GEMINI_API_KEY_4: ${{ secrets.GEMINI_API_KEY_4 }}
           GEMINI_API_KEY_5: ${{ secrets.GEMINI_API_KEY_5 }}
         run: |
-          from=${{ inputs.from_min }}; end=$((from + ${{ inputs.total_min }}))
+          from=${IN_FROM_MIN}; end=$((from + ${IN_TOTAL_MIN}))
           while [ $from -lt $end ]; do
             to=$((from + 30))
             echo "=== window $from-$to"
-            python3 -u scripts/vod_shorts.py --slug "${{ inputs.slug }}" --platform "${{ inputs.platform }}" --credit "${{ inputs.credit }}" --vod "${{ inputs.vod }}" --from-min $from --to-min $to --n ${{ inputs.per_window }} || echo "window $from-$to: nothing"
+            python3 -u scripts/vod_shorts.py --slug "${IN_SLUG}" --platform "${IN_PLATFORM}" --credit "${IN_CREDIT}" --vod "${IN_VOD}" --from-min $from --to-min $to --n ${IN_PER_WINDOW} || echo "window $from-$to: nothing"
             from=$to
           done
-          ls -la state/${{ inputs.slug }}/shorts/ || true
+          ls -la state/${IN_SLUG}/shorts/ || true
       - name: Upload Shorts as private drafts (English channel)
         if: ${{ inputs.upload == 'true' }}
         env:
@@ -49,7 +60,7 @@ jobs:
           YT_CLIENT_ID: ${{ secrets.YT2_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT2_CLIENT_SECRET }}
           CHANNEL_YT: en
-        run: python3 scripts/upload_shorts.py "${{ inputs.slug }}" "${{ inputs.max_upload }}"
+        run: python3 scripts/upload_shorts.py "${IN_SLUG}" "${IN_MAX_UPLOAD}"
       - name: Keep the Shorts
         if: always()
         uses: actions/upload-artifact@v4
@@ -62,4 +73,4 @@ jobs:
         if: always()
         run: |
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
-          git add state/${{ inputs.slug }}/shorts/*.json 2>/dev/null; git diff --cached --quiet || { git commit -q -m "shorts: ${{ inputs.slug }} batch"; for i in 1 2 3 4 5 6 7 8 9 10; do git pull --rebase -q && git push -q && break; sleep $((i*2)); done; }
+          git add state/${IN_SLUG}/shorts/*.json 2>/dev/null; git diff --cached --quiet || { git commit -q -m "shorts: ${IN_SLUG} batch"; for i in 1 2 3 4 5 6 7 8 9 10; do git pull --rebase -q && git push -q && break; sleep $((i*2)); done; }
