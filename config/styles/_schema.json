@@ -228,6 +228,19 @@
     "shorts"
    ]
   },
+  "layout.fg_zoom": {
+   "type": "float",
+   "meaning": "blur_fill: enlarge the centred stream by this factor and crop its sides (1.0 = the whole width; 1.5 = a bigger picture of the middle of the stream; use for landscape gameplay so it does not look small)",
+   "default_shorts": 1.0,
+   "default_long": null,
+   "range": [
+    1.0,
+    2.5
+   ],
+   "formats": [
+    "shorts"
+   ]
+  },
   "layout.crop_x": {
    "type": "float",
    "meaning": "crop_fill: horizontal focus of the crop (0 left, 0.5 centre, 1 right: e.g. where the streamer's face-cam is)",

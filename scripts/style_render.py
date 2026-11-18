@@ -123,6 +123,7 @@ def build_shorts_cmd(body, s, e, ass, out, hook, peak, st, side=None, env=None):
     if cuts: pre = f"[0:v]select='{_sel(cuts)}',setpts=N/FRAME_RATE/TB[sv];"; src = "[sv]"
     if lay["mode"] == "blur_fill":
         fg = f"scale={W}:-2" if lay["fg_fit"] == "width" else f"scale={W}:{H}:force_original_aspect_ratio=decrease"
+        if float(lay.get("fg_zoom", 1.0) or 1.0) > 1.001 and lay["fg_fit"] == "width": fg = f"scale={int(W * float(lay['fg_zoom'])) // 2 * 2}:-2,crop={W}:ih:(iw-{W})*{_n(lay['crop_x'])}:0"   # a bigger picture: scale up, keep the middle
         v0 = (f"{src}split=2[a][b];[a]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},boxblur={int(lay['blur_radius'])}:{int(lay['blur_power'])},eq=brightness={_n(lay['bg_brightness'])}[bg];[b]{fg}[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2[v0];")
     elif lay["mode"] == "crop_fill": v0 = f"{src}scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H}:(in_w-{W})*{_n(lay['crop_x'])}:0[v0];"
     else: v0 = f"{src}scale={W}:{H}:force_original_aspect_ratio=decrease,pad={W}:{H}:(ow-iw)/2:(oh-ih)/2:color={ST.norm_color(lay['bg_color']).replace('#', '0x')}[v0];"

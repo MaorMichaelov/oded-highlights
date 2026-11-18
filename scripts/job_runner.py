@@ -76,7 +76,7 @@ def customer_style(job, profile, cfg):
     sid = str((job.get("style_id") or "signature"))
     try: S.load_raw(sid)
     except Exception: sid = "signature"
-    ov = {"intro": {"bumper_s": 0}}
+    ov = {"intro": {"bumper_s": 0}, "layout": {"fg_zoom": 1.55}}   # customers: a bigger picture of the stream (the plain blur-fill makes landscape gameplay look small)
     if not cfg.get("keep_watermark"): ov["watermark"] = {"enabled": False}
     lang = (profile or {}).get("language") or (job.get("hints") or {}).get("language")
     if lang in ("he", "en"): ov["language"] = {"code": lang, "name": "Hebrew" if lang == "he" else "English"}
@@ -181,6 +181,21 @@ def pick_peaks(S, n_max, thr=0.9, sep=60):
 
 
 # ---------------------------------------------------------------- moment judging
+
+LANG_MAP = {"hebrew": "he", "english": "en", "he": "he", "en": "en"}
+def detect_language(media, dur, workdir):
+    """Which language does the streamer speak? Whisper (Groq) listens to 40 s from the middle of the source and names it. Returns "he" / "en" or None (unknown / not Hebrew-English / no key)."""
+    key = os.environ.get("GROQ_API_KEY", "")
+    if not key or dur < 60: return None
+    mp3 = os.path.join(workdir, "lang_probe.mp3")
+    try:
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", str(max(0, dur * 0.4)), "-t", "40", "-i", media, "-vn", "-ac", "1", "-ar", "16000", "-b:a", "48k", mp3], check=True, timeout=120)
+        r = subprocess.run(["curl", "-sS", "-m", "90", "https://api.groq.com/openai/v1/audio/transcriptions", "-H", "Authorization: Bearer " + key, "-F", "file=@" + mp3, "-F", "model=whisper-large-v3-turbo", "-F", "response_format=verbose_json"], capture_output=True, text=True)
+        lang = str(json.loads(r.stdout).get("language", "")).lower()
+        return LANG_MAP.get(lang)
+    except Exception as e:
+        print("language detection failed:", str(e)[:120], flush=True); return None
+
 def heuristic_pick(pk, words, S, lead=10.0, tail=12.0, lang="en"):
     """no LLM: window around the peak, title from the first words said there. Flagged so the customer knows it was not judged by a model."""
     ws = [w for w in words if pk - lead <= w["start"] <= pk + tail]
@@ -234,6 +249,11 @@ def run_job(job, workdir, cfg=None, emit=None, deps=None):
     if not src["has_video"]: raise WS.SourceError("no_video", "the source has no video track")
     media, dur = src["path"], src["duration_s"]; timing["source_s"] = round(time.time() - t_start, 1)
     print("source: %s %.1f min (%s)" % (src["kind"], dur / 60, src["title"]), flush=True)
+    if not ((profile or {}).get("language") in ("he", "en") or hints.get("language") in ("he", "en")):   # nobody chose a language: listen and decide (a Hebrew stream must not be transcribed as English)
+        _dl = detect_language(media, dur, workdir)
+        if _dl and _dl != LANG:
+            ST["language"] = {"code": _dl, "name": "Hebrew" if _dl == "he" else "English"}; LANG, LANGN = ST["language"]["code"], ST["language"]["name"]
+        print("language: %s (detected: %s)" % (LANG, _dl), flush=True)
 
     # 2. words + energy, 10-minute chunks
     transcribe = deps.get("transcribe") or make_transcriber(cfg, LANG); llm = deps["llm"] if "llm" in deps else make_llm(cfg)

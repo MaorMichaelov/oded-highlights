@@ -30,6 +30,7 @@ _T = [
  ("layout.blur_power", "int", 4, NA, (1, 8), "blur_fill: blur passes"),
  ("layout.bg_brightness", "float", -0.12, NA, (-1, 1), "blur_fill: background brightness offset"),
  ("layout.bg_color", "color", "#000000", NA, None, "bars: bar colour"),
+ ("layout.fg_zoom", "float", 1.0, NA, (1.0, 2.5), "blur_fill: enlarge the centred stream by this factor and crop its sides (1.0 = the whole width; 1.5 = a bigger picture of the middle of the stream; use for landscape gameplay so it does not look small)"),
  ("layout.crop_x", "float", 0.5, NA, (0, 1), "crop_fill: horizontal focus of the crop (0 left, 0.5 centre, 1 right: e.g. where the streamer's face-cam is)"),
  ("captions.enabled", "bool", True, False, None, "burn captions into the video (long videos: off in the classic style)"),
  ("captions.font", "str", "Heebo Black", "Heebo Black", None, "font family name (fonts in assets/fonts and the system: Heebo Black, Anton, Bangers, Bebas Neue, Montserrat)"),
