@@ -17,7 +17,9 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - name: Install test deps
-        run: pip install -q numpy pyyaml pillow
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          pip install -q numpy pyyaml pillow
       - name: Python syntax of every script
         run: python -m compileall -q scripts app tests
       - name: Python unit tests
