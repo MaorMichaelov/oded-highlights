@@ -8,7 +8,7 @@ name: studio-worker
 # existing GROQ_API_KEY / GEMINI_API_KEY; off by default so customer audio stays on the runner and the live loops' quota is untouched).
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "*/10 * * * *"
   workflow_dispatch:
     inputs:
       max_minutes: { description: "time budget in minutes for this run (jobs still running at the end are failed and refunded)", required: false, default: "50" }
