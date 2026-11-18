@@ -504,8 +504,8 @@ const I = {
   generic_err: ["משהו השתבש. נסו שוב בעוד רגע.", "Something went wrong. Please try again in a moment."],
   // auth + landing
   hero_title: ["הסטרים נגמר. הקליפים כבר חתוכים.", "Stream ends. Clips are cut."], hero_eb: ["עריכה אוטומטית לסטרימרים", "Auto-edit for streamers"], clips_bin: ["קליפים בסל", "clips in bin"], jobs_n: ["עבודות", "jobs"], nle_status: ["נמצאו 4 קליפים · עברו בדיקת איכות · טיוטות פרטיות", "4 clips found · QA passed · private drafts"], clip_lbl: ["קליפ", "Clip"], in_lbl: ["כניסה", "In"], out_lbl: ["יציאה", "Out"], dur_lbl: ["אורך", "Dur"], you_u: ["אתם", "You"],
-  hero_sub: ["מדביקים קישור לערוץ, מחברים יוטיוב, והעוזר מוצא את הרגעים, חותך, מוסיף כתוביות ומכין טיוטות. אתם רק מאשרים.", "Paste your channel, connect YouTube, and the assistant finds the moments, cuts, captions and drafts. You just approve."],
-  perk1: ["טיוטות פרטיות בלבד", "Private drafts only"], perk2: ["שום דבר לא עולה בלי אישור", "Nothing goes live without you"], perk3: ["עברית ואנגלית", "Hebrew and English"],
+  hero_sub: ["מדביקים קישור לערוץ, מחברים יוטיוב, והעוזר מוצא את הרגעים וחותך שורטס וגם סרטונים ארוכים: ריאקשנים, שיחות עם אורחים, משחקים ואירועים. אתם רק מאשרים.", "Paste your channel, connect YouTube, and the assistant finds the moments and cuts Shorts and long videos: reactions, guest talks, games and events. You just approve."],
+  perk1: ["טיוטות פרטיות בלבד", "Private drafts only"], perk2: ["שום דבר לא עולה בלי אישור", "Nothing goes live without you"], perk3: ["שורטס וסרטונים ארוכים", "Shorts and long videos"], perk4: ["עברית ואנגלית", "Hebrew and English"],
   guest_go: ["כניסה לסטודיו", "Enter the studio"], guest_or: ["או עם אימייל", "or with email"], guest_hint: ["בלי סיסמה ובלי אימייל. נכנסים ישר.", "No password, no email. Straight in."],
   auth_title: ["ברוכים הבאים", "Welcome"], auth_hint: ["חדשים כאן? ניצור חשבון אוטומטית, בלי טפסים ארוכים.", "New here? We create your account automatically. No long forms."],
   email: ["אימייל", "Email"], password: ["סיסמה", "Password"], pw_hint: ["לפחות 8 תווים", "At least 8 characters"], show_pw: ["הצגת סיסמה", "Show password"], hide_pw: ["הסתרת סיסמה", "Hide password"],
@@ -698,7 +698,7 @@ async function loadCore() {
 }
 function notifyChanges() {   // toast when a job reaches draft_ready / failed since the last poll
   if (S.prevJobs) { let nd = 0, nf = 0; for (const j of S.jobs) { const p = S.prevJobs[j.id]; if (p && p !== j.status) { if (j.status === "draft_ready") nd += (j.result.drafts || []).length; if (j.status === "failed") nf++; } }
-    if (nd) toast(tf("new_drafts_toast", { n: nd }), { action: t("review_now"), fn: () => go("review") }); if (nf) toast(t("job_failed_toast"), { kind: "bad" }); }
+    if (nd && route.name !== "review") toast(tf("new_drafts_toast", { n: nd }), { action: t("review_now"), fn: () => go("review") }); /* on the review screen the card just appears: the toast would cover approve/reject */ if (nf) toast(t("job_failed_toast"), { kind: "bad" }); }
   S.prevJobs = Object.fromEntries(S.jobs.map((j) => [j.id, j.status]));
 }
 async function loadYt() {
@@ -707,7 +707,7 @@ async function loadYt() {
 }
 async function loadMembers() { try { const m = await api("GET", op() + "/members"); S.members = m.members; S.invites = m.invites; } catch (e) { S.members = S.members || []; } }
 async function loadChat() { try { const c = await api("GET", op() + "/assistant"); S.chat = c.history || []; S.chatHint = c.hint || null; } catch (e) { S.chat = S.chat || []; } }
-function sessionExpired() { token = null; LS.del("studio_token"); S.ready = false; S.user = null; stopPoll(); renderApp(); }
+function sessionExpired() { token = null; LS.del("studio_token"); S.ready = false; S.user = null; S.org = null; S.orgs = []; S.channels = []; S.jobs = []; S.chat = null; S.members = null; S.inviteOut = null; S.prevJobs = null; stopPoll(); renderApp(); toast(t("e_unauthorized"), { kind: "bad", ms: 7000 }); }
 
 /* poll: faster while a job is running, pauses while the tab is hidden */
 let pollT = null;
@@ -747,7 +747,10 @@ function parseRoute() { const m = location.hash.match(/^#\/([a-z]+)(?:\/(.+))?/)
 function onHash() {
   const hy = location.hash.match(/youtube=(connected|error=([A-Za-z_]+))/), hi = location.hash.match(/invite=(inv_[a-f0-9]+)/);
   if (hy) { history.replaceState(null, "", location.pathname + location.search + "#/setup"); parseRoute(); if (hy[1] === "connected") { toast(t("yt_connected_toast")); } else toast(t("e_yt_return", { code: hy[2] }), { kind: "bad" }); if (S.ready) loadCore().then(() => renderRoute(true)).catch(() => {}); else renderApp(); return; }
-  if (hi) { S.inviteToken = hi[1]; history.replaceState(null, "", location.pathname + location.search + "#/home"); renderApp(); return; }
+  if (hi) { S.inviteToken = hi[1]; S.invitePreview = null; history.replaceState(null, "", location.pathname + location.search + "#/home");
+    if (token || DEMO) S.ready = false;   // signed in: boot() loads the invite preview first, then shows the join screen
+    else if (!DEMO) api("POST", "/invites/preview", { token: S.inviteToken }).then((p) => { S.invitePreview = p; if (!token && S.inviteToken) renderAuth(); }).catch(() => { S.inviteToken = null; toast(t("e_invite_invalid"), { kind: "bad" }); });   // landing shows "you were invited to X" and prefills the invited email
+    renderApp(); return; }
   parseRoute(); if (S.ready) renderRoute(true);
 }
 addEventListener("hashchange", onHash);
@@ -801,7 +804,7 @@ function renderRoute(enter) {
 }
 function softRender() { updateChrome(); const a = document.activeElement; if (a && $("#view") && $("#view").contains(a) && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) { dirty = true; return; } if (route.name === "chat") return; renderRoute(false); }
 addEventListener("focusout", () => { if (dirty) setTimeout(() => { const a = document.activeElement; if (!(a && /INPUT|TEXTAREA|SELECT/.test(a.tagName))) { dirty = false; renderRoute(false); } }, 50); });
-async function logout() { try { await api("POST", "/logout"); } catch (e) {} token = null; LS.del("studio_token"); S.ready = false; S.user = null; S.org = null; S.orgs = []; S.channels = []; S.jobs = []; S.chat = null; S.members = null; stopPoll(); if (DEMO) demoLanding = true; history.replaceState(null, "", location.pathname + location.search); renderApp(); }
+async function logout() { try { await api("POST", "/logout"); } catch (e) {} token = null; LS.del("studio_token"); S.ready = false; S.user = null; S.org = null; S.orgs = []; S.channels = []; S.jobs = []; S.chat = null; S.members = null; S.inviteOut = null; stopPoll(); if (DEMO) demoLanding = true; history.replaceState(null, "", location.pathname + location.search); renderApp(); }
 
 /* ---------- 6a. auth + landing ---------- */
 let demoLanding = DEMO && (FORCE_DEMO ? QS.get("auto") !== "1" : QS.get("landing") === "1");
@@ -840,7 +843,7 @@ function renderAuth() {
     h("div", { class: "auth-top" }, h("a", { class: "brand", href: "#" }, h("span", { class: "logo" }), h("span", null, "Studio")), h("div", { class: "grp" }, langSwitch(), themeBtn())),
     h("section", { class: "landing" }, h("div", { class: "eyebrow" }, h("span", { class: "rec" }), h("b", null, "REC"), h("span", { "data-tc": "" }, nowTc()), h("span", null, "· " + t("hero_eb"))),
       h("h1", { class: "display" }, a, " ", b ? h("span", { class: "hot" }, b) : null), h("p", { class: "lead" }, t("hero_sub")),
-      h("div", { class: "perks" }, ...["perk1", "perk2", "perk3"].map((k) => h("span", { class: "chip" }, icon(k === "perk3" ? "globe" : k === "perk1" ? "lock" : "shield"), t(k))))),
+      h("div", { class: "perks" }, ...["perk1", "perk2", "perk3", "perk4"].map((k) => h("span", { class: "chip" }, icon(k === "perk4" ? "globe" : k === "perk3" ? "play" : k === "perk1" ? "lock" : "shield"), t(k))))),
     h("section", { class: "card authcard" }, h("div", { class: "bar-h" }, h("span", null, h("span", { class: "rec" }), t("auth_title")), h("span", null, "CH-01")), h("div", { class: "body" }, guestBtn, h("p", { class: "small muted center" }, t("guest_hint")), h("details", { class: "emailbox" }, h("summary", null, t("guest_or")), form))), h("div", { class: "visual" }, nle())));
 }
 const langSwitch = () => h("div", { class: "seg", role: "group", "aria-label": t("se_lang") }, ...[["he", "עב"], ["en", "EN"]].map(([l, x]) => h("button", { type: "button", "aria-pressed": String(lang === l), "aria-label": l === "he" ? "עברית" : "English", onclick: () => lang !== l && setLang(l) }, x)));
@@ -848,7 +851,7 @@ const themeBtn = () => h("button", { class: "iconbtn", type: "button", "aria-lab
 function renderInvite() {
   const p = S.invitePreview || {}, msg = h("div", { class: "errtxt", role: "alert" });
   $("#app").replaceChildren(h("div", { class: "auth" }, h("div", { class: "card authcard stack" }, h("div", { class: "empty" }, h("div", { class: "art" }, icon("users")), h("h2", null, t("invite_title")), h("p", null, t("invite_for", { org: p.org || "", role: t("r_" + (p.role || "editor")) }))), msg,
-    h("button", { class: "btn lg block", onclick: async (e) => { e.currentTarget.disabled = true; try { await api("POST", "/invites/accept", { token: S.inviteToken }); S.inviteToken = null; S.invitePreview = null; S.ready = false; renderApp(); } catch (x) { msg.textContent = errText(x); e.currentTarget.disabled = false; } } }, t("invite_join")),
+    h("button", { class: "btn lg block", onclick: async (e) => { e.currentTarget.disabled = true; try { const ar = await api("POST", "/invites/accept", { token: S.inviteToken }); if (ar && ar.org_id) { LS.set("studio_org", ar.org_id); S.org = null; S.chat = null; S.members = null; S.inviteOut = null; } S.inviteToken = null; S.invitePreview = null; S.ready = false; renderApp(); } catch (x) { msg.textContent = errText(x); e.currentTarget.disabled = false; } } }, t("invite_join")),
     h("button", { class: "btn ghost block", onclick: () => { S.inviteToken = null; S.invitePreview = null; renderApp(); } }, t("invite_later")))));
 }
 
@@ -869,9 +872,10 @@ ROUTES.setup = function () {
     root.append(h("form", { class: "card pad-lg stack", onsubmit: async (e) => { e.preventDefault(); if (!parseChan(inp.value)) { err.textContent = t("e_bad_channel"); inp.focus(); return; } btn.disabled = true; try { await api("POST", op() + "/channels", { url: inp.value }); await loadCore(); renderRoute(true); } catch (x) { err.textContent = errText(x); btn.disabled = false; } } },
       h("h2", null, t("su1_t")), h("p", { class: "muted" }, t("su1_d")), h("div", { class: "field" }, h("label", { for: "chIn", class: "sr" }, t("su1_t")), inp, det), err, btn)); setTimeout(() => inp.focus(), 80);
   } else if (step === 2) {
-    const c = pending, secs = h("span", { class: "tabnum" }, "8"), msg = h("div", { class: "small", role: "status", "aria-live": "polite" }, S.verifyMsg || ""), codeTxt = h("code", null, c.verify_code);
-    let left = 8, busy = false, timer = null; const label = h("span", { class: "row small muted" }, h("span", { class: "spin" }), h("span", { class: "wl" }, t("su2_wait", { s: left })));
-    const check = async () => { if (busy) return; busy = true; $(".wl", label).textContent = t("su2_checking"); try { const r = await api("POST", op() + "/channels/" + c.id + "/verify"); if (r.verified || (r.channel && r.channel.status === "verified")) { S.verifyMsg = ""; toast(t("su2_ok")); await loadCore(); renderRoute(true); return; } S.verifyMsg = r[lang] || t("su2_notyet"); msg.textContent = S.verifyMsg; } catch (e) { if (e.error === "code_expired") { await loadCore(); renderRoute(true); toast(t("e_code_expired")); return; } S.verifyMsg = errText(e); msg.textContent = S.verifyMsg; } busy = false; left = 8; };
+    const c = pending; if (S.verifyFor !== c.id) { S.verifyFor = c.id; S.verifyMsg = ""; }   // a message from a previous channel must not show for this one
+    const secs = h("span", { class: "tabnum" }, "8"), msg = h("div", { class: "small", role: "status", "aria-live": "polite" }, S.verifyMsg || ""), codeTxt = h("code", null, c.verify_code);
+    let left = 8, busy = false, timer = null, tries = 0; const label = h("span", { class: "row small muted" }, h("span", { class: "spin" }), h("span", { class: "wl" }, t("su2_wait", { s: left })));
+    const check = async () => { if (busy) return; busy = true; $(".wl", label).textContent = t("su2_checking"); try { const r = await api("POST", op() + "/channels/" + c.id + "/verify"); if (r.verified || (r.channel && r.channel.status === "verified")) { S.verifyMsg = ""; toast(t("su2_ok")); await loadCore(); renderRoute(true); return; } S.verifyMsg = r[lang] || t("su2_notyet"); msg.textContent = S.verifyMsg; } catch (e) { if (e.error === "code_expired") { await loadCore(); renderRoute(true); toast(t("e_code_expired")); return; } S.verifyMsg = errText(e); msg.textContent = S.verifyMsg; } busy = false; tries++; left = Math.min(30, 8 + tries * 4); };   // back off 8s, 12s, 16s ... 30s so the auto check never trips the server rate limit
     timer = setInterval(() => { if (busy || document.hidden) return; left--; if (left <= 0) check(); $(".wl", label).textContent = busy ? t("su2_checking") : t("su2_wait", { s: Math.max(left, 0) }); }, 1000); cleanups.push(() => clearInterval(timer));
     const how = c.platform === "kick" ? "su2_kick" : "su2_twitch";
     root.append(h("div", { class: "card pad-lg stack" }, h("div", { class: "row between wrap" }, h("h2", null, t("su2_t")), platTag(c.platform), ),
@@ -904,9 +908,10 @@ function jobCard(j, opt) {
   if (j.status === "draft_ready" && waiting) card.append(h("a", { class: "btn", href: "#/review" }, icon("film"), t("review_drafts"), h("span", { class: "cnt" }, waiting)));
   if (["approved", "rejected"].includes(j.status) || (j.status === "draft_ready" && !waiting)) { const a = drafts.filter((d) => d.decision === "approved").length, r = drafts.filter((d) => d.decision === "rejected").length; card.append(h("div", { class: "job-sub" }, t("result_line", { a, r }))); }
   if (["queued", "running"].includes(j.status) && canEdit() && opt.cancel !== false) card.append(h("button", { class: "btn ghost sm", type: "button", onclick: async (e) => { e.currentTarget.disabled = true; try { await api("POST", op() + "/jobs/" + j.id + "/cancel"); toast(t("cancelled_toast")); await loadCore(); softRender(); } catch (x) { toast(errText(x), { kind: "bad" }); e.currentTarget.disabled = false; } } }, t("cancel_job")));
-  if (opt.log && (j.events || []).length) card.append(h("details", { class: "evlog" }, h("summary", null, t("log")), h("ul", null, ...j.events.slice().reverse().map((ev) => h("li", null, timeTxt(ev.t) + " · " + ev.e + (ev.note ? " · " + ev.note : ""))))));
+  if (opt.log && (j.events || []).length) card.append(h("details", { class: "evlog" }, h("summary", null, t("log")), h("ul", null, ...j.events.slice().reverse().map((ev) => h("li", null, timeTxt(ev.t) + " · " + evLabel(ev.e) + (ev.note ? " · " + ev.note : ""))))));
   return card;
 }
+const evLabel = (e) => (I["st_" + e] ? t("st_" + e) : ({ draft_approved: "approved", draft_rejected: "rejected", draft_title: "edit_title" })[e] ? t(({ draft_approved: "approved", draft_rejected: "rejected", draft_title: "edit_title" })[e]) : e);   // the event log shows the user language, not raw status codes
 const STEPS = ["tl_queued", "tl_fetch", "tl_listen", "tl_moments", "tl_cut", "tl_qa", "tl_ready"];
 function stepIndex(j) {
   if (j.status === "queued") return 0; if (["draft_ready", "approved", "rejected"].includes(j.status)) return 6; if (j.status === "qa") return 5;
@@ -919,7 +924,7 @@ function timeline(j, idx, failed) {
 }
 function checklist() {
   const ver = verifiedCh().length, yt = ytState() === "connected", first = S.jobs.length > 0;
-  const items = [["ck_account", null, true, null], ["ck_channel", "ck_channel_d", S.channels.length > 0, ["ck_do_channel", "setup"]], ["ck_verify", "ck_verify_d", ver > 0, ["ck_do_verify", "setup"]], ["ck_yt", "ck_yt_d", yt || LS.get("studio_skip_yt") === "1" && ver > 0 && yt, ["ck_do_yt", "setup"]], ["ck_first", "ck_first_d", first, ["ck_do_first", "chat"]]];
+  const items = [["ck_account", null, true, null], ["ck_channel", "ck_channel_d", S.channels.length > 0, ["ck_do_channel", "setup"]], ["ck_verify", "ck_verify_d", ver > 0, ["ck_do_verify", "setup"]], ["ck_yt", "ck_yt_d", yt || (LS.get("studio_skip_yt") === "1" && ver > 0), ["ck_do_yt", "setup"]], ["ck_first", "ck_first_d", first, ["ck_do_first", "chat"]]];
   const n = items.filter((i) => i[2]).length; if (n === items.length) return null;
   const nowIdx = items.findIndex((i) => !i[2]);
   return h("section", { class: "card pad-lg" }, h("div", { class: "row between" }, h("h2", null, t("setup_title")), h("span", { class: "chip accent" }, t("setup_of", { a: n, b: items.length }))), h("div", { class: "bar", style: { margin: "12px 0 6px" } }, h("i", { style: { width: (n / items.length * 100) + "%" } })),
@@ -1009,7 +1014,7 @@ ROUTES.review = function () {
   root.append(h("div", { class: "rv-stage" }, card)); if (dock && !desk) root.append(dock);
   if (canEdit()) {
     attachSwipe(card, () => decide(c, "approve"), () => decide(c, "reject"));
-    const same = cards.filter((x) => x.j.id === c.j.id); if (same.length > 1) { let armed = false; const b = h("button", { class: "btn secondary block bulk", type: "button", onclick: async (e) => { if (!armed) { armed = true; e.currentTarget.textContent = t("approve_all_sure"); setTimeout(() => { armed = false; if (e.currentTarget.isConnected) e.currentTarget.textContent = t("approve_all", { n: same.length }); }, 3500); return; } e.currentTarget.disabled = true; try { await api("POST", op() + "/jobs/" + c.j.id + "/approve"); await loadCore(); toast(t("approved_toast")); renderRoute(false); } catch (x) { toast(errText(x), { kind: "bad" }); } } }, t("approve_all", { n: same.length })); if (dock && !desk) root.insertBefore(b, dock); else root.append(b); }
+    const same = cards.filter((x) => x.j.id === c.j.id); if (same.length > 1) { let armed = false; const b = h("button", { class: "btn secondary block bulk", type: "button", onclick: async (e) => { const me = e.currentTarget; if (!armed) { armed = true; me.textContent = t("approve_all_sure"); setTimeout(() => { armed = false; if (me.isConnected && !me.disabled) me.textContent = t("approve_all", { n: same.length }); }, 3500); return; } me.disabled = true; try { await api("POST", op() + "/jobs/" + c.j.id + "/approve"); await loadCore(); toast(t("approved_toast")); renderRoute(false); } catch (x) { toast(errText(x), { kind: "bad" }); } } }, t("approve_all", { n: same.length })); if (dock && !desk) root.insertBefore(b, dock); else root.append(b); }
   }
   void jobsWith; void total; void mobile; return root;
 };
@@ -1063,11 +1068,11 @@ ROUTES.team = function () {
   root.append(h("section", { class: "card" }, h("h2", null, t("tm_members") + " (" + S.members.length + ")"), h("div", { class: "list", style: { marginTop: "8px" } }, ...S.members.map(memberRow))));
   if (S.invites.length) root.append(h("section", { class: "card" }, h("h2", null, t("tm_pending")), h("div", { class: "list", style: { marginTop: "8px" } }, ...S.invites.map((i) => h("div", { class: "li" }, h("span", { class: "avatar" }, icon("mail")), h("div", { class: "grow" }, h("b", { class: "ltr trunc" }, i.email), h("div", { class: "small muted" }, t("r_" + i.role) + " · " + t("tm_expires", { d: dateTxt(i.expires) }))), owner ? h("button", { class: "btn ghost sm", type: "button", onclick: async () => { try { await api("DELETE", op() + "/invites/" + i.id); await loadMembers(); renderRoute(false); } catch (x) { toast(errText(x), { kind: "bad" }); } } }, t("tm_revoke")) : null)))));
   if (!owner) { root.append(h("div", { class: "notice" }, icon("lock"), t("tm_owner_only"))); return root; }
-  const email = h("input", { class: "input", id: "invEmail", type: "email", dir: "ltr", autocomplete: "off", placeholder: "editor@example.com", required: true }), err = h("div", { class: "errtxt", role: "alert" }), out = h("div"); let role = "editor";
+  const email = h("input", { class: "input", id: "invEmail", type: "email", dir: "ltr", autocomplete: "off", placeholder: "editor@example.com", required: true }), err = h("div", { class: "errtxt", role: "alert" }), out = S.inviteOut || (S.inviteOut = h("div")); let role = "editor";   // out survives the re-render that refreshes the pending list
   const roleCard = (r) => h("label", { class: "role-card" }, h("input", { type: "radio", name: "role", value: r, checked: r === "editor", onchange: () => { role = r; } }), h("div", null, h("b", null, t("r_" + r)), h("span", null, t("rd_" + r))));
   const sub = h("button", { class: "btn lg block", type: "submit" }, icon("link"), t("tm_send"));
   root.append(h("form", { class: "card pad-lg stack", onsubmit: async (e) => { e.preventDefault(); err.textContent = ""; if (!/^\S+@\S+\.\S+$/.test(email.value.trim())) { err.textContent = t("e_email"); email.focus(); return; } sub.disabled = true;
-    try { const r = await api("POST", op() + "/invites", { email: email.value.trim(), role }); const em = email.value.trim(); email.value = ""; out.replaceChildren(h("div", { class: "notice ok" }, icon("check"), t("tm_link_ready", { email: em })), h("div", { class: "linkbox" }, h("code", null, r.accept_url), h("button", { class: "btn sm", type: "button", onclick: () => copyText(r.accept_url) }, icon("copy"), t("copy"))), h("div", { class: "row wrap" }, h("a", { class: "btn secondary sm", target: "_blank", rel: "noopener", href: "https://wa.me/?text=" + encodeURIComponent(r.accept_url) }, icon("send", "flip-send"), t("tm_whatsapp"))), h("div", { class: "small muted" }, t("tm_email_note"))); await loadMembers(); }
+    try { const r = await api("POST", op() + "/invites", { email: email.value.trim(), role }); const em = email.value.trim(); email.value = ""; out.replaceChildren(h("div", { class: "notice ok" }, icon("check"), t("tm_link_ready", { email: em })), h("div", { class: "linkbox" }, h("code", null, r.accept_url), h("button", { class: "btn sm", type: "button", onclick: () => copyText(r.accept_url) }, icon("copy"), t("copy"))), h("div", { class: "row wrap" }, h("a", { class: "btn secondary sm", target: "_blank", rel: "noopener", href: "https://wa.me/?text=" + encodeURIComponent(r.accept_url) }, icon("send", "flip-send"), t("tm_whatsapp"))), h("div", { class: "small muted" }, t("tm_email_note"))); await loadMembers(); if (route.name === "team") renderRoute(false); }
     catch (x) { err.textContent = errText(x); } sub.disabled = false; } },
     h("h2", null, t("tm_invite")), h("p", { class: "muted small" }, t("tm_invite_d")), h("div", { class: "field" }, h("label", { for: "invEmail" }, t("email")), email), h("div", { class: "stack tight", role: "radiogroup" }, roleCard("editor"), roleCard("viewer")), err, sub, out));
   return root;
@@ -1089,7 +1094,7 @@ ROUTES.credits = function () {
 /* ---------- 6i. settings + more ---------- */
 function createOrgForm() {
   const inp = h("input", { class: "input", id: "orgName", placeholder: t("se_ws_name"), "aria-label": t("se_ws_name"), maxlength: 80 }); const sub = h("button", { class: "btn", type: "submit" }, t("se_ws_create"));
-  return h("form", { class: "row wrap", onsubmit: async (e) => { e.preventDefault(); if (!inp.value.trim()) return; sub.disabled = true; try { const r = await api("POST", "/orgs", { name: inp.value.trim() }); LS.set("studio_org", r.org_id); S.org = null; S.ready = false; S.chat = null; S.members = null; renderApp(); } catch (x) { toast(errText(x), { kind: "bad" }); sub.disabled = false; } } }, h("div", { class: "grow" }, inp), sub);
+  return h("form", { class: "row wrap", onsubmit: async (e) => { e.preventDefault(); if (!inp.value.trim()) return; sub.disabled = true; try { const r = await api("POST", "/orgs", { name: inp.value.trim() }); LS.set("studio_org", r.org_id); S.org = null; S.ready = false; S.chat = null; S.members = null; S.inviteOut = null; renderApp(); } catch (x) { toast(errText(x), { kind: "bad" }); sub.disabled = false; } } }, h("div", { class: "grow" }, inp), sub);
 }
 ROUTES.more = function () {
   const item = (r, ic, lbl, sub) => h("a", { class: "menu-item", href: "#/" + r }, icon(ic), h("div", { class: "grow" }, t(lbl), sub ? h("small", null, sub) : null), icon("chev", "flip"));
@@ -1114,7 +1119,7 @@ ROUTES.settings = function () {
   root.append(h("section", { class: "card stack" }, h("div", null, h("h2", null, t("se_auto")), h("p", { class: "small muted" }, t("se_auto_d"))), h("div", { class: "stack tight", role: "radiogroup" }, opt(1, true), opt(2, false), opt(3, false))));
   root.append(h("section", { class: "card stack" }, h("div", null, h("h2", null, t("se_notif")), h("p", { class: "small muted" }, t("se_notif_d"))), ...["nt1", "nt2", "nt3"].map((k) => h("div", { class: "row between" }, h("span", null, t(k), " ", h("span", { class: "chip" }, t("soon"))), h("label", { class: "switch" }, h("input", { type: "checkbox", disabled: true, "aria-label": t(k) }), h("i"))))));
   const multi = S.orgs.length > 1;
-  root.append(h("section", { class: "card stack" }, h("h2", null, t("se_ws")), h("div", { class: "row between wrap" }, h("div", null, h("b", null, S.org.name), h("div", { class: "small muted" }, t("r_" + S.org.role))), multi ? h("select", { class: "input sel", "aria-label": t("se_ws_switch"), onchange: (e) => { S.org = S.orgs.find((o) => o.id === e.target.value); LS.set("studio_org", S.org.id); S.ready = false; S.chat = null; S.members = null; S.jobs = []; S.channels = []; S.prevJobs = null; renderApp(); } }, ...S.orgs.map((o) => h("option", { value: o.id, selected: o.id === S.org.id }, o.name))) : null),
+  root.append(h("section", { class: "card stack" }, h("h2", null, t("se_ws")), h("div", { class: "row between wrap" }, h("div", null, h("b", null, S.org.name), h("div", { class: "small muted" }, t("r_" + S.org.role))), multi ? h("select", { class: "input sel", "aria-label": t("se_ws_switch"), onchange: (e) => { S.org = S.orgs.find((o) => o.id === e.target.value); LS.set("studio_org", S.org.id); S.ready = false; S.chat = null; S.members = null; S.inviteOut = null; S.jobs = []; S.channels = []; S.prevJobs = null; renderApp(); } }, ...S.orgs.map((o) => h("option", { value: o.id, selected: o.id === S.org.id }, o.name))) : null),
     h("p", { class: "small muted" }, t("se_ws_d")), createOrgForm()));
   root.append(h("div", { class: "notice" }, icon("shield"), t("se_about_d")));
   return root;
@@ -1166,7 +1171,7 @@ function demoTick() {
     else j.status_text = dmsg("rendering", { i: Math.max(1, Math.ceil((j.progress - 58) / 36 * n)), n });
   }
 }
-function demoScenario(s) { demoInit(s); S.ready = false; S.chat = null; S.members = null; S.jobs = []; S.channels = []; S.prevJobs = null; S.local = {}; S.skipped = []; LS.del("studio_skip_yt"); token = "demo"; demoLanding = false; history.replaceState(null, "", "#/home"); renderApp(); }
+function demoScenario(s) { demoInit(s); S.ready = false; S.chat = null; S.members = null; S.inviteOut = null; S.jobs = []; S.channels = []; S.prevJobs = null; S.local = {}; S.skipped = []; LS.del("studio_skip_yt"); token = "demo"; demoLanding = false; history.replaceState(null, "", "#/home"); renderApp(); }
 const clone = (o) => JSON.parse(JSON.stringify(o));
 function demoUnderstand(text) {
   const raw = String(text).trim(), tl = raw.toLowerCase(), he = /[֐-׿]/.test(raw); let n = (tl.match(/\d+/) || [])[0]; n = n ? Math.min(30, +n) : 0;
@@ -1207,7 +1212,7 @@ async function demoApi(method, path, body) {
   if (sub === "/assistant" && method === "GET") return ok({ history: D.chat, hint: { he: "", en: "" } });
   if (sub === "/assistant" && method === "POST") {
     const u = demoUnderstand(body.message), L = u.he ? "he" : "en"; let reply, actions = [];
-    if (u.intent === "help") reply = L === "he" ? "אפשר לבקש בשפה חופשית, למשל: \"תכין 5 שורטס מצחיקים מאתמול\" או \"מה המצב?\"" : "Ask in plain words, e.g. \"make 5 funny Shorts from yesterday\" or \"what's the status?\"";
+    if (u.intent === "help") reply = smallTalk(u.text, L, D.chat.length, true);
     else if (u.intent === "status") { const j = D.jobs[0]; reply = j ? `${j.status_text[L]} (${Math.round(j.progress)}%)` : (L === "he" ? "עדיין אין עבודות. בקשו משהו בצ'אט!" : "No jobs yet. Ask me for something!"); if (j) actions.push({ type: "show_job", job_id: j.id }); }
     else if (role === "viewer") reply = L === "he" ? "לצופים אין הרשאה ליצור עבודות. בקשו מהבעלים להפוך אתכם לעורכים." : "Viewers can't create jobs. Ask the owner to make you an editor.";
     else if (!D.channels.some((c) => c.status === "verified")) reply = L === "he" ? "קודם נחבר ערוץ: הדביקו קישור לערוץ ואמתו בעלות. זה לוקח דקה." : "First let's connect a channel: paste your channel link and verify ownership. Takes a minute.";
@@ -1221,6 +1226,46 @@ async function demoApi(method, path, body) {
   if (sub === "/billing/checkout") { need("owner"); E(501, "payment_not_implemented"); }
   E(404, "not_found");
 }
+// ---- small talk without any model: greetings, thanks, yes/no, why/how much, goodbyes... several wordings per case, never the same reply twice in a row
+const ST = {
+  hi: { he: ["היי! מה נחתוך היום?", "שלום 👋 אפשר להתחיל מהשידור האחרון שלך. רוצה שורטס או סרטון ארוך?", "אהלן! אני כאן. תגיד מה אתה צריך ואני מתחיל.", "היי, טוב לראות אותך. יש שידור חדש שאפשר לעבוד עליו?"], en: ["Hey! What are we cutting today?", "Hi there. We can start from your latest stream. Shorts or a long video?", "Hello! I'm here. Tell me what you need and I'll get going.", "Hey, good to see you. Is there a new stream to work on?"] },
+  bye: { he: ["להתראות! הטיוטות ימתינו לך כשתחזור.", "ביי! אם משהו יסתיים בינתיים, תראה אותו בלשונית הבדיקה.", "יאללה, נתראה. אני ממשיך לעבוד ברקע.", "לילה טוב, או יום טוב. אני כאן כשתצטרך."], en: ["See you! Your drafts will be waiting.", "Bye! If anything finishes meanwhile it will show up in the Review tab.", "Catch you later. I keep working in the background.", "Take care, I'm here when you need me."] },
+  thanks: { he: ["בכיף!", "בשמחה, יש עוד משהו לחתוך?", "אין על מה. אני כאן.", "תמיד. רוצה שנמשיך?"], en: ["Anytime!", "My pleasure. Anything else to cut?", "No problem, I'm here.", "Always. Want to keep going?"] },
+  yes: { he: ["מעולה! מה בדיוק לעשות? למשל \"5 שורטס מצחיקים מאתמול\".", "סבבה. תן לי משהו קונקרטי: כמה קליפים, ומאיזה שידור?", "יופי. שורטס או סרטון ארוך?", "בכיף. מאיפה מתחילים, מהשידור האחרון?"], en: ["Great! What exactly should I do? For example \"5 funny Shorts from yesterday\".", "Okay. Give me something concrete: how many clips, from which stream?", "Nice. Shorts or a long video?", "Happy to. Where do we start, the latest stream?"] },
+  no: { he: ["אין בעיה, לא עושה כלום. אם תרצה משהו אחר, אני כאן.", "הבנתי, עוצר. מה כן?", "בסדר גמור. תגיד מה לשנות.", "סבבה, נשאיר את זה. משהו אחר?"], en: ["No problem, I won't do anything. I'm here if you want something else.", "Got it, stopping. What would you like instead?", "All good. Tell me what to change.", "Okay, we'll leave it. Anything else?"] },
+  why: { he: ["תפרט לי קצת מה מעניין אותך, ואסביר: למה בחרתי רגע מסוים, למה עבודה בתור, או איך משהו עובד?", "שאלה טובה. על מה בדיוק? על בחירת קליפ, על קרדיטים, או על משהו שלא עבד?", "אשמח להסביר. תגיד על איזה קליפ או איזו פעולה מדובר."], en: ["Tell me a bit more and I'll explain: why a moment was picked, why a job is queued, or how something works?", "Good question. About what exactly: a clip choice, credits, or something that didn't work?", "Happy to explain. Which clip or action do you mean?"] },
+  price: { he: ["קרדיט אחד מכסה שעה אחת של שידור מקור. בתקופת הניסיון יש לך כמה קרדיטים חינם, ואפשר לראות את היתרה בלשונית קרדיטים. תשלום יתווסף בהמשך.", "המחיר נקבע לפי שעות שידור: קרדיט לשעה. עכשיו זה ניסיון חינם. מחירים סופיים עוד לא פורסמו."], en: ["One credit covers one hour of source stream. During the trial you have a few free credits, and you can see the balance in the Credits tab. Payments come later.", "Pricing is by stream hours: one credit per hour. It's a free trial for now. Final prices are not published yet."] },
+  what: { he: ["אני מוצא רגעים בשידורים שלך וחותך מהם שורטס וסרטונים ארוכים, עם כתוביות ובדיקת איכות. הכול מגיע כטיוטה פרטית שאתה מאשר. נסה: \"תכין 5 שורטס מצחיקים מאתמול\".", "אפשר לבקש ממני: שורטס מהשידור האחרון, סרטון ארוך מריאקשן או שיחה עם אורח, או \"מה המצב?\" על עבודה שרצה.", "אני העורך שלך. אתה מגדיר מה לחתוך, אני עושה, ואתה מאשר או דוחה. בוא נתחיל: מאיזה שידור?"], en: ["I find moments in your streams and cut Shorts and long videos from them, with captions and a quality check. Everything arrives as a private draft you approve. Try: \"make 5 funny Shorts from yesterday\".", "You can ask me for Shorts from the latest stream, a long video from a reaction or a guest conversation, or \"what's the status?\" on a running job.", "I'm your editor. You say what to cut, I do it, you approve or reject. Let's start: which stream?"] },
+  who: { he: ["אני העוזר של Studio: מוצא רגעים בשידורים שלך ומכין מהם טיוטות.", "אני עוזר אוטומטי לעריכת קליפים. אני לא מפרסם כלום בלי אישור שלך."], en: ["I'm Studio's assistant: I find moments in your streams and turn them into drafts.", "I'm an automatic clip editor. I never publish anything without your approval."] },
+  all: { he: ["הכול? בוא נתחיל קטן: מה הכי חשוב לך עכשיו, שורטס מהשידור האחרון או סרטון ארוך?", "אפשר להתחיל מההכול, אבל הכי טוב צעד אחר צעד. איזה שידור קודם?"], en: ["Everything? Let's start small: what matters most right now, Shorts from the latest stream or a long video?", "We can cover it all, but step by step works best. Which stream first?"] },
+  ok: { he: ["👍 מה הלאה?", "רשמתי. עוד משהו?", "סגור."], en: ["👍 What's next?", "Noted. Anything else?", "Done."] },
+  howmany: { he: ["כמה מה? קליפים, קרדיטים או שעות שידור? אפשר לשאול למשל \"כמה זה עולה?\" או לבקש \"5 שורטס\".", "תפרט קצת: כמה קליפים לחתוך, או כמה זה עולה?"], en: ["How many of what? Clips, credits or stream hours? You can ask \"how much does it cost?\" or request \"5 Shorts\".", "Tell me a bit more: how many clips to cut, or how much it costs?"] },
+  me: { he: ["אתה? ספר לי: מה אתה רוצה שנחתוך?", "אני מקשיב. על מה מדובר?"], en: ["You? Tell me: what would you like cut?", "I'm listening. What's it about?"] },
+  idk: { he: ["לא בטוח שהבנתי. אפשר לנסות: \"5 שורטס מצחיקים מאתמול\", \"סרטון ארוך מהשידור האחרון\" או \"מה המצב?\"", "ניסוח אחר? למשל מה לחתוך, כמה, ומאיזה שידור.", "לא תפסתי. תגיד לי במילים שלך מה אתה רוצה שייחתך."], en: ["Not sure I got that. Try: \"5 funny Shorts from yesterday\", \"a long video from the latest stream\" or \"what's the status?\"", "Another wording? For example what to cut, how many, and from which stream.", "I didn't catch that. Tell me in your own words what you want cut."] },
+};
+function stCategory(t) {
+  const x = t.toLowerCase().replace(/[!?.,]+/g, " ").replace(/\s+/g, " ").trim(); const w = x.split(" ");
+  const has = (re) => re.test(x);
+  if (w.length <= 2 && /^(כמה|how much|how many)$/.test(x)) return "howmany";
+  if (/^(שלום|היי|הי|אהלן|הלו|מה נשמע|מה קורה|בוקר טוב|ערב טוב|hi|hey|hello|yo|sup|good (morning|evening)|how are you)(?= |$)/.test(x) && w.length <= 5) return "hi";
+  if (/^(ביי|להתראות|נתראה|לילה טוב|bye|goodbye|see you|cya|good night)(?= |$)/.test(x)) return "bye";
+  if (/^(תודה|תודה רבה|thanks|thank you|thx)(?= |$)/.test(x)) return "thanks";
+  if (w.length <= 3 && /^(כן|בטח|יאללה|אוקיי|אוקי|סבבה|yes|yeah|yep|sure|ok|okay)(?= |$)/.test(x)) return x.match(/^(אוקיי|אוקי|סבבה|ok|okay)/) ? "ok" : "yes";
+  if (w.length <= 3 && /^(לא|no|nope|nah|עזוב|ביטול|cancel)(?= |$)/.test(x)) return "no";
+  if (has(/כמה (זה )?(עולה|עלות|מחיר|קרדיט)|מחיר|עולה|תשלום|price|cost|how much|pricing|credits?(?= |$)/) ) return "price";
+  if (has(/^(למה|מדוע|why|how come)(?= |$)|^איך (זה )?עובד|how (does|do) (it|this)/)) return "why";
+  if (has(/מה (אתה|את|אפשר|ניתן) (יכול|יכולה|לעשות|לבקש)|במה אתה|עזרה|\bhelp\b|what can you|what do you do|מה אתה עושה/)) return "what";
+  if (has(/^(מי אתה|מי את|who are you|what are you)/)) return "who";
+  if (w.length <= 2 && /^(הכל|הכול|everything|all)$/.test(x)) return "all";
+  if (w.length <= 2 && /^(כמה|how much|how many)$/.test(x)) return "howmany";
+  if (w.length <= 2 && /^(אני|אני רוצה|i|me|i want)$/.test(x)) return "me";
+  return null;
+}
+let stLast = "";
+function smallTalk(text, L, turn, always) {
+  let cat = stCategory(String(text || "")); if (!cat) { if (!always) return null; cat = "idk"; } const pool = ST[cat][L] || ST[cat].en; let i = ((turn || 0) + String(text).length) % pool.length; let r = pool[i]; if (r === stLast) r = pool[(i + 1) % pool.length]; stLast = r; return r;
+}
+
 function demoClose(j) { const ds = j.result.drafts; if (ds.every((d) => d.decision)) { j.status = ds.some((d) => d.decision === "approved") ? "approved" : "rejected"; j.status_text = dmsg(j.status); } j.updated = new Date().toISOString(); }
 // the demo "server" answers PATCH/DELETE/GET with the same shapes; title edit is POST .../drafts/:i/title (see app/studio.js)
 

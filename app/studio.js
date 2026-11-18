@@ -231,6 +231,46 @@ Output ONLY JSON: {"reply": "<what you say>", "intent": "create" | "status" | "c
   }
   return null;
 }
+// ---- small talk without any model: greetings, thanks, yes/no, why/how much, goodbyes... several wordings per case, never the same reply twice in a row
+const ST = {
+  hi: { he: ["היי! מה נחתוך היום?", "שלום 👋 אפשר להתחיל מהשידור האחרון שלך. רוצה שורטס או סרטון ארוך?", "אהלן! אני כאן. תגיד מה אתה צריך ואני מתחיל.", "היי, טוב לראות אותך. יש שידור חדש שאפשר לעבוד עליו?"], en: ["Hey! What are we cutting today?", "Hi there. We can start from your latest stream. Shorts or a long video?", "Hello! I'm here. Tell me what you need and I'll get going.", "Hey, good to see you. Is there a new stream to work on?"] },
+  bye: { he: ["להתראות! הטיוטות ימתינו לך כשתחזור.", "ביי! אם משהו יסתיים בינתיים, תראה אותו בלשונית הבדיקה.", "יאללה, נתראה. אני ממשיך לעבוד ברקע.", "לילה טוב, או יום טוב. אני כאן כשתצטרך."], en: ["See you! Your drafts will be waiting.", "Bye! If anything finishes meanwhile it will show up in the Review tab.", "Catch you later. I keep working in the background.", "Take care, I'm here when you need me."] },
+  thanks: { he: ["בכיף!", "בשמחה, יש עוד משהו לחתוך?", "אין על מה. אני כאן.", "תמיד. רוצה שנמשיך?"], en: ["Anytime!", "My pleasure. Anything else to cut?", "No problem, I'm here.", "Always. Want to keep going?"] },
+  yes: { he: ["מעולה! מה בדיוק לעשות? למשל \"5 שורטס מצחיקים מאתמול\".", "סבבה. תן לי משהו קונקרטי: כמה קליפים, ומאיזה שידור?", "יופי. שורטס או סרטון ארוך?", "בכיף. מאיפה מתחילים, מהשידור האחרון?"], en: ["Great! What exactly should I do? For example \"5 funny Shorts from yesterday\".", "Okay. Give me something concrete: how many clips, from which stream?", "Nice. Shorts or a long video?", "Happy to. Where do we start, the latest stream?"] },
+  no: { he: ["אין בעיה, לא עושה כלום. אם תרצה משהו אחר, אני כאן.", "הבנתי, עוצר. מה כן?", "בסדר גמור. תגיד מה לשנות.", "סבבה, נשאיר את זה. משהו אחר?"], en: ["No problem, I won't do anything. I'm here if you want something else.", "Got it, stopping. What would you like instead?", "All good. Tell me what to change.", "Okay, we'll leave it. Anything else?"] },
+  why: { he: ["תפרט לי קצת מה מעניין אותך, ואסביר: למה בחרתי רגע מסוים, למה עבודה בתור, או איך משהו עובד?", "שאלה טובה. על מה בדיוק? על בחירת קליפ, על קרדיטים, או על משהו שלא עבד?", "אשמח להסביר. תגיד על איזה קליפ או איזו פעולה מדובר."], en: ["Tell me a bit more and I'll explain: why a moment was picked, why a job is queued, or how something works?", "Good question. About what exactly: a clip choice, credits, or something that didn't work?", "Happy to explain. Which clip or action do you mean?"] },
+  price: { he: ["קרדיט אחד מכסה שעה אחת של שידור מקור. בתקופת הניסיון יש לך כמה קרדיטים חינם, ואפשר לראות את היתרה בלשונית קרדיטים. תשלום יתווסף בהמשך.", "המחיר נקבע לפי שעות שידור: קרדיט לשעה. עכשיו זה ניסיון חינם. מחירים סופיים עוד לא פורסמו."], en: ["One credit covers one hour of source stream. During the trial you have a few free credits, and you can see the balance in the Credits tab. Payments come later.", "Pricing is by stream hours: one credit per hour. It's a free trial for now. Final prices are not published yet."] },
+  what: { he: ["אני מוצא רגעים בשידורים שלך וחותך מהם שורטס וסרטונים ארוכים, עם כתוביות ובדיקת איכות. הכול מגיע כטיוטה פרטית שאתה מאשר. נסה: \"תכין 5 שורטס מצחיקים מאתמול\".", "אפשר לבקש ממני: שורטס מהשידור האחרון, סרטון ארוך מריאקשן או שיחה עם אורח, או \"מה המצב?\" על עבודה שרצה.", "אני העורך שלך. אתה מגדיר מה לחתוך, אני עושה, ואתה מאשר או דוחה. בוא נתחיל: מאיזה שידור?"], en: ["I find moments in your streams and cut Shorts and long videos from them, with captions and a quality check. Everything arrives as a private draft you approve. Try: \"make 5 funny Shorts from yesterday\".", "You can ask me for Shorts from the latest stream, a long video from a reaction or a guest conversation, or \"what's the status?\" on a running job.", "I'm your editor. You say what to cut, I do it, you approve or reject. Let's start: which stream?"] },
+  who: { he: ["אני העוזר של Studio: מוצא רגעים בשידורים שלך ומכין מהם טיוטות.", "אני עוזר אוטומטי לעריכת קליפים. אני לא מפרסם כלום בלי אישור שלך."], en: ["I'm Studio's assistant: I find moments in your streams and turn them into drafts.", "I'm an automatic clip editor. I never publish anything without your approval."] },
+  all: { he: ["הכול? בוא נתחיל קטן: מה הכי חשוב לך עכשיו, שורטס מהשידור האחרון או סרטון ארוך?", "אפשר להתחיל מההכול, אבל הכי טוב צעד אחר צעד. איזה שידור קודם?"], en: ["Everything? Let's start small: what matters most right now, Shorts from the latest stream or a long video?", "We can cover it all, but step by step works best. Which stream first?"] },
+  ok: { he: ["👍 מה הלאה?", "רשמתי. עוד משהו?", "סגור."], en: ["👍 What's next?", "Noted. Anything else?", "Done."] },
+  howmany: { he: ["כמה מה? קליפים, קרדיטים או שעות שידור? אפשר לשאול למשל \"כמה זה עולה?\" או לבקש \"5 שורטס\".", "תפרט קצת: כמה קליפים לחתוך, או כמה זה עולה?"], en: ["How many of what? Clips, credits or stream hours? You can ask \"how much does it cost?\" or request \"5 Shorts\".", "Tell me a bit more: how many clips to cut, or how much it costs?"] },
+  me: { he: ["אתה? ספר לי: מה אתה רוצה שנחתוך?", "אני מקשיב. על מה מדובר?"], en: ["You? Tell me: what would you like cut?", "I'm listening. What's it about?"] },
+  idk: { he: ["לא בטוח שהבנתי. אפשר לנסות: \"5 שורטס מצחיקים מאתמול\", \"סרטון ארוך מהשידור האחרון\" או \"מה המצב?\"", "ניסוח אחר? למשל מה לחתוך, כמה, ומאיזה שידור.", "לא תפסתי. תגיד לי במילים שלך מה אתה רוצה שייחתך."], en: ["Not sure I got that. Try: \"5 funny Shorts from yesterday\", \"a long video from the latest stream\" or \"what's the status?\"", "Another wording? For example what to cut, how many, and from which stream.", "I didn't catch that. Tell me in your own words what you want cut."] },
+};
+function stCategory(t) {
+  const x = t.toLowerCase().replace(/[!?.,]+/g, " ").replace(/\s+/g, " ").trim(); const w = x.split(" ");
+  const has = (re) => re.test(x);
+  if (w.length <= 2 && /^(כמה|how much|how many)$/.test(x)) return "howmany";
+  if (/^(שלום|היי|הי|אהלן|הלו|מה נשמע|מה קורה|בוקר טוב|ערב טוב|hi|hey|hello|yo|sup|good (morning|evening)|how are you)(?= |$)/.test(x) && w.length <= 5) return "hi";
+  if (/^(ביי|להתראות|נתראה|לילה טוב|bye|goodbye|see you|cya|good night)(?= |$)/.test(x)) return "bye";
+  if (/^(תודה|תודה רבה|thanks|thank you|thx)(?= |$)/.test(x)) return "thanks";
+  if (w.length <= 3 && /^(כן|בטח|יאללה|אוקיי|אוקי|סבבה|yes|yeah|yep|sure|ok|okay)(?= |$)/.test(x)) return x.match(/^(אוקיי|אוקי|סבבה|ok|okay)/) ? "ok" : "yes";
+  if (w.length <= 3 && /^(לא|no|nope|nah|עזוב|ביטול|cancel)(?= |$)/.test(x)) return "no";
+  if (has(/כמה (זה )?(עולה|עלות|מחיר|קרדיט)|מחיר|עולה|תשלום|price|cost|how much|pricing|credits?(?= |$)/) ) return "price";
+  if (has(/^(למה|מדוע|why|how come)(?= |$)|^איך (זה )?עובד|how (does|do) (it|this)/)) return "why";
+  if (has(/מה (אתה|את|אפשר|ניתן) (יכול|יכולה|לעשות|לבקש)|במה אתה|עזרה|\bhelp\b|what can you|what do you do|מה אתה עושה/)) return "what";
+  if (has(/^(מי אתה|מי את|who are you|what are you)/)) return "who";
+  if (w.length <= 2 && /^(הכל|הכול|everything|all)$/.test(x)) return "all";
+  if (w.length <= 2 && /^(כמה|how much|how many)$/.test(x)) return "howmany";
+  if (w.length <= 2 && /^(אני|אני רוצה|i|me|i want)$/.test(x)) return "me";
+  return null;
+}
+let stLast = "";
+function smallTalk(text, L, turn, always) {
+  let cat = stCategory(String(text || "")); if (!cat) { if (!always) return null; cat = "idk"; } const pool = ST[cat][L] || ST[cat].en; let i = ((turn || 0) + String(text).length) % pool.length; let r = pool[i]; if (r === stLast) r = pool[(i + 1) % pool.length]; stLast = r; return r;
+}
+
 async function assistant(env, org, me, role, b, store) {
   const u = understand(b.message); const L = u.he ? "he" : "en"; let reply, actions = [];
   if (!u.text) return { reply: HELP[L], actions };
@@ -242,8 +282,9 @@ async function assistant(env, org, me, role, b, store) {
     const fresh0 = await kget(env, K.org(org.id)); llm = await llmUnderstand(env, org, role, u.text, hist0, L, { credits: fresh0 ? fresh0.credits : org.credits, channels: chs, jobs: js });
   } catch (e) { llm = null; }
   if (llm) { if (llm.intent === "create" && (llm.shorts > 0 || llm.long)) { u.intent = "create"; u.shorts = llm.shorts; u.long = llm.long; u.when = llm.when; u.mood = llm.mood; } else if (llm.intent === "status") u.intent = "status"; else u.intent = "chat"; }
-  if (u.intent === "chat") reply = llm ? llm.reply : HELP[L];
-  else if (u.intent === "help") reply = HELP[L];
+  const turnN = ((await kget(env, K.chat(org.id))) || []).length;
+  if (u.intent === "chat") reply = llm ? llm.reply : (smallTalk(u.text, L, turnN, true) || HELP[L]);
+  else if (u.intent === "help") reply = smallTalk(u.text, L, turnN, true) || HELP[L];
   else if (u.intent === "status") {
     const jobs = (await kgetMany(env, (await klist(env, K.jobsOfOrg(org.id), 500)).map((k) => K.job(k.split(":")[3])))).sort((a, c) => (a.created < c.created ? 1 : -1));
     const j = jobs[0]; reply = !j ? (L === "he" ? "עדיין אין עבודות. בקשו משהו בצ'אט!" : "No jobs yet. Ask me for something!") : `${(j.status_text || renderMsg(j.status) || { he: j.status, en: j.status })[L]} (${j.progress}%)`;
