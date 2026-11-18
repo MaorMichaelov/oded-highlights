@@ -1,21 +1,31 @@
 {
- "fetched_at": "2026-11-18T12:30:14Z",
- "fetched_epoch": 1795005014.514531,
+ "fetched_at": "2026-11-18T13:00:17Z",
+ "fetched_epoch": 1795006817.7982974,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
   "views": 23918,
-  "videos": 13
+  "videos": 15
  },
  "videos": [
   {
-   "id": "E-OUUMvLrK8",
-   "title": "מאור מגיב ל-GTA 6 בפעם הראשונה, הוא השתגע?",
-   "published": "2026-11-18T12:16:31Z",
+   "id": "U68aQ62jBnM",
+   "title": "דושי משחק GTA 6 לראשונה, התגובה שלו מטורפת!",
+   "published": "2026-11-18T12:59:59Z",
    "privacy": "public",
-   "duration": "P0D",
+   "duration": "PT25M3S",
    "views": 0,
-   "likes": 0,
+   "likes": 1,
+   "comments": 0
+  },
+  {
+   "id": "E-OUUMvLrK8",
+   "title": "מאור נכנס ל-GTA 6 וזה מה שקרה... לא האמנתי",
+   "published": "2026-11-18T12:44:29Z",
+   "privacy": "public",
+   "duration": "PT40M42S",
+   "views": 0,
+   "likes": 1,
    "comments": 0
   },
   {
@@ -254,7 +264,7 @@
    "published": "2026-11-12T14:29:45Z",
    "privacy": "public",
    "duration": "PT28M35S",
-   "views": 63,
+   "views": 64,
    "likes": 2,
    "comments": 0
   },
@@ -264,7 +274,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 5038,
+   "views": 5079,
    "likes": 27,
    "comments": 1
   },
@@ -319,5 +329,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 101
+ "total_uploads_incl_private": 102
 }
