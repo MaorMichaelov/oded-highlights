@@ -2,6 +2,17 @@
 
 Format: time (UTC), what was tested, PASS/FAIL, evidence, suspected cause. Maintained by the QA runner.
 
+## 2026-11-18 18:25Z
+
+| What | Result | Evidence / cause |
+|---|---|---|
+| studio-e2e-job 44363014034 (Kick channel) | PASS (quality weak) | Job j_70a45929fd34c933: 1 draft of 3 requested (25.4 s, qa_ok True). Assistant fell back to `mode=basic` (Workers AI 4006: daily free allocation used up); request path still works. |
+| studio-e2e-job 44365141056 (live-now flow, head 2a397c8) | PASS (quality weak) | Job j_b283be5812095e2a: queued 18:02, draft_ready 18:23, 3 drafts; two of three qa_ok False; titles incoherent ("Lock in the massive ways to get money now!"). Predates the 18:03 quality commit: re-test needed. |
+| 1-of-N Shorts pattern | OPEN | Owner's job 1 of 5, Kick e2e 1 of 3. Cause not proven (30 min window + Gemini 429). |
+| Chat log (0d4393e) | PASS (review) | 30-day TTL, never blocks a reply, read only via worker key. |
+| Job status text "1 drafts are ready" | FIXED 7c2610a | singular wording + test. |
+| Suites on 0d4393e/aaa1469 | PASS | node: agent 24, studio 42, youtube_connect 28 + integration; python 221 tests, only the 3 known test_agent_hooks failures; lint 0. |
+
 ## 2026-11-18 17:55Z
 
 Owner decision (17:40Z): the Kai / Speed / N3on / xQc live loops are dropped; assistant and chat probes are stopped until 00:00 UTC (Workers AI free allocation of 10k neurons/day is used up).
