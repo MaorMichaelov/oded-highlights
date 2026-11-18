@@ -65,7 +65,7 @@ async function runProfile(browser, name, P) {
     page.on("response", async (r) => { const u = r.url(); if (!/\/studio\/(api|yt)\//.test(u)) return; const e = { step: cur, m: r.request().method(), p: u.replace(BASE, "").replace(/\?.*/, "").replace(/o_[a-f0-9]{16}/, "o_*"), s: r.status(), t: Math.round(Date.now() / 1000) % 100000 }; if (/\/channels(\/[a-z0-9_]+)?$/.test(e.p) && r.request().method() !== "OPTIONS") { try { const b = await r.text(); e.b = b.replace(/"verify_code":"[^"]+"/, "").slice(0, 160); } catch {} } (R.net = R.net || []).push(e); if (R.net.length > 600) R.net.shift(); });
     page.on("dialog", (d) => d.accept().catch(() => {}));
   };
-  const shot = async (page, label, key) => { const f = `${name}-${label}.png`; try { await page.screenshot({ path: path.join(OUT, f), fullPage: false }); if (key) (report.keyShots = report.keyShots || []).push(f); } catch {} };
+  const shot = async (page, label, key) => { const f = `${name}-${label}.png`; try { await sleep(450); await page.screenshot({ path: path.join(OUT, f), fullPage: false }); if (key) (report.keyShots = report.keyShots || []).push(f); } catch {} };
   const check = async (page, label) => { try { const l = await page.evaluate(LAYOUT); for (const x of l) R.layout.push({ at: label, ...x }); const tx = await page.evaluate(TEXTS, await page.evaluate(() => document.documentElement.lang)); for (const x of tx) R.texts.push({ at: label, ...x }); } catch (e) { R.notes.push("check failed at " + label + ": " + e.message); } };
   const step = async (title, fn, opt = {}) => {
     if (ONLY && !title.includes(ONLY)) return; cur = title; allow = opt.allow || []; const t0 = Date.now();
@@ -244,7 +244,7 @@ async function runProfile(browser, name, P) {
     const orgName = await page2.evaluate(() => S.org.name), role = await page2.evaluate(() => S.org.role); const ownerOrg = await page.evaluate(() => S.org.name);
     if (orgName !== ownerOrg) throw new Error(`after joining, the active workspace is "${orgName}" instead of the invited "${ownerOrg}"`); if (role !== "viewer") throw new Error("role " + role);
     await page2.screenshot({ path: path.join(OUT, `${name}-16-viewer-home.png`) }); const l = await page2.evaluate(LAYOUT); for (const x of l) R.layout.push({ at: "viewer-home", ...x });
-    if (await page2.locator(".chips .chip").count()) throw new Error("viewer sees request chips");
+    if (await page2.locator(".chips .chip").count()) throw new Error("viewer sees request chips"); if (await page2.locator(".check-item").count()) bug("a viewer sees the owner's onboarding checklist");
   }, { needs: "channel", allow: [/401|404/] });
 
   await step("viewer-permissions", async () => {
@@ -262,7 +262,7 @@ async function runProfile(browser, name, P) {
   }, { needs: "channel", allow: [/404/] });
 
   await step("settings-language-theme", async () => {
-    await goTo("settings"); await check(page, "settings"); await shot(page, "17-settings", true);
+    await goTo("settings"); await check(page, "settings"); await shot(page, "17-settings", true); if ((await page.locator("body").innerText()).includes("guest.invalid")) bug("guest placeholder address shown to the user");
     const other = P.lang === "he" ? "en" : "he"; await page.locator(`.seg button[aria-label="${other === "he" ? "עברית" : "English"}"]`).first().click(); await sleep(300);
     if ((await ev(() => document.documentElement.lang)) !== other) throw new Error("language not switched"); if ((await hash()) !== "#/settings") throw new Error("language switch changed the route: " + (await hash())); await check(page, "settings-switched");
     await page.locator(`.seg button[aria-label="${P.lang === "he" ? "עברית" : "English"}"]`).first().click(); await sleep(300);
