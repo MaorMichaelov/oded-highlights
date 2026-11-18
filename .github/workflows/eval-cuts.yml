@@ -32,8 +32,8 @@ jobs:
           cat /tmp/pick.tsv
           while IFS=$'\t' read -r name size run; do
             rm -rf /tmp/a; mkdir -p /tmp/a
-            gh run download "$run" -n "$name" -D /tmp/a || { echo "download failed: $name"; continue; }
-            python3 -u scripts/eval_cuts.py --media /tmp/a $ASR --no-report || echo "eval failed: $name"
+            gh run download "$run" -n "$name" -D /tmp/a </dev/null || { echo "download failed: $name"; continue; }
+            python3 -u scripts/eval_cuts.py --media /tmp/a $ASR --no-report </dev/null || echo "eval failed: $name"
           done < /tmp/pick.tsv
           python3 scripts/eval_cuts.py
       - name: Record

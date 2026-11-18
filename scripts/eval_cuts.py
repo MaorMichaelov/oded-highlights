@@ -143,9 +143,9 @@ def run_media(dirp, items, store, asr):
     byname = {it["name"]: it for it in items}
     for mp4 in sorted(glob.glob(os.path.join(dirp, "**", "*.mp4"), recursive=True)):
         name = os.path.basename(mp4)[:-4]; it = byname.get(name)
-        if name == "final" or it is None:
-            if name == "final": it = {"group": "he-clip", "meta": {}}   # Hebrew final.mp4 (clip id = the artifact folder name)
-            else: print("no metadata for", name, "- skipped"); continue
+        if name == "final": it = {"group": "he-clip", "meta": {}}   # Hebrew final.mp4 (clip id = the artifact folder name)
+        elif it is None:   # media without a committed json (its Record step lost the push): grade the media alone
+            it = {"group": "en-long" if name.startswith("long_") else "en-clip" if name.startswith("clip_") else "en-short", "meta": {}}
         t = time.time()
         try: g = eval_media(mp4, it["meta"], it["group"], asr)
         except Exception as e: print("media eval failed", name, str(e)[:150]); continue
