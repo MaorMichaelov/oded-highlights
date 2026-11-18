@@ -74,7 +74,7 @@ jobs:
       WORKER_PLATFORM_VOD: "1"                       # "my last stream" of a trusted org = its newest Kick/Twitch VOD
       WORKER_DOWNLOAD_MAX_MIN: ${{ vars.STUDIO_SOURCE_MAX_MIN || '30' }}
       WORKER_DOWNLOAD_HEIGHT: "720"
-      WORKER_NO_CLOUD: ${{ vars.STUDIO_USE_CLOUD_AI == '1' && '0' || '1' }}
+      WORKER_NO_CLOUD: ${{ vars.STUDIO_USE_CLOUD_AI == '0' && '1' || '0' }}   # preview phase (the owner testing): use the repo's Groq/Gemini keys for speech and moments, local Whisper only as a fallback
       WORKER_TRUSTED_ORGS: ${{ secrets.STUDIO_TRUSTED_ORGS || vars.STUDIO_TRUSTED_ORGS }}
       WORKER_PREVIEW_ORGS: ${{ vars.STUDIO_PREVIEW_ORGS || '*' }}
       WORKER_TRUST_GUESTS: "1"                       # preview phase: guest workspaces (the owner testing) may use Kick/Twitch links
@@ -100,8 +100,8 @@ jobs:
           STUDIO_WORKER_KEY: ${{ secrets.STUDIO_WORKER_KEY || github.token }}
           GITHUB_TOKEN: ${{ github.token }}
           IN_MAX_MIN: ${{ inputs.max_minutes }}
-          GROQ_API_KEY: ${{ vars.STUDIO_USE_CLOUD_AI == '1' && secrets.GROQ_API_KEY || '' }}
-          GEMINI_API_KEY: ${{ vars.STUDIO_USE_CLOUD_AI == '1' && secrets.GEMINI_API_KEY || '' }}
+          GROQ_API_KEY: ${{ vars.STUDIO_USE_CLOUD_AI != '0' && secrets.GROQ_API_KEY || '' }}
+          GEMINI_API_KEY: ${{ vars.STUDIO_USE_CLOUD_AI != '0' && secrets.GEMINI_API_KEY || '' }}
         run: |
           set +x
           case "${IN_MAX_MIN:-}" in ''|*[!0-9]*) IN_MAX_MIN=50 ;; esac
