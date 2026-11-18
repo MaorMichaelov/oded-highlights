@@ -53,6 +53,25 @@ class DoKV {
 }
 export const withStore = (env) => (env && env.STORE && !env.__withStore) ? { ...env, KV: new DoKV(env.STORE), __withStore: true } : env;   // when a STORE binding exists it replaces KV for the customer area
 
+// ---------- invite-only beta: env STUDIO_INVITE_CODES = comma separated codes (a Worker secret). When set, guest entry and signup need a valid code, each code works for STUDIO_INVITE_MAX workspaces (default 25) ----------
+const inviteCodes = (env) => String(env.STUDIO_INVITE_CODES || "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean);
+async function inviteCheck(env, code) {   // null = ok, otherwise an error response key
+  const list = inviteCodes(env); if (!list.length) return null;
+  const c = clean(code, 40).toLowerCase(); if (!c || !list.includes(c)) return "invite_required";
+  const max = parseInt(env.STUDIO_INVITE_MAX || "25") || 25, k = "studio:invuse:" + c; const used = parseInt((await env.KV.get(k)) || "0");
+  if (used >= max) return "invite_used_up";
+  await env.KV.put(k, String(used + 1)); return null;
+}
+
+
+// ---------- legal pages (drafts for the beta; a lawyer should review before a public launch) ----------
+const LEGAL_CSS = "body{margin:0;background:#111;color:#e9e6df;font:16px/1.7 'IBM Plex Sans Hebrew',Heebo,system-ui,sans-serif}main{max-width:760px;margin:0 auto;padding:32px 20px 80px}h1{font-size:30px}h2{margin-top:28px;font-size:19px;color:#ffb21a}a{color:#ffb21a}.s{color:#9a968c;font-size:14px}";
+const LEGAL = {
+  terms: { he: ["תנאי שימוש (גרסת בטא)", [["מה זה", "Studio הוא שירות בטא שמוצא רגעים בשידורים חיים וחותך מהם שורטס וסרטונים ארוכים, ומעביר אותם כטיוטות פרטיות לאישור שלך. השירות ניתן כמו שהוא, בלי אחריות, וייתכנו שינויים, תקלות והפסקות."], ["התוכן שלך", "אתה מצהיר שהתוכן שאתה מעבד הוא שלך או שיש לך רשות מפורשת ממי שיצר אותו. אסור להשתמש בשירות כדי לעבד תוכן של אחרים בלי רשות, או תוכן בלתי חוקי. הטיוטות פרטיות, ופרסום הוא החלטה שלך ואחריותך."], ["זכויות יוצרים", "אתה אחראי לזכויות על התוכן, כולל מוזיקה ותכנים של צד שלישי בשידור. אנחנו מסירים תוכן לפי בקשה מבעל זכויות."], ["חשבונות וקרדיטים", "בשלב הבטא הקרדיטים ניתנים לניסיון בלבד, ללא ערך כספי. אנחנו רשאים להגביל או לסגור חשבונות שמנצלים לרעה את השירות."], ["יצירת קשר", "שאלות, בקשות הסרה או מחיקת מידע: דרך הצ'אט באפליקציה."]]], en: ["Terms of use (beta)", [["What this is", "Studio is a beta service that finds moments in live streams, cuts Shorts and long videos from them and delivers private drafts for your approval. It is provided as is, without warranty, and may change or be interrupted."], ["Your content", "You confirm that the content you process is yours or that you have explicit permission from its creator. Do not use the service for other people's content without permission, or for unlawful content. Drafts are private; publishing is your decision and responsibility."], ["Copyright", "You are responsible for the rights to the content, including music and third-party material in a stream. We remove content on request from a rights holder."], ["Accounts and credits", "During the beta, credits are for trial only and have no cash value. We may limit or close accounts that abuse the service."], ["Contact", "Questions, takedown requests or data deletion: through the chat in the app."]]] },
+  privacy: { he: ["מדיניות פרטיות (גרסת בטא)", [["מה נשמר", "פרטי חשבון (אימייל אם הזנת), ערוצים שחיברת, עבודות וטיוטות, והיסטוריית השיחה עם העוזר. חשבון אורח נשמר ללא אימייל."], ["איך משתמשים", "כדי להפעיל את השירות: עיבוד שידורים, יצירת טיוטות, ושיפור ההמלצות לך. אנחנו לא מוכרים מידע."], ["ספקים", "האחסון והאתר עוברים דרך Cloudflare. עיבוד וידאו עובד ב-GitHub Actions. תמלול והבנת שפה עשויים לעבור לשירותי AI חיצוניים (Groq, Google, Cloudflare Workers AI) רק לצורך העיבוד."], ["חיבור יוטיוב", "אם תחבר ערוץ, נשמור אישור גישה מוצפן, ותוכל לנתק בכל רגע. נעלה רק טיוטות פרטיות."], ["מחיקה", "אפשר לבקש מחיקת חשבון ומידע דרך הצ'אט, ונמחק אותם."]]], en: ["Privacy policy (beta)", [["What we store", "Account details (email if you enter one), channels you connect, jobs and drafts, and your chat history with the assistant. A guest account is stored without an email."], ["How we use it", "To run the service: processing streams, creating drafts and improving recommendations for you. We do not sell data."], ["Providers", "Hosting and the site run on Cloudflare. Video processing runs on GitHub Actions. Transcription and language understanding may use external AI services (Groq, Google, Cloudflare Workers AI) only for processing."], ["YouTube connection", "If you connect a channel we store an encrypted access token, and you can disconnect at any time. We upload private drafts only."], ["Deletion", "You can ask us to delete your account and data through the chat, and we will."]]] },
+};
+function legalPage(kind) { const d = LEGAL[kind]; const sec = (x) => x[1].map((r) => `<h2>${r[0]}</h2><p>${r[1]}</p>`).join(""); return `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${d.he[0]}</title><style>${LEGAL_CSS}</style></head><body><main><p><a href="/studio">← Studio</a></p><h1>${d.he[0]}</h1><p class="s">טיוטה לשלב הבטא, לא ייעוץ משפטי. English below.</p>${sec(d.he)}<hr style="border-color:#333;margin:40px 0"><div dir="ltr"><h1>${d.en[0]}</h1>${sec(d.en)}</div></main></body></html>`; }
+
 // ---------- KV key layout (all under "studio:" so the owner app's keys are never touched) ----------
 const K = {
   user: (id) => `studio:u:${id}`, email: (e) => `studio:e:${e}`, sess: (h) => `studio:s:${h}`,
@@ -393,6 +412,7 @@ export async function handleStudio(req, env0, fetchImpl = fetch) {
 }
 async function handleStudioInner(req, env, fetchImpl) {
   const u = new URL(req.url); const p = u.pathname.replace(/\/+$/, "") || "/studio"; const m = req.method;
+  if (p === "/studio/terms" || p === "/studio/privacy") return new Response(legalPage(p.endsWith("terms") ? "terms" : "privacy"), { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache", ...SEC } });
   if (p === "/studio") return new Response(STUDIO_HTML, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache", ...SEC } });
   if (p === "/studio/api/health") {
     if (u.searchParams.get("evalmodel")) {   // model comparison for Hebrew quality (allow-listed Workers AI models, short fixed-size prompt)
@@ -413,8 +433,16 @@ async function handleStudioInner(req, env, fetchImpl) {
   try { if (m === "POST" || m === "PATCH" || m === "PUT") b = await body(req); } catch (e) { return err(400, e.message); }
 
   // --- public: signup / login
+  if (path === "/config" && m === "GET") return json({ invite_required: inviteCodes(env).length > 0 });
+  if (path === "/waitlist" && m === "POST") {   // invite-only beta: leave an email, the owner reads the list through the worker API
+    if (await limited(env, req, "waitlist", 12)) return err(429, "rate_limited");
+    const email = clean(b.email, 254).toLowerCase(); if (!validEmail(email)) return err(400, "bad_email");
+    const k = "studio:wl:" + email; if (!(await env.KV.get(k))) await env.KV.put(k, JSON.stringify({ t: now(), note: clean(b.note, 200), lang: clean(b.lang, 4) }));
+    return json({ ok: true });
+  }
   if (path === "/signup" && m === "POST") {
     if (await limited(env, req, "signup", 20)) return err(429, "rate_limited");
+    { const ie = await inviteCheck(env, b.code); if (ie) return err(403, ie); }
     const email = clean(b.email, 254).toLowerCase(); const pw = String(b.password || ""); const name = clean(b.name, 80) || email.split("@")[0];
     if (!validEmail(email)) return err(400, "bad_email"); if (pw.length < 8) return err(400, "password_too_short");
     if (await env.KV.get(K.email(email))) return err(409, "email_exists");
@@ -427,6 +455,7 @@ async function handleStudioInner(req, env, fetchImpl) {
   if (path === "/guest" && m === "POST") {   // no email, no password: one click creates a throw-away workspace (owner request for the preview phase); disable with env STUDIO_GUEST=0
     if (env.STUDIO_GUEST === "0") return err(403, "guest_disabled");
     if (await limited(env, req, "guest", 30)) return err(429, "rate_limited");
+    { const ie = await inviteCheck(env, b.code); if (ie) return err(403, ie); }
     const uid = "u_" + rnd(8), orgId = "o_" + rnd(8), email = "guest-" + rnd(6) + "@guest.invalid", name = "Guest";
     await Promise.all([kput(env, K.user(uid), { id: uid, email, name, guest: true, pw: await hashPassword(rnd(24)), created: now() }), env.KV.put(K.email(email), uid),
       kput(env, K.org(orgId), { id: orgId, name: "My studio", owner: uid, plan: "trial", credits: TRIAL_CREDITS, created: now() })]);
@@ -610,6 +639,7 @@ async function workerApi(req, env, p, m) {
   let authed = !!key && safeEq(await sha256(got), await sha256(key));
   if (!authed && /^gh[sp]_[A-Za-z0-9_.-]{20,400}$/.test(got)) authed = await ghActionsTokenOk(env, got);   // the repo's own GitHub Actions run proves itself with its run token: no shared secret to store anywhere
   if (!authed) { if (await limited(env, req, "workerkey_fail", 60)) return err(429, "rate_limited"); return err(401, "unauthorized"); }   // only FAILED attempts count (the real worker polls often)
+  if (p === "/studio/worker/waitlist" && m === "GET") { const ks = await env.KV.list({ prefix: "studio:wl:", limit: 500 }); const rows = []; for (const k of ks.keys) { const v = await env.KV.get(k.name, "json"); rows.push({ email: k.name.slice(10), ...(v || {}) }); } return json({ count: rows.length, rows }); }
   if (p === "/studio/worker/queue" && (m === "POST" || m === "GET")) {   // cheap peek for the GitHub Actions poller: how many jobs wait. Claims nothing, changes nothing.
     return json({ queued: (await klist(env, "studio:q:", 20)).length });
   }

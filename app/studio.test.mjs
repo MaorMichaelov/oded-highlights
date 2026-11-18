@@ -206,4 +206,16 @@ assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
   const a = await c2("POST", `/studio/api/orgs/${oid}/assistant`, { message: "make 2 shorts https://www.twitch.tv/videos/123456789" }, tk); assert.equal(a.s, 200); assert.ok(a.j.actions[0] && a.j.actions[0].type === "job_created", a.j.reply);
   const jobs = await c2("GET", `/studio/api/orgs/${oid}/jobs`, null, tk); assert.equal(jobs.j.jobs.length, 1);
   ok("customer flow on a SQLite Durable Object store"); }
+// ---- invite-only beta: codes gate guest entry and signup, each code has a use limit; waitlist; legal pages
+{ env.STUDIO_INVITE_CODES = "abc123, XYZ789"; env.STUDIO_INVITE_MAX = "2";
+  assert.equal((await call("GET", "/studio/api/config")).j.invite_required, true);
+  assert.equal((await call("POST", "/studio/api/guest", {})).s, 403); assert.equal((await call("POST", "/studio/api/guest", { code: "nope" })).j.error, "invite_required");
+  assert.equal((await call("POST", "/studio/api/guest", { code: "ABC123" })).s, 200); assert.equal((await call("POST", "/studio/api/guest", { code: "abc123" })).s, 200);
+  assert.equal((await call("POST", "/studio/api/guest", { code: "abc123" })).j.error, "invite_used_up"); assert.equal((await call("POST", "/studio/api/guest", { code: "xyz789" })).s, 200);
+  assert.equal((await call("POST", "/studio/api/signup", { email: "gate@test.io", password: "longenough1" })).s, 403);
+  assert.equal((await call("POST", "/studio/api/waitlist", { email: "wait@test.io" })).s, 200); assert.equal((await call("POST", "/studio/api/waitlist", { email: "bad" })).s, 400);
+  const wl = await call("GET", "/studio/worker/waitlist", null, null, { "x-worker-key": "wk_test" }); assert.equal(wl.j.count, 1);
+  delete env.STUDIO_INVITE_CODES; delete env.STUDIO_INVITE_MAX; assert.equal((await call("GET", "/studio/api/config")).j.invite_required, false);
+  const tp = await call("GET", "/studio/terms"); assert.equal(tp.s, 200); assert.ok(/תנאי שימוש/.test(tp.j)); assert.equal((await call("GET", "/studio/privacy")).s, 200);
+  ok("invite codes + waitlist + legal pages"); }
 console.log(`\n${n} test groups passed`);
