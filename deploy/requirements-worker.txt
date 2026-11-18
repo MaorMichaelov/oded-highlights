@@ -1,0 +1,7 @@
+# python deps of the render worker (the same pins as scripts/requirements.txt where they overlap)
+numpy>=1.26
+faster-whisper==1.2.1
+av==15.1.0
+# av 19.x breaks faster-whisper 1.2.1 (av.open metadata_errors removed)
+yt-dlp
+pillow==13.0.0

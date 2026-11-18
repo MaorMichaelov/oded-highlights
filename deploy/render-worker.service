@@ -1,0 +1,35 @@
+# systemd unit for the render worker WITHOUT Docker. Install:
+#   sudo useradd -r -m -d /opt/oded-studio studio
+#   sudo -u studio git clone <private code repo, deploy key> /opt/oded-studio/app        (see docs/DEPLOY_PRIVATE_SERVER.md)
+#   sudo -u studio pip install --user -r /opt/oded-studio/app/deploy/requirements-worker.txt     (and: sudo apt install ffmpeg fonts-dejavu-core)
+#   sudo install -m 600 -o studio /dev/null /etc/oded-studio.env && sudoedit /etc/oded-studio.env      (contents: deploy/worker.env.example, real values)
+#   sudo cp /opt/oded-studio/app/deploy/render-worker.service /etc/systemd/system/ && sudo systemctl daemon-reload && sudo systemctl enable --now render-worker
+#   journalctl -u render-worker -f          (structured JSON logs)
+[Unit]
+Description=Oded Studio render worker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=studio
+WorkingDirectory=/opt/oded-studio/app
+EnvironmentFile=/etc/oded-studio.env
+Environment=WORKER_WORK_DIR=/opt/oded-studio/data/work WORKER_OUT_DIR=/opt/oded-studio/data/out UPLOAD_DIR=/opt/oded-studio/data/uploads INGEST_DIR=/opt/oded-studio/data/ingest PYTHONUNBUFFERED=1
+ExecStartPre=/usr/bin/mkdir -p /opt/oded-studio/data/work /opt/oded-studio/data/out /opt/oded-studio/data/uploads /opt/oded-studio/data/ingest
+ExecStart=/usr/bin/python3 -u scripts/render_worker.py
+Restart=always
+RestartSec=15
+# SIGTERM = stop claiming, let running jobs finish for WORKER_GRACE_S (600 s), then kill them (the studio refunds the credit)
+KillSignal=SIGTERM
+TimeoutStopSec=660
+# keep customer media away from the rest of the machine
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/oded-studio
+CPUWeight=50
+Nice=10
+
+[Install]
+WantedBy=multi-user.target

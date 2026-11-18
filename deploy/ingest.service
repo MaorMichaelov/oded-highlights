@@ -1,0 +1,24 @@
+# systemd unit for the restream ingest (MediaMTX + ingest watcher) WITHOUT Docker. Same install steps as render-worker.service, then:
+#   sudo cp /opt/oded-studio/app/deploy/ingest.service /etc/systemd/system/ && sudo systemctl daemon-reload && sudo systemctl enable --now ingest
+#   sudo ufw allow 1935/tcp && sudo ufw allow 8890/udp        (RTMP + SRT; nothing else is exposed)
+[Unit]
+Description=Oded Studio restream ingest (MediaMTX + watcher)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=studio
+WorkingDirectory=/opt/oded-studio/app
+EnvironmentFile=/etc/oded-studio.env
+Environment=DATA_DIR=/opt/oded-studio/data PYTHONUNBUFFERED=1
+ExecStart=/opt/oded-studio/app/deploy/ingest/run_ingest.sh --end-after-s 600
+Restart=always
+RestartSec=15
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/oded-studio
+
+[Install]
+WantedBy=multi-user.target

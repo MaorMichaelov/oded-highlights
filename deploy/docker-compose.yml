@@ -1,0 +1,51 @@
+# Render worker (+ optional restream ingest). Run from the repo root:
+#   cp deploy/worker.env.example deploy/worker.env   # then edit
+#   docker compose -f deploy/docker-compose.yml up -d --build worker                # the worker only
+#   docker compose -f deploy/docker-compose.yml --profile ingest up -d --build      # worker + MediaMTX + ingest watcher
+# Data (work/out/uploads/ingest/models) lives in ./data next to this repo checkout (bind mounts: easy to see, easy to delete).
+name: oded-studio
+services:
+  worker:
+    build: { context: .., dockerfile: deploy/Dockerfile }
+    image: oded-render-worker
+    restart: unless-stopped
+    env_file: worker.env
+    environment: { WORKER_LOG: json }
+    volumes:
+      - ../data/work:/data/work
+      - ../data/out:/data/out
+      - ../data/uploads:/data/uploads:ro
+      - ../data/ingest:/data/ingest:ro
+      - ../data/models:/models
+    stop_grace_period: 11m          # a bit more than WORKER_GRACE_S (600 s): running jobs may finish
+    mem_limit: 8g
+    cpus: 4
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    logging: { driver: json-file, options: { max-size: "20m", max-file: "5" } }
+
+  # --- restream ingest (profile "ingest") ---
+  mediamtx:
+    profiles: [ingest]
+    image: bluenviron/mediamtx:1.11.3
+    user: "1000:1000"
+    restart: unless-stopped
+    network_mode: host              # RTMP 1935/tcp, SRT 8890/udp; reaches the auth hook on 127.0.0.1:8899
+    volumes:
+      - ./ingest/mediamtx.yml:/mediamtx.yml:ro
+      - ../data/recordings:/recordings
+    logging: { driver: json-file, options: { max-size: "10m", max-file: "3" } }
+
+  ingest-watcher:
+    profiles: [ingest]
+    image: oded-render-worker
+    restart: unless-stopped
+    network_mode: host
+    env_file: worker.env
+    working_dir: /data
+    command: ["python3", "-u", "/app/scripts/ingest_watcher.py", "--record-dir", "/recordings/live", "--ingest-dir", "/data/ingest", "--end-after-s", "600", "--live-every-min", "0"]
+    volumes:
+      - ../data/recordings:/recordings
+      - ../data/ingest:/data/ingest
+    depends_on: [mediamtx]
+    logging: { driver: json-file, options: { max-size: "10m", max-file: "3" } }
