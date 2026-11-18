@@ -1,12 +1,4 @@
 {
- "live_loop_running": true,
- "state_age_min": 0.0,
- "live": false,
- "recent_failed_renders": 0,
- "stuck_clips": [],
- "pending_candidates": 0,
- "problems": [],
- "checked_at": "2026-11-18T04:28:18Z",
  "overall": "critical",
  "checks": {
   "live_loop": {
@@ -66,5 +58,13 @@
   "state_fresh: live_status is 61 min old while a loop run is active: the loop is stuck (a step hangs or git push keeps failing)",
   "duplicates: duplicate draft titles: [['137995265_9037', '137995265_9082']]; overlapping ledger entries: []"
  ],
- "hc_checked_at": "2026-11-18T05:29:51Z"
+ "hc_checked_at": "2026-11-18T05:29:51Z",
+ "live_loop_running": true,
+ "state_age_min": 0.1,
+ "live": false,
+ "recent_failed_renders": 0,
+ "stuck_clips": [],
+ "pending_candidates": 0,
+ "problems": [],
+ "checked_at": "2026-11-18T05:59:31Z"
 }
