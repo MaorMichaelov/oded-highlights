@@ -62,7 +62,10 @@ def load_profile(job, cfg):
                 if p and os.path.isfile(p): prof = json.load(open(p, encoding="utf-8")); break
             except Exception: continue
     if not isinstance(prof, dict): return CP, None
-    try: return CP, CP.normalize_profile(prof)
+    try:
+        norm = CP.normalize_profile(prof)
+        if prof.get("language") not in ("he", "en"): norm["language"] = None   # normalize_profile defaults to "he"; only an explicit choice of the customer may switch the speech language
+        return CP, norm
     except Exception: return CP, None
 
 
@@ -192,7 +195,7 @@ def llm_prompt(pk, txt, PC, hints, profile, CP, lang_name):
     if mood: extra += "The customer wants mostly %s moments. " % mood
     if ask: extra += "The customer asked: %s. " % re.sub(r"[\r\n]+", " ", str(ask))[:200]
     if CP and profile:
-        try: extra += CP.prompt_additions(profile, query=txt[:1500])
+        try: extra += "\n" + CP.prompt_additions(profile, query=txt[:1500]) + "\n"
         except Exception: pass
     return ("You edit YouTube Shorts from a live stream. Below: words with [second] for the window around an audio/speech peak at second %d. Decide if it is a clip-worthy moment (%s). " % (pk, PC["moments"]["criteria"].replace("%", "%%")) + extra +
             "REJECT (reject=true) gambling/casino/giveaway/promo-code talk, sponsored reads, slurs, sexual content, self-harm, minors, or random chatter. Return JSON only: "

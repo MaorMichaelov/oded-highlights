@@ -125,6 +125,8 @@ class Pure(unittest.TestCase):
         d = tempfile.mkdtemp(); os.makedirs(os.path.join(d, "o_9")); json.dump({"schema": 1, "rules": [{"kind": "ban_word", "text": "casino"}]}, open(os.path.join(d, "o_9", "profile.json"), "w"))
         CP, p = JR.load_profile({"org": "o_9"}, {"profiles_dir": d}); self.assertEqual(p["rules"][0]["text"], "casino"); CP, p = JR.load_profile({"org": "../../etc"}, {"profiles_dir": d}); self.assertIsNone(p)
         shutil.rmtree(d)
+        self.assertIsNone(JR.load_profile({"hints": {"profile": {"schema": 1}}}, {})[1]["language"])   # no explicit language: the profile must not force Hebrew
+        self.assertEqual(JR.load_profile({"hints": {"profile": {"schema": 1, "language": "en"}}}, {})[1]["language"], "en")
 
 
 @unittest.skipUnless(HAVE_FFMPEG and os.environ.get("RUN_SLOW_TESTS", "1") == "1", "ffmpeg missing or RUN_SLOW_TESTS=0")
@@ -147,6 +149,19 @@ class EndToEnd(unittest.TestCase):
     def test_profile_banned_word_in_transcript_flags_draft_qa_fail(self):
         res, wd, _ = self.run_job({"profile": {"schema": 1, "rules": [{"kind": "ban_word", "text": "demo"}]}}); d = res["drafts"][0]
         self.assertFalse(d["qa_ok"]); self.assertIn("customer profile", d["qa_notes"]); self.assertTrue(res["profile_applied"])   # kept for the customer to see, but never eligible for upload
+    def test_llm_path_uses_customer_profile_and_hints_in_the_prompt(self):
+        prompts = []
+        def fake_llm(prompt):
+            prompts.append(prompt); return {"score": 8, "start": 0, "end": 0, "title": "gets loud right here wow!", "hook": "LOUD", "reject": False, "kind": "hype", "why": "x"}
+        job = {"id": "j_llm", "org": "o_1", "channel": "c_1", "source": {"type": "url", "ref": self.media}, "style_id": "signature", "outputs": {"shorts": 1, "long": False}, "hints": {"mood": "funny", "text": "make it funny", "profile": {"schema": 1, "rules": [{"kind": "prefer", "text": "PREFER-MARKER short punchy clips"}]}}}
+        cfg = JR.cfg_from_env({}); cfg.update({"demo": True, "allow_any_path": True}); wd = os.path.join(self.tmp, "w_llm")
+        res = JR.run_job(job, wd, cfg, emit=lambda *a, **k: None, deps={"llm": fake_llm}); self.assertEqual(res["picker"], "llm"); self.assertTrue(prompts)
+        self.assertIn("PREFER-MARKER", prompts[0]); self.assertIn("funny", prompts[0]); self.assertIn("make it funny", prompts[0]); self.assertNotIn("%%", prompts[0]); self.assertNotIn("%d", prompts[0]); self.assertIn("English", prompts[0])
+        self.assertIn("gets loud right here wow", res["drafts"][0]["title"])
+    def test_llm_rejecting_everything_yields_no_moments(self):
+        job = {"id": "j_rej", "org": "o_1", "channel": "c_1", "source": {"type": "url", "ref": self.media}, "outputs": {"shorts": 1, "long": False}, "hints": {}}
+        cfg = JR.cfg_from_env({}); cfg.update({"demo": True, "allow_any_path": True})
+        with self.assertRaises(JR.NoMoments): JR.run_job(job, os.path.join(self.tmp, "w_rej"), cfg, emit=lambda *a, **k: None, deps={"llm": lambda p: {"score": 9, "reject": True}})
     def test_profile_banned_word_in_title_blocks_the_clip(self):
         words = "this is a demo moment from the test stream and it gets loud right here wow".split()
         with self.assertRaises(JR.NoMoments): self.run_job({"profile": {"schema": 1, "rules": [{"kind": "ban_word", "text": w} for w in words]}})
