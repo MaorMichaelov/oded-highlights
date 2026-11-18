@@ -1,13 +1,14 @@
 name: studio-e2e
 # Scripted user journey against the DEPLOYED customer preview (Cloudflare Worker studio-app): Playwright + Chromium, mobile 390x844 and desktop 1280x800, Hebrew and English.
 # (the assistant's sandbox cannot reach *.workers.dev, GitHub runners can). Writes state/studio_e2e/report.json + a few key screenshots (overwritten each run); every screenshot is also an artifact.
+# BUDGET: Cloudflare KV free plan allows ~1000 writes + ~1000 list() calls per day for the WHOLE account (resets 00:00 UTC). One profile costs roughly 40-80 writes (4 accounts, jobs, invites): run few and small, never in a loop, and not while the studio is in front of customers.
 # Never touches the owner app: only https://*.workers.dev URLs that are not oded-app are accepted. No YouTube, no uploads.
 # Optional secret STUDIO_WORKER_KEY (the studio's x-worker-key): enables the part of the journey that needs a verified channel (jobs, review, team); the test channel is flagged e2e so the real render worker never claims its jobs.
 on:
   workflow_dispatch:
     inputs:
       url: { description: "studio worker base url", required: true, default: "https://studio-app.odedhl.workers.dev" }
-      profiles: { description: "comma list of mobile-he,mobile-en,desktop-he,desktop-en,ios-he (ios-he = WebKit/Safari engine)", required: false, default: "mobile-he,mobile-en,desktop-he,desktop-en,ios-he" }
+      profiles: { description: "comma list of mobile-he,mobile-en,desktop-he,desktop-en,ios-he (ios-he = WebKit/Safari engine)", required: false, default: "mobile-he,desktop-en" }
 concurrency: { group: studio-e2e, cancel-in-progress: false }
 permissions: { contents: write }
 jobs:
@@ -34,7 +35,7 @@ jobs:
         id: journey
         env: { OUT: /tmp/e2e_full }
         run: |
-          export BASE="$IN_URL" PROFILES="${IN_PROFILES:-mobile-he,mobile-en,desktop-he,desktop-en,ios-he}" WORKER_KEY="$STUDIO_WORKER_KEY"
+          export BASE="$IN_URL" PROFILES="${IN_PROFILES:-mobile-he,desktop-en}" WORKER_KEY="$STUDIO_WORKER_KEY"
           node tests/studio_e2e/run.mjs   # exit 1 when a step failed or an error-level issue (console error, uncaught exception, failed request, 4xx/5xx nobody allowed) was collected
       - uses: actions/upload-artifact@v4
         if: always()

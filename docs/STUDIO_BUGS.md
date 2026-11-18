@@ -30,9 +30,14 @@ How it is tested: `tests/studio_e2e/run.mjs` (Playwright + Chromium, mobile 390x
 | 18 | Copy: chat told users to paste a channel link "above" (no such field), "Billing tab" (does not exist), "לצפיינים" typo, masculine singular Hebrew mixed with the plural UI. | studio.js | studio.test.mjs |
 | 19 | A storage/runtime exception escaped as Cloudflare's raw error page; now JSON 500 `server_error` (UI shows the friendly message). | studio.js | studio.test.mjs |
 | 20 | Kick/Twitch "blocked" answers (403/429) showed the generic "try again in a minute"; now explains that the code stays valid and "Check now" can be pressed again later. | studio.html | - |
+| 22 | Per-request KV writes/lists burned the free-plan daily quota (~1000 writes and lists per day for the whole account): rate limiting is now in memory, `klist()` reads the index document instead of calling `list()` (legacy data is indexed on first sight), empty orgs do not re-list on every poll. | studio.js | `lagging KV list()` |
 | 21 | Worker `claim` considered only the first 20 queue entries and deleted queue keys of jobs it then skipped; added `claim {job_id}` and e2e-flagged channels whose jobs the real render worker never takes. | studio.js | studio.test.mjs |
+
+## Budget
+Live E2E runs cost KV writes (see the header of `.github/workflows/studio-e2e.yml`); the default is two profiles. Use the local harness for everything else.
 
 ## Notes / known limits (not bugs of the preview)
 * Kick: `kick.com/api/v2/channels/<slug>` answers from a Worker (checked on the deployed app: a missing code gives "code not visible yet", not an error). It is an undocumented endpoint; if Kick starts blocking Workers, the page already shows the manual "I put the code, check again" flow with a friendly explanation.
 * The E2E hook `POST /studio/worker/e2e/verify` (worker key + guest-owned workspaces only) marks a test channel verified without the ownership check; such channels are flagged `e2e` and are invisible to normal `claim`.
 * `login` and `signup` share one form (login first, signup on 401): every new sign-up shows one `401` in the browser console. Harmless, a dedicated "login or create" endpoint would remove it.
+* Logout: Workers KV caches reads at the edge for up to 60 s, so a signed-out token can still be accepted for a short time (the E2E notes it).

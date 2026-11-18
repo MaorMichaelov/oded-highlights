@@ -47,7 +47,15 @@ async function ixAdd(env, k) { if (!IX_FAMILY.test(k)) return; const ik = ixKey(
 async function ixDel(env, k) { if (!IX_FAMILY.test(k)) return; const ik = ixKey(k), cur = await env.KV.get(ik, "json"); if (!cur || !cur.includes(k)) return; await env.KV.put(ik, JSON.stringify(cur.filter((x) => x !== k))); }
 const kput = async (env, k, v, opt) => { await env.KV.put(k, JSON.stringify(v), opt); await ixAdd(env, k); };
 const kdel = async (env, k) => { await env.KV.delete(k); await ixDel(env, k); };
-async function klist(env, prefix, limit = 200) { const [r, ix] = await Promise.all([env.KV.list({ prefix, limit }), env.KV.get("studio:ix:" + prefix, "json")]); const all = new Set(r.keys.map((x) => x.name)); for (const k of ix || []) all.add(k); return [...all].sort().slice(0, limit); }
+const noIx = new Map();   // prefix -> ms: "no index document and list() found nothing" (per isolate, 60 s): keeps polling of an empty org from burning the daily KV list() budget (free plan: ~1000 lists + writes per day for the whole account)
+async function klist(env, prefix, limit = 200) {
+  const ix = IX_FAMILY.test(prefix) ? await env.KV.get("studio:ix:" + prefix, "json") : null;
+  if (ix) return [...ix].sort().slice(0, limit);   // the index is authoritative: no list() call at all
+  if (IX_FAMILY.test(prefix) && Date.now() - (noIx.get(prefix) || 0) < 60000) return [];
+  const r = await env.KV.list({ prefix, limit }); const keys = r.keys.map((x) => x.name);
+  if (IX_FAMILY.test(prefix)) { if (keys.length) await env.KV.put("studio:ix:" + prefix, JSON.stringify(keys)); else noIx.set(prefix, Date.now()); }   // legacy data (created before the index existed) is indexed on first sight
+  return keys;
+}
 async function kgetMany(env, keys) { return (await Promise.all(keys.map((k) => kget(env, k)))).filter(Boolean); }
 async function cfg(env, name) { return (await env.KV.get(K.cfg(name))) || env["STUDIO_" + name.toUpperCase()] || ""; }
 
@@ -60,12 +68,11 @@ export async function hashPassword(pw, saltHex = rnd(16), iter = 100000) {
 const safeEq = (a, b) => { if (a.length !== b.length) return false; let d = 0; for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i); return d === 0; };
 
 // ---------- rate limit (best effort: KV counter) ----------
-const MEM_RL = new Map();   // per-isolate counters for chatty buckets: the free KV plan allows only ~1000 writes and 1000 list() calls per day for the whole account
+const rlMem = new Map();   // best effort, per isolate, no KV: a KV counter costs a write per request and the free plan allows ~1000 writes/day for the whole account
 async function limited(env, req, bucket, max, ttl = 3600) {
-  if (/^(assist|verify)/.test(bucket)) { const ip0 = req.headers.get("cf-connecting-ip") || "x", k0 = bucket + ":" + ip0, nowS = Date.now(); const e0 = MEM_RL.get(k0); if (!e0 || nowS - e0.t > ttl * 1000) { MEM_RL.set(k0, { t: nowS, n: 1 }); if (MEM_RL.size > 500) MEM_RL.clear(); return false; } if (e0.n >= max) return true; e0.n++; return false; }
-  const ip = req.headers.get("cf-connecting-ip") || "x"; const k = K.rl(`${bucket}:${ip}`); const n = parseInt((await env.KV.get(k)) || "0");
-  if (n >= max) return true;
-  await env.KV.put(k, String(n + 1), { expirationTtl: Math.max(60, ttl) }); return false;
+  const ip = req.headers.get("cf-connecting-ip") || "x", k = bucket + ":" + ip, t = Date.now(); let e = rlMem.get(k);
+  if (!e || e.exp < t) { if (rlMem.size > 5000) for (const [kk, v] of rlMem) if (v.exp < t) rlMem.delete(kk); e = { n: 0, exp: t + Math.max(60, ttl) * 1000 }; rlMem.set(k, e); }
+  if (e.n >= max) return true; e.n++; return false;
 }
 
 // ---------- request helpers ----------
