@@ -640,6 +640,11 @@ async function workerApi(req, env, p, m) {
   if (!authed && /^gh[sp]_[A-Za-z0-9_.-]{20,400}$/.test(got)) authed = await ghActionsTokenOk(env, got);   // the repo's own GitHub Actions run proves itself with its run token: no shared secret to store anywhere
   if (!authed) { if (await limited(env, req, "workerkey_fail", 60)) return err(429, "rate_limited"); return err(401, "unauthorized"); }   // only FAILED attempts count (the real worker polls often)
   if (p === "/studio/worker/waitlist" && m === "GET") { const ks = await env.KV.list({ prefix: "studio:wl:", limit: 500 }); const rows = []; for (const k of ks.keys) { const v = await env.KV.get(k.name, "json"); rows.push({ email: k.name.slice(10), ...(v || {}) }); } return json({ count: rows.length, rows }); }
+  if (p === "/studio/worker/testguest" && m === "POST") {   // diagnostics from GitHub Actions: a guest workspace without an invite code (worker auth only)
+    const uid = "u_" + rnd(8), orgId = "o_" + rnd(8), email = "guest-" + rnd(6) + "@guest.invalid";
+    await Promise.all([kput(env, K.user(uid), { id: uid, email, name: "Guest", guest: true, pw: await hashPassword(rnd(24)), created: now() }), env.KV.put(K.email(email), uid), kput(env, K.org(orgId), { id: orgId, name: "Test studio", owner: uid, plan: "trial", credits: TRIAL_CREDITS, created: now() })]);
+    await addMember(env, orgId, uid, email, "owner"); return json({ token: await newSession(env, uid), org_id: orgId });
+  }
   if (p === "/studio/worker/queue" && (m === "POST" || m === "GET")) {   // cheap peek for the GitHub Actions poller: how many jobs wait. Claims nothing, changes nothing.
     return json({ queued: (await klist(env, "studio:q:", 20)).length });
   }
