@@ -154,7 +154,7 @@ class WorkflowFile(unittest.TestCase):
         self.assertEqual(self.y["concurrency"]["cancel-in-progress"], False); self.assertTrue(self.y["concurrency"]["group"])
     def test_permissions_are_minimal(self):
         self.assertEqual(self.y["permissions"], {}); jobs = self.y["jobs"]
-        self.assertEqual(jobs["check"].get("permissions"), {}); self.assertEqual(jobs["render"]["permissions"], {"contents": "write"})   # write only where the preview release is created
+        self.assertEqual(jobs["check"].get("permissions"), {"contents": "read"}); self.assertEqual(jobs["render"]["permissions"], {"contents": "write"})   # write only where the preview release is created
     def test_secrets_only_via_env_and_never_inline(self):
         import re
         for m in re.finditer(r"\$\{\{[^}]*\}\}", self.text):
