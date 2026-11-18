@@ -1258,6 +1258,7 @@ const ST = {
   ok: { he: ["👍 מה הלאה?", "רשמתי. עוד משהו?", "סגור."], en: ["👍 What's next?", "Noted. Anything else?", "Done."] },
   howmany: { he: ["כמה מה? קליפים, קרדיטים או שעות שידור? אפשר לשאול למשל \"כמה זה עולה?\" או לבקש \"5 שורטס\".", "תפרט קצת: כמה קליפים לחתוך, או כמה זה עולה?"], en: ["How many of what? Clips, credits or stream hours? You can ask \"how much does it cost?\" or request \"5 Shorts\".", "Tell me a bit more: how many clips to cut, or how much it costs?"] },
   me: { he: ["אתה? ספר לי: מה אתה רוצה שנחתוך?", "אני מקשיב. על מה מדובר?"], en: ["You? Tell me: what would you like cut?", "I'm listening. What's it about?"] },
+  rec: { he: ["הייתי מתחיל מהשידור האחרון שלך: 5 שורטס מהרגעים הכי חזקים וסרטון ארוך אחד מהחלק הכי מעניין. אחר כך מסתכלים מה אישרת ומה דחית, והמערכת לומדת.", "המלצה: קודם שורטס, כי הם מהירים ונותנים תוצאות. כשיש לך 5 טיוטות שאהבת, נוסיף סרטון ארוך משיחה או ריאקשן.", "הדבר הכי משתלם: להדביק לי קישור לשידור, ואני אציע מה לחתוך ממנו."], en: ["I'd start with your latest stream: 5 Shorts from the strongest moments and one long video from the most interesting stretch. Then we look at what you approved and rejected, and the system learns.", "My tip: Shorts first, they're fast and give results. Once you have 5 drafts you like, add a long video from a conversation or reaction.", "The best value: paste me a stream link and I'll suggest what to cut from it."] },
   idk: { he: ["לא בטוח שהבנתי. אפשר לנסות: \"5 שורטס מצחיקים מאתמול\", \"סרטון ארוך מהשידור האחרון\" או \"מה המצב?\"", "ניסוח אחר? למשל מה לחתוך, כמה, ומאיזה שידור.", "לא תפסתי. תגיד לי במילים שלך מה אתה רוצה שייחתך."], en: ["Not sure I got that. Try: \"5 funny Shorts from yesterday\", \"a long video from the latest stream\" or \"what's the status?\"", "Another wording? For example what to cut, how many, and from which stream.", "I didn't catch that. Tell me in your own words what you want cut."] },
 };
 function stCategory(t) {
@@ -1274,6 +1275,7 @@ function stCategory(t) {
   if (has(/מה (אתה|את|אפשר|ניתן) (יכול|יכולה|לעשות|לבקש)|במה אתה|עזרה|\bhelp\b|what can you|what do you do|מה אתה עושה/)) return "what";
   if (has(/^(מי אתה|מי את|who are you|what are you)/)) return "who";
   if (w.length <= 2 && /^(הכל|הכול|everything|all)$/.test(x)) return "all";
+  if (/^(מה (אתה )?ממליץ|מה כדאי|מה דעתך|תמליץ|מה להתחיל|what do you (recommend|suggest)|what should i (do|start)|any (tips|ideas))/.test(x)) return "rec";
   if (w.length <= 2 && /^(כמה|how much|how many)$/.test(x)) return "howmany";
   if (w.length <= 2 && /^(אני|אני רוצה|i|me|i want)$/.test(x)) return "me";
   return null;

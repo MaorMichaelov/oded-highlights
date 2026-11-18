@@ -222,7 +222,9 @@ const HELP = { he: "אפשר לבקש בשפה חופשית, למשל: \"תכי�
 // ---- free-form understanding with a free LLM (Workers AI binding `AI`): replies vary, remember the conversation, answer product questions; the rule parser above stays as the fallback and as the safety net
 const LLM_MODELS = ["@cf/mistralai/mistral-small-3.1-24b-instruct", "@cf/openai/gpt-oss-120b", "@cf/meta/llama-3.3-70b-instruct-fp8-fast", "@cf/meta/llama-3.1-8b-instruct"];   // chosen by a Hebrew comparison on the live Worker: Mistral Small 3.1 gives the most natural Hebrew and is the fastest
 const LLM_DIAG = { last: "", text: "", fail: "" };   // last model outcome, shown by /studio/api/health?ai=1
-const LLM_USED = new Map(), CTX_CACHE = new Map();
+const LLM_USED = new Map(), CTX_CACHE = new Map(), HIST_MEM = new Map();
+async function loadHist(env, orgId) { try { const h = (await kget(env, K.chat(orgId))) || []; HIST_MEM.set(orgId, h); if (HIST_MEM.size > 300) HIST_MEM.clear(); return h; } catch (e) { return HIST_MEM.get(orgId) || []; } }
+async function saveHist(env, orgId, hist) { HIST_MEM.set(orgId, hist); try { await kput(env, K.chat(orgId), hist); } catch (e) { /* KV write limit: the in-memory copy keeps the conversation going */ } }
 const LLM_DAILY = 300;   // per workspace; free tier friendly
 function firstJson(text) { const t = String(text || ""); const a = t.indexOf("{"); if (a < 0) return null; let d = 0, q = false, e = false; for (let i = a; i < t.length; i++) { const c = t[i]; if (q) { if (e) e = false; else if (c === "\\") e = true; else if (c === '"') q = false; continue; } if (c === '"') q = true; else if (c === "{") d++; else if (c === "}" && --d === 0) { try { return JSON.parse(t.slice(a, i + 1)); } catch (x) { return null; } } } return null; }
 async function llmUnderstand(env, org, role, text, hist, L, ctx) {
@@ -233,6 +235,16 @@ async function llmUnderstand(env, org, role, text, hist, L, ctx) {
 WHAT THE PRODUCT DOES (only facts you may state): the customer connects a channel by pasting its link and proving ownership with a code placed in the bio or stream title; one credit = one hour of source stream; Studio finds moments (laughs, hype, fails, stories, reactions, guest conversations), cuts at sentence boundaries, adds captions and a logo, runs a quality check, and delivers PRIVATE drafts in the Review tab (swipe or arrow keys to approve / reject, titles editable); long videos and Shorts are both supported; team members are invited in the Team tab (owner / editor / viewer); YouTube connection, payments and real-time clips from chat commands are coming soon. You can start jobs (up to 30 Shorts and/or one long video, from the last stream, yesterday or last week, optional mood funny/hype/fail) and report job status. Never invent features, numbers, screens, prices or results; if unsure say so and point to the right tab.
 EDITING EXPERTISE you can share when asked or when useful: Shorts: hook in the first 1-2 seconds, one idea per clip, 20-45 s sweet spot, cut at the start of a sentence and end right after the punchline, captions on, loop-friendly endings, front-load the payoff; long videos: a clear premise in the title, chapters, cut dead air and repeated setup, keep reactions whole, 8-30 min for reactions and guest talks; titles: literal and true, specific names and moments, 40-70 characters, no clickbait lies, no hype words; thumbnails: one face with a clear emotion, 3-4 words max; publishing: consistency beats perfection, post Shorts several times a week and long videos weekly, reuse the best moment as a Short that points to the long video; comments and community: reply early; rights: only clip your own streams or with permission. Give concrete options (for example 3 title ideas, a better hook line, how to trim a clip) when the customer wants help, and keep advice short and practical.
 LANGUAGE QUALITY: in Hebrew use simple everyday spoken words and short sentences, no literal translations of English idioms, no invented words, keep common terms like Shorts / Hook / Review as they are; double-check every sentence reads naturally. When the customer asks for general editing or growth advice (how to trim, why views are low, what makes a good title) answer with real craft advice first and mention Studio only if it truly helps; never put placeholders in brackets: if you need a name or detail, either ask for it or write the title without it; when giving titles, give 3 distinct options, each literal and true to what the customer described.
+KNOWLEDGE BASE (general craft knowledge, state it as guidance, and when a number or policy matters tell the customer to confirm it in YouTube Studio): 
+- YouTube Shorts: vertical 9:16, up to 3 minutes; the feed rewards viewed-vs-swiped-away and watch-through, so the first second must show the payoff or a question, no logo intros, loops and quick payoffs win; captions help because many watch muted; post 3-7 per week; a Short can link to the related long video.
+- Long videos: click-through rate (title + thumbnail) and average view duration drive recommendations; promise and deliver, cut dead air and repeated setup, add chapters (timestamps starting at 0:00 in the description), end with a next-video suggestion; reactions, guest conversations and event recaps work well from streams; upload consistency matters more than length.
+- Titles: specific and true, name the person / game / moment, one clear emotion or curiosity gap, front-load the important words, 40-70 characters; avoid ALL CAPS, avoid misleading claims (misleading metadata can be penalised).
+- Thumbnails: one face with a readable emotion, 3-4 big words at most, high contrast, same style across the channel.
+- Description and tags: first two lines matter, include names and the game, 3-5 relevant hashtags, link to the stream and credit sources.
+- Stream clipping specifics: cut starts at the beginning of the sentence and ends right after the punchline; keep 2-3 seconds of context before the funny moment; reaction clips should keep the reaction whole; don't cut mid-word; normalise loudness (about -14 LUFS for Shorts); keep the game audio under the voice.
+- Rights: clip only your own streams or with written permission; third-party music in a stream can trigger Content ID claims (consider muting or replacing it); fan channels should credit the streamer and use clear disclaimers, but permission is still needed to be safe.
+- Growth: reuse one moment in 3 shapes (Short, long video, community post), reply to early comments, pin a comment, check analytics for retention drop-offs and cut those sections, review the top 10% and bottom 10% of videos each month; monetisation thresholds exist (subscribers plus watch hours or Shorts views) and change over time, so check the current numbers in YouTube Studio.
+- Kick and Twitch: viewers' chat spikes and laughter mark good moments; Twitch clips are short viewer-made highlights, VODs can expire, so download or clip soon after the stream.
 STYLE: warm, direct, specific, a little humour is fine; match the customer's energy; short messages get short answers, real questions get a complete useful answer (up to ~120 words); never repeat a sentence you said earlier in this conversation; ask ONE clarifying question when the request is vague; never lecture; if the customer corrects you, accept it and adjust. If the message is vague, emotional or a filler ("honestly I don't know", "whatever", "hmm"), do not assume it continues the last topic: respond to the person first, then offer two concrete next steps that fit their situation (no verified channel yet: connect one; has a channel: try a job such as "5 funny Shorts from the latest stream").
 CUSTOMER CONTEXT: role=${role}; credits=${ctx.credits}; verified channels=${ctx.channels.join(", ") || "none yet"}; recent jobs=${ctx.jobs.join(" | ") || "none"}; recent drafts=${(ctx.drafts || []).join(" | ") || "none yet"}.
 Output ONLY JSON: {"reply": "<what you say>", "intent": "create" | "status" | "chat", "shorts": <int 0-30>, "long": <true|false>, "when": "last_stream" | "yesterday" | "week", "mood": "funny" | "hype" | "fail" | null}. Use intent "create" only when the customer clearly asked you to make something now (then reply with a short confirmation); "status" when they ask about progress; otherwise "chat".`;
@@ -268,6 +280,7 @@ const ST = {
   ok: { he: ["👍 מה הלאה?", "רשמתי. עוד משהו?", "סגור."], en: ["👍 What's next?", "Noted. Anything else?", "Done."] },
   howmany: { he: ["כמה מה? קליפים, קרדיטים או שעות שידור? אפשר לשאול למשל \"כמה זה עולה?\" או לבקש \"5 שורטס\".", "תפרט קצת: כמה קליפים לחתוך, או כמה זה עולה?"], en: ["How many of what? Clips, credits or stream hours? You can ask \"how much does it cost?\" or request \"5 Shorts\".", "Tell me a bit more: how many clips to cut, or how much it costs?"] },
   me: { he: ["אתה? ספר לי: מה אתה רוצה שנחתוך?", "אני מקשיב. על מה מדובר?"], en: ["You? Tell me: what would you like cut?", "I'm listening. What's it about?"] },
+  rec: { he: ["הייתי מתחיל מהשידור האחרון שלך: 5 שורטס מהרגעים הכי חזקים וסרטון ארוך אחד מהחלק הכי מעניין. אחר כך מסתכלים מה אישרת ומה דחית, והמערכת לומדת.", "המלצה: קודם שורטס, כי הם מהירים ונותנים תוצאות. כשיש לך 5 טיוטות שאהבת, נוסיף סרטון ארוך משיחה או ריאקשן.", "הדבר הכי משתלם: להדביק לי קישור לשידור, ואני אציע מה לחתוך ממנו."], en: ["I'd start with your latest stream: 5 Shorts from the strongest moments and one long video from the most interesting stretch. Then we look at what you approved and rejected, and the system learns.", "My tip: Shorts first, they're fast and give results. Once you have 5 drafts you like, add a long video from a conversation or reaction.", "The best value: paste me a stream link and I'll suggest what to cut from it."] },
   idk: { he: ["לא בטוח שהבנתי. אפשר לנסות: \"5 שורטס מצחיקים מאתמול\", \"סרטון ארוך מהשידור האחרון\" או \"מה המצב?\"", "ניסוח אחר? למשל מה לחתוך, כמה, ומאיזה שידור.", "לא תפסתי. תגיד לי במילים שלך מה אתה רוצה שייחתך."], en: ["Not sure I got that. Try: \"5 funny Shorts from yesterday\", \"a long video from the latest stream\" or \"what's the status?\"", "Another wording? For example what to cut, how many, and from which stream.", "I didn't catch that. Tell me in your own words what you want cut."] },
 };
 function stCategory(t) {
@@ -284,6 +297,7 @@ function stCategory(t) {
   if (has(/מה (אתה|את|אפשר|ניתן) (יכול|יכולה|לעשות|לבקש)|במה אתה|עזרה|\bhelp\b|what can you|what do you do|מה אתה עושה/)) return "what";
   if (has(/^(מי אתה|מי את|who are you|what are you)/)) return "who";
   if (w.length <= 2 && /^(הכל|הכול|everything|all)$/.test(x)) return "all";
+  if (/^(מה (אתה )?ממליץ|מה כדאי|מה דעתך|תמליץ|מה להתחיל|what do you (recommend|suggest)|what should i (do|start)|any (tips|ideas))/.test(x)) return "rec";
   if (w.length <= 2 && /^(כמה|how much|how many)$/.test(x)) return "howmany";
   if (w.length <= 2 && /^(אני|אני רוצה|i|me|i want)$/.test(x)) return "me";
   return null;
@@ -304,22 +318,22 @@ async function assistant(env, org, me, role, b, store) {
   let llm = null;
   if (link && u.intent === "help") {   // a bare link: offer the options (what to make) as quick replies; the cost is shown up front
     const site = linkSite(link); reply = L === "he" ? `קיבלתי קישור מ-${site}. מה לעשות איתו? אפשר לבחור למטה או לכתוב בעצמך (למשל "8 שורטס מצחיקים"). העלות היא קרדיט אחד לכל שעת שידור, ואעדכן כשאדע את האורך המדויק.` : `Got a ${site} link. What should I do with it? Pick below or write your own (e.g. "8 funny Shorts"). Cost is one credit per hour of source, and I'll update you once I know the exact length.`;
-    const hist1 = (await kget(env, K.chat(org.id))) || []; hist1.push({ r: "user", t: now(), text: u.text }, { r: "bot", t: now(), text: reply }); await kput(env, K.chat(org.id), hist1.slice(-40));
+    const hist1 = await loadHist(env, org.id); hist1.push({ r: "user", t: now(), text: u.text }, { r: "bot", t: now(), text: reply }); await saveHist(env, org.id, hist1.slice(-40));
     return { reply, actions, mode: "basic", choices: linkChoices(L, link), parsed: { intent: "link", link } };
   }
   if (!link) try {
-    const hist0 = (await kget(env, K.chat(org.id))) || [];
-    const cc = CTX_CACHE.get(org.id); let chs, js, drs;   // channel/job lists cost KV list() calls (free plan: 1000/day): cache them for 2 minutes per workspace
-    if (cc && Date.now() - cc.t < 120000) { chs = cc.chs; js = cc.js; drs = cc.drs; } else {
+    const hist0 = await loadHist(env, org.id);
+    const cc = CTX_CACHE.get(org.id); let chs = [], js = [], drs = [];   // channel/job lists cost KV list() calls (free plan: 1000/day): cache them for 2 minutes per workspace
+    if (cc && Date.now() - cc.t < 120000) { chs = cc.chs; js = cc.js; drs = cc.drs; } else try {
       chs = (await kgetMany(env, await klist(env, K.chansOfOrg(org.id)))).filter((c) => c.status === "verified").map((c) => `${c.platform}/${c.slug}`);
       const allJobs = (await kgetMany(env, (await klist(env, K.jobsOfOrg(org.id), 500)).map((k) => K.job(k.split(":")[3])))).sort((a, c) => (a.created < c.created ? 1 : -1)).slice(0, 4);
       js = allJobs.slice(0, 3).map((j) => `${j.status} ${j.progress}%`); drs = []; for (const j of allJobs) for (const d of ((j.result && j.result.drafts) || []).slice(0, 4)) drs.push(`"${String(d.title || "").slice(0, 60)}" (${d.decision || "pending"})`);
       CTX_CACHE.set(org.id, { t: Date.now(), chs, js, drs }); if (CTX_CACHE.size > 300) CTX_CACHE.clear();
-    }
-    const fresh0 = await kget(env, K.org(org.id)); llm = await llmUnderstand(env, org, role, u.text, hist0, L, { credits: fresh0 ? fresh0.credits : org.credits, channels: chs, jobs: js, drafts: drs.slice(0, 8) });
+    } catch (e) { /* KV list limit or hiccup: talk without the context */ }
+    const fresh0 = await kget(env, K.org(org.id)).catch(() => null); llm = await llmUnderstand(env, org, role, u.text, hist0, L, { credits: fresh0 ? fresh0.credits : org.credits, channels: chs, jobs: js, drafts: drs.slice(0, 8) });
   } catch (e) { llm = null; }
   if (llm) { if (llm.intent === "create" && (llm.shorts > 0 || llm.long)) { u.intent = "create"; u.shorts = llm.shorts; u.long = llm.long; u.when = llm.when; u.mood = llm.mood; } else if (llm.intent === "status") u.intent = "status"; else u.intent = "chat"; }
-  const turnN = ((await kget(env, K.chat(org.id))) || []).length;
+  const turnN = (HIST_MEM.get(org.id) || []).length;
   if (u.intent === "chat") reply = llm ? llm.reply : (smallTalk(u.text, L, turnN, true) || HELP[L]);
   else if (u.intent === "help") reply = smallTalk(u.text, L, turnN, true) || HELP[L];
   else if (u.intent === "status") {
@@ -344,7 +358,7 @@ async function assistant(env, org, me, role, b, store) {
       }
     }
   }
-  const hist = (await kget(env, K.chat(org.id))) || []; hist.push({ r: "user", t: now(), text: u.text }, { r: "bot", t: now(), text: reply }); await kput(env, K.chat(org.id), hist.slice(-40));   // TODO(D1): per-user threads
+  const hist = await loadHist(env, org.id); hist.push({ r: "user", t: now(), text: u.text }, { r: "bot", t: now(), text: reply }); await saveHist(env, org.id, hist.slice(-40));   // TODO(D1): per-user threads
   return { reply, actions, mode: llm ? "ai" : "basic", why: llm ? undefined : String(LLM_DIAG.fail || LLM_DIAG.last || "no-ai").slice(0, 400), parsed: { intent: u.intent, shorts: u.shorts, long: u.long, when: u.when, mood: u.mood } };
 }
 

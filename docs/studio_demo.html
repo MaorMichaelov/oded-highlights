@@ -769,14 +769,15 @@ function onHash() {
 addEventListener("hashchange", onHash);
 
 function applyChrome() { const d = document.documentElement; d.lang = lang; d.dir = lang === "he" ? "rtl" : "ltr"; if (S.theme === "light" || S.theme === "dark") d.setAttribute("data-theme", S.theme); else d.removeAttribute("data-theme"); $("#skipLink").textContent = t("skip"); }
-function setLang(l) { lang = l; LS.set("studio_lang", l); applyChrome(); renderApp(); }
+function keepAuthDraft() { const e = $("#email"); if (e) S.authDraft = { email: e.value, pw: ($("#pw") || {}).value || "", open: !!($(".emailbox") && $(".emailbox").open) }; }   // switching language/theme on the sign-in page must not wipe what was typed
+function setLang(l) { keepAuthDraft(); lang = l; LS.set("studio_lang", l); applyChrome(); renderApp(); }
 function setTheme(m) { S.theme = m; LS.set("studio_theme", m); applyChrome(); }
 
 function renderApp() {
   applyChrome(); cleanups.forEach((f) => f()); cleanups = [];
   if (!token && !DEMO) return renderAuth();
   if (DEMO && demoLanding) return renderAuth();
-  if (!S.ready) { $("#app").replaceChildren(h("div", { class: "boot" }, h("span", { class: "spin" }))); return boot(); }
+  if (!S.ready) { $("#app").replaceChildren(h("div", { class: "boot", role: "main" }, h("span", { class: "spin" }))); return boot(); }
   if (S.inviteToken) return renderInvite();
   if (!S.org) return renderNoOrg();
   renderShell(); parseRoute(); renderRoute(true);
@@ -787,10 +788,10 @@ async function boot() {
   try {
     if (S.inviteToken && !S.invitePreview) { try { S.invitePreview = await api("POST", "/invites/preview", { token: S.inviteToken }); } catch (e) { S.inviteToken = null; } }
     await loadCore(); await loadYt(); schedulePoll();
-  } catch (e) { if (e && e._status === 401) { booting = false; return; } $("#app").replaceChildren(h("div", { class: "boot stack" }, h("p", null, errText(e)), h("button", { class: "btn", onclick: () => { booting = false; renderApp(); } }, t("retry")))); booting = false; return; }
+  } catch (e) { if (e && e._status === 401) { booting = false; return; } $("#app").replaceChildren(h("div", { class: "boot stack", role: "main" }, h("p", null, errText(e)), h("button", { class: "btn", onclick: () => { booting = false; renderApp(); } }, t("retry")))); booting = false; return; }
   booting = false; renderApp();
 }
-function renderNoOrg() { $("#app").replaceChildren(h("div", { class: "auth" }, h("div", { class: "card stack" }, h("h2", null, t("se_ws_new")), createOrgForm(), h("button", { class: "btn ghost", onclick: logout }, t("se_logout"))))); }
+function renderNoOrg() { $("#app").replaceChildren(h("div", { class: "auth", role: "main" }, h("div", { class: "card stack" }, h("h2", null, t("se_ws_new")), createOrgForm(), h("button", { class: "btn ghost", onclick: logout }, t("se_logout"))))); }
 
 function renderShell() {
   const brand = () => h("a", { class: "brand", href: "#/home" }, h("span", { class: "logo" }), h("span", null, "Studio"));
@@ -834,8 +835,8 @@ function nle() {
       h("div", { class: "nle-bin" }, ...clips), h("div", { class: "nle-status" }, h("b", null, "OK"), h("span", { dir: "auto" }, t("nle_status")))));
 }
 function renderAuth() {
-  const err = h("div", { class: "errtxt", role: "alert" }), em = h("input", { class: "input", id: "email", type: "email", autocomplete: "username", inputmode: "email", required: true, dir: "ltr", value: DEMO ? "demo@streamer.tv" : (S.invitePreview ? S.invitePreview.email || "" : "") });
-  const pw = h("input", { class: "input", id: "pw", type: "password", autocomplete: "current-password", required: true, minlength: 8, dir: "ltr", value: DEMO ? "demo12345" : "" });
+  const err = h("div", { class: "errtxt", role: "alert" }), em = h("input", { class: "input", id: "email", type: "email", autocomplete: "username", inputmode: "email", required: true, dir: "ltr", value: DEMO ? "demo@streamer.tv" : ((S.authDraft && S.authDraft.email) || (S.invitePreview ? S.invitePreview.email || "" : "")) });
+  const pw = h("input", { class: "input", id: "pw", type: "password", autocomplete: "current-password", required: true, minlength: 8, dir: "ltr", value: DEMO ? "demo12345" : ((S.authDraft && S.authDraft.pw) || "") });
   const eye = h("button", { type: "button", class: "iconbtn", "aria-label": t("show_pw"), onclick: () => { const s = pw.type === "password"; pw.type = s ? "text" : "password"; eye.replaceChildren(icon(s ? "eyeoff" : "eye")); eye.setAttribute("aria-label", t(s ? "hide_pw" : "show_pw")); } }, icon("eye"));
   const go1 = h("button", { class: "btn lg block", type: "submit" }, h("span", null, t("continue")), icon("arrow", "flip"));
   const form = h("form", { class: "stack", novalidate: true, onsubmit: async (e) => {
@@ -853,18 +854,19 @@ function renderAuth() {
     try { const r = await api("POST", "/guest", {}); token = r.token; LS.set("studio_token", token); demoLanding = false; S.ready = false; renderApp(); }
     catch (e2) { err.textContent = errText(e2); b.disabled = false; b.replaceChildren(h("span", null, t("guest_go")), icon("arrow", "flip")); } } }, h("span", null, t("guest_go")), icon("arrow", "flip"));
   const title = t("hero_title"), cut = title.indexOf(". "), a = cut > 0 ? title.slice(0, cut + 1) : title, b = cut > 0 ? title.slice(cut + 2) : "";
-  $("#app").replaceChildren(h("div", { class: "auth" },
+  $("#app").replaceChildren(h("div", { class: "auth", role: "main" },
     h("div", { class: "auth-top" }, h("a", { class: "brand", href: "#" }, h("span", { class: "logo" }), h("span", null, "Studio")), h("div", { class: "grp" }, langSwitch(), themeBtn())),
     h("section", { class: "landing" }, h("div", { class: "eyebrow" }, h("span", { class: "rec" }), h("b", null, "REC"), h("span", { "data-tc": "" }, nowTc()), h("span", null, "· " + t("hero_eb"))),
       h("h1", { class: "display" }, a, " ", b ? h("span", { class: "hot" }, b) : null), h("p", { class: "lead" }, t("hero_sub")),
       h("div", { class: "perks" }, ...["perk1", "perk2", "perk3", "perk4"].map((k) => h("span", { class: "chip" }, icon(k === "perk4" ? "globe" : k === "perk3" ? "play" : k === "perk1" ? "lock" : "shield"), t(k))))),
-    h("section", { class: "card authcard" }, h("div", { class: "bar-h" }, h("span", null, h("span", { class: "rec" }), t("auth_title")), h("span", null, "CH-01")), h("div", { class: "body" }, guestBtn, h("p", { class: "small muted center" }, t("guest_hint")), h("details", { class: "emailbox" }, h("summary", null, t("guest_or")), form))), h("div", { class: "visual" }, nle())));
+    h("section", { class: "card authcard" }, h("div", { class: "bar-h" }, h("span", null, h("span", { class: "rec" }), t("auth_title")), h("span", null, "CH-01")), h("div", { class: "body" }, guestBtn, h("p", { class: "small muted center" }, t("guest_hint")), h("details", { class: "emailbox", open: (!!(S.authDraft && S.authDraft.open) || !!(S.inviteToken && S.invitePreview)) || null }, h("summary", null, t("guest_or")), form))), h("div", { class: "visual" }, nle())));
+  S.authDraft = null;
 }
 const langSwitch = () => h("div", { class: "seg", role: "group", "aria-label": t("se_lang") }, ...[["he", "עב"], ["en", "EN"]].map(([l, x]) => h("button", { type: "button", "aria-pressed": String(lang === l), "aria-label": l === "he" ? "עברית" : "English", onclick: () => lang !== l && setLang(l) }, x)));
-const themeBtn = () => h("button", { class: "iconbtn", type: "button", "aria-label": t("se_theme"), onclick: () => { const dark = document.documentElement.getAttribute("data-theme") === "dark" || (S.theme === "auto" && !matchMedia("(prefers-color-scheme: light)").matches); setTheme(dark ? "light" : "dark"); renderApp(); } }, icon("moon"));
+const themeBtn = () => h("button", { class: "iconbtn", type: "button", "aria-label": t("se_theme"), onclick: () => { keepAuthDraft(); const dark = document.documentElement.getAttribute("data-theme") === "dark" || (S.theme === "auto" && !matchMedia("(prefers-color-scheme: light)").matches); setTheme(dark ? "light" : "dark"); renderApp(); } }, icon("moon"));
 function renderInvite() {
   const p = S.invitePreview || {}, msg = h("div", { class: "errtxt", role: "alert" });
-  $("#app").replaceChildren(h("div", { class: "auth" }, h("div", { class: "card authcard stack" }, h("div", { class: "empty" }, h("div", { class: "art" }, icon("users")), h("h2", null, t("invite_title")), h("p", null, t("invite_for", { org: p.org || "", role: t("r_" + (p.role || "editor")) }))), msg,
+  $("#app").replaceChildren(h("div", { class: "auth", role: "main" }, h("div", { class: "card authcard stack" }, h("div", { class: "empty" }, h("div", { class: "art" }, icon("users")), h("h2", null, t("invite_title")), h("p", null, t("invite_for", { org: p.org || "", role: t("r_" + (p.role || "editor")) }))), msg,
     h("button", { class: "btn lg block", onclick: async (e) => { e.currentTarget.disabled = true; try { const ar = await api("POST", "/invites/accept", { token: S.inviteToken }); if (ar && ar.org_id) { LS.set("studio_org", ar.org_id); S.org = null; S.chat = null; S.members = null; S.inviteOut = null; S.fresh = {}; } S.inviteToken = null; S.invitePreview = null; S.ready = false; renderApp(); } catch (x) { msg.textContent = errText(x); e.currentTarget.disabled = false; } } }, t("invite_join")),
     h("button", { class: "btn ghost block", onclick: () => { S.inviteToken = null; S.invitePreview = null; renderApp(); } }, t("invite_later")))));
 }
@@ -1256,6 +1258,7 @@ const ST = {
   ok: { he: ["👍 מה הלאה?", "רשמתי. עוד משהו?", "סגור."], en: ["👍 What's next?", "Noted. Anything else?", "Done."] },
   howmany: { he: ["כמה מה? קליפים, קרדיטים או שעות שידור? אפשר לשאול למשל \"כמה זה עולה?\" או לבקש \"5 שורטס\".", "תפרט קצת: כמה קליפים לחתוך, או כמה זה עולה?"], en: ["How many of what? Clips, credits or stream hours? You can ask \"how much does it cost?\" or request \"5 Shorts\".", "Tell me a bit more: how many clips to cut, or how much it costs?"] },
   me: { he: ["אתה? ספר לי: מה אתה רוצה שנחתוך?", "אני מקשיב. על מה מדובר?"], en: ["You? Tell me: what would you like cut?", "I'm listening. What's it about?"] },
+  rec: { he: ["הייתי מתחיל מהשידור האחרון שלך: 5 שורטס מהרגעים הכי חזקים וסרטון ארוך אחד מהחלק הכי מעניין. אחר כך מסתכלים מה אישרת ומה דחית, והמערכת לומדת.", "המלצה: קודם שורטס, כי הם מהירים ונותנים תוצאות. כשיש לך 5 טיוטות שאהבת, נוסיף סרטון ארוך משיחה או ריאקשן.", "הדבר הכי משתלם: להדביק לי קישור לשידור, ואני אציע מה לחתוך ממנו."], en: ["I'd start with your latest stream: 5 Shorts from the strongest moments and one long video from the most interesting stretch. Then we look at what you approved and rejected, and the system learns.", "My tip: Shorts first, they're fast and give results. Once you have 5 drafts you like, add a long video from a conversation or reaction.", "The best value: paste me a stream link and I'll suggest what to cut from it."] },
   idk: { he: ["לא בטוח שהבנתי. אפשר לנסות: \"5 שורטס מצחיקים מאתמול\", \"סרטון ארוך מהשידור האחרון\" או \"מה המצב?\"", "ניסוח אחר? למשל מה לחתוך, כמה, ומאיזה שידור.", "לא תפסתי. תגיד לי במילים שלך מה אתה רוצה שייחתך."], en: ["Not sure I got that. Try: \"5 funny Shorts from yesterday\", \"a long video from the latest stream\" or \"what's the status?\"", "Another wording? For example what to cut, how many, and from which stream.", "I didn't catch that. Tell me in your own words what you want cut."] },
 };
 function stCategory(t) {
@@ -1272,6 +1275,7 @@ function stCategory(t) {
   if (has(/מה (אתה|את|אפשר|ניתן) (יכול|יכולה|לעשות|לבקש)|במה אתה|עזרה|\bhelp\b|what can you|what do you do|מה אתה עושה/)) return "what";
   if (has(/^(מי אתה|מי את|who are you|what are you)/)) return "who";
   if (w.length <= 2 && /^(הכל|הכול|everything|all)$/.test(x)) return "all";
+  if (/^(מה (אתה )?ממליץ|מה כדאי|מה דעתך|תמליץ|מה להתחיל|what do you (recommend|suggest)|what should i (do|start)|any (tips|ideas))/.test(x)) return "rec";
   if (w.length <= 2 && /^(כמה|how much|how many)$/.test(x)) return "howmany";
   if (w.length <= 2 && /^(אני|אני רוצה|i|me|i want)$/.test(x)) return "me";
   return null;
