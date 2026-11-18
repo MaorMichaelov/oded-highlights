@@ -236,6 +236,7 @@ export default {
     const u = new URL(req.url), p = u.pathname;
     if (p.startsWith("/studio/yt/") || p.startsWith("/internal/yt/")) { const yr = await handleYouTube(req, env); if (yr) return yr; }   // before /studio: own routes, own KV prefix studio:yt:
     if (p === "/studio" || p.startsWith("/studio/")) return handleStudio(req, env);   // before the owner auth: the owner app below is untouched
+    if (env.STORE) return Response.redirect(u.origin + "/studio", 302);   // the customer-area deployment (studio-app, has the STORE binding) serves nothing but /studio: no owner-app pages or APIs there
     if (p === "/" || p === "/index.html") return new Response(HTML, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache", ...SEC } });
     if (p === "/manifest.webmanifest") return J({ name: "ODED HIGHLIGHTS", short_name: "ODED HL", start_url: "/", display: "standalone", background_color: "#0b0f0d", theme_color: "#0b0f0d", lang: "he", dir: "rtl", icons: [{ src: "/icon.png", sizes: "192x192", type: "image/png", purpose: "any maskable" }] });
     if (p === "/icon.png") return new Response(Uint8Array.from(atob(ICON), (c) => c.charCodeAt(0)), { headers: { "content-type": "image/png", "cache-control": "public, max-age=86400" } });
