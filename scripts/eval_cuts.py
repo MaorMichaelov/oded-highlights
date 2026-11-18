@@ -197,6 +197,15 @@ def report(items, dups, media, path):
         L += ["Per file (worst first):", "", "| file | score | lead s | trail s | tail rel dB | head rel dB | LUFS | problems |", "|---|---|---|---|---|---|---|---|"]
         for k, v in sorted(media.items(), key=lambda kv: kv[1]["score"])[:25]:
             a = v.get("audio") or {}; L.append(f"| {k} | {v['score']} | {a.get('lead_silence_s')} | {a.get('trail_silence_s')} | {a.get('tail_rel_speech_db')} | {a.get('head_rel_speech_db')} | {a.get('lufs')} | {'; '.join(v['fail'] + v['warn'])[:140]} |")
+    pr = [jl(f) for f in sorted(glob.glob(os.path.join(ROOT, "state", "probe", "*.json")))]
+    if pr:
+        L += ["", "## 3b. Cut precision on real speech (probe_cut, workflow `probe-cut`)", "", "Sentence-end / sentence-start cuts computed with several strategies, the cut piece transcribed again (ok = the intended word is heard complete; cut = truncated; lost = dropped; late/early = a fragment of the neighbouring word is heard; other = ASR wording differs, also seen for the plain strategies, i.e. noise of the check).", ""]
+        for d in pr:
+            if not d: continue
+            L += [f"VOD {d['vod']} window {int(d['window'][0] // 60)}-{int(d['window'][1] // 60)} min, {d['words']} words, 480p-vs-1080p audio offset {d.get('lag')}", "", "| strategy | ok | cut | lost | late/early | other |", "|---|---|---|---|---|---|"]
+            for part in ("end", "start"):
+                for n, c in d[part].items(): L.append(f"| {n} | {c.get('ok', 0)} | {c.get('cut', 0)} | {c.get('lost', 0)} | {c.get('late', 0) + c.get('early', 0)} | {c.get('other', 0)} |")
+            L.append("")
     L += ["", "## 4. Worst offenders (L1)", "", "| item | penalty | problems |", "|---|---|---|"]
     for i in sorted(items, key=lambda i: -i["res"]["pen"])[:14]:
         if i["res"]["pen"]: L.append(f"| `{i['id']}` | {i['res']['pen']} | {'; '.join(i['res']['flags'])[:260]} |")
