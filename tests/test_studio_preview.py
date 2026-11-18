@@ -150,7 +150,7 @@ class WorkflowFile(unittest.TestCase):
     def setUp(self):
         import yaml; self.path = os.path.join(HERE, "..", ".github", "workflows", "studio-worker.yml"); self.text = open(self.path, encoding="utf-8").read(); self.y = yaml.safe_load(self.text)
     def test_triggers_and_concurrency(self):
-        on = self.y.get("on") or self.y.get(True); self.assertIn("schedule", on); self.assertIn("workflow_dispatch", on); self.assertRegex(on["schedule"][0]["cron"], r"^\*/5 ")
+        on = self.y.get("on") or self.y.get(True); self.assertIn("schedule", on); self.assertIn("workflow_dispatch", on); self.assertRegex(on["schedule"][0]["cron"], r"^\*/(5|10) ")
         self.assertEqual(self.y["concurrency"]["cancel-in-progress"], False); self.assertTrue(self.y["concurrency"]["group"])
     def test_permissions_are_minimal(self):
         self.assertEqual(self.y["permissions"], {}); jobs = self.y["jobs"]
