@@ -1,0 +1,125 @@
+name: studio-worker
+# TEMPORARY COMPUTE for the Studio PREVIEW phase (owner's decision, docs/STUDIO_PREVIEW_SETUP.md): every 5 minutes ask the studio worker API whether a job is queued; only then render it here
+# (scripts/render_worker.py --once) and publish small 720p previews as release assets so the drafts play in the app. Customer jobs may not run on Actions long term (GitHub terms): the real
+# worker is the private server in docs/DEPLOY_PRIVATE_SERVER.md; this workflow is the zero-cost bridge until it exists.
+# Needs two repository secrets, set by the OWNER (scripts/setup_studio_worker.sh): STUDIO_URL, STUDIO_WORKER_KEY. Without them the run ends green with "secrets not configured" and does nothing.
+# Optional (set by the owner when wanted): secret STUDIO_TRUSTED_ORGS or variable STUDIO_TRUSTED_ORGS = comma separated studio org ids that may use Kick/Twitch links; variable STUDIO_PREVIEW_ORGS
+# (default: the trusted list, "*" = every org gets public previews); variable STUDIO_SOURCE_MAX_MIN (minutes of a VOD to download, default 30); variable STUDIO_USE_CLOUD_AI=1 (let jobs use the repo's
+# existing GROQ_API_KEY / GEMINI_API_KEY; off by default so customer audio stays on the runner and the live loops' quota is untouched).
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+    inputs:
+      max_minutes: { description: "time budget in minutes for this run (jobs still running at the end are failed and refunded)", required: false, default: "50" }
+      cleanup: { description: "also delete preview releases older than 7 days now", required: false, default: "false", type: boolean }
+permissions: {}
+concurrency:   # one run at a time: two runners can never claim the same job (the studio claim is not atomic, KV is eventually consistent); a newer run waits instead of cancelling a render
+  group: studio-worker
+  cancel-in-progress: false
+jobs:
+  check:   # cheap: one curl, no checkout, no token
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions: {}
+    outputs:
+      queued: ${{ steps.peek.outputs.queued }}
+      cleanup: ${{ steps.peek.outputs.cleanup }}
+    steps:
+      - name: Is a studio job queued?
+        id: peek
+        env:   # inputs and secrets only ever reach the shell through env
+          STUDIO_URL: ${{ secrets.STUDIO_URL }}
+          STUDIO_WORKER_KEY: ${{ secrets.STUDIO_WORKER_KEY }}
+          EVENT: ${{ github.event_name }}
+          IN_CLEANUP: ${{ inputs.cleanup }}
+        run: |
+          set +x
+          out() { echo "queued=$1" >> "$GITHUB_OUTPUT"; echo "cleanup=$2" >> "$GITHUB_OUTPUT"; }
+          if [ -z "${STUDIO_URL:-}" ] || [ -z "${STUDIO_WORKER_KEY:-}" ]; then
+            echo "studio-worker: secrets not configured (STUDIO_URL and/or STUDIO_WORKER_KEY are empty) - nothing to do. Setup: docs/STUDIO_PREVIEW_SETUP.md"
+            out 0 false; exit 0
+          fi
+          URL="${STUDIO_URL%/}"
+          if ! printf '%s' "$URL" | grep -Eq '^(https://[A-Za-z0-9.-]+|http://(localhost|127\.0\.0\.1))(:[0-9]+)?$'; then
+            echo "::error::STUDIO_URL must look like https://name.account.workers.dev (no path, no credentials)"; out 0 false; [ "$EVENT" = workflow_dispatch ] && exit 1; exit 0
+          fi
+          # the key goes to curl through a config on stdin (builtin printf): never in argv, never in the log
+          resp=$(printf 'header = "x-worker-key: %s"\n' "$STUDIO_WORKER_KEY" | curl -sS --max-time 20 --retry 2 --retry-delay 3 -K - -X POST -w '\n%{http_code}' "$URL/studio/worker/queue" 2>&1) || true
+          code=$(printf '%s' "$resp" | tail -n1); body=$(printf '%s' "$resp" | sed '$d')
+          case "$code" in
+            200) ;;
+            401) echo "::warning::the studio rejected the worker key (STUDIO_WORKER_KEY secret differs from KV studio:cfg:worker_key) - see docs/STUDIO_PREVIEW_SETUP.md"; out 0 false; [ "$EVENT" = workflow_dispatch ] && exit 1; exit 0 ;;
+            *)   echo "::warning::studio answered HTTP '$code' (not reachable or not deployed with the /studio/worker/queue endpoint); will retry in 5 minutes"; out 0 false; [ "$EVENT" = workflow_dispatch ] && exit 1; exit 0 ;;
+          esac
+          n=$(printf '%s' "$body" | jq -r '.queued // 0' 2>/dev/null || echo 0)
+          case "$n" in ''|*[!0-9]*) n=0 ;; esac
+          cl=false
+          if [ "$EVENT" = schedule ] && [ "$(date -u +%H)" = "03" ] && [ "$(date -u +%M)" -lt 10 ]; then cl=true; fi
+          if [ "$EVENT" = workflow_dispatch ] && [ "${IN_CLEANUP:-false}" = "true" ]; then cl=true; fi
+          echo "studio-worker: $n job(s) queued"
+          out "$n" "$cl"
+
+  render:
+    needs: check
+    if: ${{ needs.check.outputs.queued != '0' && needs.check.outputs.queued != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    permissions:
+      contents: write   # only to create/delete the temporary preview releases (scripts/preview_publish.py); the code is checked out read-only without persisted credentials
+    env:
+      WORKER_CONCURRENCY: "1"
+      WORKER_LOG: text
+      WORKER_PLATFORM_VOD: "1"                       # "my last stream" of a trusted org = its newest Kick/Twitch VOD
+      WORKER_DOWNLOAD_MAX_MIN: ${{ vars.STUDIO_SOURCE_MAX_MIN || '30' }}
+      WORKER_DOWNLOAD_HEIGHT: "720"
+      WORKER_NO_CLOUD: ${{ vars.STUDIO_USE_CLOUD_AI == '1' && '0' || '1' }}
+      WORKER_TRUSTED_ORGS: ${{ secrets.STUDIO_TRUSTED_ORGS || vars.STUDIO_TRUSTED_ORGS }}
+      WORKER_PREVIEW_ORGS: ${{ vars.STUDIO_PREVIEW_ORGS }}
+      STUDIO_PREVIEW_PUBLISH: github-release
+      STUDIO_PREVIEW_MAX_S: "300"
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip, cache-dependency-path: deploy/requirements-worker.txt }
+      - name: Install ffmpeg and Python packages
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          pip install -q -r deploy/requirements-worker.txt
+      - name: Speech model cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: studio-hf-models-v1
+      - name: Render queued jobs
+        env:
+          STUDIO_URL: ${{ secrets.STUDIO_URL }}
+          STUDIO_WORKER_KEY: ${{ secrets.STUDIO_WORKER_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+          IN_MAX_MIN: ${{ inputs.max_minutes }}
+          GROQ_API_KEY: ${{ vars.STUDIO_USE_CLOUD_AI == '1' && secrets.GROQ_API_KEY || '' }}
+          GEMINI_API_KEY: ${{ vars.STUDIO_USE_CLOUD_AI == '1' && secrets.GEMINI_API_KEY || '' }}
+        run: |
+          set +x
+          case "${IN_MAX_MIN:-}" in ''|*[!0-9]*) IN_MAX_MIN=50 ;; esac
+          [ "$IN_MAX_MIN" -gt 55 ] && IN_MAX_MIN=55
+          export WORKER_WORK_DIR="$RUNNER_TEMP/studio/work" WORKER_OUT_DIR="$RUNNER_TEMP/studio/out" HF_HOME="$HOME/.cache/huggingface"
+          mkdir -p "$WORKER_WORK_DIR" "$WORKER_OUT_DIR"
+          python3 scripts/render_worker.py --once --max-minutes "$IN_MAX_MIN"
+
+  cleanup:   # once a night (03:00-03:09 UTC) and on request: delete preview releases older than 7 days
+    needs: check
+    if: ${{ needs.check.outputs.cleanup == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - name: Delete old preview releases
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python3 scripts/preview_publish.py --cleanup --days 7

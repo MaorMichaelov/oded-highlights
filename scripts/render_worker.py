@@ -3,7 +3,8 @@
 It NEVER uploads. Drafts stay on this machine under $WORKER_OUT_DIR/<job>/ with a manifest.json; uploading to the customer's YouTube is a separate step (scripts/yt_upload_customer.py, private by default, honours state/UPLOAD_HOLD).
 
 usage:  render_worker.py                    run forever against the studio API (env STUDIO_URL + STUDIO_WORKER_KEY)
-        render_worker.py --once             claim at most one job, finish it, exit
+        render_worker.py --once             drain mode (GitHub Actions / cron): claim queued jobs, finish them, exit as soon as the queue is empty (never waits for new jobs)
+        render_worker.py --max-minutes N    time budget: stop claiming (and do not start a job with < WORKER_MIN_CLAIM_MIN=5 minutes left); jobs still running at N minutes are killed and reported failed (credit refunded). Works with or without --once
         render_worker.py --spool DIR        no network: jobs are *.json files in DIR (what ingest_watcher.py --spool writes); reports go to DIR/<id>.report.jsonl
         render_worker.py --demo             offline end-to-end demo: makes a synthetic video, runs a job on it, prints the drafts (no network, no keys, no models)
 env (all optional except the first two for API mode):
@@ -13,6 +14,7 @@ env (all optional except the first two for API mode):
   WORKER_RETRIES=1                         extra attempts after a crash/timeout (never after a customer-fixable error)
   WORKER_WORK_DIR=./work  WORKER_OUT_DIR=./out   scratch and finished drafts     WORKER_KEEP_FAILED_H=24  WORKER_KEEP_DRAFTS_D=14  WORKER_MIN_FREE_GB=5
   WORKER_GRACE_S=600                       on SIGTERM: stop claiming, wait this long for running jobs, then kill them and report them failed (the credit is refunded by the API)
+  STUDIO_PREVIEW_PUBLISH=github-release    after a job: publish 720p previews as GitHub release assets (scripts/preview_publish.py; needs GITHUB_TOKEN, GITHUB_REPOSITORY, WORKER_PREVIEW_ORGS) and send them as draft.preview_url
   WORKER_LOG=json|text                     structured logs (one JSON object per line) are the default
   plus everything job_runner.py reads (UPLOAD_DIR, INGEST_DIR, WORKER_MEDIA_ROOTS, WORKER_NO_CLOUD, GROQ_API_KEY, GEMINI_API_KEY, CUSTOMER_PROFILES_DIR ...)
 Exit codes: 0 clean stop | 2 usage/config | 5 the API rejected the worker key."""
@@ -105,7 +107,7 @@ def run_subprocess(job, workdir, cfg, on_progress, log, stop_event, secrets=()):
     """default runner: job_runner.py as a child process in its own process group (so ffmpeg children die with it). Enforces the hard timeout and the no-output stall timeout."""
     os.makedirs(workdir, exist_ok=True); jp = os.path.join(workdir, "job.json")
     with open(jp, "w") as f: json.dump(job, f)
-    env = {k: v for k, v in os.environ.items() if k not in ("STUDIO_WORKER_KEY",)}; env.update(cfg.get("child_env") or {})
+    env = {k: v for k, v in os.environ.items() if k not in ("STUDIO_WORKER_KEY", "GITHUB_TOKEN", "GH_TOKEN", "ACTIONS_RUNTIME_TOKEN", "ACTIONS_ID_TOKEN_REQUEST_TOKEN")}   # the job subprocess handles untrusted media: it never sees the worker key or the repo token; env.update(cfg.get("child_env") or {})
     cmd = [sys.executable, "-u", RUNNER, "--job", jp, "--workdir", workdir] + (["--demo"] if cfg.get("demo") else [])
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env, start_new_session=True, cwd=ROOT)
     state = {"killed": None, "last": time.time()}
@@ -146,7 +148,7 @@ def default_cfg(env=None):
     e = os.environ if env is None else env; i = lambda k, d: int(float(e.get(k, d) or d))
     return {"concurrency": max(1, i("WORKER_CONCURRENCY", 1)), "poll_s": max(1, i("WORKER_POLL_S", 10)), "job_timeout_s": i("WORKER_JOB_TIMEOUT_S", 14400), "stall_s": i("WORKER_STALL_S", 1800), "retries": max(0, i("WORKER_RETRIES", 1)),
             "work_dir": os.path.abspath(e.get("WORKER_WORK_DIR", "./work")), "out_dir": os.path.abspath(e.get("WORKER_OUT_DIR", "./out")), "keep_failed_h": i("WORKER_KEEP_FAILED_H", 24), "keep_drafts_d": i("WORKER_KEEP_DRAFTS_D", 14),
-            "min_free_gb": float(e.get("WORKER_MIN_FREE_GB", "5") or 5), "grace_s": i("WORKER_GRACE_S", 600), "progress_min_interval_s": 2.0, "backoff_s": 20}
+            "min_free_gb": float(e.get("WORKER_MIN_FREE_GB", "5") or 5), "grace_s": i("WORKER_GRACE_S", 600), "progress_min_interval_s": 2.0, "backoff_s": 20, "min_claim_s": int(float(e.get("WORKER_MIN_CLAIM_MIN", "5") or 5) * 60)}
 
 
 FRIENDLY = {"no_recording": "No recording of your stream was found yet.", "no_file": "We could not find that file.", "bad_url": "That link cannot be used. Paste a direct video link or upload the file.",
@@ -156,8 +158,8 @@ FRIENDLY = {"no_recording": "No recording of your stream was found yet.", "no_fi
 
 
 class Worker:
-    def __init__(self, api, cfg=None, log=None, runner=None, clock=time.time, sleep=None):
-        self.api, self.cfg, self.log = api, cfg or default_cfg(), log or Log(); self.runner = runner or run_subprocess; self.clock = clock
+    def __init__(self, api, cfg=None, log=None, runner=None, clock=time.time, sleep=None, publisher=None):
+        self.api, self.cfg, self.log = api, cfg or default_cfg(), log or Log(); self.runner = runner or run_subprocess; self.clock = clock; self.publisher = publisher; self.deadline = None
         self.stop = threading.Event(); self.sleep = sleep or (lambda s: self.stop.wait(s)); self.inflight = {}; self.lock = threading.Lock(); self.done_ids = set(); self.pool = ThreadPoolExecutor(max_workers=self.cfg["concurrency"]); self.futures = []; self.last_cleanup = 0
         os.makedirs(self.cfg["work_dir"], exist_ok=True); os.makedirs(self.cfg["out_dir"], exist_ok=True)
 
@@ -200,9 +202,15 @@ class Worker:
                 d = dict(d, file=os.path.basename(d["file"]), meta_file=os.path.basename(d["meta_file"]), local_id="%s/%s" % (jid, os.path.basename(d["file"]))); drafts.append(d)
             except Exception as e: self.log("draft_move_failed", "error", job=jid, error=str(e)[:150])
         if not drafts: return self._finish_failed(job, Outcome(1, error={"code": "no_drafts", "message": "drafts could not be stored"}), workdir, t0)
-        json.dump({"job": jid, "org": job.get("org"), "channel": job.get("channel"), "created": time.time(), "drafts": drafts, "uploaded": False}, open(os.path.join(dest, "manifest.json"), "w"), ensure_ascii=False, indent=1)
         self._post(jid, status="qa", msg="qa", progress=97)
-        api_drafts = [{"kind": d["kind"], "title": d["title"], "qa_ok": bool(d["qa_ok"]), "qa_notes": d.get("qa_notes", ""), "qa_score": d.get("qa_score"), "duration_s": d.get("duration_s"), "local_id": d["local_id"], "hook": d.get("hook", "")} for d in drafts]
+        if self.publisher:   # preview phase: small renditions the browser can play; a failure here never fails the job (the draft just has no preview)
+            try:
+                urls = self.publisher(job, drafts, dest) or {}
+                for d in drafts:
+                    if urls.get(d["file"]): d["preview_url"] = urls[d["file"]]
+            except Exception as e: self.log("preview_failed", "warn", job=jid, error=str(e)[:150])
+        json.dump({"job": jid, "org": job.get("org"), "channel": job.get("channel"), "created": time.time(), "drafts": drafts, "uploaded": False}, open(os.path.join(dest, "manifest.json"), "w"), ensure_ascii=False, indent=1)
+        api_drafts = [{"kind": d["kind"], "title": d["title"], "qa_ok": bool(d["qa_ok"]), "qa_notes": d.get("qa_notes", ""), "qa_score": d.get("qa_score"), "duration_s": d.get("duration_s"), "local_id": d["local_id"], "hook": d.get("hook", ""), "preview_url": d.get("preview_url", "")} for d in drafts]
         self._post(jid, status="draft_ready", progress=100, drafts=api_drafts)
         shutil.rmtree(workdir, ignore_errors=True)   # success: scratch (source copy, audio chunks, bodies) is deleted at once; the drafts live in out/
         self.log("job_done", job=jid, drafts=len(drafts), qa_ok=sum(1 for d in drafts if d["qa_ok"]), seconds=round(self.clock() - t0, 1))
@@ -250,31 +258,50 @@ class Worker:
         finally:
             with self.lock: self.inflight.pop(jid, None)
 
+    queue_empty = False   # set by tick(): the last claim returned no job (drain mode exits on it, not on "all slots busy")
     def tick(self):
         """one scheduling step; returns True when a job was claimed"""
+        self.queue_empty = False
         with self.lock: busy = len(self.inflight)
         if busy >= self.cfg["concurrency"] or self.stop.is_set(): return False
-        if self.free_gb() < self.cfg["min_free_gb"]: self.log("disk_low", "warn", free_gb=round(self.free_gb(), 1)); self.cleanup(); return False
+        if self.deadline is not None and self.deadline - self.clock() < self.cfg.get("min_claim_s", 300): self.log("budget_reached", seconds_left=int(self.deadline - self.clock())); self.out_of_time = True; return False
+        if self.free_gb() < self.cfg["min_free_gb"]: self.log("disk_low", "warn", free_gb=round(self.free_gb(), 1)); self.cleanup(); self.queue_empty = True; return False
         job = self.api.claim()
-        if not job: return False
+        if not job: self.queue_empty = True; return False
         jid = job.get("id")
         if not isinstance(jid, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", jid): self.log("bad_job_id", "error"); return False
         if jid in self.done_ids or jid in self.inflight: self.log("duplicate_claim", "warn", job=jid); return False
         with self.lock: self.inflight[jid] = self.clock()
         self.futures.append(self.pool.submit(self._run_one, job)); self.futures = [f for f in self.futures if not f.done()]; return True
 
-    auth_failed = False
-    def run_forever(self, once=False):
-        self.log("worker_start", concurrency=self.cfg["concurrency"], work=self.cfg["work_dir"], out=self.cfg["out_dir"], once=once); idle = 0.0; errors = 0
+    auth_failed = False; out_of_time = False
+    def run_forever(self, once=False, max_minutes=None):
+        """once=True: drain the queue (claim until a claim returns nothing), wait for the running jobs, return. max_minutes: overall time budget (see the module docstring)."""
+        if max_minutes: self.deadline = self.clock() + float(max_minutes) * 60; self.cfg["hard_stop_at"] = self.deadline   # running jobs are killed (and reported failed) at the deadline
+        self.log("worker_start", concurrency=self.cfg["concurrency"], work=self.cfg["work_dir"], out=self.cfg["out_dir"], once=once, max_minutes=max_minutes, previews=bool(self.publisher)); errors = 0
         while not self.stop.is_set():
+            if self.deadline is not None and self.clock() >= self.deadline: self.out_of_time = True; self.log("deadline_reached"); break
             if self.clock() - self.last_cleanup > 3600: self.last_cleanup = self.clock(); self.cleanup()
             try: got = self.tick(); errors = 0
             except AuthError: self.log("auth_rejected", "error", hint="STUDIO_WORKER_KEY does not match the studio"); self.auth_failed = True; break
             except Exception as e: errors += 1; got = False; self.log("claim_failed", "warn", error=str(e)[:150], consecutive=errors)
-            if once and got: break
-            if not got: self.sleep(min(300, self.cfg["poll_s"] * (2 ** min(errors, 4) if errors else 1)) * (0.8 + 0.4 * random.random()))
+            if got: continue
+            if once:
+                with self.lock: busy = len(self.inflight)
+                if busy >= self.cfg["concurrency"]: self.sleep(1.0); continue   # all slots busy: just wait for one to free up
+                if (self.queue_empty or self.out_of_time) and not busy: break
+                if (self.queue_empty or self.out_of_time) and busy: self.sleep(1.0); continue   # nothing more to claim; wait for the running jobs (they end by themselves or at the deadline)
+                if errors >= 5: break   # API unreachable: a drain run gives up instead of burning runner minutes
+            if self.out_of_time and not once: break
+            self.sleep(min(300, self.cfg["poll_s"] * (2 ** min(errors, 4) if errors else 1)) * (0.8 + 0.4 * random.random()))
+        if once and not self.stop.is_set() and not self.auth_failed and not self.out_of_time: self.wait_for_jobs()   # drain: let running jobs finish normally (no grace limit)
         self.shutdown()
         return 5 if self.auth_failed else 0
+
+    def wait_for_jobs(self):
+        for f in list(self.futures):
+            try: f.result()
+            except Exception: pass
 
     def shutdown(self):
         """stop claiming; running jobs get grace_s seconds, then they are killed and reported failed (credit refunded by the API)"""
@@ -302,8 +329,8 @@ def demo(log, keep=False):
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0]); ap.add_argument("--once", action="store_true"); ap.add_argument("--spool"); ap.add_argument("--demo", action="store_true"); ap.add_argument("--api"); a = ap.parse_args(argv)
-    key = os.environ.get("STUDIO_WORKER_KEY", ""); log = Log(os.environ.get("WORKER_LOG", "json"), [key])
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0]); ap.add_argument("--once", action="store_true"); ap.add_argument("--max-minutes", type=float, default=0); ap.add_argument("--spool"); ap.add_argument("--demo", action="store_true"); ap.add_argument("--api"); a = ap.parse_args(argv)
+    key = os.environ.get("STUDIO_WORKER_KEY", ""); log = Log(os.environ.get("WORKER_LOG", "json"), [key, os.environ.get("GITHUB_TOKEN", "")])
     if a.demo: return demo(log)
     cfg = default_cfg(); cfg["secret"] = key
     if a.spool: api = SpoolApi(a.spool)
@@ -312,13 +339,15 @@ def main(argv=None):
         if not base or not key: print("STUDIO_URL and STUDIO_WORKER_KEY are required (or use --spool DIR / --demo)", file=sys.stderr); return 2
         if not base.startswith("https://") and not re.match(r"^http://(localhost|127\.0\.0\.1)", base): print("STUDIO_URL must be https (or localhost)", file=sys.stderr); return 2
         api = StudioApi(base, key)
-    w = Worker(api, cfg, log); n = [0]
+    try: import preview_publish as PP; publisher = PP.from_env(log=lambda ev, level="info", **kw: log(ev, level, **kw))
+    except Exception as e: publisher = None; log("preview_setup_failed", "warn", error=str(e)[:150])
+    w = Worker(api, cfg, log, publisher=publisher); n = [0]
     def on_sig(sig, frm):
         n[0] += 1; log("signal", signum=int(sig), count=n[0])
         if n[0] == 1: w.stop.set(); w.cfg["hard_stop_at"] = w.clock() + w.cfg["grace_s"]
         else: w.cfg["hard_stop_at"] = 0   # second signal: kill running jobs now
     signal.signal(signal.SIGTERM, on_sig); signal.signal(signal.SIGINT, on_sig)
-    return w.run_forever(once=a.once)
+    return w.run_forever(once=a.once, max_minutes=a.max_minutes or None)
 
 
 if __name__ == "__main__": sys.exit(main())
