@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-18T22:32:21Z",
+ "generated": "2026-11-18T23:02:36Z",
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -9,20 +9,20 @@
  "totals": {
   "videos_total": 33,
   "videos_public": 17,
-  "views": 21819,
+  "views": 21914,
   "likes": 210,
-  "est_hours_low": 1098.9,
-  "est_hours_high": 2564.1
+  "est_hours_low": 1104.4,
+  "est_hours_high": 2577.2
  },
  "by_kind": {
   "other": {
    "n": 14,
-   "views": 21677,
-   "est_hours_mid": 1822.6
+   "views": 21771,
+   "est_hours_mid": 1832.0
   },
   "reaction": {
    "n": 2,
-   "views": 142,
+   "views": 143,
    "est_hours_mid": 8.8
   },
   "short": {
@@ -59,7 +59,7 @@
     0.8,
     1.8
    ],
-   "views_per_day": 24.7,
+   "views_per_day": 23.4,
    "kind": "other"
   },
   {
@@ -68,14 +68,14 @@
    "published": "2026-11-18",
    "privacy": "public",
    "duration_min": 23.1,
-   "views": 21,
+   "views": 24,
    "likes": 3,
    "comments": 0,
    "est_hours": [
-    1.6,
-    3.6
+    1.8,
+    4.1
    ],
-   "views_per_day": 52.8,
+   "views_per_day": 57.3,
    "kind": "other"
   },
   {
@@ -84,14 +84,14 @@
    "published": "2026-11-18",
    "privacy": "public",
    "duration_min": 40.7,
-   "views": 15,
+   "views": 22,
    "likes": 1,
    "comments": 0,
    "est_hours": [
-    1.5,
-    3.4
+    2.1,
+    5.0
    ],
-   "views_per_day": 36.7,
+   "views_per_day": 51.3,
    "kind": "other"
   },
   {
@@ -107,7 +107,7 @@
     2.1,
     4.9
    ],
-   "views_per_day": 57.8,
+   "views_per_day": 55.1,
    "kind": "reaction"
   },
   {
@@ -116,14 +116,14 @@
    "published": "2026-11-17",
    "privacy": "public",
    "duration_min": 19.0,
-   "views": 62,
+   "views": 68,
    "likes": 3,
    "comments": 0,
    "est_hours": [
-    3.8,
-    8.8
+    4.1,
+    9.6
    ],
-   "views_per_day": 53.5,
+   "views_per_day": 57.6,
    "kind": "other"
   },
   {
@@ -139,7 +139,7 @@
     13.3,
     31.0
    ],
-   "views_per_day": 38.8,
+   "views_per_day": 38.2,
    "kind": "other"
   },
   {
@@ -347,7 +347,7 @@
     27.0,
     63.1
    ],
-   "views_per_day": 350.2,
+   "views_per_day": 347.9,
    "kind": "other"
   },
   {
@@ -411,7 +411,7 @@
     1.6,
     3.8
    ],
-   "views_per_day": 13.8,
+   "views_per_day": 13.7,
    "kind": "other"
   },
   {
@@ -420,14 +420,14 @@
    "published": "2026-11-13",
    "privacy": "public",
    "duration_min": 14.9,
-   "views": 2957,
+   "views": 2981,
    "likes": 16,
    "comments": 0,
    "est_hours": [
-    141.1,
-    329.3
+    142.3,
+    332.0
    ],
-   "views_per_day": 533.5,
+   "views_per_day": 535.8,
    "kind": "other"
   },
   {
@@ -436,14 +436,14 @@
    "published": "2026-11-13",
    "privacy": "public",
    "duration_min": 9.6,
-   "views": 5886,
+   "views": 5918,
    "likes": 54,
    "comments": 3,
    "est_hours": [
-    254.7,
-    594.3
+    256.1,
+    597.6
    ],
-   "views_per_day": 1057.9,
+   "views_per_day": 1059.6,
    "kind": "other"
   },
   {
@@ -452,14 +452,14 @@
    "published": "2026-11-13",
    "privacy": "public",
    "duration_min": 15.0,
-   "views": 1260,
+   "views": 1262,
    "likes": 19,
    "comments": 2,
    "est_hours": [
-    60.6,
-    141.4
+    60.7,
+    141.7
    ],
-   "views_per_day": 224.8,
+   "views_per_day": 224.3,
    "kind": "other"
   },
   {
@@ -468,14 +468,14 @@
    "published": "2026-11-12",
    "privacy": "public",
    "duration_min": 28.6,
-   "views": 66,
+   "views": 69,
    "likes": 2,
    "comments": 0,
    "est_hours": [
-    6.0,
-    14.1
+    6.3,
+    14.7
    ],
-   "views_per_day": 10.4,
+   "views_per_day": 10.9,
    "kind": "other"
   },
   {
@@ -484,14 +484,14 @@
    "published": "2026-11-12",
    "privacy": "public",
    "duration_min": 30.9,
-   "views": 5211,
+   "views": 5231,
    "likes": 29,
    "comments": 1,
    "est_hours": [
-    386.0,
-    900.7
+    387.5,
+    904.2
    ],
-   "views_per_day": 821.7,
+   "views_per_day": 822.2,
    "kind": "other"
   },
   {
@@ -500,14 +500,14 @@
    "published": "2026-11-12",
    "privacy": "public",
    "duration_min": 6.0,
-   "views": 117,
+   "views": 118,
    "likes": 3,
    "comments": 0,
    "est_hours": [
     3.2,
     7.4
    ],
-   "views_per_day": 18.2,
+   "views_per_day": 18.3,
    "kind": "reaction"
   },
   {
@@ -516,14 +516,14 @@
    "published": "2026-11-12",
    "privacy": "public",
    "duration_min": 11.4,
-   "views": 5802,
+   "views": 5799,
    "likes": 54,
    "comments": 4,
    "est_hours": [
-    211.3,
-    493.1
+    211.2,
+    492.9
    ],
-   "views_per_day": 903.5,
+   "views_per_day": 900.1,
    "kind": "other"
   },
   {
@@ -539,7 +539,7 @@
     9.2,
     21.5
    ],
-   "views_per_day": 28.4,
+   "views_per_day": 28.3,
    "kind": "other"
   },
   {
