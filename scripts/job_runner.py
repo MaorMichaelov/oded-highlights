@@ -44,10 +44,11 @@ def cfg_from_env(env=None):
     flag = lambda k, d="0": str(e.get(k, d)).strip().lower() in ("1", "true", "yes", "on")
     return {"demo": flag("WORKER_DEMO"), "upload_dir": e.get("UPLOAD_DIR", ""), "ingest_dir": e.get("INGEST_DIR", ""),
             "media_roots": [x for x in e.get("WORKER_MEDIA_ROOTS", "").split(os.pathsep) if x] or None, "allow_any_path": flag("WORKER_ALLOW_ANY_PATH"),
-            "blocked_hosts": [x for x in e.get("WORKER_BLOCK_HOSTS", "kick.com").split(",") if x.strip()], "trusted_orgs": [x for x in e.get("WORKER_TRUSTED_ORGS", "").split(",") if x.strip()],
+            "blocked_hosts": [x for x in e.get("WORKER_BLOCK_HOSTS", "kick.com").split(",") if x.strip()], "trusted_orgs": [x.strip() for x in e.get("WORKER_TRUSTED_ORGS", "").split(",") if x.strip()],
             "max_source_h": float(e.get("WORKER_MAX_SOURCE_H", "8") or 8), "download_timeout": int(e.get("WORKER_DOWNLOAD_TIMEOUT_S", "3600") or 3600),
             "no_cloud": flag("WORKER_NO_CLOUD"), "keep_watermark": flag("WORKER_WATERMARK"), "profiles_dir": e.get("CUSTOMER_PROFILES_DIR", ""), "whisper_model": e.get("WORKER_WHISPER_MODEL", ""),
-            "whisper_threads": int(e.get("WORKER_WHISPER_THREADS", "0") or 0)}
+            "whisper_threads": int(e.get("WORKER_WHISPER_THREADS", "0") or 0),
+            "platform_vod": flag("WORKER_PLATFORM_VOD"), "download_max_min": float(e.get("WORKER_DOWNLOAD_MAX_MIN", "0") or 0), "download_height": int(e.get("WORKER_DOWNLOAD_HEIGHT", "1080") or 1080)}   # preview phase (GitHub runner): trusted orgs may use "my last stream" from Kick/Twitch; downloads capped in length and height
 
 
 def load_profile(job, cfg):

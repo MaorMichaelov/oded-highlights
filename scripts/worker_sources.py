@@ -134,17 +134,46 @@ def concat_segments(segs, out, window=None, timeout=3600):
     return out
 
 
-def download_url(url, workdir, timeout=3600, max_gb=12, runner=sh, height=1080):
-    """yt-dlp into workdir/src.<ext>. Playlists are refused (one video per job). Returns the file path."""
+def download_url(url, workdir, timeout=3600, max_gb=12, runner=sh, height=1080, end_s=0):
+    """yt-dlp into workdir/src.<ext>. Playlists are refused (one video per job). end_s > 0 downloads only the first end_s seconds (preview phase: a 6 h VOD does not fit a GitHub runner). Returns the file path."""
     out_t = os.path.join(workdir, "dl.%(ext)s")
     cmd = ["yt-dlp", "--no-playlist", "--no-warnings", "--newline", "--max-filesize", "%dG" % max_gb, "--socket-timeout", "30", "--retries", "3",
-           "-f", "bv*[height<=%d]+ba/b[height<=%d]/b" % (height, height), "--merge-output-format", "mp4", "-o", out_t, "--", url]
+           "-f", "bv*[height<=%d]+ba/b[height<=%d]/b" % (height, height), "--merge-output-format", "mp4"] + (["--download-sections", "*0-%d" % int(end_s)] if end_s and end_s > 0 else []) + ["-o", out_t, "--", url]
     try: r = runner(cmd, timeout=timeout)
     except subprocess.TimeoutExpired: raise SourceError("timeout", "download took too long")
     except FileNotFoundError: raise SourceError("tool_missing", "yt-dlp is not installed")
     got = sorted(n for n in os.listdir(workdir) if n.startswith("dl.") and not n.endswith((".part", ".ytdl")))
     if r.returncode or not got: raise SourceError("download_failed", ((r.stderr or "") + (r.stdout or ""))[-300:].replace("\n", " "))
     return os.path.join(workdir, got[0])
+
+
+PLATFORM_SLUG_RX = re.compile(r"^[a-z0-9][a-z0-9_-]{1,24}$")
+
+
+def latest_platform_vod(platform, slug, runner=sh, min_s=300):
+    """PREVIEW PHASE, owner's trusted org only (cfg trusted + platform_vod): the newest VOD of a verified channel -> (url, title).
+    Twitch: yt-dlp lists the archives without an API key. Kick: the (undocumented, ToS 1.4 restricted) channel videos API, the same call the owner's own loops make. Raises SourceError('no_recording')."""
+    platform = (platform or "").lower(); slug = (slug or "").lower()
+    if platform not in ("kick", "twitch") or not PLATFORM_SLUG_RX.match(slug): raise SourceError("no_recording", "no channel to look up")
+    if platform == "twitch":
+        r = runner(["yt-dlp", "--flat-playlist", "--playlist-end", "8", "--print", "%(id)s|%(duration)s|%(title)s", "https://www.twitch.tv/%s/videos?filter=archives&sort=time" % slug], timeout=120)
+        for line in (r.stdout or "").splitlines():
+            p = line.split("|", 2)
+            if len(p) < 3: continue
+            try: dur = float(p[1])
+            except ValueError: dur = 0.0
+            vid = p[0].lstrip("v")
+            if re.fullmatch(r"\d{5,15}", vid) and dur >= min_s: return "https://www.twitch.tv/videos/" + vid, p[2][:80]
+        raise SourceError("no_recording", "no recent Twitch VOD found")
+    r = runner(["curl", "-sS", "-m", "40", "-A", "Mozilla/5.0", "https://kick.com/api/v2/channels/%s/videos" % slug], timeout=60)
+    try: vids = json.loads(r.stdout or "[]")
+    except Exception: vids = []
+    for v in vids if isinstance(vids, list) else []:
+        try: dur = float(v.get("duration") or 0) / 1000.0
+        except (TypeError, ValueError): dur = 0.0
+        src = v.get("source") or ""
+        if dur >= min_s and isinstance(src, str) and src.startswith("https://"): return src, str(v.get("session_title") or "")[:80]
+    raise SourceError("no_recording", "no recent Kick VOD found")
 
 
 def resolve_source(job, workdir, cfg=None, runner=sh, resolver=None):
@@ -157,8 +186,10 @@ def resolve_source(job, workdir, cfg=None, runner=sh, resolver=None):
     if typ == "auto" and not ref:
         hints = [job.get("channel"), (job.get("hints") or {}).get("slug"), src.get("slug")]
         name = newest_recording(ingest_dir, hints) if ingest_dir else None
-        if not name: raise SourceError("no_recording", "no finished stream recording found yet")
-        ref = "ingest:" + name
+        ci = job.get("channel_info") or {}
+        if name: ref = "ingest:" + name
+        elif cfg.get("platform_vod") and cfg.get("trusted") and ci.get("platform"): ref, title0 = latest_platform_vod(ci.get("platform"), ci.get("slug"), runner)   # owner's own test org only
+        else: raise SourceError("no_recording", "no finished stream recording found yet")
     kind, val, win = parse_ref(ref); title = ""
     if kind == "ingest":
         if not ingest_dir: raise SourceError("ingest_off", "ingest is not configured on this worker")
@@ -179,7 +210,8 @@ def resolve_source(job, workdir, cfg=None, runner=sh, resolver=None):
         path, title = _window(p, win, workdir, cfg), os.path.basename(p)
     else:
         check_url(val, cfg.get("blocked_hosts", BLOCKED_HOSTS_DEFAULT), resolver, trusted=bool(cfg.get("trusted")))
-        path = _window(download_url(val, workdir, cfg.get("download_timeout", 3600), runner=runner), win, workdir, cfg); title = urllib.parse.urlparse(val).hostname or ""
+        cap = float(cfg.get("download_max_min") or 0) * 60; end_s = (win[1] if win and win[1] else cap) if cap else 0   # preview phase: only the first N minutes (or up to the requested window end)
+        path = _window(download_url(val, workdir, cfg.get("download_timeout", 3600), runner=runner, height=int(cfg.get("download_height") or 1080), end_s=end_s), win, workdir, cfg); title = urllib.parse.urlparse(val).hostname or ""
     info = probe(path)
     if not info["has_audio"]: raise SourceError("no_audio", "the source has no audio track, nothing to transcribe")
     if info["duration_s"] < cfg.get("min_source_s", 30): raise SourceError("too_short", "source is shorter than %ds" % cfg.get("min_source_s", 30))

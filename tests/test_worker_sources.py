@@ -166,4 +166,68 @@ class EndToEnd(unittest.TestCase):
         words = "this is a demo moment from the test stream and it gets loud right here wow".split()
         with self.assertRaises(JR.NoMoments): self.run_job({"profile": {"schema": 1, "rules": [{"kind": "ban_word", "text": w} for w in words]}})
 
+
+class PreviewSources(unittest.TestCase):
+    """GitHub-runner preview phase: the owner's trusted org may use Kick/Twitch VOD links and "my last stream"; customers stay blocked from Kick"""
+    pub = staticmethod(lambda h: ["93.184.216.34"])
+    def setUp(self): self.tmp = tempfile.mkdtemp(prefix="wsprev_")
+    def tearDown(self): shutil.rmtree(self.tmp, ignore_errors=True)
+    def fake_runner(self, calls, listing=""):
+        class R:
+            def __init__(s, out="", code=0): s.stdout, s.stderr, s.returncode = out, "", code
+        def run(cmd, timeout=None, **kw):
+            calls.append(list(cmd))
+            if cmd[0] == "yt-dlp" and "--flat-playlist" in cmd or cmd[0] == "curl": return R(listing)
+            if cmd[0] == "yt-dlp":   # the download: write the file where -o points
+                out = cmd[cmd.index("-o") + 1].replace("%(ext)s", "mp4")
+                if HAVE_FFMPEG: make_clip(out, 40)
+                else: open(out, "wb").write(b"x")
+                return R("")
+            return WS.sh(cmd, timeout=timeout)
+        return run
+
+    def test_latest_twitch_vod(self):
+        calls = []; listing = "v2001|60|too short\nv123456789|7200|Big stream\n"
+        url, title = WS.latest_platform_vod("twitch", "noa", self.fake_runner(calls, listing))
+        self.assertEqual(url, "https://www.twitch.tv/videos/123456789"); self.assertEqual(title, "Big stream")
+        self.assertIn("https://www.twitch.tv/noa/videos?filter=archives&sort=time", calls[0])
+
+    def test_latest_kick_vod(self):
+        listing = json.dumps([{"duration": 60000, "source": "https://x.example/short/master.m3u8"}, {"duration": 7200000, "session_title": "VOD", "source": "https://stream.kick.com/abc/master.m3u8"}])
+        url, title = WS.latest_platform_vod("kick", "odedsvr", self.fake_runner([], listing)); self.assertEqual(url, "https://stream.kick.com/abc/master.m3u8"); self.assertEqual(title, "VOD")
+        with self.assertRaises(WS.SourceError): WS.latest_platform_vod("kick", "odedsvr", self.fake_runner([], "not json"))
+        with self.assertRaises(WS.SourceError): WS.latest_platform_vod("kick", "odedsvr", self.fake_runner([], json.dumps([{"duration": 7200000, "source": "http://insecure/x.m3u8"}])))
+
+    def test_bad_platform_or_slug_refused(self):
+        for plat, slug in (("youtube", "x1"), ("kick", "../etc"), ("twitch", "a b"), ("kick", ""), ("kick", "x" * 40)):
+            with self.assertRaises(WS.SourceError, msg=(plat, slug)): WS.latest_platform_vod(plat, slug, self.fake_runner([], "[]"))
+
+    @unittest.skipUnless(HAVE_FFMPEG, "ffmpeg missing")
+    def test_trusted_org_auto_job_resolves_last_twitch_vod_with_caps(self):
+        calls = []; job = {"id": "j_1", "org": "o_1", "channel": "c_1", "source": {"type": "auto"}, "channel_info": {"platform": "twitch", "slug": "noa"}}
+        cfg = {"trusted": True, "platform_vod": True, "download_max_min": 90, "download_height": 720, "min_source_s": 30}
+        r = WS.resolve_source(job, os.path.join(self.tmp, "w"), cfg, runner=self.fake_runner(calls, "v123456789|7200|Big\n"), resolver=self.pub)
+        self.assertEqual(r["kind"], "url"); dl = [c for c in calls if "--merge-output-format" in c][0]
+        self.assertIn("*0-5400", dl); self.assertIn("bv*[height<=720]+ba/b[height<=720]/b", dl); self.assertEqual(dl[-1], "https://www.twitch.tv/videos/123456789")
+
+    def test_customer_org_cannot_use_platform_vod_or_kick_links(self):
+        job = {"id": "j_2", "org": "o_9", "channel": "c_1", "source": {"type": "auto"}, "channel_info": {"platform": "kick", "slug": "noa"}}
+        with self.assertRaises(WS.SourceError) as e: WS.resolve_source(job, os.path.join(self.tmp, "w2"), {"platform_vod": True, "trusted": False}, runner=self.fake_runner([], "[]"), resolver=self.pub)
+        self.assertEqual(e.exception.code, "no_recording")   # platform_vod needs trusted too
+        job["source"] = {"type": "vod", "ref": "https://kick.com/video/abc"}
+        with self.assertRaises(WS.SourceError) as e: WS.resolve_source(job, os.path.join(self.tmp, "w3"), {"trusted": False}, runner=self.fake_runner([], "[]"), resolver=self.pub)
+        self.assertEqual(e.exception.code, "host_not_allowed")
+
+    @unittest.skipUnless(HAVE_FFMPEG, "ffmpeg missing")
+    def test_trusted_org_may_use_kick_link_and_window_end_wins_over_cap(self):
+        calls = []; job = {"id": "j_3", "org": "o_1", "channel": "c_1", "source": {"type": "vod", "ref": "https://kick.com/video/abc#t=0-30"}}
+        r = WS.resolve_source(job, os.path.join(self.tmp, "w4"), {"trusted": True, "download_max_min": 90, "min_source_s": 10}, runner=self.fake_runner(calls), resolver=self.pub)
+        dl = [c for c in calls if "--merge-output-format" in c][0]; self.assertIn("*0-30", dl); self.assertTrue(r["duration_s"] >= 10)
+
+    def test_job_runner_env_wiring(self):
+        c = JR.cfg_from_env({"WORKER_PLATFORM_VOD": "1", "WORKER_DOWNLOAD_MAX_MIN": "90", "WORKER_DOWNLOAD_HEIGHT": "720", "WORKER_TRUSTED_ORGS": "o_1, o_2"})
+        self.assertTrue(c["platform_vod"]); self.assertEqual(c["download_max_min"], 90); self.assertEqual(c["download_height"], 720); self.assertEqual(c["trusted_orgs"], ["o_1", "o_2"])
+        d = JR.cfg_from_env({}); self.assertFalse(d["platform_vod"]); self.assertEqual(d["download_max_min"], 0); self.assertEqual(d["blocked_hosts"], ["kick.com"])
+
+
 if __name__ == "__main__": unittest.main()
