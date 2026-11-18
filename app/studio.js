@@ -60,7 +60,9 @@ export async function hashPassword(pw, saltHex = rnd(16), iter = 100000) {
 const safeEq = (a, b) => { if (a.length !== b.length) return false; let d = 0; for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i); return d === 0; };
 
 // ---------- rate limit (best effort: KV counter) ----------
+const MEM_RL = new Map();   // per-isolate counters for chatty buckets: the free KV plan allows only ~1000 writes and 1000 list() calls per day for the whole account
 async function limited(env, req, bucket, max, ttl = 3600) {
+  if (/^(assist|verify)/.test(bucket)) { const ip0 = req.headers.get("cf-connecting-ip") || "x", k0 = bucket + ":" + ip0, nowS = Date.now(); const e0 = MEM_RL.get(k0); if (!e0 || nowS - e0.t > ttl * 1000) { MEM_RL.set(k0, { t: nowS, n: 1 }); if (MEM_RL.size > 500) MEM_RL.clear(); return false; } if (e0.n >= max) return true; e0.n++; return false; }
   const ip = req.headers.get("cf-connecting-ip") || "x"; const k = K.rl(`${bucket}:${ip}`); const n = parseInt((await env.KV.get(k)) || "0");
   if (n >= max) return true;
   await env.KV.put(k, String(n + 1), { expirationTtl: Math.max(60, ttl) }); return false;
@@ -213,13 +215,13 @@ const HELP = { he: "אפשר לבקש בשפה חופשית, למשל: \"תכי�
 // ---- free-form understanding with a free LLM (Workers AI binding `AI`): replies vary, remember the conversation, answer product questions; the rule parser above stays as the fallback and as the safety net
 const LLM_MODELS = ["@cf/mistralai/mistral-small-3.1-24b-instruct", "@cf/openai/gpt-oss-120b", "@cf/meta/llama-3.3-70b-instruct-fp8-fast", "@cf/meta/llama-3.1-8b-instruct"];   // chosen by a Hebrew comparison on the live Worker: Mistral Small 3.1 gives the most natural Hebrew and is the fastest
 const LLM_DIAG = { last: "", text: "", fail: "" };   // last model outcome, shown by /studio/api/health?ai=1
+const LLM_USED = new Map(), CTX_CACHE = new Map();
 const LLM_DAILY = 300;   // per workspace; free tier friendly
 function firstJson(text) { const t = String(text || ""); const a = t.indexOf("{"); if (a < 0) return null; let d = 0, q = false, e = false; for (let i = a; i < t.length; i++) { const c = t[i]; if (q) { if (e) e = false; else if (c === "\\") e = true; else if (c === '"') q = false; continue; } if (c === '"') q = true; else if (c === "{") d++; else if (c === "}" && --d === 0) { try { return JSON.parse(t.slice(a, i + 1)); } catch (x) { return null; } } } return null; }
 async function llmUnderstand(env, org, role, text, hist, L, ctx) {
   LLM_DIAG.fail = "";
   if (!env.AI) return null;
-  const day = new Date().toISOString().slice(0, 10), key = `studio:llm:${org.id}:${day}`; const used = parseInt((await env.KV.get(key)) || "0"); if (used >= LLM_DAILY) return null;
-  try { await env.KV.put(key, String(used + 1), { expirationTtl: 172800 }); } catch (e) {}
+  const day = new Date().toISOString().slice(0, 10), key = `${org.id}:${day}`; const used = LLM_USED.get(key) || 0; if (used >= LLM_DAILY) return null; LLM_USED.set(key, used + 1); if (LLM_USED.size > 500) LLM_USED.clear();   // in-memory (per isolate): no KV traffic per message
   const system = `You are the in-app assistant of "Studio" and a SENIOR video editor / content producer for live streamers (Kick, Twitch, YouTube). You talk like a sharp, friendly colleague who knows the craft, in the customer's language (${L === "he" ? "natural spoken Hebrew, no stiff translation" : "English"}). You can talk about anything the customer says, answer every kind of message (greetings, yes/no, why, how much, jokes, feedback, doubts) and always connect it back to helping their channel.
 WHAT THE PRODUCT DOES (only facts you may state): the customer connects a channel by pasting its link and proving ownership with a code placed in the bio or stream title; one credit = one hour of source stream; Studio finds moments (laughs, hype, fails, stories, reactions, guest conversations), cuts at sentence boundaries, adds captions and a logo, runs a quality check, and delivers PRIVATE drafts in the Review tab (swipe or arrow keys to approve / reject, titles editable); long videos and Shorts are both supported; team members are invited in the Team tab (owner / editor / viewer); YouTube connection, payments and real-time clips from chat commands are coming soon. You can start jobs (up to 30 Shorts and/or one long video, from the last stream, yesterday or last week, optional mood funny/hype/fail) and report job status. Never invent features, numbers, screens, prices or results; if unsure say so and point to the right tab.
 EDITING EXPERTISE you can share when asked or when useful: Shorts: hook in the first 1-2 seconds, one idea per clip, 20-45 s sweet spot, cut at the start of a sentence and end right after the punchline, captions on, loop-friendly endings, front-load the payoff; long videos: a clear premise in the title, chapters, cut dead air and repeated setup, keep reactions whole, 8-30 min for reactions and guest talks; titles: literal and true, specific names and moments, 40-70 characters, no clickbait lies, no hype words; thumbnails: one face with a clear emotion, 3-4 words max; publishing: consistency beats perfection, post Shorts several times a week and long videos weekly, reuse the best moment as a Short that points to the long video; comments and community: reply early; rights: only clip your own streams or with permission. Give concrete options (for example 3 title ideas, a better hook line, how to trim a clip) when the customer wants help, and keep advice short and practical.
@@ -300,10 +302,13 @@ async function assistant(env, org, me, role, b, store) {
   }
   if (!link) try {
     const hist0 = (await kget(env, K.chat(org.id))) || [];
-    const chs = (await kgetMany(env, await klist(env, K.chansOfOrg(org.id)))).filter((c) => c.status === "verified").map((c) => `${c.platform}/${c.slug}`);
-    const js = (await kgetMany(env, (await klist(env, K.jobsOfOrg(org.id), 500)).map((k) => K.job(k.split(":")[3])))).sort((a, c) => (a.created < c.created ? 1 : -1)).slice(0, 3).map((j) => `${j.status} ${j.progress}%`);
-    const allJobs = (await kgetMany(env, (await klist(env, K.jobsOfOrg(org.id), 500)).map((k) => K.job(k.split(":")[3])))).sort((a, c) => (a.created < c.created ? 1 : -1)).slice(0, 4);
-    const drs = []; for (const j of allJobs) for (const d of ((j.result && j.result.drafts) || []).slice(0, 4)) drs.push(`"${String(d.title || "").slice(0, 60)}" (${d.decision || "pending"})`);
+    const cc = CTX_CACHE.get(org.id); let chs, js, drs;   // channel/job lists cost KV list() calls (free plan: 1000/day): cache them for 2 minutes per workspace
+    if (cc && Date.now() - cc.t < 120000) { chs = cc.chs; js = cc.js; drs = cc.drs; } else {
+      chs = (await kgetMany(env, await klist(env, K.chansOfOrg(org.id)))).filter((c) => c.status === "verified").map((c) => `${c.platform}/${c.slug}`);
+      const allJobs = (await kgetMany(env, (await klist(env, K.jobsOfOrg(org.id), 500)).map((k) => K.job(k.split(":")[3])))).sort((a, c) => (a.created < c.created ? 1 : -1)).slice(0, 4);
+      js = allJobs.slice(0, 3).map((j) => `${j.status} ${j.progress}%`); drs = []; for (const j of allJobs) for (const d of ((j.result && j.result.drafts) || []).slice(0, 4)) drs.push(`"${String(d.title || "").slice(0, 60)}" (${d.decision || "pending"})`);
+      CTX_CACHE.set(org.id, { t: Date.now(), chs, js, drs }); if (CTX_CACHE.size > 300) CTX_CACHE.clear();
+    }
     const fresh0 = await kget(env, K.org(org.id)); llm = await llmUnderstand(env, org, role, u.text, hist0, L, { credits: fresh0 ? fresh0.credits : org.credits, channels: chs, jobs: js, drafts: drs.slice(0, 8) });
   } catch (e) { llm = null; }
   if (llm) { if (llm.intent === "create" && (llm.shorts > 0 || llm.long)) { u.intent = "create"; u.shorts = llm.shorts; u.long = llm.long; u.when = llm.when; u.mood = llm.mood; } else if (llm.intent === "status") u.intent = "status"; else u.intent = "chat"; }
