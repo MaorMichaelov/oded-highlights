@@ -229,3 +229,4 @@
 {"t": "2026-11-18T11:52:25Z", "kind": "problem", "text": "תקלה: Kick API problem: http=403 note=channel api not reachable"}
 {"t": "2026-11-18T12:10:08Z", "kind": "problem", "text": "תקלה: live-loop is NOT running"}
 {"t": "2026-11-18T16:51:48Z", "kind": "problem", "text": "תקלה: live-loop is NOT running"}
+{"t": "2026-11-18T18:31:33Z", "kind": "problem", "text": "תקלה: live-loop is NOT running"}
