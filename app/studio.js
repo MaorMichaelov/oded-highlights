@@ -198,7 +198,7 @@ const MOOD_TXT = { funny: { he: "מצחיקים", en: "funny" }, hype: { he: "מ
 const HELP = { he: "אפשר לבקש בשפה חופשית, למשל: \"תכין 5 שורטס מצחיקים מאתמול\" או \"מה המצב?\"", en: "Ask in plain words, e.g. \"make 5 funny Shorts from yesterday\" or \"what's the status?\"" };
 // ---- free-form understanding with a free LLM (Workers AI binding `AI`): replies vary, remember the conversation, answer product questions; the rule parser above stays as the fallback and as the safety net
 const LLM_MODELS = ["@cf/openai/gpt-oss-120b", "@cf/meta/llama-3.3-70b-instruct-fp8-fast", "@cf/meta/llama-3.1-8b-instruct"];
-const LLM_DIAG = { last: "" };   // last model outcome, shown by /studio/api/health?ai=1
+const LLM_DIAG = { last: "", text: "" };   // last model outcome, shown by /studio/api/health?ai=1
 const LLM_DAILY = 60;   // per workspace; free tier friendly
 function firstJson(text) { const t = String(text || ""); const a = t.indexOf("{"); if (a < 0) return null; let d = 0, q = false, e = false; for (let i = a; i < t.length; i++) { const c = t[i]; if (q) { if (e) e = false; else if (c === "\\") e = true; else if (c === '"') q = false; continue; } if (c === '"') q = true; else if (c === "{") d++; else if (c === "}" && --d === 0) { try { return JSON.parse(t.slice(a, i + 1)); } catch (x) { return null; } } } return null; }
 async function llmUnderstand(env, org, role, text, hist, L, ctx) {
@@ -214,9 +214,11 @@ Output ONLY JSON: {"reply": "<what you say>", "intent": "create" | "status" | "c
   const messages = [{ role: "system", content: system }, ...hist.slice(-10).map((h) => ({ role: h.r === "bot" ? "assistant" : "user", content: String(h.text || "").slice(0, 400) })), { role: "user", content: clean(text, 500) }];
   for (const m of LLM_MODELS) {
     try {
-      const r = await env.AI.run(m, m.includes("gpt-oss") ? { input: messages, reasoning: { effort: "low" }, max_output_tokens: 700 } : { messages, max_tokens: 700 });
+      const r = await env.AI.run(m, m.includes("gpt-oss") ? { input: messages, reasoning: { effort: "low" }, max_output_tokens: 1500 } : { messages, max_tokens: 900 });
       LLM_DIAG.last = m + ": got " + JSON.stringify(r).slice(0, 160);
-      const t = r.response || (r.choices && r.choices[0] && r.choices[0].message && r.choices[0].message.content) || r.output_text || (r.output && r.output.map((o) => (o.content || []).map((c) => c.text || "").join("")).join("")) || "";
+      const msgItems = Array.isArray(r.output) ? r.output.filter((o) => o && o.type === "message") : [];   // gpt-oss returns a reasoning item first: read only the final message
+      const t = r.response || (r.choices && r.choices[0] && r.choices[0].message && r.choices[0].message.content) || r.output_text || (msgItems.length ? msgItems.map((o) => (o.content || []).map((c) => c.text || "").join("")).join("") : (r.output && r.output.map((o) => (o.content || []).map((c) => c.text || "").join("")).join(""))) || "";
+      LLM_DIAG.text = String(t).slice(0, 200);
       const j = firstJson(t); if (j && typeof j.reply === "string" && j.reply.trim()) { return { reply: clean(j.reply, 700), intent: ["create", "status", "chat"].includes(j.intent) ? j.intent : "chat", shorts: Math.max(0, Math.min(30, parseInt(j.shorts) || 0)), long: !!j.long, when: ["last_stream", "yesterday", "week"].includes(j.when) ? j.when : "last_stream", mood: ["funny", "hype", "fail"].includes(j.mood) ? j.mood : null }; }
     } catch (e) { LLM_DIAG.last = m + ": " + String(e && e.message || e).slice(0, 200); }
   }
@@ -263,7 +265,7 @@ export async function handleStudio(req, env, fetchImpl = fetch) {
   const u = new URL(req.url); const p = u.pathname.replace(/\/+$/, "") || "/studio"; const m = req.method;
   if (p === "/studio") return new Response(STUDIO_HTML, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache", ...SEC } });
   if (p === "/studio/api/health") {
-    if (u.searchParams.get("ai") === "1") { let out = null, err2 = null; if (!env.AI) err2 = "no AI binding"; else for (const m of LLM_MODELS) { try { const r = await env.AI.run(m, m.includes("gpt-oss") ? { input: [{ role: "user", content: "Reply with the word OK" }], reasoning: { effort: "low" }, max_output_tokens: 50 } : { messages: [{ role: "user", content: "Reply with the word OK" }], max_tokens: 20 }); out = m + ": " + JSON.stringify(r).slice(0, 200); break; } catch (e) { err2 = (err2 ? err2 + " | " : "") + m + ": " + String(e && e.message || e).slice(0, 200); } } return json({ ok: true, ai: out, ai_error: err2, last: LLM_DIAG.last }); }
+    if (u.searchParams.get("ai") === "1") { let out = null, err2 = null; if (!env.AI) err2 = "no AI binding"; else for (const m of LLM_MODELS) { try { const r = await env.AI.run(m, m.includes("gpt-oss") ? { input: [{ role: "user", content: "Reply with the word OK" }], reasoning: { effort: "low" }, max_output_tokens: 50 } : { messages: [{ role: "user", content: "Reply with the word OK" }], max_tokens: 20 }); out = m + ": " + JSON.stringify(r).slice(0, 200); break; } catch (e) { err2 = (err2 ? err2 + " | " : "") + m + ": " + String(e && e.message || e).slice(0, 200); } } return json({ ok: true, ai: out, ai_error: err2, last: LLM_DIAG.last, text: LLM_DIAG.text }); }
     return json({ ok: true, t: now() });
   }
 
