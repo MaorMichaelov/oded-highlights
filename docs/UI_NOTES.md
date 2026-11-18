@@ -15,6 +15,6 @@ Fonts: Inter + Heebo + Rubik from Google Fonts (system fallbacks work offline). 
 * YouTube connect uses `docs/YOUTUBE_CONNECT.md`: `POST /studio/yt/start {org_id, channel_id}` -> `{url}`, `GET /studio/yt/status`, `POST /studio/yt/disconnect`; the callback returns to `/studio#youtube=connected` or `#youtube=error=<code>`. 404/501/503 answers show "coming soon" instead of an error.
 
 ## Behaviour worth knowing
-* Hebrew (RTL) is the default unless the browser language is English; the toggle persists in localStorage. Dark is the default look (follows the OS when it prefers light; Settings has Auto/Light/Dark).
+* Hebrew (RTL) is the default unless the browser language is English; the toggle persists in localStorage. Dark is the default look; Settings has Auto (follows the OS) / Light / Dark.
 * Review: swipe right = approve, left = reject, arrow keys on desktop (physical directions, also in RTL). Decisions are sent after a 5 s "Undo" window (flushed on page hide).
 * Polling: 3.5 s while a job is queued/running/qa, 15 s otherwise, paused in hidden tabs. A toast announces new drafts.
