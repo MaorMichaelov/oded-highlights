@@ -29,4 +29,4 @@ jobs:
           GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
         run: |
           rm -f "state/${IN_SLUG}/live_state.json"
-          python3 -u scripts/live_shorts.py --slug "$IN_SLUG" --platform "$IN_PLATFORM" --credit "$IN_SLUG" --window "$IN_WINDOW" --long-every 0 2>&1 | tail -60
+          python3 -u scripts/live_shorts.py --slug "$IN_SLUG" --platform "$IN_PLATFORM" --credit "$IN_SLUG" --window "$IN_WINDOW" --long-every 0 --force 2>&1 | tail -60
