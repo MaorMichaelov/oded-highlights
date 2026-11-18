@@ -13,6 +13,6 @@ jobs:
           BASE: ${{ inputs.base }}
         run: |
           case "$BASE" in https://*.workers.dev) ;; *) echo "only workers.dev"; exit 1;; esac
-          for p in /studio /studio/api/me /studio/?demo=1; do
-            echo "== $p"; curl -sS -m 30 -o /tmp/o -w "%{http_code} %{content_type} %{size_download}B\n" "$BASE$p"; head -c 160 /tmp/o | tr '\n' ' '; echo
+          for p in /studio /studio/api/health "/studio/api/health?ai=1"; do
+            echo "== $p"; curl -sS -m 30 -o /tmp/o -w "%{http_code} %{content_type} %{size_download}B\n" "$BASE$p"; head -c 700 /tmp/o | tr '\n' ' '; echo
           done
