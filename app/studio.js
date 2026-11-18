@@ -154,6 +154,9 @@ async function refund(env, job) {
   if (!job.credits_held) return; const o = await kget(env, K.org(job.org)); if (!o) return;
   o.credits += job.credits_held; job.credits_held = 0; await kput(env, K.org(o.id), o);   // TODO(D1): not atomic, use a ledger table + transaction
 }
+// preview_url = where the browser can play a small preview rendition of a draft (preview phase: a public GitHub release asset made by .github/workflows/studio-worker.yml, see docs/STUDIO_PREVIEW_SETUP.md).
+// Only that exact shape is accepted (https, github.com release download of an .mp4), so a leaked worker key cannot point the player at an arbitrary site.
+export const previewUrl = (u) => (typeof u === "string" && u.length <= 300 && /^https:\/\/github\.com\/[A-Za-z0-9_.-]{1,60}\/[A-Za-z0-9_.-]{1,100}\/releases\/download\/[A-Za-z0-9._-]{1,120}\/[A-Za-z0-9._-]{1,120}\.mp4$/.test(u) ? u : "");
 const pubJob = (j) => j;   // jobs hold no secrets; keep a hook in case that changes
 
 
@@ -415,12 +418,16 @@ export async function createJob(env, org, f) {
 async function workerApi(req, env, p, m) {
   const key = await cfg(env, "worker_key"); const got = req.headers.get("x-worker-key") || "";
   if (!key || !safeEq(await sha256(got), await sha256(key))) { if (await limited(env, req, "workerkey_fail", 60)) return err(429, "rate_limited"); return err(401, "unauthorized"); }   // only FAILED attempts count (the real worker polls often)
+  if (p === "/studio/worker/queue" && (m === "POST" || m === "GET")) {   // cheap peek for the GitHub Actions poller: how many jobs wait. Claims nothing, changes nothing.
+    return json({ queued: (await klist(env, "studio:q:", 20)).length });
+  }
   if (p === "/studio/worker/claim" && m === "POST") {
     // TODO(D1): KV is eventually consistent, two workers could claim the same job. With one worker it is fine; with several use a Durable Object/D1 UPDATE ... WHERE status='queued'.
     for (const k of await klist(env, "studio:q:", 20)) {
       const ref = await kget(env, k); await env.KV.delete(k); const job = ref && await kget(env, K.job(ref.id)); if (!job || job.status !== "queued") continue;
       job.status = "running"; setStatusText(job, "running"); job.updated = now(); job.events.push({ t: job.updated, e: "running" }); await kput(env, K.job(job.id), job);
-      return json({ job: { id: job.id, org: job.org, channel: job.channel, kind: job.kind, source: job.source, style_id: job.style_id, outputs: job.outputs, hints: job.hints || {} } });
+      const ch = await kget(env, K.chan(job.org, job.channel));   // platform + slug let the worker resolve "my last stream" (type auto) of a trusted org from the platform's VODs
+      return json({ job: { id: job.id, org: job.org, channel: job.channel, kind: job.kind, source: job.source, style_id: job.style_id, outputs: job.outputs, hints: job.hints || {}, channel_info: ch ? { platform: ch.platform, slug: ch.slug } : null } });
       // TODO(youtube): hand the worker a short-lived access token (refreshed here) instead of the refresh token.
     }
     return json({ job: null });
@@ -443,7 +450,7 @@ async function workerApi(req, env, p, m) {
     if (b.status && b.status !== job.status) { if (!canTransition(job.status, b.status) || !["qa", "draft_ready", "failed"].includes(b.status)) return err(409, "bad_state", { status: job.status }); job.status = b.status; job.events.push({ t: now(), e: b.status, note: clean(b.error || "", 200) }); if (!b.msg) setStatusText(job, b.status === "draft_ready" ? "draft_ready" : b.status, { n: (b.drafts || job.result.drafts).length }); }
     if (b.msg && MSG[b.msg]) setStatusText(job, b.msg, b.vars || {}); else if (typeof b.message === "string") job.status_text = { he: clean(b.message, 120), en: clean(b.message, 120) };   // worker progress: {msg:"found_moments", vars:{n:5}} (see MSG) or free text
     if (typeof b.progress === "number") job.progress = Math.max(0, Math.min(100, b.progress));
-    if (Array.isArray(b.drafts)) job.result.drafts = b.drafts.slice(0, 50).map((d) => ({ kind: clean(d.kind, 10), title: clean(d.title, 100), yt_video_id: clean(d.yt_video_id, 20), qa_ok: !!d.qa_ok, qa_notes: clean(d.qa_notes, 300), qa_score: Number.isFinite(d.qa_score) ? Math.max(0, Math.min(100, d.qa_score)) : null, duration_s: Number.isFinite(d.duration_s) ? d.duration_s : null, local_id: clean(d.local_id, 80), hook: clean(d.hook, 60), private: true, decision: null }));   // local_id = where the render server keeps the file (scripts/render_worker.py out/<job>/<file>); the uploader reads it, the browser never needs it
+    if (Array.isArray(b.drafts)) job.result.drafts = b.drafts.slice(0, 50).map((d) => ({ kind: clean(d.kind, 10), title: clean(d.title, 100), yt_video_id: clean(d.yt_video_id, 20), qa_ok: !!d.qa_ok, qa_notes: clean(d.qa_notes, 300), qa_score: Number.isFinite(d.qa_score) ? Math.max(0, Math.min(100, d.qa_score)) : null, duration_s: Number.isFinite(d.duration_s) ? d.duration_s : null, local_id: clean(d.local_id, 80), hook: clean(d.hook, 60), preview_url: previewUrl(d.preview_url), private: true, decision: null }));   // local_id = where the render server keeps the file (scripts/render_worker.py out/<job>/<file>); the uploader reads it, the browser never needs it
     if (job.status === "failed") await refund(env, job);
     job.updated = now(); await kput(env, K.job(job.id), job); return json({ ok: true });
   }
