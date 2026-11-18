@@ -76,7 +76,7 @@ def customer_style(job, profile, cfg):
     sid = str((job.get("style_id") or "signature"))
     try: S.load_raw(sid)
     except Exception: sid = "signature"
-    ov = {"intro": {"bumper_s": 0}, "layout": {"fg_zoom": 1.55}}   # customers: a bigger picture of the stream (the plain blur-fill makes landscape gameplay look small)
+    ov = {"intro": {"bumper_s": 0}, "layout": {"fg_zoom": 1.55}, "pace": {"min_llm_score": 8}}   # only moments the reviewer rates 8+ of 10   # customers: a bigger picture of the stream (the plain blur-fill makes landscape gameplay look small)
     if not cfg.get("keep_watermark"): ov["watermark"] = {"enabled": False}
     lang = (profile or {}).get("language") or (job.get("hints") or {}).get("language")
     if lang in ("he", "en"): ov["language"] = {"code": lang, "name": "Hebrew" if lang == "he" else "English"}
@@ -84,7 +84,7 @@ def customer_style(job, profile, cfg):
     pace = {}
     if pr.get("min_len_s"): pace["min_clip_s"] = max(5, min(170, pr["min_len_s"]))
     if pr.get("max_len_s"): pace["max_clip_s"] = max(10, min(180, pr["max_len_s"]))
-    if pace: ov["pace"] = pace
+    if pace: ov.setdefault("pace", {}).update(pace)
     return S.resolve({"extends": sid, "name": "customer-" + sid, "shorts": ov}, "shorts")
 
 
@@ -214,7 +214,7 @@ def llm_prompt(pk, txt, PC, hints, profile, CP, lang_name):
         try: extra += "\n" + CP.prompt_additions(profile, query=txt[:1500]) + "\n"
         except Exception: pass
     return ("You edit YouTube Shorts from a live stream. Below: words with [second] for the window around an audio/speech peak at second %d. Decide if it is a clip-worthy moment (%s). " % (pk, PC["moments"]["criteria"].replace("%", "%%")) + extra +
-            "REJECT (reject=true) gambling/casino/giveaway/promo-code talk, sponsored reads, slurs, sexual content, self-harm, minors, or random chatter. Return JSON only: "
+            "QUALITY BAR: accept ONLY a moment a stranger would enjoy with no context: a clear setup and a payoff (a joke that lands, a surprising or emotional reaction, a dramatic reveal or story beat, a strong opinion, a skilful or hilarious play). The clip must start at a sentence start that already hooks within 3 seconds and end right after the payoff. REJECT intros and outros, waiting, reading chat or donations aloud, filler talk, music-only or silence, technical problems, a fragment of a thought, or anything that needs context you cannot see. Score honestly: 8-10 only if you would post it yourself; most moments are 3-6. REJECT (reject=true) gambling/casino/giveaway/promo-code talk, sponsored reads, slurs, sexual content, self-harm, minors, or random chatter. Return JSON only: "
             "{\"score\":1-10,\"start\":second where the SETUP sentence starts (8-%d s before the peak, a sentence start),\"end\":second where the PAYOFF sentence ends,\"title\":\"%s YouTube Shorts title 40-70 chars, hook first, only facts that are said in the clip, ends with ! or ?\",\"hook\":\"%s word on-screen text\",\"kind\":\"funny|hype|fail|story|other\",\"reject\":false,\"why\":\"\"}\n\n%s" % (int(PC["pace"]["max_leadin_s"]), lang_name, PC["hook"]["words"], txt)).replace("%%", "%")
 
 
@@ -222,6 +222,7 @@ def judge(pk, words, S, PC, hints, profile, CP, llm, lang_name):
     """-> pick dict or None (rejected)"""
     ws = [w for w in words if pk - 45 <= w["start"] <= pk + 20]
     if llm is None:
+        if os.environ.get("WORKER_ALLOW_HEURISTIC") != "1": return None   # no reviewer = no clip: a random loud moment is not a good Short (set WORKER_ALLOW_HEURISTIC=1 to allow unreviewed picks)
         return heuristic_pick(pk, words, S, lang=PC["language"]["code"]) if len(ws) >= 6 else None
     if len(ws) < 15: return None
     txt = " ".join("[%d]%s" % (w["start"], w["word"].strip()) for w in ws)[:5500]
@@ -234,6 +235,7 @@ def judge(pk, words, S, PC, hints, profile, CP, llm, lang_name):
 def run_job(job, workdir, cfg=None, emit=None, deps=None):
     """returns the result dict (also written to <workdir>/result.json). deps: {"llm":fn|None, "transcribe":fn} override the defaults (tests)."""
     cfg = cfg or cfg_from_env(); emit = emit or Reporter(); deps = deps or {}
+    if cfg.get("demo") or deps.get("llm_optional"): os.environ.setdefault("WORKER_ALLOW_HEURISTIC", "1")   # the offline demo has no reviewer
     import cutsnap as CS, cutqa as Q, style_render as SR, styles as S
     os.makedirs(workdir, exist_ok=True); out_dir = os.path.join(workdir, "drafts"); os.makedirs(out_dir, exist_ok=True)
     outputs = job.get("outputs") or {}; n_short = max(0, min(30, int(outputs.get("shorts") if outputs.get("shorts") is not None else 5))); want_long = bool(outputs.get("long"))
