@@ -121,7 +121,7 @@ def render2(body, s, e, ass, out, hook, peak):
     if r.returncode: print("render2 failed:", r.stderr[-700:]); return False
     return True
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--slug", required=True); ap.add_argument("--vod", default="auto"); ap.add_argument("--from-min", type=float, default=0); ap.add_argument("--to-min", type=float, default=60); ap.add_argument("--n", type=int, default=3); ap.add_argument("--out", default=None); ap.add_argument("--platform", default="kick"); ap.add_argument("--credit", default=""); ap.add_argument("--style", default=None, help="editing style name (config/styles/<name>.json) or path; default env STYLE; none = classic"); a = ap.parse_args()
+    ap = argparse.ArgumentParser(); ap.add_argument("--slug", required=True); ap.add_argument("--vod", default="auto"); ap.add_argument("--from-min", type=float, default=0); ap.add_argument("--to-min", type=float, default=60); ap.add_argument("--n", type=int, default=3); ap.add_argument("--out", default=None); ap.add_argument("--platform", default="kick"); ap.add_argument("--credit", default=""); ap.add_argument("--source-file", default=None, help="a locally recorded stream file (live recording for streamers without VODs)"); ap.add_argument("--source-title", default=""); ap.add_argument("--source-id", default=""); ap.add_argument("--style", default=None, help="editing style name (config/styles/<name>.json) or path; default env STYLE; none = classic"); a = ap.parse_args()
     if a.style: os.environ["STYLE"] = a.style
     import styles as _S; ST = style_active("shorts"); STN = _S.name_of(os.environ["STYLE"]) if ST else None; PC = ST or _S.resolve(None, "shorts")   # PC = parameters in force (classic defaults = the old constants)
     if ST == _S.resolve(None, "shorts"): ST = None   # a style equal to the classic defaults (signature) runs the classic code path unchanged
@@ -129,7 +129,10 @@ def main():
     MINC, MAXC, TARC, LEAD, MINSC = float(PC["pace"]["min_clip_s"]), float(PC["pace"]["max_clip_s"]), float(PC["pace"]["target_clip_s"]), float(PC["pace"]["max_leadin_s"]), float(PC["pace"]["min_llm_score"])
     if STN: print("STYLE", STN, "| clip", MINC, "-", MAXC, "s | captions", PC["captions"]["animation"], "| zoom", PC["zoom"]["enabled"], "| dead-air cut", PC["pace"]["dead_air_trim_s"], flush=True)
     out = a.out or f"state/{a.slug}/shorts"; os.makedirs(out, exist_ok=True)
-    if a.platform == "twitch":
+    if a.source_file:   # a window recorded from a live stream (streamers who do not keep VODs): the file serves as audio and video source
+        _d = float((sh(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", a.source_file]).stdout.strip() or 0)); vid = a.source_id or ("rec" + str(int(time.time()))); v = {"id": vid, "session_title": a.source_title or (a.slug + " live"), "duration": _d * 1000}; AUDIO_SRC = VIDEO_SRC = a.source_file
+        a.from_min = 0; a.to_min = _d / 60
+    elif a.platform == "twitch":
         tv = twitch_pick(a.slug, a.vod); vid = str(tv["id"]); v = {"id": vid, "session_title": tv["title"], "duration": tv["dur_s"] * 1000}; AUDIO_SRC, VIDEO_SRC = twitch_urls(vid)
     else:
         v = pick_vod(a.slug, a.vod); base = v["source"].rsplit("/master.m3u8", 1)[0]; vid = str(v["id"]); AUDIO_SRC, VIDEO_SRC = f"{base}/480p30/playlist.m3u8", f"{base}/1080p60/playlist.m3u8"

@@ -20,6 +20,24 @@ def media_minutes(url):
     except Exception: pass
     txt = V.sh(["curl", "-sS", "-m", "40", "-L", url]).stdout
     return sum(float(x) for x in re.findall(r"#EXTINF:([0-9.]+)", txt)) / 60
+def live_url(slug, platform):
+    if platform == "twitch": r = V.sh(["yt-dlp", "-g", "-f", "best[height<=720]/best", f"https://www.twitch.tv/{slug}"]).stdout.split(); return r[0] if r else None
+    try: return V.jget(f"https://kick.com/api/v2/channels/{slug}").get("playback_url")
+    except Exception: return None
+def record_mode(a):
+    url = live_url(a.slug, a.platform)
+    if not url: print("live but no playable stream url yet"); return 0
+    os.makedirs("rec", exist_ok=True); ts = int(time.time()); path = f"rec/{a.slug}_{ts}.mp4"; secs = a.window * 60
+    print(f"no VOD: recording {a.window} min of the live stream of {a.slug} ...", flush=True)
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", url, "-t", str(secs), "-c", "copy", "-bsf:a", "aac_adtstoasc", path], timeout=secs + 180)
+    if not os.path.exists(path) or os.path.getsize(path) < 2_000_000: print("recording too small / failed"); return 0
+    env = dict(os.environ, **({"SHORTS_FOCUS": a.focus} if a.focus else {}), **({"SHORTS_FOCUS_ONLY": "1"} if (a.focus and a.focus_only) else {}))
+    print(f"processing recorded window {path}", flush=True)
+    subprocess.run([sys.executable, "-u", os.path.join(HERE, "vod_shorts.py"), "--slug", a.slug, "--platform", a.platform, "--source-file", path, "--source-id", f"rec{ts}", "--source-title", f"{a.credit or a.slug} live", "--n", str(a.n), "--credit", a.credit or a.slug], env=env)
+    try: os.remove(path)
+    except Exception: pass
+    if a.upload: subprocess.run([sys.executable, os.path.join(HERE, "upload_shorts.py"), a.slug, str(a.max_upload)], env=dict(os.environ, CHANNEL_YT="en"))
+    return 0
 def is_live(slug, platform):
     if platform == "twitch": return V.sh(["yt-dlp", "--simulate", "--print", "%(is_live)s", f"https://www.twitch.tv/{slug}"]).stdout.strip() == "True"
     try: return bool(V.jget(f"https://kick.com/api/v2/channels/{slug}").get("livestream"))
@@ -32,7 +50,8 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--slug", required=True); ap.add_argument("--platform", default="kick"); ap.add_argument("--credit", default=""); ap.add_argument("--upload", action="store_true"); ap.add_argument("--max-upload", type=int, default=2); ap.add_argument("--focus", default=""); ap.add_argument("--focus-only", action="store_true", help="only clips about the focus topic"); ap.add_argument("--force", action="store_true"); ap.add_argument("--window", type=int, default=30); ap.add_argument("--n", type=int, default=2, help="Shorts per window"); ap.add_argument("--long-every", type=int, default=0, help="also start a LONG video (long-video workflow, private draft) for every N finished minutes of the stream (0 = off)"); a = ap.parse_args()
     if not a.force and not is_live(a.slug, a.platform): print("offline"); return 0
     cur = newest(a.slug, a.platform)
-    if not cur: print("no VOD yet"); return 0
+    if not cur:   # no VOD (the streamer does not keep past broadcasts, or it is not listed yet): record the next window of the LIVE stream ourselves and cut that
+        return record_mode(a)
     dur = media_minutes(cur["audio"])
     sf = f"state/{a.slug}/live_state.json"; st = json.load(open(sf)) if os.path.exists(sf) else {}
     if st.get("vod") != cur["vod"]: st = {"vod": cur["vod"], "done_to_min": max(0, int(dur) - a.window) if not a.force else 0}   # a new stream: start with the latest window, not the whole past
