@@ -172,7 +172,7 @@ assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
 { const g = await call("POST", "/studio/api/guest", {}); const tk = g.j.token, oid = g.j.org_id; let calls = 0, seen = [];
   env.AI = { run: async (m, inp) => { calls++; const msgs = inp.messages || inp.input; seen.push(msgs.length); if (calls >= 3 && calls <= 6) throw new Error("boom");
     return { response: JSON.stringify({ reply: "reply #" + calls, intent: "chat", shorts: 0, long: false, when: "last_stream", mood: null }) }; } };
-  const a1 = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: "what can you do?" }, tk); assert.equal(a1.s, 200); assert.equal(a1.j.reply, "reply #1");
+  const a1 = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: "hello, quick question about my hook" }, tk); assert.equal(a1.s, 200); assert.equal(a1.j.reply, "reply #1");
   const a2 = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: "any ideas for my next big video?" }, tk); assert.equal(a2.j.reply, "reply #2"); assert.ok(seen[1] > seen[0], "history is sent to the model");
   const a3 = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: "hello there" }, tk); assert.equal(a3.s, 200); assert.ok(a3.j.reply && !a3.j.reply.startsWith("reply #"), "model failure falls back to the rule parser");
   env.AI = { run: async () => ({ response: "not json at all" }) }; const a4 = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: "hello" }, tk); assert.equal(a4.s, 200); assert.ok(a4.j.reply);
@@ -226,5 +226,9 @@ assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
   // QA regressions: a title/task request that merely contains an FAQ keyword must reach the model, not get a canned answer
   for (const m of ["תן לי כותרת בסגנון מצחיק לקליפ", "הסרטון של העורך שלי יצא גרוע", "I want a costume video title", "explain the difference between a short and a vlog", "איך להתחיל לצעוק פחות בשידור", "תכין לי כותרת על המחיר של המשחק החדש"]) { const r = await ask(m); assert.ok(!r.faq, m + " wrongly matched FAQ " + r.faq); }
   assert.equal((await ask("תעשה לי סגנון עריכה כמו של MrBeast")).faq, undefined);
+  // QA round 2: balance question gets the number; other-platform / shorten / capabilities / "how much money" have curated answers (the model hallucinated TikTok rules and Hebrew nonsense)
+  const cr = await ask("כמה קרדיטים נשארו לי"); assert.equal(cr.faq, "credits"); assert.ok(/יש לך \d+ קרדיטים/.test(cr.reply), cr.reply);
+  for (const [m, id] of [["בכמה כסף זה", "price"], ["איך אני מעלה את זה לטיקטוק", "other_platforms"], ["הקליפ יצא ארוך מדי, אפשר קצר יותר", "shorten"], ["מה אתה יכול לעשות בשבילי", "capabilities"], ["אפשר לראות דוגמה לקליפ", "example"], ["what can you do", "capabilities"]]) assert.equal((await ask(m)).faq, id, m);
+  for (const m of ["תן לי כותרת בשביל טיקטוק", "יש לי דוגמה לכותרת טובה?", "כמה שעות סטרים אפשר להעלות"]) assert.ok(!(await ask(m)).faq, m);
   ok("assistant FAQ answers"); }
 console.log(`\n${n} test groups passed`);
