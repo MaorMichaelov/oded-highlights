@@ -1,0 +1,135 @@
+{
+ "schema": 1,
+ "name": "test-twitchclip",
+ "label": "test-twitchclip",
+ "description": "Features a picture-in-picture streamer webcam overlay on gameplay footage. Uses styled bottom-center subtitles with dynamic word highlighting.",
+ "extends": "signature",
+ "source": {
+  "kind": "video",
+  "url": "https://www.twitch.tv/kaicenat/clip/PuzzledLongAntelopeDxAbomb-G8QCjK1905yV3xMQ",
+  "format": "long",
+  "measured": {
+   "video": {
+    "w": 1280,
+    "h": 720,
+    "fps": 60.0,
+    "dur": 10.0,
+    "analysed_s": 10.0,
+    "portrait": false
+   },
+   "pace": {
+    "cuts": 2,
+    "cuts_per_min": 12.0,
+    "avg_shot_s": 3.33,
+    "median_shot_s": 0.92,
+    "min_shot_s": 0.92,
+    "max_shot_s": 8.17
+   },
+   "audio": {
+    "lufs": -15.7,
+    "lra": 7.3,
+    "true_peak_db": -0.4,
+    "silence_pct": 0.0,
+    "silences_per_min": 0.0
+   },
+   "captions": {
+    "coverage": 0.0,
+    "frames": 20,
+    "y_center": 0.938,
+    "y_top": 0.9,
+    "y_bottom": 0.976,
+    "band_h": 0.074,
+    "x_center": 0.5,
+    "rejected": "not caption-like (off-centre or on the frame edge)",
+    "white_share": 0.82,
+    "color_hex": "#854AFB",
+    "colored_share": 0.18
+   },
+   "hook": {
+    "coverage": 0.0,
+    "frames": 20,
+    "present": false
+   },
+   "zoom": {
+    "events": 2,
+    "events_per_min": 12.0,
+    "median_strength": 0.095,
+    "analysed_s": 10.0
+   }
+  },
+  "gemini": {
+   "summary": "Features a picture-in-picture streamer webcam overlay on gameplay footage. Uses styled bottom-center subtitles with dynamic word highlighting.",
+   "genre": "gaming",
+   "language": "en",
+   "language_name": "English",
+   "captions": {
+    "present": true,
+    "font_look": "Bold sans-serif with dark shadow",
+    "closest_font": "Montserrat",
+    "animation": "karaoke",
+    "uppercase": false,
+    "words_per_group": 3,
+    "active_word_highlighted": true,
+    "highlight_color_hex": "#854AFB"
+   },
+   "hook_text": {
+    "present": false,
+    "style": ""
+   },
+   "zoom": {
+    "used": true,
+    "kind": "punch-in"
+   },
+   "sfx": {
+    "used": false,
+    "kinds": ""
+   },
+   "music": {
+    "used": false,
+    "kind": ""
+   },
+   "intro": {
+    "present": false,
+    "seconds": 0
+   },
+   "outro": {
+    "present": false,
+    "seconds": 0
+   },
+   "layout": "Streamer webcam overlay placed in the top-left corner over full-screen gameplay.",
+   "pacing": "medium",
+   "transitions": "Hard cuts",
+   "must_reproduce": [
+    "Place the streamer camera overlay in the top-left corner.",
+    "Use hard cuts to follow gameplay camera angle changes.",
+    "Add bottom-centered captions with colored word-level highlights."
+   ]
+  }
+ },
+ "long": {
+  "captions": {
+   "enabled": false
+  },
+  "loudness": {
+   "enabled": true,
+   "lufs": -15.7,
+   "tp": -1.0,
+   "lra": 7.3
+  },
+  "pace": {
+   "dead_air_trim_s": 0.0
+  },
+  "language": {
+   "code": "en",
+   "name": "English"
+  },
+  "intro": {
+   "bumper_s": 0
+  }
+ },
+ "notes": [
+  "Place the streamer camera overlay in the top-left corner.",
+  "Use hard cuts to follow gameplay camera angle changes.",
+  "Add bottom-centered captions with colored word-level highlights."
+ ]
+}
