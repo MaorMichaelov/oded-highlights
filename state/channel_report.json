@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-18T14:00:32Z",
+ "generated": "2026-11-18T14:30:41Z",
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -9,16 +9,16 @@
  "totals": {
   "videos_total": 33,
   "videos_public": 17,
-  "views": 21147,
+  "views": 21149,
   "likes": 205,
-  "est_hours_low": 1064.0,
-  "est_hours_high": 2482.6
+  "est_hours_low": 1064.2,
+  "est_hours_high": 2483.0
  },
  "by_kind": {
   "other": {
    "n": 14,
-   "views": 21023,
-   "est_hours_mid": 1766.9
+   "views": 21025,
+   "est_hours_mid": 1767.2
   },
   "reaction": {
    "n": 2,
@@ -67,15 +67,15 @@
    "title": "דושי משחק GTA 6 לראשונה, התגובה שלו מטורפת!",
    "published": "2026-11-18",
    "privacy": "public",
-   "duration_min": 23.1,
-   "views": 3,
+   "duration_min": 25.1,
+   "views": 5,
    "likes": 2,
    "comments": 0,
    "est_hours": [
-    0.2,
-    0.5
+    0.4,
+    0.9
    ],
-   "views_per_day": 60.0,
+   "views_per_day": 79.4,
    "kind": "other"
   },
   {
@@ -91,7 +91,7 @@
     0.2,
     0.5
    ],
-   "views_per_day": 37.9,
+   "views_per_day": 27.1,
    "kind": "other"
   },
   {
@@ -107,7 +107,7 @@
     0.8,
     1.8
    ],
-   "views_per_day": 116.2,
+   "views_per_day": 91.5,
    "kind": "reaction"
   },
   {
@@ -123,7 +123,7 @@
     3.0,
     7.1
    ],
-   "views_per_day": 62.2,
+   "views_per_day": 60.6,
    "kind": "other"
   },
   {
@@ -139,7 +139,7 @@
     12.4,
     28.9
    ],
-   "views_per_day": 47.1,
+   "views_per_day": 46.3,
    "kind": "other"
   },
   {
@@ -347,7 +347,7 @@
     27.0,
     63.1
    ],
-   "views_per_day": 393.5,
+   "views_per_day": 390.7,
    "kind": "other"
   },
   {
@@ -427,7 +427,7 @@
     138.6,
     323.4
    ],
-   "views_per_day": 559.8,
+   "views_per_day": 557.5,
    "kind": "other"
   },
   {
@@ -443,7 +443,7 @@
     244.6,
     570.7
    ],
-   "views_per_day": 1085.1,
+   "views_per_day": 1080.8,
    "kind": "other"
   },
   {
@@ -459,7 +459,7 @@
     60.5,
     141.2
    ],
-   "views_per_day": 239.6,
+   "views_per_day": 238.7,
    "kind": "other"
   },
   {
@@ -491,7 +491,7 @@
     377.2,
     880.2
    ],
-   "views_per_day": 850.6,
+   "views_per_day": 847.7,
    "kind": "other"
   },
   {
@@ -507,7 +507,7 @@
     3.1,
     7.2
    ],
-   "views_per_day": 19.0,
+   "views_per_day": 18.9,
    "kind": "reaction"
   },
   {
@@ -523,7 +523,7 @@
     204.6,
     477.5
    ],
-   "views_per_day": 926.1,
+   "views_per_day": 923.0,
    "kind": "other"
   },
   {
@@ -539,7 +539,7 @@
     9.1,
     21.1
    ],
-   "views_per_day": 29.4,
+   "views_per_day": 29.3,
    "kind": "other"
   },
   {
