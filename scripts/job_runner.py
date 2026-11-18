@@ -48,7 +48,7 @@ def cfg_from_env(env=None):
             "max_source_h": float(e.get("WORKER_MAX_SOURCE_H", "8") or 8), "download_timeout": int(e.get("WORKER_DOWNLOAD_TIMEOUT_S", "3600") or 3600),
             "no_cloud": flag("WORKER_NO_CLOUD"), "keep_watermark": flag("WORKER_WATERMARK"), "profiles_dir": e.get("CUSTOMER_PROFILES_DIR", ""), "whisper_model": e.get("WORKER_WHISPER_MODEL", ""),
             "whisper_threads": int(e.get("WORKER_WHISPER_THREADS", "0") or 0),
-            "platform_vod": flag("WORKER_PLATFORM_VOD"), "download_max_min": float(e.get("WORKER_DOWNLOAD_MAX_MIN", "0") or 0), "download_height": int(e.get("WORKER_DOWNLOAD_HEIGHT", "1080") or 1080)}   # preview phase (GitHub runner): trusted orgs may use "my last stream" from Kick/Twitch; downloads capped in length and height
+            "platform_vod": flag("WORKER_PLATFORM_VOD"), "trust_guests": flag("WORKER_TRUST_GUESTS"), "download_max_min": float(e.get("WORKER_DOWNLOAD_MAX_MIN", "0") or 0), "download_height": int(e.get("WORKER_DOWNLOAD_HEIGHT", "1080") or 1080)}   # preview phase (GitHub runner): trusted orgs may use "my last stream" from Kick/Twitch; downloads capped in length and height
 
 
 def load_profile(job, cfg):
@@ -229,7 +229,7 @@ def run_job(job, workdir, cfg=None, emit=None, deps=None):
 
     # 1. source
     emit(2, "downloading")
-    scfg = dict(cfg); scfg["trusted"] = str(job.get("org")) in set(cfg.get("trusted_orgs") or [])
+    scfg = dict(cfg); scfg["trusted"] = str(job.get("org")) in set(cfg.get("trusted_orgs") or []) or bool(cfg.get("trust_guests") and job.get("org_guest"))   # preview phase: guest workspaces (the owner testing) may use Kick/Twitch links
     src = WS.resolve_source(job, os.path.join(workdir, "src"), scfg)
     if not src["has_video"]: raise WS.SourceError("no_video", "the source has no video track")
     media, dur = src["path"], src["duration_s"]; timing["source_s"] = round(time.time() - t_start, 1)

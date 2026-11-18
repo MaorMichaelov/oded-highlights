@@ -567,10 +567,24 @@ export async function createJob(env, org, f) {
   return job;
 }
 
+// A GitHub Actions run token (GITHUB_TOKEN, "ghs_...") is valid only while that run lives and only for the repo that issued it. The Worker asks GitHub which repositories the token belongs to and accepts it only for this repo.
+const GH_OK = new Map();
+async function ghActionsTokenOk(env, tok) {
+  const h = await sha256(tok); const hit = GH_OK.get(h); if (hit && hit > Date.now()) return true;
+  try {
+    const r = await fetch("https://api.github.com/installation/repositories?per_page=100", { headers: { authorization: "Bearer " + tok, accept: "application/vnd.github+json", "user-agent": "studio-app" } }); if (!r.ok) return false;
+    const j = await r.json(); const repo = String(env.STUDIO_GH_REPO || "MaorMichaelov/oded-highlights").toLowerCase();
+    const ok = Array.isArray(j.repositories) && j.repositories.length === 1 && String(j.repositories[0].full_name).toLowerCase() === repo;   // exactly this repo
+    if (ok) { GH_OK.set(h, Date.now() + 10 * 60 * 1000); if (GH_OK.size > 50) GH_OK.clear(); } return ok;
+  } catch (e) { return false; }
+}
+async function orgIsGuest(env, orgId) { try { const o = await kget(env, K.org(orgId)); const u = o && await kget(env, K.user(o.owner)); return !!(u && u.guest); } catch (e) { return false; } }
 // ---------- render worker API ----------
 async function workerApi(req, env, p, m) {
   const key = await cfg(env, "worker_key"); const got = req.headers.get("x-worker-key") || "";
-  if (!key || !safeEq(await sha256(got), await sha256(key))) { if (await limited(env, req, "workerkey_fail", 60)) return err(429, "rate_limited"); return err(401, "unauthorized"); }   // only FAILED attempts count (the real worker polls often)
+  let authed = !!key && safeEq(await sha256(got), await sha256(key));
+  if (!authed && /^gh[sp]_[A-Za-z0-9]{20,}$/.test(got)) authed = await ghActionsTokenOk(env, got);   // the repo's own GitHub Actions run proves itself with its run token: no shared secret to store anywhere
+  if (!authed) { if (await limited(env, req, "workerkey_fail", 60)) return err(429, "rate_limited"); return err(401, "unauthorized"); }   // only FAILED attempts count (the real worker polls often)
   if (p === "/studio/worker/queue" && (m === "POST" || m === "GET")) {   // cheap peek for the GitHub Actions poller: how many jobs wait. Claims nothing, changes nothing.
     return json({ queued: (await klist(env, "studio:q:", 20)).length });
   }
@@ -590,7 +604,7 @@ async function workerApi(req, env, p, m) {
       await env.KV.delete(k);
       job.status = "running"; setStatusText(job, "running"); job.updated = now(); job.events.push({ t: job.updated, e: "running" }); await kput(env, K.job(job.id), job);
       const ch = await kget(env, K.chan(job.org, job.channel));   // platform + slug let the worker resolve "my last stream" (type auto) of a trusted org from the platform's VODs
-      return json({ job: { id: job.id, org: job.org, channel: job.channel, kind: job.kind, source: job.source, style_id: job.style_id, outputs: job.outputs, hints: job.hints || {}, channel_info: ch ? { platform: ch.platform, slug: ch.slug } : null } });
+      return json({ job: { id: job.id, org: job.org, channel: job.channel, kind: job.kind, source: job.source, style_id: job.style_id, outputs: job.outputs, hints: job.hints || {}, channel_info: ch ? { platform: ch.platform, slug: ch.slug } : null, org_guest: await orgIsGuest(env, job.org) } });
       // TODO(youtube): hand the worker a short-lived access token (refreshed here) instead of the refresh token.
     }
     return json({ job: null });

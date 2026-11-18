@@ -21,7 +21,8 @@ jobs:
   check:   # cheap: one curl, no checkout, no token
     runs-on: ubuntu-latest
     timeout-minutes: 3
-    permissions: {}
+    permissions:
+      contents: read   # the run token is the credential: the Worker checks with GitHub that it belongs to this repo
     outputs:
       queued: ${{ steps.peek.outputs.queued }}
       cleanup: ${{ steps.peek.outputs.cleanup }}
@@ -29,8 +30,8 @@ jobs:
       - name: Is a studio job queued?
         id: peek
         env:   # inputs and secrets only ever reach the shell through env
-          STUDIO_URL: ${{ secrets.STUDIO_URL }}
-          STUDIO_WORKER_KEY: ${{ secrets.STUDIO_WORKER_KEY }}
+          STUDIO_URL: ${{ secrets.STUDIO_URL || 'https://studio-app.odedhl.workers.dev' }}
+          STUDIO_WORKER_KEY: ${{ secrets.STUDIO_WORKER_KEY || github.token }}
           EVENT: ${{ github.event_name }}
           IN_CLEANUP: ${{ inputs.cleanup }}
         run: |
@@ -75,7 +76,8 @@ jobs:
       WORKER_DOWNLOAD_HEIGHT: "720"
       WORKER_NO_CLOUD: ${{ vars.STUDIO_USE_CLOUD_AI == '1' && '0' || '1' }}
       WORKER_TRUSTED_ORGS: ${{ secrets.STUDIO_TRUSTED_ORGS || vars.STUDIO_TRUSTED_ORGS }}
-      WORKER_PREVIEW_ORGS: ${{ vars.STUDIO_PREVIEW_ORGS }}
+      WORKER_PREVIEW_ORGS: ${{ vars.STUDIO_PREVIEW_ORGS || '*' }}
+      WORKER_TRUST_GUESTS: "1"                       # preview phase: guest workspaces (the owner testing) may use Kick/Twitch links
       STUDIO_PREVIEW_PUBLISH: github-release
       STUDIO_PREVIEW_MAX_S: "300"
     steps:
@@ -94,8 +96,8 @@ jobs:
           key: studio-hf-models-v1
       - name: Render queued jobs
         env:
-          STUDIO_URL: ${{ secrets.STUDIO_URL }}
-          STUDIO_WORKER_KEY: ${{ secrets.STUDIO_WORKER_KEY }}
+          STUDIO_URL: ${{ secrets.STUDIO_URL || 'https://studio-app.odedhl.workers.dev' }}
+          STUDIO_WORKER_KEY: ${{ secrets.STUDIO_WORKER_KEY || github.token }}
           GITHUB_TOKEN: ${{ github.token }}
           IN_MAX_MIN: ${{ inputs.max_minutes }}
           GROQ_API_KEY: ${{ vars.STUDIO_USE_CLOUD_AI == '1' && secrets.GROQ_API_KEY || '' }}

@@ -182,4 +182,12 @@ assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
   r = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: r.j.choices[1].text }, tk); assert.equal(r.s, 200); assert.ok(r.j.actions[0] && r.j.actions[0].type === "job_created", r.j.reply);
   const jb = (await call("GET", `/studio/api/orgs/${oid}/jobs/${r.j.actions[0].job_id}`, null, tk)).j.job; assert.equal(jb.source.type, "url"); assert.equal(jb.source.ref, link); assert.equal(jb.outputs.shorts, 10); assert.equal(jb.outputs.long, true);
   r = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: "http://127.0.0.1/x make 3 shorts" }, tk); assert.ok(!r.j.actions.length || !JSON.stringify(r.j).includes("127.0.0.1/x\"") || true); ok("assistant link options + job on a link"); }
+// ---- worker auth with a GitHub Actions run token (no shared secret): accepted only if GitHub says the token belongs to exactly this repo
+{ const realFetch = globalThis.fetch; let calls = 0; const tokGood = "ghs_" + "a".repeat(36), tokOther = "ghs_" + "b".repeat(36), tokBad = "ghs_" + "c".repeat(36);
+  globalThis.fetch = async (url, opt) => { calls++; const a = (opt.headers || {}).authorization || ""; const R = (o, st = 200) => ({ ok: st < 400, status: st, json: async () => o });
+    if (!String(url).startsWith("https://api.github.com/installation/repositories")) return realFetch(url, opt);
+    if (a.endsWith(tokGood)) return R({ repositories: [{ full_name: "MaorMichaelov/oded-highlights" }] }); if (a.endsWith(tokOther)) return R({ repositories: [{ full_name: "someone/else" }] }); return R({ message: "Bad credentials" }, 401); };
+  const q = async (tok) => (await call("POST", "/studio/worker/queue", {}, null, { "x-worker-key": tok })).s;
+  assert.equal(await q(tokGood), 200); assert.equal(await q(tokGood), 200); assert.equal(calls, 1, "verified token is cached"); assert.equal(await q(tokOther), 401); assert.equal(await q(tokBad), 401); assert.equal(await q("ghs_short"), 401);
+  globalThis.fetch = realFetch; ok("worker auth with a GitHub Actions run token"); }
 console.log(`\n${n} test groups passed`);
