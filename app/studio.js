@@ -338,7 +338,7 @@ async function assistant(env, org, me, role, b, store) {
 
 // ---------- the router ----------
 export async function handleStudio(req, env, fetchImpl = fetch) {   // never let an exception escape as Cloudflare's raw error page: the UI can only show a friendly message for JSON
-  try { return await handleStudioInner(req, env, fetchImpl); } catch (e) { console.error("studio_error", String(e && e.stack || e).slice(0, 400)); return err(500, "server_error"); }
+  try { return await handleStudioInner(req, env, fetchImpl); } catch (e) { console.error("studio_error", String(e && e.stack || e).slice(0, 400)); return err(500, "server_error", { detail: String(e && e.message || e).slice(0, 180) }); }
 }
 async function handleStudioInner(req, env, fetchImpl) {
   const u = new URL(req.url); const p = u.pathname.replace(/\/+$/, "") || "/studio"; const m = req.method;
