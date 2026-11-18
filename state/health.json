@@ -1,13 +1,13 @@
 {
- "overall": "critical",
+ "overall": "warn",
  "checks": {
   "live_loop": {
-   "status": "critical",
-   "detail": "live-loop is NOT running (monitor / the Cloudflare watchdog should restart it; start it by hand: gh workflow run live-loop.yml)"
+   "status": "ok",
+   "detail": "2 run(s) active"
   },
   "channel_loops": {
    "status": "ok",
-   "detail": "4 channel loop run(s) active, 0 enabled streamer(s)"
+   "detail": "0 channel loop run(s) active, 0 enabled streamer(s)"
   },
   "state_fresh": {
    "status": "ok",
@@ -19,9 +19,9 @@
    "detail": "lag 710 segments, live=False"
   },
   "last_upload": {
-   "status": "ok",
-   "detail": "last draft 32.2 h ago",
-   "age_h": 32.2,
+   "status": "warn",
+   "detail": "last draft 40 h ago and 1 clip(s) have no draft",
+   "age_h": 40.0,
    "last": "2026-11-17T06:18:46Z"
   },
   "upload_hold": {
@@ -29,16 +29,16 @@
    "detail": "no hold, no quota wait"
   },
   "failed_runs": {
-   "status": "warn",
-   "detail": "4 failed run(s) in 3 h: ['live-shorts']"
+   "status": "ok",
+   "detail": "0 failed run(s) in 3 h"
   },
   "cancelled_runs": {
-   "status": "warn",
-   "detail": "8 loop run(s) cancelled in 2 h (concurrency group or manual cancels fighting each other?)"
+   "status": "ok",
+   "detail": "0 cancelled loop run(s) in 2 h"
   },
   "queue_stall": {
-   "status": "ok",
-   "detail": "no stalled queue"
+   "status": "warn",
+   "detail": "1 run(s) queued for > 60 min: ['live-loop']"
   },
   "stuck_clips": {
    "status": "ok",
@@ -54,12 +54,11 @@
   }
  },
  "hc_problems": [
-  "live_loop: live-loop is NOT running (monitor / the Cloudflare watchdog should restart it; start it by hand: gh workflow run live-loop.yml)",
-  "failed_runs: 4 failed run(s) in 3 h: ['live-shorts']",
-  "cancelled_runs: 8 loop run(s) cancelled in 2 h (concurrency group or manual cancels fighting each other?)",
+  "last_upload: last draft 40 h ago and 1 clip(s) have no draft",
+  "queue_stall: 1 run(s) queued for > 60 min: ['live-loop']",
   "duplicates: duplicate draft titles: [['137995265_9037', '137995265_9082']]; overlapping ledger entries: []"
  ],
- "hc_checked_at": "2026-11-18T14:31:38Z",
+ "hc_checked_at": "2026-11-18T22:18:13Z",
  "live_loop_running": false,
  "state_age_min": 0.1,
  "live": false,
