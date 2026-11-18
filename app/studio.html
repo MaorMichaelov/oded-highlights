@@ -698,7 +698,7 @@ async function loadCore() {
 }
 function notifyChanges() {   // toast when a job reaches draft_ready / failed since the last poll
   if (S.prevJobs) { let nd = 0, nf = 0; for (const j of S.jobs) { const p = S.prevJobs[j.id]; if (p && p !== j.status) { if (j.status === "draft_ready") nd += (j.result.drafts || []).length; if (j.status === "failed") nf++; } }
-    if (nd && route.name !== "review") toast(tf("new_drafts_toast", { n: nd }), { action: t("review_now"), fn: () => go("review") });   // already on the review screen: the card just appears (the toast would cover the approve/reject buttons) if (nf) toast(t("job_failed_toast"), { kind: "bad" }); }
+    if (nd && route.name !== "review") toast(tf("new_drafts_toast", { n: nd }), { action: t("review_now"), fn: () => go("review") }); /* on the review screen the card just appears: the toast would cover approve/reject */ if (nf) toast(t("job_failed_toast"), { kind: "bad" }); }
   S.prevJobs = Object.fromEntries(S.jobs.map((j) => [j.id, j.status]));
 }
 async function loadYt() {
