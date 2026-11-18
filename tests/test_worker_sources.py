@@ -146,9 +146,10 @@ class EndToEnd(unittest.TestCase):
         probe = json.loads(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "stream=width,height", "-of", "json", os.path.join(wd, d["file"])], capture_output=True, text=True).stdout); self.assertEqual((probe["streams"][0]["width"], probe["streams"][0]["height"]), (1080, 1920))
         meta = json.load(open(os.path.join(wd, d["meta_file"]))); self.assertEqual(meta["privacy"], "private"); self.assertIn("qa", meta); self.assertEqual(meta["picker"], "heuristic")
         self.assertIn("found_moments", [m for m, _ in msgs]); self.assertIn("rendering", [m for m, _ in msgs])
-    def test_profile_banned_word_in_transcript_flags_draft_qa_fail(self):
-        res, wd, _ = self.run_job({"profile": {"schema": 1, "rules": [{"kind": "ban_word", "text": "demo"}]}}); d = res["drafts"][0]
-        self.assertFalse(d["qa_ok"]); self.assertIn("customer profile", d["qa_notes"]); self.assertTrue(res["profile_applied"])   # kept for the customer to see, but never eligible for upload
+    def test_profile_banned_word_in_transcript_blocks_the_draft(self):
+        # since 04b1bf3 a draft that fails the quality check is never delivered: a banned word in the transcript now ends in NoMoments (before: kept, flagged qa_ok False)
+        with self.assertRaises(JR.NoMoments) as cm: self.run_job({"profile": {"schema": 1, "rules": [{"kind": "ban_word", "text": "demo"}]}})
+        self.assertIn("quality check", str(cm.exception))
     def test_llm_path_uses_customer_profile_and_hints_in_the_prompt(self):
         prompts = []
         def fake_llm(prompt):
