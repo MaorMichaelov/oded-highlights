@@ -339,6 +339,13 @@ async function handleStudioInner(req, env, fetchImpl) {
   const u = new URL(req.url); const p = u.pathname.replace(/\/+$/, "") || "/studio"; const m = req.method;
   if (p === "/studio") return new Response(STUDIO_HTML, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache", ...SEC } });
   if (p === "/studio/api/health") {
+    if (u.searchParams.get("evalmodel")) {   // model comparison for Hebrew quality (allow-listed Workers AI models, short fixed-size prompt)
+      const mm = u.searchParams.get("evalmodel"); const OK = ["@cf/openai/gpt-oss-120b", "@cf/meta/llama-3.3-70b-instruct-fp8-fast", "@cf/google/gemma-3-12b-it", "@cf/mistralai/mistral-small-3.1-24b-instruct", "@cf/qwen/qwen3-30b-a3b-fp8", "@cf/meta/llama-4-scout-17b-16e-instruct", "@cf/meta/llama-3.1-8b-instruct"]; if (!OK.includes(mm) || !env.AI) return json({ ok: false, error: "model_not_allowed" });
+      const q = clean(u.searchParams.get("q") || "תן לי 3 כותרות ליוטיוב לקליפ שבו סטרימר צועק על משחק", 200); const t0 = Date.now();
+      try { const msgs = [{ role: "system", content: "אתה עורך וידאו מנוסה. ענה בעברית טבעית וקצרה, כמו חבר ישראלי, בלי תרגום מילולי מאנגלית." }, { role: "user", content: q }]; const r = await env.AI.run(mm, mm.includes("gpt-oss") ? { input: msgs, reasoning: { effort: "low" }, max_output_tokens: 600 } : { messages: msgs, max_tokens: 400 });
+        const mi = Array.isArray(r.output) ? r.output.filter((o) => o && o.type === "message") : []; const text = r.response || (r.choices && r.choices[0] && r.choices[0].message && r.choices[0].message.content) || r.output_text || mi.map((o) => (o.content || []).map((c) => c.text || "").join("")).join("") || JSON.stringify(r).slice(0, 300);
+        return json({ ok: true, model: mm, ms: Date.now() - t0, text: String(text).slice(0, 900) }); } catch (e) { return json({ ok: false, model: mm, error: String(e && e.message || e).slice(0, 200) }); }
+    }
     if (u.searchParams.get("ai") === "1") { let out = null, err2 = null; if (!env.AI) err2 = "no AI binding"; else for (const m of LLM_MODELS) { try { const r = await env.AI.run(m, m.includes("gpt-oss") ? { input: [{ role: "user", content: "Reply with the word OK" }], reasoning: { effort: "low" }, max_output_tokens: 50 } : { messages: [{ role: "user", content: "Reply with the word OK" }], max_tokens: 20 }); out = m + ": " + JSON.stringify(r).slice(0, 200); break; } catch (e) { err2 = (err2 ? err2 + " | " : "") + m + ": " + String(e && e.message || e).slice(0, 200); } } return json({ ok: true, ai: out, ai_error: err2, last: LLM_DIAG.last, text: LLM_DIAG.text }); }
     return json({ ok: true, t: now() });
   }
