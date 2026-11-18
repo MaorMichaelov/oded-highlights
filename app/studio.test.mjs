@@ -105,6 +105,22 @@ await call("POST", `/studio/worker/jobs/${J3}`, { status: "failed", error: "boom
 r = await call("GET", `/studio/api/orgs/${ORG}/jobs/${J3}`, null, T1); assert.equal(r.j.job.status, "failed"); assert.match(r.j.job.status_text.en, /credit is back/); ok("credits hold/refund");
 r = await call("POST", `/studio/api/orgs/${ORG}/billing/checkout`, {}, T1); assert.equal(r.s, 501); assert.equal((await call("POST", `/studio/api/orgs/${ORG}/billing/checkout`, {}, TE)).s, 403); ok("billing stub + perms");
 r = await call("GET", `/studio/api/orgs/${ORG}/assistant`, null, T1); assert.ok(r.j.history.length >= 6); ok("assistant history");
+// ingest key (restream recipe, docs/INGEST.md) + watcher endpoint
+assert.equal((await call("POST", `/studio/api/orgs/${ORG}/channels/${CH.id}/ingest`, null, TE)).s, 403);
+r = await call("POST", `/studio/api/orgs/${ORG}/channels/${CH.id}/ingest`, null, T1); assert.equal(r.s, 200); assert.match(r.j.ingest_key, /^ik_[a-f0-9]{32}$/); const IK = r.j.ingest_key;
+assert.ok(![...env.KV.m.values()].some((v) => v.includes(IK)));   // only the hash is stored
+r = await call("POST", "/studio/worker/ingest", { op: "check", key: IK }, null, W); assert.equal(r.s, 200); assert.equal(r.j.org, ORG);
+assert.equal((await call("POST", "/studio/worker/ingest", { op: "check", key: IK }, null, { "x-worker-key": "nope" })).s, 401);
+assert.equal((await call("POST", "/studio/worker/ingest", { op: "check", key: "ik_" + "0".repeat(32) }, null, W)).s, 404);
+assert.equal((await call("POST", "/studio/worker/ingest", { op: "job", key: IK, ref: "ingest:../../etc" }, null, W)).s, 400);
+r = await call("POST", "/studio/worker/ingest", { op: "job", key: IK, ref: "ingest:s1234-20261117", duration_min: 45, idem: "s1234-20261117" }, null, W); assert.equal(r.s, 200); const IJ = r.j.job_id;
+r = await call("POST", "/studio/worker/ingest", { op: "job", key: IK, ref: "ingest:s1234-20261117", idem: "s1234-20261117" }, null, W); assert.equal(r.j.job_id, IJ); assert.equal(r.j.existing, true);   // idempotent
+r = await call("POST", "/studio/worker/claim", {}, null, W); assert.equal(r.j.job.id, IJ); assert.equal(r.j.job.source.ref, "ingest:s1234-20261117");
+await call("POST", `/studio/worker/jobs/${IJ}`, { status: "qa" }, null, W);
+await call("POST", `/studio/worker/jobs/${IJ}`, { status: "draft_ready", drafts: [{ kind: "short", title: "T", qa_ok: true, qa_score: 97, duration_s: 31.5, local_id: IJ + "/short_1.mp4", hook: "H" }] }, null, W);
+r = await call("GET", `/studio/api/orgs/${ORG}/jobs/${IJ}`, null, T1); assert.equal(r.j.job.result.drafts[0].qa_score, 97); assert.equal(r.j.job.result.drafts[0].local_id, IJ + "/short_1.mp4"); assert.equal(r.j.job.result.drafts[0].private, true);
+r = await call("POST", `/studio/api/orgs/${ORG}/channels/${CH.id}/ingest`, null, T1); assert.notEqual(r.j.ingest_key, IK);
+assert.equal((await call("POST", "/studio/worker/ingest", { op: "check", key: IK }, null, W)).s, 404); ok("ingest key + worker ingest endpoint");
 r = await call("POST", "/studio/api/logout", null, T1); assert.equal((await call("GET", "/studio/api/me", null, T1)).s, 401); ok("logout");
 // per-account login throttle: 10 wrong passwords lock the account for an hour whatever the IP; bad worker key attempts are counted
 for (let i = 0; i < 10; i++) await call("POST", "/studio/api/login", { email: "victim@x.com", password: "wrong" + i }, null, { "cf-connecting-ip": "9.9.9." + i });

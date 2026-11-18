@@ -36,7 +36,7 @@ const K = {
   inv: (h) => `studio:i:${h}`, invOfOrg: (o, h) => `studio:io:${o}:${h}`, invsOfOrg: (o) => `studio:io:${o}:`,
   chan: (o, c) => `studio:c:${o}:${c}`, chansOfOrg: (o) => `studio:c:${o}:`, claim: (p, s) => `studio:claim:${p}:${s}`,
   job: (j) => `studio:j:${j}`, jobOfOrg: (o, j) => `studio:oj:${o}:${j}`, jobsOfOrg: (o) => `studio:oj:${o}:`, queue: (ts, j) => `studio:q:${ts}:${j}`,
-  chat: (o) => `studio:chat:${o}`, rl: (k) => `studio:rl:${k}`, cfg: (k) => `studio:cfg:${k}`, cache: (k) => `studio:cache:${k}`,
+  ingest: (h) => `studio:ingest:${h}`, ingestIdem: (h) => `studio:ingest:idem:${h}`, chat: (o) => `studio:chat:${o}`, rl: (k) => `studio:rl:${k}`, cfg: (k) => `studio:cfg:${k}`, cache: (k) => `studio:cache:${k}`,
 };
 const kget = (env, k) => env.KV.get(k, "json");
 const kput = (env, k, v, opt) => env.KV.put(k, JSON.stringify(v), opt);
@@ -329,6 +329,12 @@ export async function handleStudio(req, env, fetchImpl = fetch) {
       let d = need("style.set"); if (d) return d; const sid = clean(b.style_id, 60);
       if (!(await listStyles(env, fetchImpl)).some((s) => s.id === sid)) return err(400, "unknown_style"); ch.style_id = sid; await kput(env, K.chan(orgId, ch.id), ch); return json({ channel: ch });
     }
+    if (act === "/ingest" && m === "POST") {   // restream key for docs/INGEST.md: the customer streams to rtmp://<ingest host>/live/<key>; only the SHA-256 is stored, the key is shown once (calling again rotates it)
+      let d = need("channel.manage"); if (d) return d; if (ch.status !== "verified") return err(409, "channel_not_verified");
+      const key = "ik_" + rnd(16), h = await sha256(key); if (ch.ingest_hash) await env.KV.delete(K.ingest(ch.ingest_hash));
+      ch.ingest_hash = h; ch.ingest_at = now(); await Promise.all([kput(env, K.chan(orgId, ch.id), ch), kput(env, K.ingest(h), { org: orgId, channel: ch.id })]);
+      return json({ ingest_key: key, path: "live/" + key, note: "Shown once. Stream to rtmp://<ingest host>/live/" + key + " (or srt://<ingest host>:8890?streamid=publish:live/" + key + "). Calling this again replaces the key." });
+    }
     if (act === "/youtube" && m === "POST") {
       let d = need("youtube.connect"); if (d) return d;
       // TODO(youtube-oauth): build https://accounts.google.com/o/oauth2/v2/auth?client_id=..&redirect_uri=<origin>/studio/api/youtube/callback&response_type=code&access_type=offline&prompt=consent
@@ -404,12 +410,25 @@ async function workerApi(req, env, p, m) {
     }
     return json({ job: null });
   }
+  if (p === "/studio/worker/ingest" && m === "POST") {
+    // Called by scripts/ingest_watcher.py (x-worker-key). op "check": is this restream key known (MediaMTX auth hook). op "job": a recording of that stream is ready -> create the job (credits held like any job). idem makes a re-sent call return the same job.
+    const b = await body(req).catch(() => null); if (!b) return err(400, "bad_json"); const key = clean(b.key, 80); if (!/^ik_[a-f0-9]{32}$/.test(key)) return err(404, "unknown_key");
+    const h = await sha256(key), ent = await kget(env, K.ingest(h)); if (!ent) return err(404, "unknown_key");
+    if (b.op === "check") return json({ ok: true, org: ent.org, channel: ent.channel });
+    if (b.op !== "job") return err(400, "bad_op");
+    const ref = clean(b.ref, 120); if (!/^ingest:[A-Za-z0-9][A-Za-z0-9._-]{0,100}$/.test(ref)) return err(400, "bad_ref");
+    const idem = clean(b.idem, 120) || ref, ik = K.ingestIdem(await sha256(ent.org + ":" + idem)); const dup = await kget(env, ik); if (dup) return json({ ok: true, job_id: dup.id, existing: true });
+    const org = await kget(env, K.org(ent.org)), ch = await kget(env, K.chan(ent.org, ent.channel)); if (!org || !ch || ch.status !== "verified") return err(404, "channel_gone");
+    const source = { type: b.live ? "live" : "url", ref, duration_min: Number(b.duration_min) || null }, credits = estimateCredits(source); if (org.credits < credits) return err(402, "insufficient_credits", { need: credits, have: org.credits });
+    const job = await createJob(env, org, { channel_id: ch.id, kind: "edit", source, style_id: ch.style_id, outputs: { shorts: Math.min(30, Number(b.shorts) || 5), long: !!b.long }, credits });
+    await kput(env, ik, { id: job.id }, { expirationTtl: 30 * 86400 }); return json({ ok: true, job_id: job.id });
+  }
   let x; if ((x = p.match(/^\/studio\/worker\/jobs\/(j_[a-f0-9]+)$/)) && m === "POST") {
     const b = await body(req).catch(() => null); if (!b) return err(400, "bad_json"); const job = await kget(env, K.job(x[1])); if (!job) return err(404, "not_found");
     if (b.status && b.status !== job.status) { if (!canTransition(job.status, b.status) || !["qa", "draft_ready", "failed"].includes(b.status)) return err(409, "bad_state", { status: job.status }); job.status = b.status; job.events.push({ t: now(), e: b.status, note: clean(b.error || "", 200) }); if (!b.msg) setStatusText(job, b.status === "draft_ready" ? "draft_ready" : b.status, { n: (b.drafts || job.result.drafts).length }); }
     if (b.msg && MSG[b.msg]) setStatusText(job, b.msg, b.vars || {}); else if (typeof b.message === "string") job.status_text = { he: clean(b.message, 120), en: clean(b.message, 120) };   // worker progress: {msg:"found_moments", vars:{n:5}} (see MSG) or free text
     if (typeof b.progress === "number") job.progress = Math.max(0, Math.min(100, b.progress));
-    if (Array.isArray(b.drafts)) job.result.drafts = b.drafts.slice(0, 50).map((d) => ({ kind: clean(d.kind, 10), title: clean(d.title, 100), yt_video_id: clean(d.yt_video_id, 20), qa_ok: !!d.qa_ok, qa_notes: clean(d.qa_notes, 300), private: true, decision: null }));
+    if (Array.isArray(b.drafts)) job.result.drafts = b.drafts.slice(0, 50).map((d) => ({ kind: clean(d.kind, 10), title: clean(d.title, 100), yt_video_id: clean(d.yt_video_id, 20), qa_ok: !!d.qa_ok, qa_notes: clean(d.qa_notes, 300), qa_score: Number.isFinite(d.qa_score) ? Math.max(0, Math.min(100, d.qa_score)) : null, duration_s: Number.isFinite(d.duration_s) ? d.duration_s : null, local_id: clean(d.local_id, 80), hook: clean(d.hook, 60), private: true, decision: null }));   // local_id = where the render server keeps the file (scripts/render_worker.py out/<job>/<file>); the uploader reads it, the browser never needs it
     if (job.status === "failed") await refund(env, job);
     job.updated = now(); await kput(env, K.job(job.id), job); return json({ ok: true });
   }
