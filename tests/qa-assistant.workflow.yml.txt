@@ -1,0 +1,38 @@
+name: qa-assistant
+# QA only: sends every line of tests/assistant_cases_he.txt to the live Studio assistant (a fresh guest workspace per line, so
+# nothing leaks between cases) and prints "message => reply  [faq/mode/intent]". Read-only apart from creating throwaway guest orgs.
+on:
+  workflow_dispatch:
+    inputs:
+      base: { required: true, default: "https://studio-app.odedhl.workers.dev" }
+permissions: { contents: read }
+jobs:
+  ask:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          BASE: ${{ inputs.base }}
+          GH_RUN_TOKEN: ${{ github.token }}
+        run: |
+          case "$BASE" in https://*.workers.dev) ;; *) echo "only workers.dev"; exit 1;; esac
+          python3 - <<'PY'
+          import json, os, subprocess, sys
+          base = os.environ["BASE"]; key = os.environ["GH_RUN_TOKEN"]
+          def curl(args, data=None, hdr=()):
+              cmd = ["curl", "-sS", "-m", "90", "-X", "POST", "-H", "content-type: application/json"] + [x for h in hdr for x in ("-H", h)] + ["-d", json.dumps(data or {})] + args
+              return subprocess.run(cmd, capture_output=True, text=True).stdout
+          cfg = "header = \"x-worker-key: %s\"\n" % key
+          def guest():
+              out = subprocess.run(["curl", "-sS", "-m", "30", "-K", "-", "-X", "POST", "-H", "content-type: application/json", "-d", "{}", base + "/studio/worker/testguest"], input=cfg, capture_output=True, text=True).stdout
+              return json.loads(out)
+          for line in open("tests/assistant_cases_he.txt", encoding="utf-8").read().splitlines():
+              if not line.strip(): continue
+              try:
+                  g = guest()
+                  r = json.loads(curl([base + "/studio/api/orgs/%s/assistant" % g["org_id"]], {"message": line}, ["authorization: Bearer " + g["token"]]))
+                  tag = "faq=%s mode=%s intent=%s" % (r.get("faq"), r.get("mode"), (r.get("parsed") or {}).get("intent"))
+                  print("Q: " + line); print("A: " + str(r.get("reply")).replace("\n", " | ")[:700] + "   [" + tag + "]"); print()
+              except Exception as e:
+                  print("Q: " + line); print("ERR", repr(e)[:300]); print()
+          PY
