@@ -106,6 +106,7 @@ async function runProfile(browser, name, P) {
     await page.locator(`.auth-top .seg button[aria-label="${P.lang === "he" ? "עברית" : "English"}"]`).click(); await settle(200);
     const th0 = await ev(() => document.documentElement.getAttribute("data-theme")); await page.locator(".auth-top .iconbtn").click(); const th1 = await ev(() => document.documentElement.getAttribute("data-theme")); if (th0 === th1) throw new Error("theme button did nothing"); await page.locator(".auth-top .iconbtn").click();
     const emailBox = page.locator("details.emailbox summary"); await emailBox.click(); await check(page, "landing-email-form");
+    await page.locator("#email").fill("keep@example.com"); const o2 = P.lang === "he" ? "en" : "he"; await page.locator(`.auth-top .seg button[aria-label="${o2 === "he" ? "עברית" : "English"}"]`).click(); await sleep(200); if ((await page.locator("#email").inputValue()) !== "keep@example.com") bug("typed email lost when the language is switched on the sign-in page"); await page.locator(`.auth-top .seg button[aria-label="${P.lang === "he" ? "עברית" : "English"}"]`).click(); await sleep(200);
     await page.locator("#email").fill("not-an-email"); await page.locator("#pw").fill("12345678"); await page.locator('form button[type=submit]').click(); if (!(await txt(".errtxt"))) throw new Error("no error for bad email");
     await page.locator("#email").fill(`x${rnd()}@example.com`); await page.locator("#pw").fill("short"); await page.locator('form button[type=submit]').click(); if (!(await txt(".errtxt"))) throw new Error("no error for short password");
     await emailBox.click();
@@ -264,7 +265,7 @@ async function runProfile(browser, name, P) {
   await step("invitee-signs-up-and-joins", async () => {
     ctx2 = await mkctx(); page2 = await ctx2.newPage(); hook(page2, "invitee"); await page2.goto(inviteUrl); await page2.waitForSelector(".authcard"); await sleep(600);
     if (!(await page2.locator(".notice").count())) throw new Error("invite banner missing on the landing");
-    await page2.locator("details.emailbox summary").click(); const prefilled = await page2.locator("#email").inputValue(); if (prefilled !== mail) throw new Error("invite email not prefilled: " + prefilled);
+    await page2.evaluate(() => { document.querySelector("details.emailbox").open = true; }); const prefilled = await page2.locator("#email").inputValue(); if (prefilled !== mail) throw new Error("invite email not prefilled: " + prefilled);
     await page2.locator("#pw").fill("password-" + rnd()); state.pw2 = await page2.locator("#pw").inputValue(); await page2.locator("form button[type=submit]").click(); await page2.waitForSelector(".authcard .btn.lg.block"); await sleep(300);
     await page2.locator(".authcard .btn.lg.block").first().click(); await page2.waitForSelector(".shell"); await sleep(600);
     const orgName = await page2.evaluate(() => S.org.name), role = await page2.evaluate(() => S.org.role); const ownerOrg = await page.evaluate(() => S.org.name);
@@ -315,9 +316,9 @@ async function runProfile(browser, name, P) {
 
   await step("email-signup-login-wrong-password", async () => {
     const mail2 = `login-${name}-${rnd()}@example.com`, pw = "correct-horse-" + rnd();
-    await page.locator("details.emailbox summary").click(); await page.locator("#email").fill(mail2); await page.locator("#pw").fill(pw); await page.locator("form button[type=submit]").click(); await page.waitForSelector(".shell"); await sleep(400);
+    await page.evaluate(() => { document.querySelector("details.emailbox").open = true; }); await page.locator("#email").fill(mail2); await page.locator("#pw").fill(pw); await page.locator("form button[type=submit]").click(); await page.waitForSelector(".shell"); await sleep(400);
     await goTo("settings"); await page.locator('button:has-text("' + tx("יציאה", "Sign out") + '")').first().click(); await page.waitForSelector(".authcard");
-    await page.locator("details.emailbox summary").click(); await page.locator("#email").fill(mail2); await page.locator("#pw").fill(pw + "x"); await page.locator("form button[type=submit]").click(); await exp(async () => (await txt(".errtxt")).length > 3, "wrong password message"); R.notes.push("wrong password message: " + (await txt(".errtxt")));
+    await page.evaluate(() => { document.querySelector("details.emailbox").open = true; }); await page.locator("#email").fill(mail2); await page.locator("#pw").fill(pw + "x"); await page.locator("form button[type=submit]").click(); await exp(async () => (await txt(".errtxt")).length > 3, "wrong password message"); R.notes.push("wrong password message: " + (await txt(".errtxt")));
     await page.locator("#pw").fill(pw); await page.locator("form button[type=submit]").click(); await page.waitForSelector(".shell"); state.token = await ev(() => localStorage.getItem("studio_token"));
   }, { allow: [/401|409/] });
 
