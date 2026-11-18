@@ -237,4 +237,13 @@ assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
   const dv = await call("POST", `/studio/api/orgs/${oid}/channels/${ch.id}/demo-verify`, {}, tk); assert.equal(dv.s, 200); assert.equal(dv.j.channel.status, "verified"); assert.equal(dv.j.channel.demo, true);
   const real = await call("POST", "/studio/api/signup", { email: "real@user.io", password: "longenough1" }); const ro = real.j.org_id;
   const ch2 = (await call("POST", `/studio/api/orgs/${ro}/channels`, { url: "https://kick.com/igz2" }, real.j.token)).j.channel; assert.equal((await call("POST", `/studio/api/orgs/${ro}/channels/${ch2.id}/demo-verify`, {}, real.j.token)).s, 403); ok("demo verification for guests only"); }
+// ---- precise status report: queued / running / stuck / done / failed, in plain words
+{ const g = await call("POST", "/studio/api/guest", {}); const tk = g.j.token, oid = g.j.org_id; const ask = async (m) => (await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: m }, tk)).j;
+  assert.ok(/עדיין לא ביקשת|You haven't requested/.test((await ask("איפה זה עומד")).reply));
+  const a = await ask("תכין 2 שורטס https://www.twitch.tv/videos/123456789"); const jid = a.actions[0].job_id;
+  let r = await ask("מה המצב"); assert.ok(/בתור/.test(r.reply), r.reply); assert.ok(/ממתינה/.test(r.reply));
+  const jk = await env.KV.get("studio:j:" + jid, "json"); jk.status = "running"; jk.progress = 33; jk.updated = new Date().toISOString(); await env.KV.put("studio:j:" + jid, JSON.stringify(jk)); r = await ask("זז?"); assert.ok(/זזה כרגיל/.test(r.reply), r.reply);
+  jk.updated = new Date(Date.now() - 30 * 60000).toISOString(); await env.KV.put("studio:j:" + jid, JSON.stringify(jk)); r = await ask("למה זה תקוע"); assert.ok(/תקועה/.test(r.reply), r.reply);
+  jk.status = "draft_ready"; jk.result = { drafts: [{ title: "a" }, { title: "b" }] }; await env.KV.put("studio:j:" + jid, JSON.stringify(jk)); r = await ask("מה קורה עם הקליפים"); assert.ok(/2 טיוטות/.test(r.reply), r.reply);
+  ok("assistant status report"); }
 console.log(`\n${n} test groups passed`);

@@ -311,7 +311,7 @@ const NUMW = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eig
 export function understand(text) {
   const raw = clean(text, 500), t = raw.toLowerCase(), he = /[֐-׿]/.test(raw);
   let count = (t.match(/\d+/) || [])[0]; if (count) count = parseInt(count); else for (const w of t.split(/[\s,.!?]+/)) if (NUMW[w]) { count = NUMW[w]; break; }
-  const status = /status|progress|ready yet|how.*(going|long)|what.?s up|מה המצב|התקדמות|מוכן כבר|עוד כמה|איפה זה/.test(t);
+  const status = /status|progress|ready yet|how.*(going|long)|what.?s up|where (is|are) (it|they|the)|is it (moving|working|stuck)|what is (the system|it) doing|any (news|update)|מה המצב|התקדמות|מוכן כבר|עוד כמה|איפה (זה|המערכת|העבודה)|עומד|זז(?=[\s?!.,]|$)|תקוע|מה (המערכת|הוא|היא) עושה|מה קורה עם|מה עם (העבודה|הקליפים|הטיוטות)|הגיע(ו)? (משהו|טיוטות)|יש (משהו|טיוטות|קליפים)/.test(t);
   const wantsLong = /\blong\b|full video|compilation|סרטון ארוך|וידאו ארוך|סרטון מלא|סיכום|קומפילציה|יוטיוב ארוך/.test(t);
   const wantsShorts = /short|clip|reel|tiktok|שורט|קליפ|קצר/.test(t);
   const when = /yesterday|אתמול/.test(t) ? "yesterday" : /last week|this week|past week|שבוע שעבר|השבוע|מהשבוע|שבוע האחרון|בשבוע/.test(t) ? "week" : "last_stream";   // default: the latest stream
@@ -418,6 +418,28 @@ const LINK_RE = /https?:\/\/[^\s<>"']+/i;
 function safeLink(raw) { try { const x = new URL(String(raw).replace(/[).,!?]+$/, "")); if (!/^https?:$/.test(x.protocol)) return null; const h = x.hostname.toLowerCase(); if (!h.includes(".") || /^(localhost|127\.|10\.|192\.168\.|169\.254\.|0\.)/.test(h) || /^\d+\.\d+\.\d+\.\d+$/.test(h)) return null; return x.toString().slice(0, 300); } catch (e) { return null; } }
 const linkSite = (l) => { const h = new URL(l).hostname.replace(/^www\./, ""); return /kick\.com/.test(h) ? "Kick" : /twitch\.tv/.test(h) ? "Twitch" : /youtu/.test(h) ? "YouTube" : /tiktok/.test(h) ? "TikTok" : h; };
 function linkChoices(L, link) { return L === "he" ? [{ label: "5 שורטס", text: `תכין 5 שורטס מ ${link}` }, { label: "10 שורטס + סרטון ארוך", text: `תכין 10 שורטס וסרטון ארוך מ ${link}` }, { label: "סרטון ארוך בלבד", text: `תכין סרטון ארוך מ ${link}` }] : [{ label: "5 Shorts", text: `make 5 Shorts from ${link}` }, { label: "10 Shorts + a long video", text: `make 10 Shorts and a long video from ${link}` }, { label: "Long video only", text: `make a long video from ${link}` }]; }
+
+// ---------- a precise, honest status report: what each job is doing, whether it is moving, what happens next (built from the job data, never guessed by a model)
+const minsAgo = (iso) => { const t = Date.parse(iso || ""); return Number.isFinite(t) ? Math.max(0, Math.round((Date.now() - t) / 60000)) : null; };
+async function statusReport(env, org, jobs, L) {
+  const he = L === "he"; if (!jobs.length) return he ? "עדיין לא ביקשת שום עבודה. הדבק קישור לשידור או כתוב \"5 שורטס מצחיקים מהשידור האחרון\", ואתחיל." : "You haven't requested any job yet. Paste a stream link or write \"5 funny Shorts from the latest stream\" and I'll start.";
+  let queued = 0; try { queued = (await klist(env, "studio:q:", 50)).length; } catch (e) {}
+  const lines = []; let anyMoving = false, anyStuck = false;
+  for (const j of jobs.slice(0, 3)) {
+    const what = [j.outputs && j.outputs.shorts ? (he ? `${j.outputs.shorts} שורטס` : `${j.outputs.shorts} Shorts`) : "", j.outputs && j.outputs.long ? (he ? "סרטון ארוך" : "a long video") : ""].filter(Boolean).join(he ? " ו" : " + ") || (he ? "עבודה" : "job");
+    let src = ""; try { if (j.source && j.source.ref && /^https?:/.test(j.source.ref)) src = new URL(j.source.ref).hostname.replace(/^www\./, ""); } catch (e) {}
+    const age = minsAgo(j.created), upd = minsAgo(j.updated), st = (j.status_text || renderMsg(j.status) || { he: j.status, en: j.status })[L];
+    let verdict;
+    if (j.status === "queued") { verdict = he ? `בתור. המעבד בודק את התור כל 10 דקות ומטפל בעבודה אחת בכל פעם${queued > 1 ? ` (כרגע ${queued} בתור)` : ""}. ממתינה כבר ${age ?? "?"} דקות.` : `Queued. The worker checks the queue every 10 minutes and handles one job at a time${queued > 1 ? ` (${queued} in the queue now)` : ""}. Waiting for ${age ?? "?"} min.`; if (age != null && age > 25) { verdict += he ? " זה מעבר לרגיל, ייתכן שהמעבד עסוק או תקוע. אפשר לבטל בלשונית \"פעילות\" ולנסות שוב." : " That is longer than usual: the worker may be busy or stuck. You can cancel it in the Activity tab and try again."; anyStuck = true; } }
+    else if (j.status === "running" || j.status === "qa") { if (upd != null && upd > 12) { anyStuck = true; verdict = he ? `רצה, אבל לא התעדכנה כבר ${upd} דקות, ונראה שהיא תקועה. אפשר לבטל בלשונית "פעילות" (הקרדיט חוזר) ולנסות שוב.` : `Running, but no update for ${upd} min, it looks stuck. You can cancel it in the Activity tab (the credit comes back) and try again.`; } else { anyMoving = true; verdict = he ? `זזה כרגיל, התעדכנה לפני ${upd ?? 0} דקות. ${j.progress || 0}% מהדרך.` : `Moving normally, updated ${upd ?? 0} min ago. ${j.progress || 0}% done.`; } }
+    else if (j.status === "draft_ready") { const n = ((j.result && j.result.drafts) || []).length; verdict = he ? `מוכנה: ${n} טיוטות מחכות לך בלשונית "אישורים" (אפשר גם להוריד אותן).` : `Done: ${n} drafts are waiting in the Review tab (you can also download them).`; }
+    else if (j.status === "failed") verdict = he ? "נכשלה, והקרדיט חזר אליך. אפשר לנסות שוב או עם קישור אחר." : "Failed, and the credit came back to you. You can try again or with another link.";
+    else if (j.status === "cancelled") verdict = he ? "בוטלה." : "Cancelled."; else verdict = st;
+    lines.push(`${he ? "•" : "•"} ${what}${src ? ` (${src})` : ""}: ${st ? st + ". " : ""}${verdict}`);
+  }
+  const head = he ? (anyStuck ? "יש עבודה שנראית תקועה:" : anyMoving ? "המערכת עובדת עכשיו:" : "זה המצב:") : (anyStuck ? "A job looks stuck:" : anyMoving ? "The system is working right now:" : "Here is the status:");
+  return head + "\n" + lines.join("\n");
+}
 async function assistant(env, org, me, role, b, store) {
   const rawMsg = String(b.message || ""); const lm = rawMsg.match(LINK_RE); const link = lm ? safeLink(lm[0]) : null;
   const u = understand(link ? rawMsg.replace(lm[0], " ") : rawMsg); if (link) u.text = clean(rawMsg, 500); u.link = link; const L = (link && !u.he && (b.lang === "he" || b.lang === "en")) ? b.lang : (u.he ? "he" : "en"); let reply, actions = [];
@@ -442,14 +464,13 @@ async function assistant(env, org, me, role, b, store) {
     } catch (e) { /* KV list limit or hiccup: talk without the context */ }
     const fresh0 = await kget(env, K.org(org.id)).catch(() => null); llm = await llmUnderstand(env, org, role, u.text, hist0, L, { credits: fresh0 ? fresh0.credits : org.credits, channels: chs, jobs: js, drafts: drs.slice(0, 8) });
   } catch (e) { llm = null; }
-  if (llm) { if (llm.intent === "create" && (llm.shorts > 0 || llm.long)) { u.intent = "create"; u.shorts = llm.shorts; u.long = llm.long; u.when = llm.when; u.mood = llm.mood; } else if (llm.intent === "status") u.intent = "status"; else u.intent = "chat"; }
+  if (llm && u.intent !== "status") { if (llm.intent === "create" && (llm.shorts > 0 || llm.long)) { u.intent = "create"; u.shorts = llm.shorts; u.long = llm.long; u.when = llm.when; u.mood = llm.mood; } else if (llm.intent === "status") u.intent = "status"; else u.intent = "chat"; }
   const turnN = (HIST_MEM.get(org.id) || []).length;
   if (u.intent === "chat") reply = llm ? llm.reply : (smallTalk(u.text, L, turnN, true) || HELP[L]);
   else if (u.intent === "help") reply = smallTalk(u.text, L, turnN, true) || HELP[L];
   else if (u.intent === "status") {
     const jobs = (await kgetMany(env, (await klist(env, K.jobsOfOrg(org.id), 500)).map((k) => K.job(k.split(":")[3])))).sort((a, c) => (a.created < c.created ? 1 : -1));
-    const j = jobs[0]; reply = !j ? (L === "he" ? "עדיין אין עבודות. בקשו משהו בצ'אט!" : "No jobs yet. Ask me for something!") : `${(j.status_text || renderMsg(j.status) || { he: j.status, en: j.status })[L]} (${j.progress}%)`;
-    if (j) actions.push({ type: "show_job", job_id: j.id });
+    reply = await statusReport(env, org, jobs, L); if (jobs[0]) actions.push({ type: "show_job", job_id: jobs[0].id });
   } else if (!can(role, "job.create")) reply = L === "he" ? "לצופים אין הרשאה ליצור עבודות. בקשו מהבעלים להפוך אתכם לעורכים." : "Viewers can't create jobs. Ask the owner to make you an editor.";
   else {
     let chans = (await kgetMany(env, await klist(env, K.chansOfOrg(org.id)))).filter((c) => c.status === "verified");
