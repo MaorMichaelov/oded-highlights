@@ -173,7 +173,7 @@ assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
   env.AI = { run: async (m, inp) => { calls++; const msgs = inp.messages || inp.input; seen.push(msgs.length); if (calls >= 3 && calls <= 6) throw new Error("boom");
     return { response: JSON.stringify({ reply: "reply #" + calls, intent: "chat", shorts: 0, long: false, when: "last_stream", mood: null }) }; } };
   const a1 = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: "what can you do?" }, tk); assert.equal(a1.s, 200); assert.equal(a1.j.reply, "reply #1");
-  const a2 = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: "and how do credits work?" }, tk); assert.equal(a2.j.reply, "reply #2"); assert.ok(seen[1] > seen[0], "history is sent to the model");
+  const a2 = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: "any ideas for my next big video?" }, tk); assert.equal(a2.j.reply, "reply #2"); assert.ok(seen[1] > seen[0], "history is sent to the model");
   const a3 = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: "hello there" }, tk); assert.equal(a3.s, 200); assert.ok(a3.j.reply && !a3.j.reply.startsWith("reply #"), "model failure falls back to the rule parser");
   env.AI = { run: async () => ({ response: "not json at all" }) }; const a4 = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: "hello" }, tk); assert.equal(a4.s, 200); assert.ok(a4.j.reply);
   delete env.AI; ok("assistant LLM + fallback"); }
@@ -218,4 +218,9 @@ assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
   delete env.STUDIO_INVITE_CODES; delete env.STUDIO_INVITE_MAX; assert.equal((await call("GET", "/studio/api/config")).j.invite_required, false);
   const tp = await call("GET", "/studio/terms"); assert.equal(tp.s, 200); assert.ok(/תנאי שימוש/.test(tp.j)); assert.equal((await call("GET", "/studio/privacy")).s, 200);
   ok("invite codes + waitlist + legal pages"); }
+// ---- curated FAQ answers (instant, correct, no model)
+{ const g = await call("POST", "/studio/api/guest", {}); const tk = g.j.token, oid = g.j.org_id; const ask = async (m) => (await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: m }, tk)).j;
+  const cases = [["איך מתחילים", "how_start"], ["איך זה עובד?", "how_works"], ["כמה זה עולה לי בחודש", "price"], ["מה זה קרדיט", "credits"], ["מה ההבדל בין שורט לסרטון ארוך", "shorts_vs_long"], ["מה ההבדל בין ריאקשן לדרמה בקליפ", "kinds"], ["איפה אני מאשר טיוטות", "review"], ["איך מוסיפים עורך", "team"], ["לחבר ליוטיוב", "youtube"], ["זה בטוח? מי רואה", "privacy"], ["למה אין לי טיוטות", "why_nothing"], ["how do i start", "how_start"], ["how much does it cost", "price"]];
+  for (const [m, id] of cases) { const r = await ask(m); assert.equal(r.faq, id, m + " -> " + r.faq); assert.ok(r.reply.length > 40); }
+  const r2 = await ask("make 3 funny shorts from yesterday"); assert.ok(!r2.faq, "a real request is not an FAQ"); ok("assistant FAQ answers"); }
 console.log(`\n${n} test groups passed`);

@@ -72,6 +72,57 @@ const LEGAL = {
 };
 function legalPage(kind) { const d = LEGAL[kind]; const sec = (x) => x[1].map((r) => `<h2>${r[0]}</h2><p>${r[1]}</p>`).join(""); return `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${d.he[0]}</title><style>${LEGAL_CSS}</style></head><body><main><p><a href="/studio">← Studio</a></p><h1>${d.he[0]}</h1><p class="s">טיוטה לשלב הבטא, לא ייעוץ משפטי. English below.</p>${sec(d.he)}<hr style="border-color:#333;margin:40px 0"><div dir="ltr"><h1>${d.en[0]}</h1>${sec(d.en)}</div></main></body></html>`; }
 
+
+// ---------- curated answers for the questions customers ask most (written in natural Hebrew/English; instant, no model needed, so the assistant is never vague or wrong about the product) ----------
+const FAQ = [
+  { id: "how_start", re: /איך (אני )?(מתחיל|מתחילים|מתחילה|להתחיל|מתחילות)|מאיפה (מתחילים|מתחיל|להתחיל)|how (do i|can i|to) (start|begin|get started)|where (do i|to) start/i,
+    he: "ההתחלה קצרה, שלושה צעדים:\n1. מדביקים כאן קישור לערוץ שלך (Kick או Twitch) ומאמתים שהוא שלך. מקבלים קוד קצר, מדביקים אותו בביו של הערוץ או בכותרת השידור, ולוחצים לבדוק.\n2. מבקשים ממני מה לחתוך, למשל \"5 שורטס מצחיקים מאתמול\", או סתם מדביקים קישור לשידור.\n3. הטיוטות מגיעות ללשונית \"אישורים\": מחליקים ימינה לאשר, שמאלה לדחות.\nרוצה שנתחיל עם קישור לערוץ?",
+    en: "It's three short steps:\n1. Paste your channel link (Kick or Twitch) and verify it's yours: you get a short code, put it in the channel bio or the stream title, then press check.\n2. Tell me what to cut, e.g. \"5 funny Shorts from yesterday\", or just paste a stream link.\n3. Drafts land in the Review tab: swipe right to approve, left to reject.\nShall we start with your channel link?" },
+  { id: "how_works", re: /איך (זה )?עובד|מה זה (בעצם )?(האפליקציה|המערכת|סטודיו|studio)|תסביר (לי )?(על )?(זה|המערכת)|how (does|do) (it|this|studio) work|what is (this|studio)|explain/i,
+    he: "Studio הופך שידורים חיים לקליפים מוכנים. המערכת מקשיבה לשידור, מזהה רגעים חזקים (צחוק, מתח, ריאקשן, סיפור), חותכת בתחילת משפט ובסוף הפאנץ', מוסיפה כתוביות ולוגו, ובודקת איכות. מה שיוצא הוא שורטס וסרטונים ארוכים כטיוטות פרטיות. אתה רואה, מאשר או דוחה, ורק מה שאישרת יוצא החוצה.",
+    en: "Studio turns live streams into ready clips. It listens to the stream, finds strong moments (laughs, tension, reactions, stories), cuts at the start of a sentence and right after the punchline, adds captions and a logo, and runs a quality check. You get Shorts and long videos as private drafts; you approve or reject, and only what you approve goes out." },
+  { id: "price", re: /כמה (זה )?(עולה|עלות|תשלום|לשלם|יעלה)|מה המחיר|מחיר|תמחור|price|pricing|how much (does|is|will)|cost/i,
+    he: "בשלב הבטא זה חינם: יש לך כמה קרדיטים לניסיון. קרדיט אחד מכסה שעה אחת של שידור מקור. מחירים סופיים עוד לא נקבעו, ובקרוב נציג חבילות חודשיות. את היתרה אפשר לראות בלשונית \"קרדיטים\".",
+    en: "During the beta it's free: you get a few trial credits. One credit covers one hour of source stream. Final prices aren't set yet; monthly plans are coming. You can see your balance in the Credits tab." },
+  { id: "credits", re: /מה (זה )?קרדיט|קרדיטים (זה|הם)|how do credits work|what (is|are) (a )?credits?/i,
+    he: "קרדיט הוא יחידת שימוש: קרדיט אחד מכסה שעה אחת של שידור מקור שמעבדים. כשאתה מבקש עבודה, נשמר קרדיט, ואם העבודה נכשלת או מבוטלת הוא חוזר אליך. היתרה שלך בלשונית \"קרדיטים\".",
+    en: "A credit is a unit of usage: one credit covers one hour of source stream. When you request a job a credit is held, and if the job fails or is cancelled it comes back. Your balance is in the Credits tab." },
+  { id: "shorts_vs_long", re: /(מה )?ההבדל בין (ה)?שורט(ס)?(ים)? (ל|ו)?(ה)?סרטון (ה)?ארוך|שורטס (או|מול|לעומת) סרטון ארוך|סרטון ארוך (או|מול) שורט|difference between (a )?shorts? and (a )?long|shorts (or|vs\.?|versus) long/i,
+    he: "שורט הוא קליפ אנכי של 20–45 שניות, בנוי על רגע אחד ופתיח חזק, והוא מביא צפיות חדשות מהר. סרטון ארוך הוא 8–30 דקות: ריאקשן שלם, שיחה עם אורח או סיכום אירוע, והוא בונה קהל נאמן ושעות צפייה. הכי טוב לעשות את שניהם: שורט מהרגע החזק שמפנה לסרטון הארוך.",
+    en: "A Short is a vertical 20-45 second clip built on one moment and a strong opening; it brings new viewers fast. A long video is 8-30 minutes: a full reaction, a guest conversation or an event recap; it builds a loyal audience and watch hours. Doing both works best: a Short from the strongest moment that points to the long video." },
+  { id: "kinds", re: /(מה )?ההבדל בין ריאקשן ל|סוגי (קליפים|רגעים)|איזה (סוגי )?(קליפים|רגעים) (יש|אפשר|המערכת)|what kinds? of (clips|moments)|types of (clips|moments)/i,
+    he: "המערכת מזהה כמה סוגים: **ריאקשן** (התגובה שלך לכתבה, סרטון או משחק, נשמרת שלמה), **רגע משחק** (קלאץ', פיל, הפתעה), **דרמה/סיפור** (סיפור או ויכוח עם התחלה וסוף), **צחוק** ו**שיחה עם אורח**. אפשר לבקש סוג מסוים, למשל \"רק ריאקשנים\" או \"רגעי דרמה מהשבוע\".",
+    en: "The system recognises several kinds: **reaction** (your response to an article, video or game, kept whole), **gameplay moment** (clutch, fail, surprise), **drama/story** (a story or argument with a beginning and an end), **laughs** and **guest conversations**. You can ask for a kind, e.g. \"only reactions\" or \"drama moments from this week\"." },
+  { id: "review", re: /איפה (אני )?(מאשר|רואה את הטיוטות|הטיוטות)|איך (מאשרים|מאשר|רואים)|where (do i|can i) (approve|see (the )?drafts)|how (do i )?approve/i,
+    he: "הטיוטות נמצאות בלשונית \"אישורים\". לכל טיוטה יש נגן, כותרת שאפשר לערוך, וכפתורי אישור ודחייה (גם בהחלקה ימינה ושמאלה, או בחצים במקלדת). דחייה ואישור אפשר לבטל תוך 5 שניות.",
+    en: "Drafts are in the Review tab. Each draft has a player, an editable title, and approve / reject buttons (also swipe right/left, or the arrow keys). You can undo within 5 seconds." },
+  { id: "team", re: /איך (אני )?(מוסיף|מזמין|מוסיפים|מזמינים) (עורך|חבר צוות|צוות|עובד)|עורך שלי|team members?|invite (an )?editor|add (an )?editor/i,
+    he: "בלשונית \"צוות\" מזמינים עורך עם קישור הזמנה: בעלים רואה ומנהל הכול, עורך יוצר עבודות ומאשר טיוטות, צופה רק רואה. את הקישור שולחים לעורך (למשל בוואטסאפ).",
+    en: "In the Team tab you invite an editor with an invite link: the owner manages everything, an editor creates jobs and approves drafts, a viewer only looks. Send the link to your editor, for example on WhatsApp." },
+  { id: "youtube", re: /(לחבר|חיבור|להעלות) (ל)?יוטיוב|העלאה (ל)?יוטיוב|(connect|upload) (to )?youtube|youtube (connect|upload)/i,
+    he: "חיבור ערוץ היוטיוב שלך להעלאה אוטומטית עדיין בהכנה (מחכים לאישור של גוגל). בינתיים הטיוטות נשמרות כאן, ואפשר להוריד אותן ולהעלות בעצמך. כשהחיבור יעלה, הכול יעלה רק כטיוטה פרטית.",
+    en: "Connecting your YouTube channel for automatic upload is still being prepared (waiting for Google's approval). Meanwhile drafts stay here and you can download and upload them yourself. When the connection is live, everything uploads only as a private draft." },
+  { id: "privacy", re: /פרטיות|האם (זה )?(בטוח|מאובטח)|מי (רואה|יכול לראות)|privacy|is (it|this) (safe|secure)|who can see/i,
+    he: "הטיוטות פרטיות ורק אתה והצוות שלך רואים אותן. שום דבר לא מתפרסם בלי האישור שלך. אנחנו לא מוכרים מידע. את הפרטים המלאים אפשר לקרוא בדף \"פרטיות\" שבמסך הפתיחה.",
+    en: "Drafts are private and only you and your team can see them. Nothing is published without your approval. We don't sell data. Full details are on the Privacy page on the landing screen." },
+  { id: "rights", re: /זכויות יוצרים|מותר (לי )?(לחתוך|לעבד)|תוכן של (אחרים|סטרימר אחר)|copyright|am i allowed|someone else'?s (stream|content)/i,
+    he: "אפשר לעבד תוכן שלך, או תוכן שיש לך רשות מפורשת עליו ממי שיצר אותו. אם אתה חותך סטרימר אחר, כדאי לקבל ממנו אישור בכתב. שימו לב גם למוזיקה בשידור: היא יכולה לגרור תביעות זכויות ביוטיוב.",
+    en: "You can process your own content, or content you have explicit permission for from its creator. If you clip another streamer, get their written approval. Mind music in the stream too: it can trigger copyright claims on YouTube." },
+  { id: "live", re: /(שידור|לייב) חי|בזמן אמת|תוך כדי (השידור|הלייב)|real.?time|while (i'?m|im) live|during (the )?stream/i,
+    he: "כן, המטרה היא ללוות שידור חי: המערכת לוקחת חלון שידור אחרי חלון, חותכת רגעים חזקים ומשאירה אותם לאישור. כרגע זה פועל בבדיקות על שידורים גדולים, ובקרוב ללקוחות. כדי שזה יעבוד צריך שהשידור יישמר כהקלטה (VOD), או שנקליט אותו בעצמנו.",
+    en: "Yes, the goal is to follow a live stream: the system takes one window after another, cuts strong moments and leaves them for approval. Right now it runs in tests on big streams, and soon for customers. For it to work the stream needs to be saved as a recording (VOD), or we record it ourselves." },
+  { id: "why_nothing", re: /למה (אין|לא (יצא|נוצר|קיבלתי|הגיעו|הגיע))|עדיין אין (לי )?(טיוטות|קליפים)|why (is there|are there|did i get) no|nothing (came|happened|yet)|no (drafts|clips) yet/i,
+    he: "כמה סיבות אפשריות: העבודה עדיין בתור או בעיבוד (שידור ארוך לוקח זמן), השידור לא נשמר כהקלטה, או שלא נמצאו רגעים חזקים מספיק. אפשר לפתוח את הלשונית \"פעילות\" ולראות באיזה שלב העבודה. אם היא נתקעה, כתוב לי \"מה המצב?\" ואבדוק.",
+    en: "A few possible reasons: the job is still queued or processing (a long stream takes time), the stream wasn't saved as a recording, or no moment was strong enough. Open the Activity tab to see which stage the job is in. If it's stuck, write \"what's the status?\" and I'll check." },
+  { id: "cancel", re: /איך (מבטלים|לבטל|מוחקים|למחוק)|ביטול עבודה|how (do i )?(cancel|delete)/i,
+    he: "עבודה שעדיין בתור אפשר לבטל בלשונית \"פעילות\" ולקבל את הקרדיט בחזרה. טיוטה שלא רוצים פשוט דוחים. מחיקת חשבון ומידע: כתוב לי כאן ונטפל.",
+    en: "A job that's still queued can be cancelled in the Activity tab and the credit comes back. A draft you don't want you simply reject. To delete your account and data, write it here and we'll take care of it." },
+  { id: "style", re: /סגנון (עריכה)?|בסגנון (של|הזה)|תעריך (כמו|בסגנון)|my (editing )?style|edit (like|in the style)|style of (this|a) video/i,
+    he: "כרגע יש סגנון עריכה אחד קבוע: חיתוך בתחילת משפט, כתוביות צהובות, זום עדין ולוגו. הכנו גם כלי שמנתח סרטון שאתה אוהב (קצב, כתוביות, זום) ובונה ממנו סגנון, וחיבור שלו לאפליקציה בדרך. כשהוא יהיה מוכן תדביק קישור לסרטון ותקבל עריכה בסגנון שלו.",
+    en: "For now there's one fixed editing style: cuts at the start of a sentence, yellow captions, gentle zoom and a logo. We also built a tool that analyses a video you like (pace, captions, zoom) and builds a style from it; connecting it to the app is on the way. When it's ready you'll paste a video link and get edits in its style." },
+];
+function faqMatch(text, L) { const t = String(text || "").trim(); if (t.length < 4) return null; for (const f of FAQ) if (f.re.test(t)) return { id: f.id, reply: f[L] || f.en }; return null; }
+
 // ---------- KV key layout (all under "studio:" so the owner app's keys are never touched) ----------
 const K = {
   user: (id) => `studio:u:${id}`, email: (e) => `studio:e:${e}`, sess: (h) => `studio:s:${h}`,
@@ -288,6 +339,7 @@ KNOWLEDGE BASE (general craft knowledge, state it as guidance, and when a number
 - Rights: clip only your own streams or with written permission; third-party music in a stream can trigger Content ID claims (consider muting or replacing it); fan channels should credit the streamer and use clear disclaimers, but permission is still needed to be safe.
 - Growth: reuse one moment in 3 shapes (Short, long video, community post), reply to early comments, pin a comment, check analytics for retention drop-offs and cut those sections, review the top 10% and bottom 10% of videos each month; monetisation thresholds exist (subscribers plus watch hours or Shorts views) and change over time, so check the current numbers in YouTube Studio.
 - Kick and Twitch: viewers' chat spikes and laughter mark good moments; Twitch clips are short viewer-made highlights, VODs can expire, so download or clip soon after the stream.
+TABS (use these exact names): Home, Review ("אישורים"), Activity ("פעילות"), Assistant ("עוזר"), Team ("צוות"), Credits ("קרדיטים"), Settings ("הגדרות"). Never mention a tab or feature that is not in this list. Do NOT keep telling the customer to connect a channel: mention it only when they ask how to start, or ask you to make something and they have no verified channel. Answer the actual question first, in 1-4 short sentences, in plain spoken Hebrew (no bullet-point essays, no English words unless they are product terms like Shorts).
 STYLE: warm, direct, specific, a little humour is fine; match the customer's energy; short messages get short answers, real questions get a complete useful answer (up to ~120 words); never repeat a sentence you said earlier in this conversation; ask ONE clarifying question when the request is vague; never lecture; if the customer corrects you, accept it and adjust. If the message is vague, emotional or a filler ("honestly I don't know", "whatever", "hmm"), do not assume it continues the last topic: respond to the person first, then offer two concrete next steps that fit their situation (no verified channel yet: connect one; has a channel: try a job such as "5 funny Shorts from the latest stream").
 CUSTOMER CONTEXT: role=${role}; credits=${ctx.credits}; verified channels=${ctx.channels.join(", ") || "none yet"}; recent jobs=${ctx.jobs.join(" | ") || "none"}; recent drafts=${(ctx.drafts || []).join(" | ") || "none yet"}.
 Output ONLY JSON: {"reply": "<what you say>", "intent": "create" | "status" | "chat", "shorts": <int 0-30>, "long": <true|false>, "when": "last_stream" | "yesterday" | "week", "mood": "funny" | "hype" | "fail" | null}. Use intent "create" only when the customer clearly asked you to make something now (then reply with a short confirmation); "status" when they ask about progress; otherwise "chat".`;
@@ -364,6 +416,8 @@ async function assistant(env, org, me, role, b, store) {
     const hist1 = await loadHist(env, org.id); hist1.push({ r: "user", t: now(), text: u.text }, { r: "bot", t: now(), text: reply }); await saveHist(env, org.id, hist1.slice(-40));
     return { reply, actions, mode: "basic", choices: linkChoices(L, link), parsed: { intent: "link", link } };
   }
+  const fq = !link ? faqMatch(u.text, L) : null;
+  if (fq) { const histF = await loadHist(env, org.id); histF.push({ r: "user", t: now(), text: u.text }, { r: "bot", t: now(), text: fq.reply }); await saveHist(env, org.id, histF.slice(-40)); return { reply: fq.reply, actions, mode: "ai", faq: fq.id, parsed: { intent: "faq" } }; }
   if (!link) try {
     const hist0 = await loadHist(env, org.id);
     const cc = CTX_CACHE.get(org.id); let chs = [], js = [], drs = [];   // channel/job lists cost KV list() calls (free plan: 1000/day): cache them for 2 minutes per workspace
