@@ -2,7 +2,7 @@ import os, sys, unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
 import ci_check_inputs as C
 class Inputs(unittest.TestCase):
-    def ok(self, **kw): return C.main({("IN_" + k.upper()): v for k, v in kw.items()}) == 0
+    def ok(self, **kw): return C.main({("IN_" + k.upper()): v for k, v in kw.items()}, quiet=True) == 0
     def test_good(self):
         self.assertTrue(self.ok(slug="n3on", platform="kick", from_min="0", to_min="60", vod="auto", upload="true", clip_id="123_456", state_dir="state/xqc", credit='O"Neil $(x)'))
     def test_injection_rejected(self):

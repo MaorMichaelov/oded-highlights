@@ -43,7 +43,7 @@ def check(name, val):
     return "unknown input name (add it to scripts/ci_check_inputs.py)"
 
 
-def main(env=None):
+def main(env=None, quiet=False):
     env = os.environ if env is None else env
     bad = []
     for k, v in sorted(env.items()):
@@ -54,7 +54,7 @@ def main(env=None):
         if r:
             bad.append(f"{k}: {r}")
     for b in bad:
-        print("::error::input rejected -", b)
+        if not quiet: print("::error::input rejected -", b)
     return 1 if bad else 0
 
 
