@@ -136,4 +136,13 @@ assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
 { const g = await call("POST", "/studio/api/guest", {}); assert.equal(g.s, 200); assert.ok(g.j.token && g.j.org_id);
   const me = await call("GET", "/studio/api/me", null, g.j.token); assert.equal(me.s, 200);
   const o = await call("GET", "/studio/api/orgs/" + g.j.org_id, null, g.j.token); assert.ok(o.s === 200 || o.s === 404); ok("guest entry"); }
+// ---- assistant with a free-form LLM (mock env.AI): varied replies, history, fallback to the rule parser
+{ const g = await call("POST", "/studio/api/guest", {}); const tk = g.j.token, oid = g.j.org_id; let calls = 0, seen = [];
+  env.AI = { run: async (m, inp) => { calls++; const msgs = inp.messages || inp.input; seen.push(msgs.length); if (calls >= 3 && calls <= 5) throw new Error("boom");
+    return { response: JSON.stringify({ reply: "reply #" + calls, intent: "chat", shorts: 0, long: false, when: "last_stream", mood: null }) }; } };
+  const a1 = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: "what can you do?" }, tk); assert.equal(a1.s, 200); assert.equal(a1.j.reply, "reply #1");
+  const a2 = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: "and how do credits work?" }, tk); assert.equal(a2.j.reply, "reply #2"); assert.ok(seen[1] > seen[0], "history is sent to the model");
+  const a3 = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: "hello there" }, tk); assert.equal(a3.s, 200); assert.ok(a3.j.reply && !a3.j.reply.startsWith("reply #"), "model failure falls back to the rule parser");
+  env.AI = { run: async () => ({ response: "not json at all" }) }; const a4 = await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: "hello" }, tk); assert.equal(a4.s, 200); assert.ok(a4.j.reply);
+  delete env.AI; ok("assistant LLM + fallback"); }
 console.log(`\n${n} test groups passed`);

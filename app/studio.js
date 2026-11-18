@@ -196,10 +196,43 @@ export function understand(text) {
 const WHEN_TXT = { yesterday: { he: "מהסטרים של אתמול", en: "from yesterday's stream" }, last_stream: { he: "מהסטרים האחרון", en: "from your latest stream" }, week: { he: "מהשבוע האחרון", en: "from last week" } };
 const MOOD_TXT = { funny: { he: "מצחיקים", en: "funny" }, hype: { he: "מטורפים", en: "hype" }, fail: { he: "של פיילים", en: "fail" } };
 const HELP = { he: "אפשר לבקש בשפה חופשית, למשל: \"תכין 5 שורטס מצחיקים מאתמול\" או \"מה המצב?\"", en: "Ask in plain words, e.g. \"make 5 funny Shorts from yesterday\" or \"what's the status?\"" };
+// ---- free-form understanding with a free LLM (Workers AI binding `AI`): replies vary, remember the conversation, answer product questions; the rule parser above stays as the fallback and as the safety net
+const LLM_MODELS = ["@cf/openai/gpt-oss-120b", "@cf/meta/llama-3.3-70b-instruct-fp8-fast", "@cf/meta/llama-3.1-8b-instruct"];
+const LLM_DAILY = 60;   // per workspace; free tier friendly
+function firstJson(text) { const t = String(text || ""); const a = t.indexOf("{"); if (a < 0) return null; let d = 0, q = false, e = false; for (let i = a; i < t.length; i++) { const c = t[i]; if (q) { if (e) e = false; else if (c === "\\") e = true; else if (c === '"') q = false; continue; } if (c === '"') q = true; else if (c === "{") d++; else if (c === "}" && --d === 0) { try { return JSON.parse(t.slice(a, i + 1)); } catch (x) { return null; } } } return null; }
+async function llmUnderstand(env, org, role, text, hist, L, ctx) {
+  if (!env.AI) return null;
+  const day = new Date().toISOString().slice(0, 10), key = `studio:llm:${org.id}:${day}`; const used = parseInt((await env.KV.get(key)) || "0"); if (used >= LLM_DAILY) return null;
+  try { await env.KV.put(key, String(used + 1), { expirationTtl: 172800 }); } catch (e) {}
+  const system = `You are the assistant inside "Studio", a product that turns a streamer's live streams (Kick / Twitch) into Shorts and long YouTube videos, edited automatically, delivered as PRIVATE drafts that the customer approves.
+Facts you can rely on: the customer connects a channel by pasting its link and proving ownership with a code placed in the channel bio or stream title; one credit = one hour of source stream; drafts are always private until the customer publishes; approve / reject happens in the Review tab (swipe or arrow keys); team members are invited in the Team tab (owner / editor / viewer); the system picks moments (laughs, hype, fails, stories), cuts at sentence boundaries, adds captions and a logo, and runs a quality check; YouTube connection and payments are coming soon; the assistant itself can start jobs and report status. Never claim anything else, never invent numbers, never promise publishing.
+You can start a job for the customer: up to 30 Shorts and/or one long video, from the last stream, yesterday, or last week, optionally with a mood (funny / hype / fail).
+Style: warm, short, specific, like a sharp producer; reply in the customer's language (${L === "he" ? "Hebrew" : "English"}); never repeat a sentence you already said in this conversation; if the request is vague, ask ONE clear question; if they ask what you can do, give a concrete example tailored to their situation.
+Customer context: role=${role}; credits=${ctx.credits}; verified channels=${ctx.channels.join(", ") || "none yet"}; recent jobs=${ctx.jobs.join(" | ") || "none"}.
+Output ONLY JSON: {"reply": "<what you say>", "intent": "create" | "status" | "chat", "shorts": <int 0-30>, "long": <true|false>, "when": "last_stream" | "yesterday" | "week", "mood": "funny" | "hype" | "fail" | null}. Use intent "create" only when the customer clearly asked you to make something now; "status" when they ask about progress; otherwise "chat".`;
+  const messages = [{ role: "system", content: system }, ...hist.slice(-10).map((h) => ({ role: h.r === "bot" ? "assistant" : "user", content: String(h.text || "").slice(0, 400) })), { role: "user", content: clean(text, 500) }];
+  for (const m of LLM_MODELS) {
+    try {
+      const r = await env.AI.run(m, m.includes("gpt-oss") ? { input: messages, reasoning: { effort: "low" }, max_output_tokens: 700 } : { messages, max_tokens: 700 });
+      const t = r.response || (r.choices && r.choices[0] && r.choices[0].message && r.choices[0].message.content) || r.output_text || (r.output && r.output.map((o) => (o.content || []).map((c) => c.text || "").join("")).join("")) || "";
+      const j = firstJson(t); if (j && typeof j.reply === "string" && j.reply.trim()) { return { reply: clean(j.reply, 700), intent: ["create", "status", "chat"].includes(j.intent) ? j.intent : "chat", shorts: Math.max(0, Math.min(30, parseInt(j.shorts) || 0)), long: !!j.long, when: ["last_stream", "yesterday", "week"].includes(j.when) ? j.when : "last_stream", mood: ["funny", "hype", "fail"].includes(j.mood) ? j.mood : null }; }
+    } catch (e) { /* next model */ }
+  }
+  return null;
+}
 async function assistant(env, org, me, role, b, store) {
   const u = understand(b.message); const L = u.he ? "he" : "en"; let reply, actions = [];
   if (!u.text) return { reply: HELP[L], actions };
-  if (u.intent === "help") reply = HELP[L];
+  let llm = null;
+  try {
+    const hist0 = (await kget(env, K.chat(org.id))) || [];
+    const chs = (await kgetMany(env, await klist(env, K.chansOfOrg(org.id)))).filter((c) => c.status === "verified").map((c) => `${c.platform}/${c.slug}`);
+    const js = (await kgetMany(env, (await klist(env, K.jobsOfOrg(org.id), 500)).map((k) => K.job(k.split(":")[3])))).sort((a, c) => (a.created < c.created ? 1 : -1)).slice(0, 3).map((j) => `${j.status} ${j.progress}%`);
+    const fresh0 = await kget(env, K.org(org.id)); llm = await llmUnderstand(env, org, role, u.text, hist0, L, { credits: fresh0 ? fresh0.credits : org.credits, channels: chs, jobs: js });
+  } catch (e) { llm = null; }
+  if (llm) { if (llm.intent === "create" && (llm.shorts > 0 || llm.long)) { u.intent = "create"; u.shorts = llm.shorts; u.long = llm.long; u.when = llm.when; u.mood = llm.mood; } else if (llm.intent === "status") u.intent = "status"; else u.intent = "chat"; }
+  if (u.intent === "chat") reply = llm ? llm.reply : HELP[L];
+  else if (u.intent === "help") reply = HELP[L];
   else if (u.intent === "status") {
     const jobs = (await kgetMany(env, (await klist(env, K.jobsOfOrg(org.id), 500)).map((k) => K.job(k.split(":")[3])))).sort((a, c) => (a.created < c.created ? 1 : -1));
     const j = jobs[0]; reply = !j ? (L === "he" ? "עדיין אין עבודות. בקש משהו בצ'אט!" : "No jobs yet. Ask me for something!") : `${(j.status_text || renderMsg(j.status) || { he: j.status, en: j.status })[L]} (${j.progress}%)`;
