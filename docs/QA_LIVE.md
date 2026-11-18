@@ -2,6 +2,18 @@
 
 Format: time (UTC), what was tested, PASS/FAIL, evidence, suspected cause. Maintained by the QA runner.
 
+## 2026-11-18 17:32Z
+
+| What | Result | Evidence / cause |
+|---|---|---|
+| Live-loop fix 58a5191 (contiguous windows) | PASS | tests/test_live_shorts.py (3 tests) green on the fix; kaicenat live_state.json now saved (230 -> 242 -> 254). |
+| Kai loop produces Shorts | FAIL | live-once 44358358596 (kaicenat, window 12): vod_shorts.py exits "no suitable Twitch VOD" for VOD 2932305259 (the stream that is live now). `twitch_pick()` re-lists the 12 newest archives and does not find the id (flaky; worked at 16:48). Proposed fix: skip the listing when `--vod <id>` is explicit, print stderr on empty listing, retry. |
+| live_shorts ignores vod_shorts failure | FAIL | `subprocess.run(vod_shorts)` return code unused, so `done_to_min` advances over windows that were never cut (lost for good). Proposed: advance only on returncode 0, retry up to ~3 times. |
+| Speed loop | FAIL | First record-mode window (17:18Z) uploaded nothing (`uploaded.json` = {}); run 44354379279 cancelled 17:23Z, no new ishowspeed run afterwards. |
+| studio-e2e-job 44355445754 (live app, Kai VOD link) | PASS | 3 drafts in 15 min (qa_ok True/True/False). Notes: status text "Listening to the stream... 75%" while progress stays 45 for ~9 min; draft titles weak ("BRO! THEY GOT AWAY! I'm a suspect on my spot for suspect!"); the link request was answered in `mode: basic, why: no-ai`. |
+| qa-assistant 44355976798 (26 sentences, Mistral small deployed) | FAIL, FIXED in bc82b8c / 98305bd | Invented TikTok rule; gibberish ("מיחדול", "פילגש", "פיינל", "קופסת האישורים"); invented weather; "כמה קרדיטים נשארו לי" answered with the generic FAQ (regex: "כמה" contains "מה"); "בכמה כסף זה" -> "אני לא יודע"; capabilities reply repeated one sentence 3 times. Curated FAQ answers added, prompt forbids guessing live data/platform rules, model order switched back to gpt-oss-120b first by main. Needs deploy to take effect. |
+| node app tests / ci_lint_workflows | PASS | agent 24, studio 39 groups, youtube_connect 28 + integration; lint 0 problems. |
+
 ## 2026-11-18 17:05Z
 
 | What | Result | Evidence / cause |
