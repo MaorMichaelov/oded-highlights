@@ -306,7 +306,10 @@ def run_job(job, workdir, cfg=None, emit=None, deps=None):
         except Exception as ex: print("long video failed (%s): %s" % (type(ex).__name__, str(ex)[:160]), flush=True)
 
     emit(97, "qa")
-    if not drafts: raise NoMoments("no clip-worthy moment found")
+    _bad = [d for d in drafts if d.get("qa_ok") is False]   # a draft that failed the quality check (title not true to the speech, cut inside a word, silence...) is never shown to a customer
+    if _bad: print("dropped %d draft(s) that failed the quality check: %s" % (len(_bad), "; ".join(str(d.get("title"))[:50] for d in _bad)), flush=True)
+    drafts = [d for d in drafts if d.get("qa_ok") is not False]
+    if not drafts: raise NoMoments("no clip-worthy moment found" + (" (the candidates failed the quality check)" if _bad else ""))
     timing["total_s"] = round(time.time() - t_start, 1)
     res = {"job": job.get("id"), "source": {"kind": src["kind"], "duration_s": round(dur, 1), "title": src["title"]}, "drafts": drafts, "timing": timing, "style": S.name_of({"name": "customer-signature"}), "picker": "llm" if llm else "heuristic",
            "profile_applied": bool(profile), "language": LANG}
