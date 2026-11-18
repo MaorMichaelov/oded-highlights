@@ -1,0 +1,17 @@
+name: chatlog
+# Prints the assistant conversation log (what people asked and how it was answered) for improving the assistant. Owner-only: the Worker accepts only this repo's run token.
+on:
+  workflow_dispatch: {}
+permissions: { contents: read }
+jobs:
+  log:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          BASE: https://studio-app.odedhl.workers.dev
+          GH_RUN_TOKEN: ${{ github.token }}
+        run: |
+          printf 'header = "x-worker-key: %s"\n' "$GH_RUN_TOKEN" | curl -sS -m 60 -K - "$BASE/studio/worker/chatlog" | python3 -c "
+          import sys,json
+          d=json.load(sys.stdin); print('rows',d.get('count'))
+          for r in d.get('rows',[]): print(r.get('t','')[11:19], r.get('org'), r.get('mode'), r.get('faq') or r.get('intent') or '', '|', r.get('q'), '=>', (r.get('reply') or '')[:90])"
