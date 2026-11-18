@@ -12,7 +12,7 @@ concurrency: { group: studio-e2e, cancel-in-progress: false }
 permissions: { contents: write }
 jobs:
   e2e:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04   # pinned: Playwright 1.49 browser dependencies do not exist for the newer ubuntu-latest image
     timeout-minutes: 45
     env:   # workflow inputs go through env vars, never straight into the shell script (injection)
       IN_URL: ${{ inputs.url }}
