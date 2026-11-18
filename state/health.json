@@ -59,12 +59,14 @@
   "duplicates: duplicate draft titles: [['137995265_9037', '137995265_9082']]; overlapping ledger entries: []"
  ],
  "hc_checked_at": "2026-11-18T05:29:51Z",
- "live_loop_running": true,
+ "live_loop_running": false,
  "state_age_min": 0.1,
  "live": false,
  "recent_failed_renders": 0,
  "stuck_clips": [],
  "pending_candidates": 0,
- "problems": [],
- "checked_at": "2026-11-18T12:09:56Z"
+ "problems": [
+  "live-loop is NOT running"
+ ],
+ "checked_at": "2026-11-18T12:10:08Z"
 }
