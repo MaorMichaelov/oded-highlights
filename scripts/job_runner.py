@@ -390,7 +390,7 @@ def make_demo_media(path, seconds=150, seed=3):
     import synth
     rng = np.random.default_rng(seed); wl, t = [], 2.0; peaks = [int(seconds * f) for f in (0.25, 0.55, 0.8)]; loud = []
     while t < seconds - 4:
-        n = int(rng.integers(5, 11)); near = any(abs(t - p) < 14 for p in peaks); sent, t_end = synth.sentence(t, n + (6 if near else 0), wlen=0.22 if near else 0.3, gap=0.05 if near else 0.1)
+        n = int(rng.integers(5, 11)); near = any(abs(t - p) < 4 for p in peaks); sent, t_end = synth.sentence(t, n + (6 if near else 0), wlen=0.22 if near else 0.3, gap=0.05 if near else 0.1)
         wl += sent; loud.append((t, t_end, near)); t = t_end + float(rng.uniform(0.8, 1.6))
     x = synth.make_speech([(a, b) for a, b in wl], seconds, level_db=-30.0, seed=seed)
     for a, b, near in loud:
