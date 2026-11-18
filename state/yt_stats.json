@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-18T15:30:51Z",
- "fetched_epoch": 1795015851.2071795,
+ "fetched_at": "2026-11-18T16:01:01Z",
+ "fetched_epoch": 1795017661.9644032,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -14,7 +14,7 @@
    "published": "2026-11-18T13:48:16Z",
    "privacy": "public",
    "duration": "PT26M28S",
-   "views": 2,
+   "views": 4,
    "likes": 1,
    "comments": 0
   },
@@ -23,9 +23,9 @@
    "title": "דושי משחק GTA 6 לראשונה, התגובה שלו מטורפת!",
    "published": "2026-11-18T12:59:59Z",
    "privacy": "public",
-   "duration": "PT25M3S",
-   "views": 5,
-   "likes": 2,
+   "duration": "PT23M4S",
+   "views": 8,
+   "likes": 3,
    "comments": 0
   },
   {
@@ -34,7 +34,7 @@
    "published": "2026-11-18T12:44:29Z",
    "privacy": "public",
    "duration": "PT40M42S",
-   "views": 2,
+   "views": 4,
    "likes": 1,
    "comments": 0
   },
@@ -44,7 +44,7 @@
    "published": "2026-11-18T12:09:02Z",
    "privacy": "public",
    "duration": "PT26M25S",
-   "views": 9,
+   "views": 24,
    "likes": 4,
    "comments": 0
   },
@@ -54,7 +54,7 @@
    "published": "2026-11-17T18:43:03Z",
    "privacy": "public",
    "duration": "PT18M59S",
-   "views": 50,
+   "views": 57,
    "likes": 3,
    "comments": 0
   },
@@ -64,7 +64,7 @@
    "published": "2026-11-17T10:00:01Z",
    "privacy": "public",
    "duration": "PT1H33M46S",
-   "views": 58,
+   "views": 59,
    "likes": 7,
    "comments": 0
   },
@@ -234,7 +234,7 @@
    "published": "2026-11-13T10:00:09Z",
    "privacy": "public",
    "duration": "PT4M43S",
-   "views": 75,
+   "views": 76,
    "likes": 3,
    "comments": 0
   },
@@ -244,7 +244,7 @@
    "published": "2026-11-13T09:30:26Z",
    "privacy": "public",
    "duration": "PT14M55S",
-   "views": 2920,
+   "views": 2930,
    "likes": 16,
    "comments": 0
   },
@@ -254,8 +254,8 @@
    "published": "2026-11-13T09:00:02Z",
    "privacy": "public",
    "duration": "PT9M37S",
-   "views": 5710,
-   "likes": 52,
+   "views": 5728,
+   "likes": 54,
    "comments": 3
   },
   {
@@ -264,7 +264,7 @@
    "published": "2026-11-13T08:00:35Z",
    "privacy": "public",
    "duration": "PT15M2S",
-   "views": 1258,
+   "views": 1260,
    "likes": 19,
    "comments": 2
   },
@@ -284,7 +284,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 5092,
+   "views": 5116,
    "likes": 28,
    "comments": 1
   },
@@ -304,7 +304,7 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 5619,
+   "views": 5705,
    "likes": 53,
    "comments": 4
   },
