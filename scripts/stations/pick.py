@@ -16,8 +16,10 @@ HARD = re.compile(r"היטלר|שואה|התאבד|אתיופ|נאצי|גז(?:י
 HARD_EN = re.compile(r"\bn[i1]gg|\bfaggot|\bretard|kill (?:my|him|her)self|suicide|hitler|holocaust|\brape\b|gambl|casino|promo code|use code|giveaway|sportsbook|\bstake\.|jack\.?com", re.I)   # English streams: slurs, self-harm, gambling/promo (YouTube + advertiser safety)
 def jl(p):
     return [json.loads(l) for l in open(p, encoding="utf-8") if l.strip()] if os.path.exists(p) else []
+import statefile as SF, dedup as DD   # atomic state writes + cross-producer duplicate guard (scripts/)
+YT_CH = os.environ.get("CHANNEL_YT", "main")
 def jf(p, d=None):
-    return json.load(open(p)) if os.path.exists(p) else d
+    return SF.read_json(p, d)   # a truncated state file is quarantined and replaced by the default instead of crashing every cycle
 def mmss(t): t = int(t); return f"{t // 3600}:{t % 3600 // 60:02d}:{t % 60:02d}"
 def lines(rows, a, b, step=30):
     out, cur, t0 = [], [], None
@@ -211,6 +213,9 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
             title = meta["title"].strip() + (f" (חלק {i + 1}/{parts})" if parts > 1 else "")
             cid = f"{vod}_{int(s0)}"; d = os.path.join(clipsd, cid)
             if os.path.exists(os.path.join(d, "spec.json")): continue
+            if not dry:   # cross-producer guard (ledger + ranges on disk): the same stretch of the same VOD becomes ONE long video, whatever produced it
+                ok_, ex_ = DD.claim(vod, s0, e0, "long", YT_CH, "pick", cid)
+                if not ok_: print("duplicate guard: skipped", cid, "overlaps", ex_.get("clip_id") or ex_.get("src")); continue
             os.makedirs(d, exist_ok=True)
             pieces = []; chs = (T.get("chunks") or {})
             for c_ in range(int(keep[0][0] // 300), int(keep[-1][1] // 300) + 1):
@@ -259,16 +264,18 @@ def span_pick(ST, ing, rows, closed, done, clipsd, vod, ps, dry):
     sm = f"סיכום בדיקת נושאים: {stat['overlap']} כבר נחתכו, {stat['not_worthy']} לא ראויים לקליפ (צ'אט/המתנה), {stat['short']} קצרים מדי, {stat['open']} עדיין פתוחים/לא נסגרו"
     if ps[vod].get("last_summary") != sm and not dry: ps[vod]["last_summary"] = sm; __import__("events").event("pick_skip", "🔎 " + sm)
     ps[vod]["last_run"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    if not dry: json.dump(ps, open(os.path.join(ST, "pick_state.json"), "w"), indent=1)
+    if not dry: SF.write_json(os.path.join(ST, "pick_state.json"), ps)
     if made and not dry and not os.environ.get("NO_DISPATCH"):
         from autopilot import publish
         for cid in made: publish(cid, f"pick: {cid}", False)
     return made
 def main():
+    global LANG
     ap = argparse.ArgumentParser(); ap.add_argument("--vod"); ap.add_argument("--dry-run", action="store_true"); ap.add_argument("--state", default=os.environ.get("STATE_DIR", "state")); ap.add_argument("--hold", type=int, default=300); ap.add_argument("--window", type=int, default=4500); a = ap.parse_args()
     ST = os.path.join(ROOT, a.state)
     if os.path.exists(os.path.join(ST, "PAUSE")): print("PAUSE"); return 0
     ing = jf(os.path.join(ST, "ingest_state.json"), {}) or {}; vod = a.vod or ing.get("_current_vod")
+    if LANG == "auto": LANG = "he" if (ing.get("_lang") or "he") == "he" else "en"   # PICK_LANG=auto follows the language live_watch detected (ASR_LANG=auto); any non-Hebrew language uses the English prompts for now
     if not vod: print("no vod"); return 0
     rows = jl(os.path.join(ST, "transcripts", f"{vod}.jsonl"))
     if not rows: print("no transcript"); return 0
@@ -340,6 +347,9 @@ def main():
         if sum(q - p for p, q in keep) < 300: print("too short after exclusions / dead air:", c["title"]); continue
         cid = f"{vod}_{int(s0)}"; d = os.path.join(clipsd, cid)
         if os.path.exists(os.path.join(d, "spec.json")): continue
+        if not a.dry_run:
+            ok_, ex_ = DD.claim(vod, s0, e0, "long", YT_CH, "pick", cid)
+            if not ok_: print("duplicate guard: skipped", cid, "overlaps", ex_.get("clip_id") or ex_.get("src")); continue
         os.makedirs(d, exist_ok=True)
         json.dump({"vod": vod, "base": ing.get("_vod_base"), "pieces": [{"keep": keep, "ch": c.get("brief", {}).get("about", "הנושא")[:40] or "הנושא"}]}, open(os.path.join(d, "cuts.json"), "w"), ensure_ascii=False, indent=1)
         desc = c.get("description", "").strip() + (f"\n\nClip from {CREDIT}'s live on Kick: https://kick.com/{SLUG}\n\n#{SLUG} #kick #streamer #highlights" if LANG == "en" else "\n\nהרגעים הכי טובים מהלייב של עודד בקיק | ODED HIGHLIGHTS\n\nהקטע מתוך הלייב של עודד בקיק: https://kick.com/odedsvr\nערוץ מעריצים לא רשמי: כל הקטעים נלקחו מהשידורים של עודד (OdedSVR) בקיק, וזה אינו הערוץ הרשמי של עודד. הערוץ הרשמי: https://www.youtube.com/@OdedSVRLive\n\n#עודד #OdedSVR #עודדהיילייטס #קיק")
@@ -349,7 +359,7 @@ def main():
                    "head": c.get("head", ""), "accent": c.get("accent", ""), "refs": "shock,excited,smirk", "brief": c.get("brief", {}), "lang": LANG, "auto": True, "picked_by": MODEL}, open(os.path.join(d, "spec.json"), "w"), ensure_ascii=False, indent=1)
         made.append(cid); (__import__("events").event("pick", f"נבחר נושא לקליפ: {c['title']} ({int((e0 - s0) / 60)} דק׳). רינדור בדרך." , clip=cid)); print(f"PICKED {cid}: {c['title']} ({int(s0)}-{int(e0)}, {int((e0 - s0) / 60)} min)")
     ps[vod] = {"cursor": max(lo, min(float(res.get("next_cursor", hi) or hi), hi)), "last_run": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "notes": res.get("notes", "")[:300]}
-    if not a.dry_run: json.dump(ps, open(pf, "w"), indent=1)
+    if not a.dry_run: SF.write_json(pf, ps)
     if not made and not a.dry_run and res.get("notes"): __import__("events").event("pick_skip", f"🔎 בדקתי את דקות {int(lo // 60)}-{int(hi // 60)} בשידור: אין שם נושא שלם של 15 דקות ומעלה.")
     if made and not a.dry_run and not os.environ.get("NO_DISPATCH"):
         from autopilot import publish

@@ -29,7 +29,7 @@ def _disk_ranges(vod, root=None):
     root = root or ROOT; out = []
     for f in glob.glob(os.path.join(root, "state", "**", "clips", "*", "cuts.json"), recursive=True):
         c = SF.read_json(f, None, quarantine=False)
-        if not isinstance(c, dict) or str(c.get("vod")) != str(vod): continue
+        if not isinstance(c, dict) or str(c.get("vod")) != str(vod) or not os.path.exists(os.path.join(os.path.dirname(f), "spec.json")): continue   # cuts.json without spec.json = a half-written pick (crash), not a real clip
         ks = [(x, y) for p in c.get("pieces", []) for x, y in p.get("keep", [])]
         if ks: out.append({"kind": "long", "start": min(x for x, _ in ks), "end": max(y for _, y in ks), "src": os.path.relpath(f, root), "yt": None})
     for kind, d in (("short", "shorts"), ("long", "long")):

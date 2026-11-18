@@ -42,8 +42,11 @@ class Dedup(unittest.TestCase):
         self.assertTrue(self.claim("v1", 600, 1200, "long", "main")[0])       # next part
     def test_disk_ranges(self):
         root = self.d.name; cd = os.path.join(root, "state", "clips", "v9_5"); os.makedirs(cd)
-        json.dump({"vod": "v9", "pieces": [{"keep": [[100, 300], [320, 900]]}]}, open(os.path.join(cd, "cuts.json"), "w"))
-        self.assertIsNotNone(D.find("v9", 110, 880, "long", ledger=self.led, root=root)); self.assertIsNone(D.find("v9", 2000, 2600, "long", ledger=self.led, root=root))
+        with open(os.path.join(cd, "cuts.json"), "w") as fh: json.dump({"vod": "v9", "pieces": [{"keep": [[100, 300], [320, 900]]}]}, fh)
+        half = os.path.join(root, "state", "clips", "v9_half"); os.makedirs(half)
+        with open(os.path.join(half, "cuts.json"), "w") as fh: json.dump({"vod": "v9", "pieces": [{"keep": [[5000, 6000]]}]}, fh)   # crash between cuts.json and spec.json: not a clip
+        with open(os.path.join(cd, "spec.json"), "w") as fh: fh.write("{}")
+        self.assertIsNotNone(D.find("v9", 110, 880, "long", ledger=self.led, root=root)); self.assertIsNone(D.find("v9", 2000, 2600, "long", ledger=self.led, root=root)); self.assertIsNone(D.find("v9", 5000, 6000, "long", ledger=self.led, root=root))
         self.assertEqual(D.backfill(root, self.led), 1); self.assertEqual(D.backfill(root, self.led), 0)
 
 
