@@ -60,7 +60,7 @@
  ],
  "hc_checked_at": "2026-11-18T05:29:51Z",
  "live_loop_running": false,
- "state_age_min": 0.0,
+ "state_age_min": 0.1,
  "live": false,
  "recent_failed_renders": 0,
  "stuck_clips": [],
@@ -68,5 +68,5 @@
  "problems": [
   "live-loop is NOT running"
  ],
- "checked_at": "2026-11-18T12:48:07Z"
+ "checked_at": "2026-11-18T12:48:14Z"
 }
