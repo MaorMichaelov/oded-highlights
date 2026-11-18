@@ -60,11 +60,13 @@
  ],
  "hc_checked_at": "2026-11-18T05:29:51Z",
  "live_loop_running": true,
- "state_age_min": 0.1,
- "live": false,
+ "state_age_min": 0.0,
+ "live": null,
  "recent_failed_renders": 0,
  "stuck_clips": [],
  "pending_candidates": 0,
- "problems": [],
- "checked_at": "2026-11-18T11:52:19Z"
+ "problems": [
+  "Kick API problem: http=403 note=channel api not reachable"
+ ],
+ "checked_at": "2026-11-18T11:52:25Z"
 }
