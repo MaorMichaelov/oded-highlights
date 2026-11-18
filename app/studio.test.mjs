@@ -147,6 +147,19 @@ r = await call("POST", "/studio/api/login", { email: "victim@x.com", password: "
 r = await call("GET", "/studio"); assert.ok(r.s === 200); { const h = (await handleStudio(new Request("https://app.test/studio"), env, fakeFetch)).headers; assert.equal(h.get("x-frame-options"), "DENY"); assert.equal(h.get("x-content-type-options"), "nosniff"); } ok("security headers");
 // the owner app's keys are never touched
 assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
+// ---- eventually consistent KV list(): everything written while list() lags must still show up (regression: deployed studio showed no channel one second after adding it, a reload sent the wizard back to step 1)
+{ class LagKV extends KV { constructor() { super(); this.hidden = new Set(); this.lag = true; } async put(k, v) { if (this.lag && !this.m.has(k)) this.hidden.add(k); return super.put(k, v); } async list(o) { const r = await super.list(o); return { keys: r.keys.filter((x) => !this.hidden.has(x.name)) }; } }
+  const lenv = { KV: new LagKV() }; lenv.KV.m.set("studio:cfg:worker_key", "wk_test");
+  const lcall = async (method, path, body, token, extra = {}) => { const res = await handleStudio(new Request("https://app.test" + path, { method, headers: { "content-type": "application/json", ...(token ? { authorization: "Bearer " + token } : {}), ...extra }, body: body ? JSON.stringify(body) : undefined }), lenv, fakeFetch); return { s: res.status, j: await res.json().catch(() => ({})) }; };
+  const g = await lcall("POST", "/studio/api/guest", {}); const LT = g.j.token, LO = g.j.org_id;
+  assert.equal((await lcall("GET", "/studio/api/me", null, LT)).j.orgs.length, 1);   // the org of a brand-new user is listed although list() cannot see it yet
+  const lc = (await lcall("POST", `/studio/api/orgs/${LO}/channels`, { url: "kick.com/lagtest" }, LT)).j.channel; assert.equal((await lcall("GET", `/studio/api/orgs/${LO}/channels`, null, LT)).j.channels.length, 1);
+  await lcall("POST", "/studio/worker/e2e/verify", { org: LO, channel: lc.id }, null, { "x-worker-key": "wk_test" });
+  const aj = (await lcall("POST", `/studio/api/orgs/${LO}/assistant`, { message: "make 2 shorts" }, LT)).j.actions[0].job_id; assert.equal((await lcall("GET", `/studio/api/orgs/${LO}/jobs`, null, LT)).j.jobs.length, 1);
+  assert.equal((await lcall("POST", "/studio/worker/claim", { job_id: aj }, null, { "x-worker-key": "wk_test" })).j.job.id, aj);   // claim by id does not need the queue listing
+  const inv = await lcall("POST", `/studio/api/orgs/${LO}/invites`, { email: "lag@x.com", role: "editor" }, LT); assert.equal((await lcall("GET", `/studio/api/orgs/${LO}/members`, null, LT)).j.invites.length, 1); assert.equal((await lcall("GET", `/studio/api/orgs/${LO}/members`, null, LT)).j.members.length, 1);
+  await lcall("DELETE", `/studio/api/orgs/${LO}/channels/${lc.id}`, null, LT); lenv.KV.hidden.clear(); assert.equal((await lcall("GET", `/studio/api/orgs/${LO}/channels`, null, LT)).j.channels.length, 0);   // deletes leave the index too
+  ok("lagging KV list(): index documents keep channels/jobs/members/invites/orgs visible"); }
 // ---- guest entry (no email / password)
 { const g = await call("POST", "/studio/api/guest", {}); assert.equal(g.s, 200); assert.ok(g.j.token && g.j.org_id);
   const me = await call("GET", "/studio/api/me", null, g.j.token); assert.equal(me.s, 200);

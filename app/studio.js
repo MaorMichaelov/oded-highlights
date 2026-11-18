@@ -39,8 +39,15 @@ const K = {
   ingest: (h) => `studio:ingest:${h}`, ingestIdem: (h) => `studio:ingest:idem:${h}`, chat: (o) => `studio:chat:${o}`, rl: (k) => `studio:rl:${k}`, cfg: (k) => `studio:cfg:${k}`, cache: (k) => `studio:cache:${k}`,
 };
 const kget = (env, k) => env.KV.get(k, "json");
-const kput = (env, k, v, opt) => env.KV.put(k, JSON.stringify(v), opt);
-async function klist(env, prefix, limit = 200) { const r = await env.KV.list({ prefix, limit }); return r.keys.map((x) => x.name); }
+// KV list() is eventually consistent (a key written a second ago can be missing for a minute: the wizard jumped back a step, a new workspace/job/invite was "gone" after a reload),
+// while get() by key is read-your-writes at the same location. So every key of a listable family (members, orgs of a user, invites, channels, jobs of an org) is ALSO recorded in one small index document
+// and klist() returns the union of list() and the index. Always write these keys with kput() and remove them with kdel().
+const IX_FAMILY = /^studio:(m|uo|io|c|oj):/, ixKey = (k) => "studio:ix:" + k.slice(0, k.lastIndexOf(":") + 1);
+async function ixAdd(env, k) { if (!IX_FAMILY.test(k)) return; const ik = ixKey(k), cur = (await env.KV.get(ik, "json")) || []; if (cur.includes(k)) return; cur.push(k); await env.KV.put(ik, JSON.stringify(cur.slice(-2000))); }
+async function ixDel(env, k) { if (!IX_FAMILY.test(k)) return; const ik = ixKey(k), cur = await env.KV.get(ik, "json"); if (!cur || !cur.includes(k)) return; await env.KV.put(ik, JSON.stringify(cur.filter((x) => x !== k))); }
+const kput = async (env, k, v, opt) => { await env.KV.put(k, JSON.stringify(v), opt); await ixAdd(env, k); };
+const kdel = async (env, k) => { await env.KV.delete(k); await ixDel(env, k); };
+async function klist(env, prefix, limit = 200) { const [r, ix] = await Promise.all([env.KV.list({ prefix, limit }), env.KV.get("studio:ix:" + prefix, "json")]); const all = new Set(r.keys.map((x) => x.name)); for (const k of ix || []) all.add(k); return [...all].sort().slice(0, limit); }
 async function kgetMany(env, keys) { return (await Promise.all(keys.map((k) => kget(env, k)))).filter(Boolean); }
 async function cfg(env, name) { return (await env.KV.get(K.cfg(name))) || env["STUDIO_" + name.toUpperCase()] || ""; }
 
@@ -370,7 +377,7 @@ export async function handleStudio(req, env, fetchImpl = fetch) {
   if (path === "/invites/accept" && m === "POST") {
     const h = await sha256(String(b.token || "")); const inv = await kget(env, K.inv(h)); if (!inv || inv.exp < Date.now()) return err(404, "invite_invalid");
     if (inv.email && inv.email !== me.email) return err(403, "invite_for_other_email");
-    const have = await roleIn(env, inv.org, me.id); const RANK = { viewer: 1, editor: 2, owner: 3 }; if (!have || RANK[inv.role] > RANK[have]) await addMember(env, inv.org, me.id, me.email, inv.role); await Promise.all([env.KV.delete(K.inv(h)), env.KV.delete(K.invOfOrg(inv.org, h))]);
+    const have = await roleIn(env, inv.org, me.id); const RANK = { viewer: 1, editor: 2, owner: 3 }; if (!have || RANK[inv.role] > RANK[have]) await addMember(env, inv.org, me.id, me.email, inv.role); await Promise.all([env.KV.delete(K.inv(h)), kdel(env, K.invOfOrg(inv.org, h))]);
     return json({ ok: true, org_id: inv.org, role: have && RANK[have] >= RANK[inv.role] ? have : inv.role });
   }
 
@@ -402,7 +409,7 @@ export async function handleStudio(req, env, fetchImpl = fetch) {
     let d = need("team.manage"); if (d) return d; const mem = await kget(env, K.mem(orgId, x[1])); if (!mem) return err(404, "not_found");
     if (mem.role === "owner") return err(400, "cannot_change_owner");   // TODO: ownership transfer flow
     if (m === "PATCH") { if (!ROLES.includes(b.role) || b.role === "owner") return err(400, "bad_role"); mem.role = b.role; await kput(env, K.mem(orgId, x[1]), mem); return json({ ok: true }); }
-    if (m === "DELETE") { await Promise.all([env.KV.delete(K.mem(orgId, x[1])), env.KV.delete(K.orgOfUser(x[1], orgId))]); return json({ ok: true }); }
+    if (m === "DELETE") { await Promise.all([kdel(env, K.mem(orgId, x[1])), kdel(env, K.orgOfUser(x[1], orgId))]); return json({ ok: true }); }
   }
 
   // channels ---
@@ -416,7 +423,7 @@ export async function handleStudio(req, env, fetchImpl = fetch) {
   }
   if ((x = sub.match(/^\/channels\/(c_[a-f0-9]+)(\/[a-z-]+)?$/))) {
     const ch = await kget(env, K.chan(orgId, x[1])); if (!ch) return err(404, "not_found"); const act = x[2] || "";
-    if (act === "" && m === "DELETE") { let d = need("channel.manage"); if (d) return d; await env.KV.delete(K.chan(orgId, ch.id)); if (ch.status === "verified") await env.KV.delete(K.claim(ch.platform, ch.slug)); return json({ ok: true }); }
+    if (act === "" && m === "DELETE") { let d = need("channel.manage"); if (d) return d; await kdel(env, K.chan(orgId, ch.id)); if (ch.status === "verified") await env.KV.delete(K.claim(ch.platform, ch.slug)); return json({ ok: true }); }
     if (act === "/verify" && m === "POST") {
       let d = need("channel.manage"); if (d) return d; if (ch.status === "verified") return json({ channel: ch });
       if (await limited(env, req, "verify:" + ch.id, 200)) return err(429, "rate_limited");   // the page re-checks every 8-30 s while open
@@ -517,6 +524,11 @@ async function workerApi(req, env, p, m) {
     // TODO(D1): KV is eventually consistent, two workers could claim the same job. With one worker it is fine; with several use a Durable Object/D1 UPDATE ... WHERE status='queued'.
     // Optional body {job_id}: claim exactly that job (used by the E2E tests; jobs of e2e-marked channels are never handed to a normal claim, so the real render worker ignores them).
     const cb = await body(req).catch(() => ({})); const want = clean(cb && cb.job_id, 40);
+    if (want) {   // exactly this job (does not depend on the eventually consistent queue listing)
+      const job = await kget(env, K.job(want)); if (!job || job.status !== "queued") return json({ job: null });
+      await env.KV.delete(K.queue(job.queued_at, job.id)); job.status = "running"; setStatusText(job, "running"); job.updated = now(); job.events.push({ t: job.updated, e: "running" }); await kput(env, K.job(job.id), job);
+      return json({ job: { id: job.id, org: job.org, channel: job.channel, kind: job.kind, source: job.source, style_id: job.style_id, outputs: job.outputs, hints: job.hints || {} } });
+    }
     for (const k of await klist(env, "studio:q:", 100)) {
       const ref = await kget(env, k); const job = ref && await kget(env, K.job(ref.id));
       if (!job || job.status !== "queued") { await env.KV.delete(k); continue; }   // stale queue entry (cancelled/claimed elsewhere)
