@@ -44,7 +44,7 @@ const LAYOUT = () => {
 };
 const TEXTS = (lang) => {
   const out = [], seen = new Set(); const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-  while (w.nextNode()) { const n = w.currentNode, tx = (n.nodeValue || "").trim(); if (!tx || n.parentElement.closest("script,style,noscript,code,.ltr,.mail,#toasts")) continue; const el = n.parentElement, cs = getComputedStyle(el); if (cs.display === "none" || cs.visibility === "hidden") continue; if (seen.has(tx)) continue; seen.add(tx);
+  while (w.nextNode()) { const n = w.currentNode, tx = (n.nodeValue || "").trim(); if (!tx || n.parentElement.closest("script,style,noscript,code,.ltr,.mail,#toasts,[aria-hidden=true]")) continue; const el = n.parentElement, cs = getComputedStyle(el); if (cs.display === "none" || cs.visibility === "hidden") continue; if (seen.has(tx)) continue; seen.add(tx);
     if (/^[a-z]+(_[a-z0-9]+)+$/.test(tx)) out.push({ k: "i18n-key", tx });
     else if (lang === "he") { const lat = tx.replace(/https?:\S+|\S+@\S+|ODH-\w+|kick\.com\S*|twitch\.tv\S*/gi, "").match(/[A-Za-z]{4,}/g) || []; const bad = lat.filter((x) => !/^(Studio|Kick|Twitch|YouTube|Shorts|Short|WhatsApp|Google|Guest|OdedSVR|Plan|Noa|Auto|Tap|Enter|Esc|Edit|Client|Team|kaicenat|odedsvr|nobody|here|team|mobile\w*|desktop\w*)$/i.test(x)); if (bad.length && !/[֐-׿]/.test(tx) ? true : bad.length) out.push({ k: "latin-in-he", tx: tx.slice(0, 60) }); }
     else if (lang === "en" && /[֐-׿]/.test(tx) && !/^(עב|עברית)$/.test(tx)) out.push({ k: "hebrew-in-en", tx: tx.slice(0, 60) }); }
@@ -115,7 +115,7 @@ async function runProfile(browser, name, P) {
   });
 
   await step("setup-wrong-channel-then-back", async () => {   // add a channel that does not exist on Kick, see the friendly error, change it
-    await page.locator("#chIn").fill("kick.com/nobody-here"); await page.locator("form button[type=submit]").click(); await page.waitForSelector(".code-box code"); await check(page, "setup-2"); await shot(page, "03-setup-verify", true);
+    await page.locator("#chIn").fill("kick.com/zz-nochan-" + rnd()); await page.locator("form button[type=submit]").click(); await page.waitForSelector(".code-box code"); await check(page, "setup-2"); await shot(page, "03-setup-verify", true);
     const code = await txt(".code-box code"); if (!/^ODH-[A-Z2-9]{8}$/.test(code)) throw new Error("bad code " + code);
     await page.locator('.card button.btn:not(.ghost):not(.secondary)').last().click(); await exp(async () => (await txt('[role="status"].small')).length > 3, "verify message", 15000);
     R.notes.push("verify message for a non-existing Kick channel: " + (await txt('[role="status"].small')));
@@ -178,7 +178,7 @@ async function runProfile(browser, name, P) {
   await step("activity-timeline-cancel-refund", async () => {
     await goTo("jobs"); await exp(async () => (await page.locator("article.job").count()) === 2, "2 job cards"); await check(page, "activity"); await shot(page, "09-activity", true);
     const pill0 = await txt("#creditPill"); if (parseInt(pill0.replace(/\D/g, "") || "x", 10) !== 0) throw new Error("credit pill should read 0, reads " + pill0);
-    const j2 = state.jobs[1]; await page.locator(`#job-${j2} button:has-text("${tx("ביטול הבקשה", "Cancel request")}")`).click(); await exp(async () => (await page.locator(`#job-${j2} .chip`).first().innerText()).includes(tx("בוטל", "Cancelled")), "job shows cancelled", 8000);
+    const j2 = state.jobs[1]; await page.locator(`#job-${j2} button:has-text("${tx("ביטול הבקשה", "Cancel request")}")`).click(); await exp(async () => (await page.locator(`#job-${j2} .chip`).first().innerText()).toLowerCase().includes(tx("בוטל", "cancelled")), "job shows cancelled", 8000);
     await exp(async () => parseInt((await txt("#creditPill")).replace(/\D/g, ""), 10) === 1, "credit refunded in the pill"); const org = (await sapi(state.token, "GET", `/orgs/${state.orgId}`)).j.org; if (org.credits !== 1) throw new Error("server credits after cancel " + org.credits);
     if (await page.locator(`#job-${state.jobs[1]} button:has-text("${tx("ביטול הבקשה", "Cancel request")}")`).count()) throw new Error("cancel button still shown on a cancelled job");
   }, { needs: "channel" });

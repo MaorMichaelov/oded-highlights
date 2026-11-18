@@ -13,7 +13,7 @@ const env = { KV: new KV() }; env.KV.m.set("studio:cfg:worker_key", "wk_local_e2
 const ctl = { kick_bio: "", kick_status: 200, twitch: false, twitch_bio: "" };
 const fakeFetch = async (url) => {
   const R = (o, s = 200) => ({ ok: s < 400, status: s, json: async () => o, text: async () => JSON.stringify(o) });
-  if (url.startsWith("https://kick.com/api/v2/channels/")) { const slug = decodeURIComponent(url.split("/").pop()); if (ctl.kick_status !== 200) return R({}, ctl.kick_status); if (slug === "nobody-here") return R({}, 404); return R({ user_id: 7, user: { id: 7, username: slug, bio: ctl.kick_bio }, livestream: null }); }
+  if (url.startsWith("https://kick.com/api/v2/channels/")) { const slug = decodeURIComponent(url.split("/").pop()); if (ctl.kick_status !== 200) return R({}, ctl.kick_status); if (slug.startsWith("zz-nochan")) return R({}, 404); return R({ user_id: 7, user: { id: 7, username: slug, bio: ctl.kick_bio }, livestream: null }); }
   if (url.startsWith("https://gql.twitch.tv/")) { if (!ctl.twitch) return R({}, 500); return R({ data: { user: { id: "1", displayName: "kaicenat", description: ctl.twitch_bio, stream: null } } }); }
   if (url.includes("api.github.com")) return R([], 404);
   return R({}, 500);
