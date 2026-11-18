@@ -103,7 +103,8 @@ class Outcome:
 
 def run_subprocess(job, workdir, cfg, on_progress, log, stop_event, secrets=()):
     """default runner: job_runner.py as a child process in its own process group (so ffmpeg children die with it). Enforces the hard timeout and the no-output stall timeout."""
-    os.makedirs(workdir, exist_ok=True); jp = os.path.join(workdir, "job.json"); json.dump(job, open(jp, "w"))
+    os.makedirs(workdir, exist_ok=True); jp = os.path.join(workdir, "job.json")
+    with open(jp, "w") as f: json.dump(job, f)
     env = {k: v for k, v in os.environ.items() if k not in ("STUDIO_WORKER_KEY",)}; env.update(cfg.get("child_env") or {})
     cmd = [sys.executable, "-u", RUNNER, "--job", jp, "--workdir", workdir] + (["--demo"] if cfg.get("demo") else [])
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env, start_new_session=True, cwd=ROOT)
@@ -134,7 +135,8 @@ def run_subprocess(job, workdir, cfg, on_progress, log, stop_event, secrets=()):
         else: log("job_output", job=job.get("id"), line=redact(line, secrets)[:300], level="debug")
     code = p.wait(); result = None
     if code == 0 and res_path:
-        try: result = json.load(open(res_path, encoding="utf-8"))
+        try:
+            with open(res_path, encoding="utf-8") as f: result = json.load(f)
         except Exception as e: code, err = 1, {"code": "bad_result", "message": str(e)[:100]}
     return Outcome(code, result, err, state["killed"])
 
@@ -210,7 +212,9 @@ class Worker:
         msg = FRIENDLY.get(code) or {"timeout": "This took too long and was stopped.", "stalled": "This got stuck and was stopped.", "shutdown": "The server restarted while working on this."}.get(code) or "Something went wrong on our side."
         self._post(jid, status="failed", error=redact(msg + " [" + str(code) + "]", [self.cfg.get("secret", "")])[:200], progress=0)
         self.log("job_failed", "error", job=jid, code=code, detail=(out.error or {}).get("message", ""), killed=out.killed, seconds=round(self.clock() - t0, 1))
-        try: open(os.path.join(workdir, "FAILED"), "w").write(str(code))   # kept for keep_failed_h so the owner can look at it
+        try:
+            os.makedirs(workdir, exist_ok=True)
+            with open(os.path.join(workdir, "FAILED"), "w") as f: f.write(str(code))   # scratch is kept for keep_failed_h so the owner can look at it
         except OSError: pass
 
     # -- housekeeping
