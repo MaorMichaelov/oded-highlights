@@ -94,7 +94,7 @@ def analyse_text(frames, step, y_lo=0.0, y_hi=1.0):
         res.update({"y_center": round(float(np.median(ys)) / H, 3), "y_top": round(float(np.percentile(tops, 20)) / H, 3), "y_bottom": round(float(np.percentile(bots, 80)) / H, 3), "band_h": round(float(np.median(hs)) / H, 3)})
     if sel_runs:   # burned-in captions are horizontally centred and do not touch the frame edge; game HUD / stream overlays sit in corners and edges
         xs = np.concatenate([np.where(ms[i][lo:hi + 1])[1] for i, lo, hi in sel_runs]); res["x_center"] = round(float(xs.mean()) / W, 2) if len(xs) else None
-        if res["x_center"] is None or abs(res["x_center"] - 0.5) > 0.12 or res.get("y_bottom", 0) > 0.955:
+        if res["x_center"] is None or abs(res["x_center"] - 0.5) > 0.12 or res.get("y_bottom", 0) > 0.985:
             res["rejected"] = "not caption-like (off-centre or on the frame edge)"; res["coverage"] = 0.0
     px = np.concatenate([frames[i][lo:hi + 1][ms[i][lo:hi + 1]] for i, lo, hi in sel_runs] or [np.zeros((0, 3), np.uint8)]); px = px[:200000].astype(np.int16)
     mx, mn = px.max(1), px.min(1); white = (mn >= 205) & ((mx - mn) < 40); col = ~white
