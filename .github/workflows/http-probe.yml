@@ -22,7 +22,7 @@ jobs:
           case "$BASE" in https://*.workers.dev) ;; *) exit 1;; esac
           G=$(curl -sS -m 30 -X POST -H 'content-type: application/json' -d '{}' "$BASE/studio/api/guest")
           TK=$(echo "$G" | python3 -c "import sys,json;print(json.load(sys.stdin)['token'])"); OID=$(echo "$G" | python3 -c "import sys,json;print(json.load(sys.stdin)['org_id'])")
-          for m in "איך אני מקצר סרטון ארוך שלא יהיה משעמם?" "תן לי 3 כותרות לקליפ שבו הסטרימר צועק על המשחק" "הקליפים שלי לא מקבלים צפיות, למה?" "מה ההבדל בין שורט לסרטון ארוך?" "למה"; do
+          for m in "שלום" "תאמת לא יודע" "מה אתה חושב שכדאי לי לעשות קודם?"; do
             echo "== chat: $m"; curl -sS -m 90 -X POST -H "authorization: Bearer $TK" -H 'content-type: application/json' -d "{\"message\":\"$m\"}" "$BASE/studio/api/orgs/$OID/assistant" | head -c 1500; echo
           done
           echo "== diag"; curl -sS -m 30 "$BASE/studio/api/health?ai=1" | head -c 900; echo
