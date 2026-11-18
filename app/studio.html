@@ -103,6 +103,7 @@ button.chip:hover{border-color:var(--accent);background:var(--accent-soft)}
 .input::placeholder{color:var(--faint)}
 .input:focus-visible{outline:3px solid var(--accent-soft);border-color:var(--accent);outline-offset:0}
 .input[aria-invalid="true"]{border-color:var(--bad)}
+.emailbox{margin-top:14px;border-top:1px solid var(--line,rgba(127,127,127,.25));padding-top:12px}.emailbox summary{cursor:pointer;font-size:13px;color:var(--muted);text-align:center;list-style:none;padding:6px}.emailbox summary::-webkit-details-marker{display:none}.emailbox[open] summary{margin-bottom:10px}
 .pwrap{position:relative;direction:ltr}
 .pwrap .iconbtn{position:absolute;right:2px;top:0;height:100%;width:var(--tap);color:var(--muted)}
 .pwrap .input{padding-right:48px;text-align:left}
@@ -492,7 +493,8 @@ const I = {
   hero_title: ["הסטרימים שלכם הופכים לשורטס. אוטומטית.", "Your streams, turned into Shorts. Automatically."],
   hero_sub: ["מדביקים קישור לערוץ, מחברים יוטיוב, והעוזר מוצא את הרגעים, חותך, מוסיף כתוביות ומכין טיוטות. אתם רק מאשרים.", "Paste your channel, connect YouTube, and the assistant finds the moments, cuts, captions and drafts. You just approve."],
   perk1: ["טיוטות פרטיות בלבד", "Private drafts only"], perk2: ["שום דבר לא עולה בלי אישור", "Nothing goes live without you"], perk3: ["עברית ואנגלית", "Hebrew and English"],
-  auth_title: ["כניסה או הרשמה", "Sign in or sign up"], auth_hint: ["חדשים כאן? ניצור חשבון אוטומטית, בלי טפסים ארוכים.", "New here? We create your account automatically. No long forms."],
+  guest_go: ["כניסה לסטודיו", "Enter the studio"], guest_or: ["או עם אימייל", "or with email"], guest_hint: ["בלי סיסמה ובלי אימייל. נכנסים ישר.", "No password, no email. Straight in."],
+  auth_title: ["ברוכים הבאים", "Welcome"], auth_hint: ["חדשים כאן? ניצור חשבון אוטומטית, בלי טפסים ארוכים.", "New here? We create your account automatically. No long forms."],
   email: ["אימייל", "Email"], password: ["סיסמה", "Password"], pw_hint: ["לפחות 8 תווים", "At least 8 characters"], show_pw: ["הצגת סיסמה", "Show password"], hide_pw: ["הסתרת סיסמה", "Hide password"],
   continue: ["המשך", "Continue"], try_demo: ["חזרה לדמו", "Back to the demo"], demo_note: ["זה דמו עם נתונים לדוגמה. שום דבר לא נשלח לשום מקום.", "This is a demo with sample data. Nothing is sent anywhere."],
   invite_banner: ["הוזמנתם להצטרף ל-{org} בתור {role}. התחברו או הירשמו כדי להצטרף.", "You were invited to join {org} as {role}. Sign in or sign up to join."],
@@ -798,15 +800,17 @@ function renderAuth() {
     S.inviteToken && S.invitePreview ? h("div", { class: "notice" }, icon("mail"), h("div", null, t("invite_banner", { org: S.invitePreview.org, role: t("r_" + S.invitePreview.role) }))) : null,
     h("div", { class: "field" }, h("label", { for: "email" }, t("email")), em), h("div", { class: "field" }, h("label", { for: "pw" }, t("password")), h("div", { class: "pwrap" }, pw, eye), h("div", { class: "small muted" }, t("pw_hint"))), err, go1,
     h("p", { class: "small muted center" }, DEMO ? t("demo_note") : t("auth_hint")));
+  const guestBtn = h("button", { class: "btn lg block", type: "button", onclick: async (e) => { const b = e.currentTarget; err.textContent = ""; b.disabled = true; b.replaceChildren(h("span", { class: "spin" }));
+    try { const r = await api("POST", "/guest", {}); token = r.token; LS.set("studio_token", token); demoLanding = false; S.ready = false; renderApp(); }
+    catch (e2) { err.textContent = errText(e2); b.disabled = false; b.replaceChildren(h("span", null, t("guest_go")), icon("arrow", "flip")); } } }, h("span", null, t("guest_go")), icon("arrow", "flip"));
   const title = t("hero_title"), cut = title.indexOf(". "), a = cut > 0 ? title.slice(0, cut + 1) : title, b = cut > 0 ? title.slice(cut + 2) : "";
   $("#app").replaceChildren(h("div", { class: "auth" },
     h("div", { class: "auth-top" }, langSwitch(), themeBtn()),
     h("section", { class: "landing" }, h("a", { class: "brand big", href: "#" }, h("span", { class: "logo" }, icon("play")), h("span", null, "Studio")),
       h("h1", { class: "display" }, a, " ", b ? h("span", { class: "gradtxt" }, b) : null), h("p", { class: "lead" }, t("hero_sub")),
       h("div", { class: "perks" }, ...["perk1", "perk2", "perk3"].map((k) => h("span", { class: "chip" }, icon(k === "perk3" ? "globe" : k === "perk1" ? "lock" : "shield"), t(k))))),
-    h("section", { class: "card glass authcard" }, h("h2", null, t("auth_title")), form), h("div", { class: "visual" }, heroVisual())));
-  setTimeout(() => { if (!em.value) em.focus(); }, 50);
-}
+    h("section", { class: "card glass authcard" }, h("h2", null, t("auth_title")), guestBtn, h("p", { class: "small muted center" }, t("guest_hint")), h("details", { class: "emailbox" }, h("summary", null, t("guest_or")), form)), h("div", { class: "visual" }, heroVisual())));
+  }
 const langSwitch = () => h("div", { class: "seg", role: "group", "aria-label": t("se_lang") }, ...[["he", "עב"], ["en", "EN"]].map(([l, x]) => h("button", { type: "button", "aria-pressed": String(lang === l), "aria-label": l === "he" ? "עברית" : "English", onclick: () => lang !== l && setLang(l) }, x)));
 const themeBtn = () => h("button", { class: "iconbtn glassbtn", type: "button", "aria-label": t("se_theme"), onclick: () => { const dark = document.documentElement.getAttribute("data-theme") === "dark" || (S.theme === "auto" && !matchMedia("(prefers-color-scheme: light)").matches); setTheme(dark ? "light" : "dark"); renderApp(); } }, icon("moon"));
 function renderInvite() {
@@ -1136,7 +1140,7 @@ function demoUnderstand(text) {
 }
 async function demoApi(method, path, body) {
   await sleep(140 + Math.random() * 120); const E = (s, code, x) => { throw Object.assign({ error: code, _status: s }, x || {}); }; const ok = (o) => clone(o);
-  if (path === "/login" || path === "/signup") { token = "demo"; return { token: "demo", user: D.user, org_id: "o_demo" }; }
+  if (path === "/login" || path === "/signup" || path === "/guest") { token = "demo"; return { token: "demo", user: D.user, org_id: "o_demo" }; }
   if (path === "/logout") return { ok: true };
   if (path === "/invites/preview") return { org: lang === "he" ? "הצוות של נועה" : "Noa's team", role: "editor", email: "demo@streamer.tv" };
   if (path === "/invites/accept") return { ok: true };

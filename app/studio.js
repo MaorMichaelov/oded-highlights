@@ -244,6 +244,15 @@ export async function handleStudio(req, env, fetchImpl = fetch) {
     await addMember(env, orgId, uid, email, "owner");
     return json({ token: await newSession(env, uid), user: { id: uid, email, name }, org_id: orgId });
   }
+  if (path === "/guest" && m === "POST") {   // no email, no password: one click creates a throw-away workspace (owner request for the preview phase); disable with env STUDIO_GUEST=0
+    if (env.STUDIO_GUEST === "0") return err(403, "guest_disabled");
+    if (await limited(env, req, "guest", 8)) return err(429, "rate_limited");
+    const uid = "u_" + rnd(8), orgId = "o_" + rnd(8), email = "guest-" + rnd(6) + "@guest.invalid", name = "Guest";
+    await Promise.all([kput(env, K.user(uid), { id: uid, email, name, guest: true, pw: await hashPassword(rnd(24)), created: now() }), env.KV.put(K.email(email), uid),
+      kput(env, K.org(orgId), { id: orgId, name: "My studio", owner: uid, plan: "trial", credits: TRIAL_CREDITS, created: now() })]);
+    await addMember(env, orgId, uid, email, "owner");
+    return json({ token: await newSession(env, uid), user: { id: uid, email, name }, org_id: orgId });
+  }
   if (path === "/login" && m === "POST") {
     if (await limited(env, req, "login", 20)) return err(429, "rate_limited");
     const email = clean(b.email, 254).toLowerCase(); const uid = await env.KV.get(K.email(email)); const usr = uid && await kget(env, K.user(uid));

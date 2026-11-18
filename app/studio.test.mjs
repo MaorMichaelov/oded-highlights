@@ -130,4 +130,8 @@ r = await call("POST", "/studio/api/login", { email: "victim@x.com", password: "
 r = await call("GET", "/studio"); assert.ok(r.s === 200); { const h = (await handleStudio(new Request("https://app.test/studio"), env, fakeFetch)).headers; assert.equal(h.get("x-frame-options"), "DENY"); assert.equal(h.get("x-content-type-options"), "nosniff"); } ok("security headers");
 // the owner app's keys are never touched
 assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
+// ---- guest entry (no email / password)
+{ const g = await call("POST", "/studio/api/guest", {}); assert.equal(g.s, 200); assert.ok(g.j.token && g.j.org_id);
+  const me = await call("GET", "/studio/api/me", null, g.j.token); assert.equal(me.s, 200);
+  const o = await call("GET", "/studio/api/orgs/" + g.j.org_id, null, g.j.token); assert.ok(o.s === 200 || o.s === 404); ok("guest entry"); }
 console.log(`\n${n} test groups passed`);
