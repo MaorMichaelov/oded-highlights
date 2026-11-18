@@ -211,7 +211,7 @@ const WHEN_TXT = { yesterday: { he: "מהסטרים של אתמול", en: "from 
 const MOOD_TXT = { funny: { he: "מצחיקים", en: "funny" }, hype: { he: "מטורפים", en: "hype" }, fail: { he: "של פיילים", en: "fail" } };
 const HELP = { he: "אפשר לבקש בשפה חופשית, למשל: \"תכין 5 שורטס מצחיקים מאתמול\" או \"מה המצב?\"", en: "Ask in plain words, e.g. \"make 5 funny Shorts from yesterday\" or \"what's the status?\"" };
 // ---- free-form understanding with a free LLM (Workers AI binding `AI`): replies vary, remember the conversation, answer product questions; the rule parser above stays as the fallback and as the safety net
-const LLM_MODELS = ["@cf/openai/gpt-oss-120b", "@cf/meta/llama-3.3-70b-instruct-fp8-fast", "@cf/meta/llama-3.1-8b-instruct"];
+const LLM_MODELS = ["@cf/mistralai/mistral-small-3.1-24b-instruct", "@cf/openai/gpt-oss-120b", "@cf/meta/llama-3.3-70b-instruct-fp8-fast", "@cf/meta/llama-3.1-8b-instruct"];   // chosen by a Hebrew comparison on the live Worker: Mistral Small 3.1 gives the most natural Hebrew and is the fastest
 const LLM_DIAG = { last: "", text: "" };   // last model outcome, shown by /studio/api/health?ai=1
 const LLM_DAILY = 300;   // per workspace; free tier friendly
 function firstJson(text) { const t = String(text || ""); const a = t.indexOf("{"); if (a < 0) return null; let d = 0, q = false, e = false; for (let i = a; i < t.length; i++) { const c = t[i]; if (q) { if (e) e = false; else if (c === "\\") e = true; else if (c === '"') q = false; continue; } if (c === '"') q = true; else if (c === "{") d++; else if (c === "}" && --d === 0) { try { return JSON.parse(t.slice(a, i + 1)); } catch (x) { return null; } } } return null; }
