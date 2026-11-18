@@ -1,0 +1,6 @@
+{
+ "_doc": "Extra banned words, applied to titles, descriptions and the transcript of every Short by scripts/safety.py (a moment that contains one is rejected). global = every channel; channels = by Kick/Twitch slug; customers = by Studio customer/org id. Plain words or phrases; Hebrew words also match with a 1-2 letter prefix. Words can only be ADDED here (the built-in English list and the customer profile bans always apply too).",
+ "global": [],
+ "channels": {},
+ "customers": {}
+}

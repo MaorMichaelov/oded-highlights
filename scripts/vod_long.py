@@ -6,7 +6,7 @@ Steps: Groq whisper (English, word times) over the window -> LLM writes title / 
 import argparse, json, os, re, subprocess, sys, tempfile, time
 import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
-import vod_shorts as V, cutsnap as CS, cutqa as Q
+import vod_shorts as V, cutsnap as CS, cutqa as Q, dedup as DD, safety as SAFETY
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--slug", required=True); ap.add_argument("--platform", default="kick"); ap.add_argument("--vod", default="auto"); ap.add_argument("--from-min", type=float, required=True); ap.add_argument("--to-min", type=float, required=True); ap.add_argument("--credit", default=""); ap.add_argument("--out", default=None); ap.add_argument("--title-hint", default=""); ap.add_argument("--style", default=None, help="editing style name (config/styles/<name>.json) or path; default env STYLE; none = classic"); a = ap.parse_args()
     if a.style: os.environ["STYLE"] = a.style
@@ -83,6 +83,8 @@ def main():
     if os.environ.get("ALLOW_DUP") != "1":   # 17 Nov: never render the same stretch of a VOD twice (set ALLOW_DUP=1 for a deliberate re-render)
         du = [x for x in Q.existing_ranges(a.slug, vid, kinds=("long",)) if Q.overlap(s1, e1, x["start"], x["end"]) >= 0.5]
         if du: print(f"DUPLICATE: {s1:.0f}-{e1:.0f} overlaps the existing long video {du[0]['id']} ({du[0]['start']:.0f}-{du[0]['end']:.0f}); not rendering (ALLOW_DUP=1 overrides)"); sys.exit(0)
+        _ex = DD.find(vid, s1, e1, "long", os.environ.get("CHANNEL_YT", "en"))
+        if _ex: print(f"DUPLICATE (ledger / another producer): {s1:.0f}-{e1:.0f} overlaps {_ex.get('clip_id') or _ex.get('src')}; not rendering (ALLOW_DUP=1 overrides)"); sys.exit(0)
     # LLM metadata from the real transcript (evenly sampled lines with [seconds from the clip start])
     lines = []; cur = []; ts = None; line_t = []   # line_t[i] = absolute start second of line i: chapters are chosen by LINE NUMBER, never by seconds written by the LLM (17 Nov: LLM seconds put 8 chapters into the first 5 min of a 12 min video, 7 of them describing other moments)
     for w in words:
@@ -164,7 +166,9 @@ def main():
         if meta["qa"]["fail"]: meta["qa_fail"] = True
         print("QA", meta["qa"], flush=True)
     except Exception as e_: print("qa grade failed (draft kept as is):", str(e_)[:150])
-    json.dump(meta, open(mp4[:-4] + ".json", "w"), ensure_ascii=False, indent=1)
+    _bt = SAFETY.Screen(a.slug).hits(str(meta.get("title", "")) + " " + str(meta.get("description", "")))
+    if _bt: meta["qa_fail"] = True; meta.setdefault("qa", {}).setdefault("fail", []).append("banned words in title/description: " + ", ".join(_bt)); print("BANNED WORDS in the generated title/description:", _bt, "- marked qa_fail (not uploaded)")
+    json.dump(meta, open(mp4[:-4] + ".json", "w"), ensure_ascii=False, indent=1); DD.claim(vid, s1, e1, "long", os.environ.get("CHANNEL_YT", "en"), "vod_long", os.path.basename(mp4))
     if os.environ.get("THUMB_PRO") == "1":   # opt-in only: the owner does not want auto-designed thumbnails
       try:   # pro thumbnail from a real face frame (thumb_pro.py): 2-4 literal words
           tj = V.llm(f"Give a 2 to 4 word YouTube thumbnail hook for a video titled '{meta['title']}'. Literal and true to the title, no hype words, no profanity, no clickbait claims. Return JSON {{\"text\": \"...\"}}")

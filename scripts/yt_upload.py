@@ -4,7 +4,7 @@ META.json: {"title","description","tags":[],"privacy":"private|unlisted|public",
 Auth: env YT_REFRESH_FILE (json with refresh_token) -> access token via oauth2 token endpoint.
 Client credentials (client_id/secret) are injected by the environment proxy locally, or passed as
 YT_CLIENT_ID / YT_CLIENT_SECRET in CI."""
-import json, os, subprocess, sys, urllib.parse
+import json, os, re, subprocess, sys, urllib.parse
 # GLOBAL UPLOAD HOLD (owner request): while state/UPLOAD_HOLD holds a future UTC timestamp, nothing is uploaded to either channel.
 try:
     import datetime as _dt
@@ -28,6 +28,20 @@ if os.environ.get("CHANNEL_YT") == "en":
     _cfg = json.load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config", "channels.json"))); _want = ((_cfg.get("youtube_channels") or {}).get("en") or {}).get("channel_id", "")
     _me = json.loads(run(["curl", "-sS", "-m", "30", "https://www.googleapis.com/youtube/v3/channels?part=id&mine=true", "-H", f"Authorization: Bearer {at}"]).stdout).get("items", [{}])[0].get("id", "")
     if not _want or _me != _want: print(f"REFUSED: the token's channel is {_me!r}, the allowed WORLD CLIPS channel id is {_want!r}"); sys.exit(3)
+# DUPLICATE GUARD (audit 18 Nov): if an earlier run uploaded this video but its state was never committed (push race, cancelled job), the pipeline would upload it AGAIN. Look at the channel's latest 50 uploads
+# (playlistItems.list, 1 quota unit, private videos included for the owner token); an identical title = the same clip: report that video as the result (exit 0, state catches up) instead of uploading a second copy.
+# Fail-open: if the check itself errors the upload proceeds. ALLOW_DUP=1 overrides (deliberate re-upload after the owner deleted the old one).
+def _norm(s): return re.sub(r"\s+", " ", str(s or "")).strip().casefold()
+if os.environ.get("ALLOW_DUP") != "1":
+    try:
+        _ch = json.loads(run(["curl", "-sS", "-m", "30", "https://www.googleapis.com/youtube/v3/channels?part=contentDetails&mine=true", "-H", f"Authorization: Bearer {at}"]).stdout)
+        _pl = _ch["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
+        _it = json.loads(run(["curl", "-sS", "-m", "30", f"https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={_pl}", "-H", f"Authorization: Bearer {at}"]).stdout).get("items", [])
+        _hit = next((i for i in _it if _norm(i["snippet"]["title"]) == _norm(meta["title"])), None)
+        if _hit:
+            _vid = _hit["snippet"]["resourceId"]["videoId"]; print("DUPLICATE_SKIPPED: a video with this exact title is already on the channel:", _vid, "(ALLOW_DUP=1 uploads anyway)"); print("https://youtu.be/" + _vid); sys.exit(0)
+    except SystemExit: raise
+    except Exception as _e: print("duplicate check skipped (error, uploading anyway):", type(_e).__name__)
 body = {"snippet": {"title": meta["title"], "description": meta["description"], "tags": meta.get("tags", []), "categoryId": "24", "defaultLanguage": ("en" if os.environ.get("CHANNEL_YT") == "en" else "he"), "defaultAudioLanguage": ("en" if os.environ.get("CHANNEL_YT") == "en" else "he")},
         "status": {"privacyStatus": meta.get("privacy", "private"), "selfDeclaredMadeForKids": False}}
 if meta.get("publishAt"): body["status"]["publishAt"] = meta["publishAt"]

@@ -2,8 +2,9 @@
 """Uploads the Shorts of state/<slug>/shorts/*.mp4 (+ .json meta) as PRIVATE drafts to the English channel (CHANNEL_YT=en, YT2_* secrets; yt_upload.py refuses any channel but the verified id in config/channels.json).
 usage: upload_shorts.py <slug> [max]   Highest score first; already uploaded files are remembered in state/<slug>/shorts/uploaded.json."""
 import glob, json, os, subprocess, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import statefile as SF   # the uploaded-record is saved after EVERY upload (a killed job must not forget what is already on YouTube)
 slug = sys.argv[1]; mx = int(sys.argv[2]) if len(sys.argv) > 2 else 6; sub = sys.argv[3] if len(sys.argv) > 3 else "shorts"; d = f"state/{slug}/{sub}"; rec_f = f"{d}/uploaded.json"
-rec = json.load(open(rec_f)) if os.path.exists(rec_f) else {}
+rec = SF.read_json(rec_f, {}) or {}
 todo = []
 for mp4 in glob.glob(f"{d}/*.mp4"):
     mf = mp4[:-4] + ".json"
@@ -14,13 +15,13 @@ for mp4 in glob.glob(f"{d}/*.mp4"):
     todo.append((mj.get("score", 0), mp4, mf))
 todo.sort(reverse=True); n = 0
 for sc, mp4, mf in todo[:mx]:
-    meta = json.load(open(mf)); meta["privacy"] = "private"; meta.setdefault("tags", []).extend((["Shorts"] if sub == "shorts" else []) + [slug]); json.dump(meta, open(mf, "w"), ensure_ascii=False)
+    meta = json.load(open(mf)); meta["privacy"] = "private"; meta["tags"] = list(dict.fromkeys(meta.get("tags", []) + (["Shorts"] if sub == "shorts" else []) + [slug])); SF.write_json(mf, meta, indent=None)
     th = mp4[:-4] + ".jpg"; cmd = [sys.executable, "scripts/yt_upload.py", mp4, mf] + ([th] if sub != "shorts" and os.path.exists(th) else [])   # long videos carry a custom thumbnail
     r = subprocess.run(cmd, capture_output=True, text=True, env=dict(os.environ, CHANNEL_YT="en"))
     url = [l for l in r.stdout.splitlines() if l.startswith("https://youtu.be/")]
     print(("UPLOADED " + url[-1] + " | " + meta["title"]) if url else ("FAILED " + (r.stdout + r.stderr)[-300:]))
-    if url: rec[os.path.basename(mp4)] = url[-1]; n += 1
+    if url: rec[os.path.basename(mp4)] = url[-1]; n += 1; SF.write_json(rec_f, rec)
     elif "UPLOAD_HOLD" in r.stdout: print("upload hold active, stopping"); break
     elif "quota" in (r.stdout + r.stderr).lower(): print("quota reached, stopping"); break
     elif "REFUSED" in r.stdout: print("upload refused by the channel guard, stopping"); break
-json.dump(rec, open(rec_f, "w"), indent=1); print("uploaded", n, "of", len(todo), "pending")
+SF.write_json(rec_f, rec); print("uploaded", n, "of", len(todo), "pending")

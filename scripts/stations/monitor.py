@@ -54,10 +54,14 @@ if ls.get("http") not in (None, "200", 200) or ls.get("live") is None: problems.
 if stuck: problems.append(f"clips without a draft after 90 min: {stuck[:5]}")
 info["pending_candidates"] = len(jf(os.path.join(ST, "pending_candidates.json"), []) or [])
 info["problems"] = problems; info["checked_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-json.dump(info, open(os.path.join(ST, "health.json"), "w"), ensure_ascii=False, indent=1); print(json.dumps(info, ensure_ascii=False, indent=1))
-_last = (jf(os.path.join(ST, "health.json"), {}) or {}).get("problems", [])
+_hp = os.path.join(ST, "health.json"); _keep = {k: v for k, v in (jf(_hp, {}) or {}).items() if k in ("overall", "checks", "hc_problems", "hc_checked_at")}   # scripts/health_check.py owns these keys: keep them
+_prev_problems = (jf(_hp, {}) or {}).get("problems", [])   # BEFORE overwriting (the old code read the file after writing it, so a new problem was never seen as new and no event/notification was ever sent)
+json.dump({**_keep, **info}, open(_hp + ".tmp", "w"), ensure_ascii=False, indent=1); os.replace(_hp + ".tmp", _hp); print(json.dumps(info, ensure_ascii=False, indent=1))
+import re as _re
+_n = lambda s: _re.sub(r"\d+", "#", s)   # "state is 25 min old" and "...26 min old" are the same problem: one event, not one per run
+_last = [_n(x) for x in _prev_problems]
 for _p in problems:
-    if _p not in _last: event("problem", "תקלה: " + _p)
+    if _n(_p) not in _last: event("problem", "תקלה: " + _p)
 if problems and not a.no_issue and os.environ.get("GH_TOKEN"):
     title = "תקלה במערכת: " + problems[0][:70]
     if title not in gh("issue", "list", "--repo", REPO, "--state", "open", "--json", "title", "--jq", ".[].title"):

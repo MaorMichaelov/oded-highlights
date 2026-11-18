@@ -9,6 +9,7 @@ import argparse, json, os, re, subprocess, sys, tempfile, time
 import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE); sys.path.insert(0, os.path.join(HERE, "stations")); sys.path.insert(0, HERE)
 import cutsnap as CS, cutqa as Q
+import safety as SAFETY, dedup as DD   # banned-word screen (global / per channel / customer profile) and the cross-producer duplicate ledger
 GAMBLING = re.compile(r"jack\.?com|gambl|giveaway|casino|stake\.|slots?\b|roulette|promo code|use code|sportsbook|betting|\bbets?\b|18\+", re.I)
 def sh(c, **k): return subprocess.run(c, capture_output=True, text=True, **k)
 def style_active(fmt="shorts"):
@@ -187,6 +188,9 @@ def main():
                 need = TARC - (e0 - s0); s0 = max([w["start"] for w in words if w["start"] <= s0 - need * 0.6], default=s0) - 0.2; e0 = min([w["end"] for w in words if w["end"] >= e0 + need * 0.4], default=e0) + 0.45
         prev = [(m[2], m[3]) for m in made] + ([] if os.environ.get("ALLOW_DUP") == "1" else [(x["start"], x["end"]) for x in Q.existing_ranges(a.slug, vid, kinds=("shorts",))])   # also refuse a moment an earlier run already made (17 Nov: three overlapping Shorts of the same song)
         if not (MINC <= e0 - s0 <= MAXC) or any(Q.overlap(s0, e0, x, y) >= 0.3 for x, y in prev): print("rejected (length or duplicate)", round(s0), round(e0), j.get("title")); continue
+        _bad = SAFETY.Screen(a.slug).hits(" ".join(w["word"].strip() for w in words if s0 - 0.5 <= w["start"] <= e0 + 0.5) + " " + str(j.get("title", "")))
+        if _bad: print("rejected (banned words):", _bad, "|", j.get("title")); continue   # never render a moment that contains a banned word / unsafe term (checked BEFORE the slow render)
+        if os.environ.get("ALLOW_DUP") != "1" and DD.find(vid, s0, e0, "short", os.environ.get("CHANNEL_YT", "en")): print("rejected (duplicate guard: another producer already made this moment)", round(s0), round(e0)); continue
         body = f"{tmp}/b{int(s0)}.mp4"; pad = 2.0; body_t0 = s0 - pad
         r = sh(["ffmpeg", "-v", "error", "-y", "-ss", f"{s0 - pad:.2f}", "-t", f"{e0 - s0 + 2 * pad:.2f}", "-i", VIDEO_SRC, "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "aac", "-b:a", "192k", body])
         if r.returncode: print("cut failed", r.stderr[-300:]); continue
@@ -231,6 +235,6 @@ def main():
             if meta["qa"]["fail"]: meta["qa_fail"] = True
             print("QA", meta["qa"], flush=True)
         except Exception as ex_: print("qa grade failed (draft kept as is):", str(ex_)[:150])
-        json.dump(meta, open(mp4.replace(".mp4", ".json"), "w"), ensure_ascii=False, indent=1); made.append((mp4, meta, s0, e0)); print(f"SHORT {len(made)}: {int(s0 // 60)}:{int(s0 % 60):02d}-{int(e0 // 60)}:{int(e0 % 60):02d} ({e0 - s0:.0f}s) score {sc:.1f} | {j['title']}")
+        json.dump(meta, open(mp4.replace(".mp4", ".json"), "w"), ensure_ascii=False, indent=1); DD.claim(vid, s0, e0, "short", os.environ.get("CHANNEL_YT", "en"), "vod_shorts", os.path.basename(mp4)); made.append((mp4, meta, s0, e0)); print(f"SHORT {len(made)}: {int(s0 // 60)}:{int(s0 % 60):02d}-{int(e0 // 60)}:{int(e0 % 60):02d} ({e0 - s0:.0f}s) score {sc:.1f} | {j['title']}")
     if not made: sys.exit("no short produced")
 if __name__ == "__main__": main()
