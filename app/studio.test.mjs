@@ -1,6 +1,8 @@
 // Local tests for app/studio.js (no network, no Cloudflare): node app/studio.test.mjs
 import { handleStudio, understand, parseChannelInput, canTransition, can, findCode, newVerifyCode, hashPassword, renderMsg } from "./studio.js";
 import assert from "node:assert/strict";
+import { StudioStore } from "./studio.js";
+import { DatabaseSync } from "node:sqlite";
 
 class KV {   // minimal Workers KV mock (get/put/delete/list with prefix)
   constructor() { this.m = new Map(); }
@@ -190,4 +192,18 @@ assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
   const q = async (tok) => (await call("POST", "/studio/worker/queue", {}, null, { "x-worker-key": tok })).s;
   assert.equal(await q(tokGood), 200); assert.equal(await q(tokGood), 200); assert.equal(calls, 1, "verified token is cached"); assert.equal(await q(tokOther), 401); assert.equal(await q(tokBad), 401); assert.equal(await q("ghs_short"), 401);
   globalThis.fetch = realFetch; ok("worker auth with a GitHub Actions run token"); }
+// ---- storage on a SQLite Durable Object: the whole customer flow works with Workers KV switched off (any KV call would throw)
+{ const db = new DatabaseSync(":memory:"); const sql = { exec(q, ...p) { const st = db.prepare(q); if (/^\s*select/i.test(q)) { const rows = st.all(...p); return { toArray: () => rows }; } st.run(...p); return { toArray: () => [] }; } };
+  const store = new StudioStore({ storage: { sql } });
+  const STORE = { idFromName: (n) => n, get: () => ({ fetch: (url, init) => store.fetch(new Request(url, init)) }) };
+  const deadKV = new Proxy({}, { get: () => () => { throw new Error("KV must not be used when STORE exists"); } });
+  const env2 = { KV: deadKV, STORE, AI: undefined };
+  const c2 = async (method, path, body, token) => { const res = await handleStudio(new Request("https://app.test" + path, { method, headers: { "content-type": "application/json", ...(token ? { authorization: "Bearer " + token } : {}) }, body: body ? JSON.stringify(body) : undefined }), env2, fakeFetch); const ct = res.headers.get("content-type") || ""; return { s: res.status, j: ct.includes("json") ? await res.json() : await res.text() }; };
+  const g = await c2("POST", "/studio/api/guest", {}); assert.equal(g.s, 200); const tk = g.j.token, oid = g.j.org_id;
+  assert.equal((await c2("GET", "/studio/api/me", null, tk)).s, 200);
+  const ch = await c2("POST", `/studio/api/orgs/${oid}/channels`, { url: "kick.com/odedsvr" }, tk); assert.equal(ch.s, 200);
+  const lst = await c2("GET", `/studio/api/orgs/${oid}/channels`, null, tk); assert.equal(lst.j.channels.length, 1, "a created channel is listed at once (consistent storage)");
+  const a = await c2("POST", `/studio/api/orgs/${oid}/assistant`, { message: "make 2 shorts https://www.twitch.tv/videos/123456789" }, tk); assert.equal(a.s, 200); assert.ok(a.j.actions[0] && a.j.actions[0].type === "job_created", a.j.reply);
+  const jobs = await c2("GET", `/studio/api/orgs/${oid}/jobs`, null, tk); assert.equal(jobs.j.jobs.length, 1);
+  ok("customer flow on a SQLite Durable Object store"); }
 console.log(`\n${n} test groups passed`);

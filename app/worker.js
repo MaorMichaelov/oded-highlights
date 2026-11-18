@@ -1,5 +1,6 @@
 // ODED HIGHLIGHTS chat app backend (Cloudflare Worker). Serves the PWA, authenticates the owner, runs an LLM agent (Workers AI) with tools that read/write the GitHub system.
-import { handleStudio } from "./studio.js";   // customer-facing area (/studio), separate auth + KV prefix; see app/studio.js
+import { handleStudio } from "./studio.js";
+export { StudioStore } from "./studio.js";   // Durable Object class behind the customer area storage (binding STORE)   // customer-facing area (/studio), separate auth + KV prefix; see app/studio.js
 import { handleYouTube } from "./youtube_connect.js";   // YouTube connect for studio customers (/studio/yt/*, /internal/yt/*); returns null for other paths; answers 503 until the YT_* secrets exist; see docs/YOUTUBE_CONNECT.md
 const REPO = "MaorMichaelov/oded-highlights";
 const HTML = __HTML__;

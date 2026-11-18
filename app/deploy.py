@@ -16,6 +16,9 @@ if "--dry-run" in sys.argv: print("dry run: bundles written to", BD); sys.exit(0
 ns = [n for n in cf("GET", "/storage/kv/namespaces")["result"] if n["title"] == NAME]
 nsid = ns[0]["id"] if ns else cf("POST", "/storage/kv/namespaces", h=["Content-Type: application/json"], d=json.dumps({"title": NAME}))["result"]["id"]
 meta = {"main_module": "worker.js", "compatibility_date": "2025-11-01", "keep_bindings": ["secret_text"], "bindings": [{"type": "ai", "name": "AI"}, {"type": "kv_namespace", "name": "KV", "namespace_id": nsid}]}
+if NAME != "oded-app":   # the customer area (studio-app) stores its data in a SQLite Durable Object instead of Workers KV (free KV limits: ~1000 writes and lists per day for the whole account)
+    meta["bindings"].append({"type": "durable_object_namespace", "name": "STORE", "class_name": "StudioStore"})
+    if os.environ.get("DO_MIGRATE_TAG"): meta["migrations"] = {"new_tag": os.environ["DO_MIGRATE_TAG"], "new_sqlite_classes": ["StudioStore"]}   # first deploy only: DO_MIGRATE_TAG=v1
 r = cf("PUT", f"/workers/scripts/{NAME}", F=["metadata=" + json.dumps(meta) + ";type=application/json", f"worker.js=@{os.path.join(BD, 'worker.bundle.js')};type=application/javascript+module;filename=worker.js", f"studio.js=@{os.path.join(BD, 'studio.bundle.js')};type=application/javascript+module;filename=studio.js", f"youtube_connect.js=@{os.path.join(HERE, 'youtube_connect.js')};type=application/javascript+module;filename=youtube_connect.js"])   # youtube_connect.js has no placeholders: uploaded as is
 print("upload:", r.get("success"), r.get("errors"))
 print("subdomain:", cf("POST", f"/workers/scripts/{NAME}/subdomain", h=["Content-Type: application/json"], d=json.dumps({"enabled": True})).get("success"))

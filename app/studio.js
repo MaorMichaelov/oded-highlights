@@ -29,6 +29,30 @@ const PERMS = {
 };
 export const can = (role, action) => !!(PERMS[role] && PERMS[role].includes(action));
 
+// ---------- storage on a SQLite Durable Object (the free Workers KV plan allows only ~1000 writes and 1000 list() calls a day for the WHOLE account; a SQLite DO is strongly consistent and has far larger free limits) ----------
+// StudioStore is the Durable Object class (exported by worker.js). DoKV is a drop-in replacement of the KV binding API used in this file (get / put / delete / list) that talks to it.
+export class StudioStore {
+  constructor(state) { this.sql = state.storage.sql; this.sql.exec("CREATE TABLE IF NOT EXISTS kv (k TEXT PRIMARY KEY, v TEXT NOT NULL, exp INTEGER)"); }
+  async fetch(req) {
+    const b = await req.json(); const now = Date.now(); const op = b.op; let out = {};
+    if (op === "get") { const r = this.sql.exec("SELECT v, exp FROM kv WHERE k = ?", b.k).toArray()[0]; if (r && (!r.exp || r.exp > now)) out = { v: r.v }; else if (r) this.sql.exec("DELETE FROM kv WHERE k = ?", b.k); }
+    else if (op === "put") { this.sql.exec("INSERT OR REPLACE INTO kv (k, v, exp) VALUES (?, ?, ?)", b.k, String(b.v), b.ttl ? now + b.ttl * 1000 : null); out = { ok: true }; }
+    else if (op === "delete") { this.sql.exec("DELETE FROM kv WHERE k = ?", b.k); out = { ok: true }; }
+    else if (op === "list") { const lim = Math.max(1, Math.min(1000, b.limit || 1000)); const after = b.after || ""; const hi = b.prefix + "\uffff"; const rows = this.sql.exec("SELECT k FROM kv WHERE k >= ? AND k < ? AND k > ? AND (exp IS NULL OR exp > ?) ORDER BY k LIMIT ?", b.prefix, hi, after, now, lim + 1).toArray(); out = { keys: rows.slice(0, lim).map((r) => r.k), more: rows.length > lim }; }
+    else return new Response(JSON.stringify({ error: "bad_op" }), { status: 400 });
+    return new Response(JSON.stringify(out), { headers: { "content-type": "application/json" } });
+  }
+}
+class DoKV {
+  constructor(ns) { this.stub = ns.get(ns.idFromName("main")); }
+  async _(o) { const r = await this.stub.fetch("https://store/op", { method: "POST", body: JSON.stringify(o) }); return r.json(); }
+  async get(k, type) { const r = await this._({ op: "get", k }); if (r.v == null) return null; if (type === "json") { try { return JSON.parse(r.v); } catch (e) { return null; } } return r.v; }
+  async put(k, v, opt) { await this._({ op: "put", k, v: typeof v === "string" ? v : String(v), ttl: opt && opt.expirationTtl }); }
+  async delete(k) { await this._({ op: "delete", k }); }
+  async list(o = {}) { const r = await this._({ op: "list", prefix: o.prefix || "", limit: o.limit || 1000, after: o.cursor || "" }); const keys = r.keys.map((name) => ({ name })); return { keys, list_complete: !r.more, cursor: r.more ? keys[keys.length - 1].name : undefined }; }
+}
+export const withStore = (env) => (env && env.STORE && !env.__withStore) ? { ...env, KV: new DoKV(env.STORE), __withStore: true } : env;   // when a STORE binding exists it replaces KV for the customer area
+
 // ---------- KV key layout (all under "studio:" so the owner app's keys are never touched) ----------
 const K = {
   user: (id) => `studio:u:${id}`, email: (e) => `studio:e:${e}`, sess: (h) => `studio:s:${h}`,
@@ -363,7 +387,8 @@ async function assistant(env, org, me, role, b, store) {
 }
 
 // ---------- the router ----------
-export async function handleStudio(req, env, fetchImpl = fetch) {   // never let an exception escape as Cloudflare's raw error page: the UI can only show a friendly message for JSON
+export async function handleStudio(req, env0, fetchImpl = fetch) {
+  const env = withStore(env0);   // never let an exception escape as Cloudflare's raw error page: the UI can only show a friendly message for JSON
   try { return await handleStudioInner(req, env, fetchImpl); } catch (e) { console.error("studio_error", String(e && e.stack || e).slice(0, 400)); return err(500, "server_error", { detail: String(e && e.message || e).slice(0, 180) }); }
 }
 async function handleStudioInner(req, env, fetchImpl) {

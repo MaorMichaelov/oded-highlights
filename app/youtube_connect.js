@@ -191,7 +191,9 @@ const pageBack = (qs, cookieHeader) => new Response(`<!doctype html><meta charse
 const clearCookie = `${COOKIE}=; Path=/studio/yt; Max-Age=0; HttpOnly; Secure; SameSite=Lax`;
 
 // ---------- the router ----------
-export async function handleYouTube(req, env, opts = {}) {
+import { withStore } from "./studio.js";
+export async function handleYouTube(req, env0, opts = {}) {
+  const env = withStore(env0);
   const u = new URL(req.url); const p = u.pathname.replace(/\/+$/, ""); const m = req.method;
   if (!(p.startsWith("/studio/yt/") || p.startsWith("/internal/yt/"))) return null;
   const fetchImpl = opts.fetchImpl || fetch, getSession = opts.getSession || studioSession, getRole = opts.getRole || studioRole, now = opts.now ? opts.now() : Date.now();
