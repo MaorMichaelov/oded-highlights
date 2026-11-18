@@ -26,9 +26,11 @@ def sh(cmd, dry):
     if dry: return 0
     return subprocess.run(cmd, cwd=ROOT).returncode
 def publish(cid, msg, dry):
-    sh(["git", "add", "state"], dry); sh(["git", "commit", "-q", "-m", msg], dry)
-    for _ in range(3):
-        if sh(["git", "pull", "--rebase", "-q"], dry) == 0 and sh(["git", "push", "-q"], dry) == 0: break
+    # race-safe commit + push (scripts/git_sync.sh: rebase with -X theirs, abort on failure, 8 attempts). STRICT: if the files never reached main, do NOT dispatch a render of them
+    # (it would fail with "no spec" and burn a run); the monitor re-dispatches a clip that has no draft 25 min after its spec was committed.
+    if dry: print("$ git_sync.sh", msg)
+    elif subprocess.run(["bash", os.path.join(ROOT, "scripts", "git_sync.sh"), msg, "state"], cwd=ROOT, env=dict(os.environ, GIT_SYNC_STRICT="1")).returncode != 0:
+        print("publish: push failed, render not dispatched for", cid); return
     if os.environ.get("GH_TOKEN") or dry: sh(["gh", "workflow", "run", "render-clip.yml", "--ref", "main", "-f", f"clip_id={cid}", "-f", "upload=true", "-f", "state_dir=" + os.environ.get("STATE_DIR", "state"), "-f", "yt=" + os.environ.get("CHANNEL_YT", "main")], dry)
 def snap_end(rows, t):
     """end of the sentence that contains/precedes t"""

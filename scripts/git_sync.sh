@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Commit + push state files safely from a workflow (a bot pushes to main every few minutes, so plain `git pull --rebase; git push` loses races).
-# usage: scripts/git_sync.sh "<commit message>" <path>...        always exits 0 (a failed push must not kill a loop) but prints ::warning:: when it gave up
+# usage: scripts/git_sync.sh "<commit message>" <path>...        exits 0 even when it gave up (a failed push must not kill a loop; it prints ::warning::) unless GIT_SYNC_STRICT=1 (then exit 1)
 #  - stages only the given paths, commits only when something changed
 #  - up to 8 attempts: pull --rebase with `-X theirs` (during a rebase "theirs" = OUR commit: our fresh state wins a same-line conflict; append-only logs use merge=union, see .gitattributes)
 #  - a rebase that still fails is aborted (never leave the checkout in a half-rebased state: the next loop iteration would fail every git command), then retried after a jittered sleep
@@ -20,4 +20,5 @@ for i in 1 2 3 4 5 6 7 8; do
 done
 echo "::warning::git_sync: push failed after 8 attempts, un-committing (the files stay in the working tree and are committed again next iteration): $msg"
 git reset -q --soft HEAD~1 2>/dev/null && git reset -q -- "$@" 2>/dev/null || true
+[ -n "$GIT_SYNC_STRICT" ] && exit 1   # callers that must not continue without a pushed commit (autopilot: dispatching a render of files that are not on main) set GIT_SYNC_STRICT=1
 exit 0
