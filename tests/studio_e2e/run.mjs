@@ -62,6 +62,7 @@ async function runProfile(browser, name, P) {
     page.on("pageerror", (e) => note("uncaught-exception", (tag ? tag + ": " : "") + (e.stack || e.message)));
     page.on("requestfailed", (r) => { const u = r.url(); if (/fonts\.(googleapis|gstatic)/.test(u) || /ERR_ABORTED/.test(r.failure()?.errorText || "")) return; note("request-failed", r.method() + " " + u.replace(BASE, "") + " " + (r.failure() || {}).errorText); });
     page.on("response", (r) => { if (r.status() >= 400 && !/fonts\./.test(r.url())) note("http-" + r.status(), r.request().method() + " " + r.url().replace(BASE, ""), { kind: "response" }); });
+    page.on("response", async (r) => { const u = r.url(); if (!/\/studio\/(api|yt)\//.test(u)) return; const e = { step: cur, m: r.request().method(), p: u.replace(BASE, "").replace(/\?.*/, "").replace(/o_[a-f0-9]{16}/, "o_*"), s: r.status(), t: Math.round(Date.now() / 1000) % 100000 }; if (/\/channels(\/[a-z0-9_]+)?$/.test(e.p) && r.request().method() !== "OPTIONS") { try { const b = await r.text(); e.b = b.replace(/"verify_code":"[^"]+"/, "").slice(0, 160); } catch {} } (R.net = R.net || []).push(e); if (R.net.length > 600) R.net.shift(); });
     page.on("dialog", (d) => d.accept().catch(() => {}));
   };
   const shot = async (page, label, key) => { const f = `${name}-${label}.png`; try { await page.screenshot({ path: path.join(OUT, f), fullPage: false }); if (key) (report.keyShots = report.keyShots || []).push(f); } catch {} };
@@ -176,9 +177,9 @@ async function runProfile(browser, name, P) {
 
   await step("activity-timeline-cancel-refund", async () => {
     await goTo("jobs"); await exp(async () => (await page.locator("article.job").count()) === 2, "2 job cards"); await check(page, "activity"); await shot(page, "09-activity", true);
-    const pill0 = await txt("#creditPill"); if (!/^\s*0\s*$/.test(pill0.replace(/\D/g, " ").trim() || "x") && pill0.replace(/\D/g, "") !== "0") throw new Error("credit pill should read 0, reads " + pill0);
+    const pill0 = await txt("#creditPill"); if (parseInt(pill0.replace(/\D/g, "") || "x", 10) !== 0) throw new Error("credit pill should read 0, reads " + pill0);
     const j2 = state.jobs[1]; await page.locator(`#job-${j2} button:has-text("${tx("ביטול הבקשה", "Cancel request")}")`).click(); await exp(async () => (await page.locator(`#job-${j2} .chip`).first().innerText()).includes(tx("בוטל", "Cancelled")), "job shows cancelled", 8000);
-    await exp(async () => (await txt("#creditPill")).replace(/\D/g, "") === "1", "credit refunded in the pill"); const org = (await sapi(state.token, "GET", `/orgs/${state.orgId}`)).j.org; if (org.credits !== 1) throw new Error("server credits after cancel " + org.credits);
+    await exp(async () => parseInt((await txt("#creditPill")).replace(/\D/g, ""), 10) === 1, "credit refunded in the pill"); const org = (await sapi(state.token, "GET", `/orgs/${state.orgId}`)).j.org; if (org.credits !== 1) throw new Error("server credits after cancel " + org.credits);
     if (await page.locator(`#job-${state.jobs[1]} button:has-text("${tx("ביטול הבקשה", "Cancel request")}")`).count()) throw new Error("cancel button still shown on a cancelled job");
   }, { needs: "channel" });
 
@@ -190,7 +191,7 @@ async function runProfile(browser, name, P) {
     await wapi("/jobs/" + id, { progress: 30, msg: "transcribing", vars: { pct: 40 } }); await watch("transcribing"); if ((await page.locator(`#job-${id} .tl li.now`).count()) !== 1) throw new Error("timeline has no current step");
     await wapi("/jobs/" + id, { progress: 55, msg: "found_moments", vars: { n: 5 } }); await watch("found_moments");
     await wapi("/jobs/" + id, { progress: 70, msg: "rendering", vars: { i: 2, n: 5 } }); await watch("rendering"); await check(page, "activity-running");
-    const pw = await ev((i) => document.querySelector(`#job-${i} .bar i`).style.width, id); if (!/^(7\d|6\d)/.test(pw)) throw new Error("progress bar width " + pw);
+    const pw = await ev((i) => +(document.querySelector(`#job-${i} [role=progressbar]`) || {getAttribute: () => -1}).getAttribute("aria-valuenow"), id); if (pw < 60 || pw > 79) throw new Error("progress bar value " + pw);
     await wapi("/jobs/" + id, { status: "qa", progress: 90 }); await exp(async () => /(בדיקת איכות|Quality)/.test(await txt(`#job-${id}`)), "qa state shown");
     const drafts = (P.lang === "he" ? [["הקלאץ' המטורף", "short"], ["הצ'אט השתגע", "short"], ["ריי-קוויט", "short"], ["ניצחון עם חיים אחד", "short"], ["הלייטס המלא", "long"]] : [["Epic clutch", "short"], ["Chat went wild", "short"], ["Rage quit", "short"], ["One HP win", "short"], ["Full highlights", "long"]]).map(([title, kind], i) => ({ kind, title, qa_ok: i !== 2, qa_notes: i === 2 ? "captions near edge" : "", qa_score: 90 - i, duration_s: 30 + i, local_id: id + "/f" + i + ".mp4", hook: "h" }));
     await wapi("/jobs/" + id, { status: "draft_ready", progress: 100, drafts }); await exp(async () => (await page.locator(".toast").count()) > 0 || /(Ready to review|מוכן לאישור)/.test(await txt(`#job-${id}`)), "draft_ready shown without reload", 12000);
@@ -329,6 +330,7 @@ await browser.close();
 // ---- summary
 let failed = 0, errs = 0; const sum = {};
 for (const [n, R] of Object.entries(report.profiles)) { const f = (R.steps || []).filter((s) => !s.ok).length; const e = (R.issues || []).filter((i) => i.type !== "console-warn").length; failed += f + (R.fatal ? 1 : 0) + (R.bugs || []).length; errs += e; sum[n] = { steps: (R.steps || []).length, failed: f, bugs: (R.bugs || []).length, issues: (R.issues || []).length, layout: (R.layout || []).length, texts: (R.texts || []).length, skipped: (R.skipped || []).length, fatal: !!R.fatal }; }
+for (const R of Object.values(report.profiles)) { const bad = new Set([...(R.steps || []).filter((x) => !x.ok).map((x) => x.name), ...(R.bugs || []).map((x) => x.step)]); R.net = (R.net || []).filter((e) => bad.has(e.step)).slice(-120); }   // network trace only for the steps that failed
 report.summary = { failedSteps: failed, errorIssues: errs, perProfile: sum }; report.finished = new Date().toISOString();
 fs.writeFileSync(path.join(OUT, "report.json"), JSON.stringify(report, null, 1));
 for (const [n, R] of Object.entries(report.profiles)) { console.log(`\n--- ${n}`); for (const s of R.steps || []) console.log((s.ok ? "ok   " : "FAIL ") + s.name + (s.ok ? "" : "  -> " + s.error)); for (const s of R.skipped || []) console.log("skip " + s); for (const b of R.bugs || []) console.log("BUG  " + b.step + " -> " + b.msg); if (R.fatal) console.log("FATAL", R.fatal.slice(0, 300)); }

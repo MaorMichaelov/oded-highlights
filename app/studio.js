@@ -193,7 +193,7 @@ export function understand(text) {
   const wantsLong = /\blong\b|full video|compilation|סרטון ארוך|וידאו ארוך|סרטון מלא|סיכום|קומפילציה|יוטיוב ארוך/.test(t);
   const wantsShorts = /short|clip|reel|tiktok|שורט|קליפ|קצר/.test(t);
   const when = /yesterday|אתמול/.test(t) ? "yesterday" : /last week|this week|past week|שבוע שעבר|השבוע|מהשבוע|שבוע האחרון|בשבוע/.test(t) ? "week" : "last_stream";   // default: the latest stream
-  const mood = /funny|lol|hilarious|מצחיק|הזוי|צחוק/.test(t) ? "funny" : /hype|epic|insane|clutch|מטורף|אפי/.test(t) ? "hype" : /fail|rage|כעס|פיל/.test(t) ? "fail" : null;
+  const mood = /funny|lol|hilarious|מצחיק|הזוי|צחוק/.test(t) ? "funny" : /hype|epic|insane|clutch|מטורף|מטורפ|אפי/.test(t) ? "hype" : /fail|rage|כעס|פיל/.test(t) ? "fail" : null;
   const make = /make|create|cut|edit|give|need|want|תעשה|תכין|צור|תחתוך|תערוך|תן|רוצה|צריך|בא לי/.test(t);
   const noun = /moment|highlight|video|stream|vod|הייטלייט|היילייט|רגע|רגעים|סרטון|סטרים|וידאו/.test(t);   // a bare "I need 3 things" or "want help" must NOT spend a credit: a request needs a clip/video word
   const intent = status ? "status" : wantsLong || wantsShorts || (noun && (make || count)) ? "create" : "help";

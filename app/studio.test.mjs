@@ -34,6 +34,7 @@ const u2 = understand("make three hype Shorts from my last stream"); assert.equa
 const u3 = understand("what's the status?"); assert.equal(u3.intent, "status"); assert.equal(understand("make a long video").long, true); assert.equal(understand("hello").intent, "help");
 assert.equal(understand("3 רגעים מטורפים מהשבוע").when, "week");   // regression: the Hebrew chip said "מהשבוע" but only "שבוע שעבר" was understood, so it silently cut the latest stream
 assert.equal(understand("I need 3 things").intent, "help"); assert.equal(understand("I want a pizza").intent, "help"); assert.equal(understand("תכין לי משהו").intent, "help");   // regression: chatter with a number or "want/need" spent a credit
+assert.equal(understand("3 רגעים מטורפים מהשבוע").mood, "hype"); assert.equal(understand("שורטס מטורף").mood, "hype");   // regression: מטורף ends in a final-form pe, the plural מטורפים does not, so the plural never matched
 assert.equal(understand("make 4 shorts").intent, "create"); assert.equal(understand("5 שורטס מצחיקים מאתמול").intent, "create"); assert.equal(understand("make highlights from the stream").intent, "create"); ok("assistant parser");
 assert.equal(renderMsg("found_moments", { n: 5 }).en, "Found 5 moments, cutting..."); ok("progress messages");
 const pw = await hashPassword("secret123"); assert.equal((await hashPassword("secret123", pw.salt)).hash, pw.hash); assert.notEqual((await hashPassword("secret124", pw.salt)).hash, pw.hash); ok("pbkdf2");
