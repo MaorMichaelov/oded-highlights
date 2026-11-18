@@ -908,9 +908,10 @@ function jobCard(j, opt) {
   if (j.status === "draft_ready" && waiting) card.append(h("a", { class: "btn", href: "#/review" }, icon("film"), t("review_drafts"), h("span", { class: "cnt" }, waiting)));
   if (["approved", "rejected"].includes(j.status) || (j.status === "draft_ready" && !waiting)) { const a = drafts.filter((d) => d.decision === "approved").length, r = drafts.filter((d) => d.decision === "rejected").length; card.append(h("div", { class: "job-sub" }, t("result_line", { a, r }))); }
   if (["queued", "running"].includes(j.status) && canEdit() && opt.cancel !== false) card.append(h("button", { class: "btn ghost sm", type: "button", onclick: async (e) => { e.currentTarget.disabled = true; try { await api("POST", op() + "/jobs/" + j.id + "/cancel"); toast(t("cancelled_toast")); await loadCore(); softRender(); } catch (x) { toast(errText(x), { kind: "bad" }); e.currentTarget.disabled = false; } } }, t("cancel_job")));
-  if (opt.log && (j.events || []).length) card.append(h("details", { class: "evlog" }, h("summary", null, t("log")), h("ul", null, ...j.events.slice().reverse().map((ev) => h("li", null, timeTxt(ev.t) + " · " + ev.e + (ev.note ? " · " + ev.note : ""))))));
+  if (opt.log && (j.events || []).length) card.append(h("details", { class: "evlog" }, h("summary", null, t("log")), h("ul", null, ...j.events.slice().reverse().map((ev) => h("li", null, timeTxt(ev.t) + " · " + evLabel(ev.e) + (ev.note ? " · " + ev.note : ""))))));
   return card;
 }
+const evLabel = (e) => (I["st_" + e] ? t("st_" + e) : ({ draft_approved: "approved", draft_rejected: "rejected", draft_title: "edit_title" })[e] ? t(({ draft_approved: "approved", draft_rejected: "rejected", draft_title: "edit_title" })[e]) : e);   // the event log shows the user language, not raw status codes
 const STEPS = ["tl_queued", "tl_fetch", "tl_listen", "tl_moments", "tl_cut", "tl_qa", "tl_ready"];
 function stepIndex(j) {
   if (j.status === "queued") return 0; if (["draft_ready", "approved", "rejected"].includes(j.status)) return 6; if (j.status === "qa") return 5;

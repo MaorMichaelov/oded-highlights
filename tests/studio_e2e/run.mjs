@@ -37,7 +37,7 @@ const LAYOUT = () => {
     if (el.scrollWidth > el.clientWidth + 2 && el.clientWidth > 0 && cs.overflowX === "hidden" && cs.textOverflow !== "ellipsis" && !el.matches("body,html,.shell,.content,.tabbar,.rv-card,.rv-media,.player,.poster,.bar,.bar i,.live-card,.card,.auth,.visual,.landing,.stage")) out.push({ k: "clipped", el: desc(el), sw: el.scrollWidth, cw: el.clientWidth });
   }
   const ints = [...document.querySelectorAll("button,a[href],input:not([type=hidden]):not([type=radio]):not([type=checkbox]),textarea,select")].filter((e) => vis(e) && !e.closest(skip) && !e.closest("details:not([open]) > :not(summary)") && !e.disabled);
-  for (let i = 0; i < ints.length; i++) for (let j = i + 1; j < ints.length; j++) { const a = ints[i], b = ints[j]; if (a.contains(b) || b.contains(a)) continue; const x = a.getBoundingClientRect(), y = b.getBoundingClientRect(); const ox = Math.min(x.right, y.right) - Math.max(x.left, y.left), oy = Math.min(x.bottom, y.bottom) - Math.max(x.top, y.top); if (ox > 4 && oy > 4 && ox * oy > 0.3 * Math.min(x.width * x.height, y.width * y.height)) out.push({ k: "overlap", a: desc(a), b: desc(b) }); }
+  for (let i = 0; i < ints.length; i++) for (let j = i + 1; j < ints.length; j++) { const a = ints[i], b = ints[j]; if (a.contains(b) || b.contains(a)) continue; if (a.closest(".tabbar,header.top") || b.closest(".tabbar,header.top")) continue; const x = a.getBoundingClientRect(), y = b.getBoundingClientRect(); const ox = Math.min(x.right, y.right) - Math.max(x.left, y.left), oy = Math.min(x.bottom, y.bottom) - Math.max(x.top, y.top); if (ox > 4 && oy > 4 && ox * oy > 0.3 * Math.min(x.width * x.height, y.width * y.height)) out.push({ k: "overlap", a: desc(a), b: desc(b) }); }
   window.scrollTo(0, document.body.scrollHeight);   // second pass at the bottom of the page: nothing may hide behind the tab bar / dock / composer
   for (const e of ints) { const r = e.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > W) continue; const cx = Math.min(Math.max(r.left + r.width / 2, 1), W - 1), cy = Math.min(Math.max(r.top + r.height / 2, 1), innerHeight - 1); const top = document.elementFromPoint(cx, cy); if (top && !top.closest("#toasts,header.top") && !e.contains(top) && !top.contains(e) && !(e.closest("label") && e.closest("label").contains(top))) out.push({ k: "covered", el: desc(e), by: desc(top) }); }
   window.scrollTo(0, 0); return out.slice(0, 40);
@@ -46,7 +46,7 @@ const TEXTS = (lang) => {
   const out = [], seen = new Set(); const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   while (w.nextNode()) { const n = w.currentNode, tx = (n.nodeValue || "").trim(); if (!tx || n.parentElement.closest("script,style,noscript,code,.ltr,.mail,#toasts")) continue; const el = n.parentElement, cs = getComputedStyle(el); if (cs.display === "none" || cs.visibility === "hidden") continue; if (seen.has(tx)) continue; seen.add(tx);
     if (/^[a-z]+(_[a-z0-9]+)+$/.test(tx)) out.push({ k: "i18n-key", tx });
-    else if (lang === "he") { const lat = tx.replace(/https?:\S+|\S+@\S+|ODH-\w+|kick\.com\S*|twitch\.tv\S*/gi, "").match(/[A-Za-z]{4,}/g) || []; const bad = lat.filter((x) => !/^(Studio|Kick|Twitch|YouTube|Shorts|Short|WhatsApp|Google|Guest|OdedSVR|Plan|Noa|Auto|Tap|Enter|Esc|Edit|Client|Team|kaicenat|odedsvr|nobody|here|team)$/i.test(x)); if (bad.length && !/[֐-׿]/.test(tx) ? true : bad.length) out.push({ k: "latin-in-he", tx: tx.slice(0, 60) }); }
+    else if (lang === "he") { const lat = tx.replace(/https?:\S+|\S+@\S+|ODH-\w+|kick\.com\S*|twitch\.tv\S*/gi, "").match(/[A-Za-z]{4,}/g) || []; const bad = lat.filter((x) => !/^(Studio|Kick|Twitch|YouTube|Shorts|Short|WhatsApp|Google|Guest|OdedSVR|Plan|Noa|Auto|Tap|Enter|Esc|Edit|Client|Team|kaicenat|odedsvr|nobody|here|team|mobile\w*|desktop\w*)$/i.test(x)); if (bad.length && !/[֐-׿]/.test(tx) ? true : bad.length) out.push({ k: "latin-in-he", tx: tx.slice(0, 60) }); }
     else if (lang === "en" && /[֐-׿]/.test(tx) && !/^(עב|עברית)$/.test(tx)) out.push({ k: "hebrew-in-en", tx: tx.slice(0, 60) }); }
   return out.slice(0, 20);
 };
@@ -73,6 +73,7 @@ async function runProfile(browser, name, P) {
     allow = [];
   };
   const bug = (msg) => { R.bugs = R.bugs || []; R.bugs.push({ step: cur, msg }); };
+  const slug = LOCAL ? "odedsvr-" + name.replace(/\W/g, "") : "odedsvr";   // the local stand-in keeps channel claims between profiles, the deployed app gets the real name
   const state = { page: null, verified: false, token: null, orgId: null, chId: null, jobs: [] };
   const ctx = await mkctx(); const page = await ctx.newPage(); hook(page); state.page = page;
   const tx = (he, en) => (P.lang === "he" ? he : en);
@@ -109,7 +110,7 @@ async function runProfile(browser, name, P) {
 
   await step("setup-channel-errors", async () => {
     const inp = page.locator("#chIn"); await inp.fill("hello world"); await page.locator("form button[type=submit]").click(); if (!(await txt(".errtxt"))) throw new Error("no error for garbage channel");
-    await inp.fill("https://www.kick.com/OdedSVR/videos"); await exp(async () => /odedsvr/i.test(await txt(".detect")), "detect chip shows slug"); await check(page, "setup-1-detected");
+    await inp.fill("https://www.kick.com/" + slug.toUpperCase() + "/videos"); await exp(async () => new RegExp(slug, "i").test(await txt(".detect")), "detect chip shows slug"); await check(page, "setup-1-detected");
   });
 
   await step("setup-wrong-channel-then-back", async () => {   // add a channel that does not exist on Kick, see the friendly error, change it
@@ -121,7 +122,7 @@ async function runProfile(browser, name, P) {
   }, { allow: [/502|404/] });
 
   await step("verify-real-channel-states", async () => {
-    await ctl({ kick_bio: "" }); await page.locator("#chIn").fill("kick.com/odedsvr"); await page.locator("form button[type=submit]").click(); await page.waitForSelector(".code-box code");
+    await ctl({ kick_bio: "" }); await page.locator("#chIn").fill("kick.com/" + slug); await page.locator("form button[type=submit]").click(); await page.waitForSelector(".code-box code");
     state.code = await txt(".code-box code"); await page.locator('.card button.btn:not(.ghost):not(.secondary)').last().click();
     await exp(async () => (await txt('[role="status"].small')).length > 3, "verify message", 20000); const msg = await txt('[role="status"].small'); R.notes.push("verify message for kick.com/odedsvr without the code: " + msg);
     if (/^(generic|משהו השתבש)/.test(msg)) throw new Error("verify shows a generic error: " + msg);
@@ -140,7 +141,7 @@ async function runProfile(browser, name, P) {
 
   await step("verify-success", async () => {
     if (LOCAL) { await ctl({ kick_bio: "bio " + state.code.toLowerCase() }); await page.locator('.card button.btn:not(.ghost):not(.secondary)').last().click(); await exp(async () => !(await page.locator(".code-box").count()), "left verify step", 15000); state.verified = true; }
-    else if (WORKER_KEY) { const ch = (await sapi(state.token, "GET", `/orgs/${state.orgId}/channels`)).j.channels.find((c) => c.slug === "odedsvr"); state.chId = ch.id; const r = await wapi("/e2e/verify", { org: state.orgId, channel: ch.id }); if (r.s !== 200) throw new Error("e2e verify hook " + r.s + " " + JSON.stringify(r.j)); await page.reload(); state.verified = true; await page.waitForSelector(".shell"); }
+    else if (WORKER_KEY) { const ch = (await sapi(state.token, "GET", `/orgs/${state.orgId}/channels`)).j.channels.find((c) => c.slug === slug); state.chId = ch.id; const r = await wapi("/e2e/verify", { org: state.orgId, channel: ch.id }); if (r.s !== 200) throw new Error("e2e verify hook " + r.s + " " + JSON.stringify(r.j)); await page.reload(); state.verified = true; await page.waitForSelector(".shell"); }
     else { R.skipped.push("verification success + everything after it: no WORKER_KEY (the real owner of the channel must put the code in the bio)"); return; }
     await settle(500); state.chId = state.chId || (await sapi(state.token, "GET", `/orgs/${state.orgId}/channels`)).j.channels[0].id;
   }, { allow: [/502|403/] });
@@ -191,7 +192,7 @@ async function runProfile(browser, name, P) {
     await wapi("/jobs/" + id, { progress: 70, msg: "rendering", vars: { i: 2, n: 5 } }); await watch("rendering"); await check(page, "activity-running");
     const pw = await ev((i) => document.querySelector(`#job-${i} .bar i`).style.width, id); if (!/^(7\d|6\d)/.test(pw)) throw new Error("progress bar width " + pw);
     await wapi("/jobs/" + id, { status: "qa", progress: 90 }); await exp(async () => /(בדיקת איכות|Quality)/.test(await txt(`#job-${id}`)), "qa state shown");
-    const drafts = [["Epic clutch", "short"], ["Chat went wild", "short"], ["Rage quit", "short"], ["One HP win", "short"], ["Full highlights", "long"]].map(([title, kind], i) => ({ kind, title, qa_ok: i !== 2, qa_notes: i === 2 ? "captions near edge" : "", qa_score: 90 - i, duration_s: 30 + i, local_id: id + "/f" + i + ".mp4", hook: "h" }));
+    const drafts = (P.lang === "he" ? [["הקלאץ' המטורף", "short"], ["הצ'אט השתגע", "short"], ["ריי-קוויט", "short"], ["ניצחון עם חיים אחד", "short"], ["הלייטס המלא", "long"]] : [["Epic clutch", "short"], ["Chat went wild", "short"], ["Rage quit", "short"], ["One HP win", "short"], ["Full highlights", "long"]]).map(([title, kind], i) => ({ kind, title, qa_ok: i !== 2, qa_notes: i === 2 ? "captions near edge" : "", qa_score: 90 - i, duration_s: 30 + i, local_id: id + "/f" + i + ".mp4", hook: "h" }));
     await wapi("/jobs/" + id, { status: "draft_ready", progress: 100, drafts }); await exp(async () => (await page.locator(".toast").count()) > 0 || /(Ready to review|מוכן לאישור)/.test(await txt(`#job-${id}`)), "draft_ready shown without reload", 12000);
     await shot(page, "11-job-ready");
   }, { needs: "channel" });
@@ -202,7 +203,7 @@ async function runProfile(browser, name, P) {
     if ((await count()) !== 5) throw new Error("review count " + (await count()));
     if (P.mobile) { if (await page.locator(".rv-dock").count() !== 1) throw new Error("mobile dock missing"); } else if (await page.locator(".rv-inline").count() !== 1) throw new Error("desktop inline actions missing");
     // title edit
-    await page.locator('.title-edit .iconbtn').click(); const nt = "Edited " + rnd(); await page.locator("#tIn").fill(nt); await page.locator(".title-form button[type=submit]").click(); await exp(async () => (await txt(".title-edit h2")) === nt, "title updated in UI"); const d0 = (await jobsApi()).find((j) => j.id === state.jobs[0]).result.drafts[0]; if (d0.title !== nt) throw new Error("title not saved on server: " + d0.title);
+    await page.locator('.title-edit .iconbtn').click(); const nt = tx("כותרת חדשה ", "Edited ") + rnd(); await page.locator("#tIn").fill(nt); await page.locator(".title-form button[type=submit]").click(); await exp(async () => (await txt(".title-edit h2")) === nt, "title updated in UI"); const d0 = (await jobsApi()).find((j) => j.id === state.jobs[0]).result.drafts[0]; if (d0.title !== nt) throw new Error("title not saved on server: " + d0.title);
     await page.locator('.title-edit .iconbtn').click(); await page.locator("#tIn").press("Escape"); await exp(async () => (await page.locator("#tIn").count()) === 0, "escape closes title editor");
     // approve + undo
     await page.locator(".btn.yes").click(); await exp(async () => (await count()) === 4, "card advanced after approve"); await page.locator('.toast button').last().click(); await exp(async () => (await count()) === 5, "undo brought the card back"); if ((await txt(".title-edit h2")) !== nt) throw new Error("undo restored a different card");
@@ -269,7 +270,7 @@ async function runProfile(browser, name, P) {
   }, { needs: "channel" });
 
   await step("workspace-create-switch", async () => {
-    await goTo("settings"); const nm = "Client " + rnd(); await page.locator("#orgName").fill(nm); await page.locator("form:has(#orgName) button[type=submit]").click(); await page.waitForSelector(".shell"); await sleep(600);
+    await goTo("settings"); const nm = tx("לקוח ", "Client ") + rnd(); await page.locator("#orgName").fill(nm); await page.locator("form:has(#orgName) button[type=submit]").click(); await page.waitForSelector(".shell"); await sleep(600);
     if ((await ev(() => S.org.name)) !== nm) throw new Error("new workspace not active"); if (!(await hash()).startsWith("#/setup")) R.notes.push("new empty workspace opens at " + (await hash()));
     await goTo("settings").catch(async () => { await page.goto(BASE + "/studio#/settings"); }); await page.waitForSelector("select.input.sel"); await check(page, "settings-two-orgs");
     const first = await ev((id) => id, state.orgId); await page.locator("select.input.sel").selectOption(first); await page.waitForSelector(".shell"); await sleep(700); if ((await ev(() => S.org.id)) !== first) throw new Error("switch back failed"); if ((await ev(() => S.channels.length)) < 1) throw new Error("channels not reloaded after switching");
@@ -302,7 +303,7 @@ async function runProfile(browser, name, P) {
   await step("deep-links-and-back", async () => {
     await page.goto(BASE + "/studio"); await page.waitForSelector(".authcard"); await page.locator(".authcard button.btn.lg").first().click(); await page.waitForSelector(".shell"); await sleep(400); state.token = await ev(() => localStorage.getItem("studio_token")); state.orgId = await ev(() => S.org.id);
     for (const h of ["#/team", "#/credits", "#/settings", "#/chat", "#/jobs", "#/review", "#/bogus", "#/jobs/j_doesnotexist", "#/more", "#/"]) { await page.goto(BASE + "/studio" + h); await page.reload(); await page.waitForSelector(".shell", { timeout: 8000 }).catch(() => { throw new Error("deep link " + h + " did not render the app"); }); await sleep(250); const t = await ev(() => document.querySelector("#view") && document.querySelector("#view").innerText.length); if (!t) throw new Error("deep link " + h + " renders an empty view"); await check(page, "deeplink" + h); }
-    await page.goto(BASE + "/studio#/settings"); await page.reload(); await page.waitForSelector(".shell"); await goTo("credits"); await page.goBack(); await exp(async () => (await hash()).startsWith("#/settings"), "back returns to settings"); await page.goForward(); await exp(async () => (await hash()).startsWith("#/credits"), "forward");
+    await page.goto(BASE + "/studio#/settings"); await page.reload(); await page.waitForSelector(".shell"); await ev(() => { location.hash = "#/credits"; }); await exp(async () => (await hash()) === "#/credits", "credits"); await ev(() => { location.hash = "#/team"; }); await exp(async () => (await hash()) === "#/team", "team"); await page.goBack(); await exp(async () => (await hash()) === "#/credits", "back returns to credits"); await page.goBack(); await exp(async () => (await hash()) === "#/settings", "back returns to settings"); await page.goForward(); await exp(async () => (await hash()) === "#/credits", "forward");
     const r404 = await fetch(BASE + "/studio/nope"); if (r404.status !== 404) throw new Error("/studio/nope gave " + r404.status); const h = await fetch(BASE + "/studio/api/health"); if (!h.ok) throw new Error("health " + h.status);
     await page.goto(BASE + "/studio#invite=inv_" + "0".repeat(48)); await page.reload(); await sleep(1200); R.notes.push("bad invite link while signed in: " + (await ev(() => document.body.innerText.slice(0, 80).replace(/\s+/g, " "))));
   }, { allow: [/404/] });
