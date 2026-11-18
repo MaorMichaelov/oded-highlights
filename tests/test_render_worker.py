@@ -68,7 +68,7 @@ class Base(unittest.TestCase):
 
 class JobLoop(Base):
     def test_happy_path_posts_progress_then_drafts_and_never_uploads(self):
-        self.studio.add_job("j_aa01"); w = self.worker(fake_outcome_ok(2)); self.assertTrue(w.tick()); [f.result() for f in w.futures]
+        before = set(sys.modules); self.studio.add_job("j_aa01"); w = self.worker(fake_outcome_ok(2)); self.assertTrue(w.tick()); [f.result() for f in w.futures]
         j = self.studio.jobs["j_aa01"]; self.assertEqual(j["status"], "draft_ready"); self.assertEqual(j["progress"], 100)
         self.assertIn(("found_moments", {"n": 2}, None), j["msgs"])
         self.assertEqual([d["title"] for d in j["drafts"]], ["Clip 0 #Shorts", "Clip 1 #Shorts"]); self.assertTrue(all(d["qa_ok"] and d["local_id"].startswith("j_aa01/") for d in j["drafts"]))
@@ -76,7 +76,7 @@ class JobLoop(Base):
         man = json.load(open(os.path.join(out, "manifest.json"))); self.assertFalse(man["uploaded"]); self.assertEqual(len(man["drafts"]), 2)
         self.assertFalse(os.path.exists(os.path.join(self.cfg["work_dir"], "j_aa01")), "scratch must be deleted after success")
         # the only host the worker ever talks to is the studio; no module that uploads was imported
-        self.assertTrue(all(u.startswith("https://studio.test/studio/worker/") for _, u, _ in self.studio.requests)); self.assertNotIn("yt_upload", sys.modules); self.assertNotIn("yt_upload_customer", sys.modules)
+        self.assertTrue(all(u.startswith("https://studio.test/studio/worker/") for _, u, _ in self.studio.requests)); self.assertFalse([m for m in set(sys.modules) - before if m.startswith("yt_upload")])
 
     def test_qa_failed_draft_is_reported_with_qa_ok_false(self):
         self.studio.add_job("j_aa02"); w = self.worker(fake_outcome_ok(1, qa_ok=False)); w.tick(); [f.result() for f in w.futures]
