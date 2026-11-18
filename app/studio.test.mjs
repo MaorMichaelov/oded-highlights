@@ -248,4 +248,6 @@ assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
   jk.result = { drafts: [{ title: "a" }] }; await env.KV.put("studio:j:" + jid, JSON.stringify(jk)); r = await ask("מה קורה עם הקליפים"); assert.ok(/טיוטה אחת/.test(r.reply) && !/1 טיוטות/.test(r.reply), r.reply);
   assert.equal(renderMsg("draft_ready", { n: 1 }).en, "1 draft is ready - take a look!"); assert.ok(/טיוטה אחת/.test(renderMsg("draft_ready", { n: 1 }).he)); assert.equal(renderMsg("draft_ready", { n: 3 }).en, "3 drafts are ready - take a look!");
   ok("assistant status report"); }
+// ---- "from the live stream" picks live_now (the worker then takes the newest part of the recording, a few minutes behind the live edge)
+assert.equal(understand("תכין 5 שורטס מהלייב עכשיו").when, "live_now"); assert.equal(understand("make 3 shorts from the live stream").when, "live_now"); assert.equal(understand("5 שורטס מאתמול").when, "yesterday"); ok("live_now intent");
 console.log(`\n${n} test groups passed`);

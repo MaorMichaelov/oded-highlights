@@ -188,13 +188,13 @@ class PreviewSources(unittest.TestCase):
 
     def test_latest_twitch_vod(self):
         calls = []; listing = "v2001|60|too short\nv123456789|7200|Big stream\n"
-        url, title = WS.latest_platform_vod("twitch", "noa", self.fake_runner(calls, listing))
+        url, title, _dur = WS.latest_platform_vod("twitch", "noa", self.fake_runner(calls, listing))
         self.assertEqual(url, "https://www.twitch.tv/videos/123456789"); self.assertEqual(title, "Big stream")
         self.assertIn("https://www.twitch.tv/noa/videos?filter=archives&sort=time", calls[0])
 
     def test_latest_kick_vod(self):
         listing = json.dumps([{"duration": 60000, "source": "https://x.example/short/master.m3u8"}, {"duration": 7200000, "session_title": "VOD", "source": "https://stream.kick.com/abc/master.m3u8"}])
-        url, title = WS.latest_platform_vod("kick", "odedsvr", self.fake_runner([], listing)); self.assertEqual(url, "https://stream.kick.com/abc/master.m3u8"); self.assertEqual(title, "VOD")
+        url, title, _dur = WS.latest_platform_vod("kick", "odedsvr", self.fake_runner([], listing)); self.assertEqual(url, "https://stream.kick.com/abc/master.m3u8"); self.assertEqual(title, "VOD")
         with self.assertRaises(WS.SourceError): WS.latest_platform_vod("kick", "odedsvr", self.fake_runner([], "not json"))
         with self.assertRaises(WS.SourceError): WS.latest_platform_vod("kick", "odedsvr", self.fake_runner([], json.dumps([{"duration": 7200000, "source": "http://insecure/x.m3u8"}])))
 

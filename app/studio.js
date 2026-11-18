@@ -315,7 +315,7 @@ export function understand(text) {
   const status = /status|progress|ready yet|how.*(going|long)|what.?s up|where (is|are) (it|they|the)|is it (moving|working|stuck)|what is (the system|it) doing|any (news|update)|מה המצב|התקדמות|מוכן כבר|עוד כמה|איפה (זה|המערכת|העבודה)|עומד|זז(?=[\s?!.,]|$)|תקוע|מה (המערכת|הוא|היא) עושה|מה קורה עם|מה עם (העבודה|הקליפים|הטיוטות)|הגיע(ו)? (משהו|טיוטות)|יש (משהו|טיוטות|קליפים)/.test(t);
   const wantsLong = /\blong\b|full video|compilation|סרטון ארוך|וידאו ארוך|סרטון מלא|סיכום|קומפילציה|יוטיוב ארוך/.test(t);
   const wantsShorts = /short|clip|reel|tiktok|שורט|קליפ|קצר/.test(t);
-  const when = /yesterday|אתמול/.test(t) ? "yesterday" : /last week|this week|past week|שבוע שעבר|השבוע|מהשבוע|שבוע האחרון|בשבוע/.test(t) ? "week" : "last_stream";   // default: the latest stream
+  const when = /yesterday|אתמול/.test(t) ? "yesterday" : /last week|this week|past week|שבוע שעבר|השבוע|מהשבוע|שבוע האחרון|בשבוע/.test(t) ? "week" : /\blive\b|right now|currently|מהלייב|בלייב|מהשידור (הנוכחי|הזה|עכשיו)|שידור (חי|נוכחי)|עכשיו|כרגע/.test(t) ? "live_now" : "last_stream";   // default: the latest stream
   const mood = /funny|lol|hilarious|מצחיק|הזוי|צחוק/.test(t) ? "funny" : /hype|epic|insane|clutch|מטורף|מטורפ|אפי/.test(t) ? "hype" : /fail|rage|כעס|פיל/.test(t) ? "fail" : null;
   const make = /make|create|cut|edit|give|need|want|תעשה|תכין|צור|תחתוך|תערוך|תן|רוצה|צריך|בא לי/.test(t);
   const noun = /moment|highlight|video|stream|vod|הייטלייט|היילייט|רגע|רגעים|סרטון|סטרים|וידאו/.test(t);   // a bare "I need 3 things" or "want help" must NOT spend a credit: a request needs a clip/video word
@@ -323,7 +323,7 @@ export function understand(text) {
   const shorts = wantsLong && !wantsShorts && !count ? 0 : Math.min(30, count || 5);
   return { intent, he, shorts, long: wantsLong, when, mood, text: raw };
 }
-const WHEN_TXT = { yesterday: { he: "מהסטרים של אתמול", en: "from yesterday's stream" }, last_stream: { he: "מהסטרים האחרון", en: "from your latest stream" }, week: { he: "מהשבוע האחרון", en: "from last week" } };
+const WHEN_TXT = { live_now: { he: "מהשידור החי (קצת אחורה)", en: "from the live stream (a few minutes behind)" }, yesterday: { he: "מהסטרים של אתמול", en: "from yesterday's stream" }, last_stream: { he: "מהסטרים האחרון", en: "from your latest stream" }, week: { he: "מהשבוע האחרון", en: "from last week" } };
 const MOOD_TXT = { funny: { he: "מצחיקים", en: "funny" }, hype: { he: "מטורפים", en: "hype" }, fail: { he: "של פיילים", en: "fail" } };
 const HELP = { he: "אפשר לבקש בשפה חופשית, למשל: \"תכין 5 שורטס מצחיקים מאתמול\" או \"מה המצב?\"", en: "Ask in plain words, e.g. \"make 5 funny Shorts from yesterday\" or \"what's the status?\"" };
 // ---- free-form understanding with a free LLM (Workers AI binding `AI`): replies vary, remember the conversation, answer product questions; the rule parser above stays as the fallback and as the safety net
@@ -368,7 +368,7 @@ Output ONLY JSON: {"reply": "<what you say>", "intent": "create" | "status" | "c
       if (!j && typeof t === "string" && String(t).trim().length > 1 && !/[{}]/.test(String(t))) j = { reply: String(t).trim(), intent: "chat" };   // the model answered in plain text instead of JSON: that is a fine chat reply
       if (!j || typeof j.reply !== "string" || !j.reply.trim()) LLM_DIAG.fail = (LLM_DIAG.fail || "") + m.split("/").pop() + ": no-json " + String(t).slice(0, 80).replace(/\s+/g, " ") + " || ";
       else if (/[\u0900-\u097F\u0600-\u06FF\u4E00-\u9FFF\u0400-\u04FF]/.test(j.reply)) LLM_DIAG.fail = (LLM_DIAG.fail || "") + m.split("/").pop() + ": foreign-script || ";   // a model that slips into another script is skipped
-      if (j && typeof j.reply === "string" && j.reply.trim() && !/[\u0900-\u097F\u0600-\u06FF\u4E00-\u9FFF\u0400-\u04FF]/.test(j.reply)) { return { reply: clean(j.reply, 1200), intent: ["create", "status", "chat"].includes(j.intent) ? j.intent : "chat", shorts: Math.max(0, Math.min(30, parseInt(j.shorts) || 0)), long: !!j.long, when: ["last_stream", "yesterday", "week"].includes(j.when) ? j.when : "last_stream", mood: ["funny", "hype", "fail"].includes(j.mood) ? j.mood : null }; }
+      if (j && typeof j.reply === "string" && j.reply.trim() && !/[\u0900-\u097F\u0600-\u06FF\u4E00-\u9FFF\u0400-\u04FF]/.test(j.reply)) { return { reply: clean(j.reply, 1200), intent: ["create", "status", "chat"].includes(j.intent) ? j.intent : "chat", shorts: Math.max(0, Math.min(30, parseInt(j.shorts) || 0)), long: !!j.long, when: ["last_stream", "yesterday", "week", "live_now"].includes(j.when) ? j.when : "last_stream", mood: ["funny", "hype", "fail"].includes(j.mood) ? j.mood : null }; }
     } catch (e) { LLM_DIAG.last = m + ": " + String(e && e.message || e).slice(0, 200); }
   }
   return null;
@@ -661,7 +661,7 @@ async function handleStudioInner(req, env, fetchImpl) {
   if (sub === "/jobs" && m === "POST") {
     let d = need("job.create"); if (d) return d; const ch = await kget(env, K.chan(orgId, clean(b.channel_id, 20))); if (!ch) return err(400, "channel_not_found"); if (ch.status !== "verified") return err(409, "channel_not_verified");
     const type = clean(b.source && b.source.type, 10); if (!["vod", "live", "url", "auto"].includes(type)) return err(400, "bad_source_type");
-    const source = { type, ref: clean(b.source && b.source.ref, 300), when: ["yesterday", "last_stream", "week"].includes(b.source && b.source.when) ? b.source.when : undefined, duration_min: Number(b.source && b.source.duration_min) || null };   // "auto" = worker finds the stream by date (the assistant and one-click flows use it)   // TODO(ingest): for "live" the poller creates jobs itself; for "vod" validate that ref belongs to ch.slug
+    const source = { type, ref: clean(b.source && b.source.ref, 300), when: ["yesterday", "last_stream", "week", "live_now"].includes(b.source && b.source.when) ? b.source.when : undefined, duration_min: Number(b.source && b.source.duration_min) || null };   // "auto" = worker finds the stream by date (the assistant and one-click flows use it)   // TODO(ingest): for "live" the poller creates jobs itself; for "vod" validate that ref belongs to ch.slug
     const credits = estimateCredits(source); if (org.credits < credits) return err(402, "insufficient_credits", { need: credits, have: org.credits });   // TODO(payment): offer top-up/checkout here
     const job = await createJob(env, org, { channel_id: ch.id, kind: "edit", source, style_id: ch.style_id, outputs: { shorts: Math.min(30, Number(b.shorts) || 5), long: b.long !== false }, credits });
     return json({ job: pubJob(job) });
