@@ -92,6 +92,10 @@ def analyse_text(frames, step, y_lo=0.0, y_hi=1.0):
         med = float(np.median(ys)); keep = [i for i, y in enumerate(ys) if abs(y - med) <= 0.06 * H]
         ys, tops, bots, hs, sel_runs = ([x[i] for i in keep] for x in (ys, tops, bots, hs, sel_runs))
         res.update({"y_center": round(float(np.median(ys)) / H, 3), "y_top": round(float(np.percentile(tops, 20)) / H, 3), "y_bottom": round(float(np.percentile(bots, 80)) / H, 3), "band_h": round(float(np.median(hs)) / H, 3)})
+    if sel_runs:   # burned-in captions are horizontally centred and do not touch the frame edge; game HUD / stream overlays sit in corners and edges
+        xs = np.concatenate([np.where(ms[i][lo:hi + 1])[1] for i, lo, hi in sel_runs]); res["x_center"] = round(float(xs.mean()) / W, 2) if len(xs) else None
+        if res["x_center"] is None or abs(res["x_center"] - 0.5) > 0.12 or res.get("y_bottom", 0) > 0.955:
+            res["rejected"] = "not caption-like (off-centre or on the frame edge)"; res["coverage"] = 0.0
     px = np.concatenate([frames[i][lo:hi + 1][ms[i][lo:hi + 1]] for i, lo, hi in sel_runs] or [np.zeros((0, 3), np.uint8)]); px = px[:200000].astype(np.int16)
     mx, mn = px.max(1), px.min(1); white = (mn >= 205) & ((mx - mn) < 40); col = ~white
     res["white_share"] = round(float(white.mean()), 2)
@@ -200,11 +204,13 @@ def gemini_describe(path, measured, seconds=150):
                 if fi.get("state") != "PROCESSING": break
                 time.sleep(4); fi = json.loads(sh(["curl", "-sS", "-m", "60", f"https://generativelanguage.googleapis.com/v1beta/{fi['name']}?key={key}"]).stdout)
             if fi.get("state") != "ACTIVE": say("gemini file state", fi.get("state")); continue
-            for model in ("gemini-flash-latest", "gemini-3.5-flash", "gemini-2.5-flash"):
+            for model in ("gemini-flash-latest", "gemini-3.5-flash", "gemini-flash-latest"):   # last entry = one retry of the alias after a 503 (temporary overload)
                 body = {"contents": [{"parts": [{"file_data": {"file_uri": fi["uri"], "mime_type": "video/mp4"}}, {"text": prompt}]}], "generationConfig": {"temperature": 0.2, "responseMimeType": "application/json"}}
                 r = sh(["curl", "-sS", "-m", "300", f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent", "-H", "x-goog-api-key: " + key, "-H", "Content-Type: application/json", "-d", json.dumps(body)])
                 try: return json.loads(json.loads(r.stdout)["candidates"][0]["content"]["parts"][0]["text"])
-                except Exception: say("gemini", model, "failed:", r.stdout[:160].replace("\n", " "))
+                except Exception:
+                    say("gemini", model, "failed:", r.stdout[:160].replace("\n", " "))
+                    if '"code": 503' in r.stdout: time.sleep(20)
         except Exception as e: say("gemini error:", str(e)[:150])
     return None
 # ---- build the style -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -262,7 +268,8 @@ def build_style(name, src, m, g, fmt=None):
         if ad.get("true_peak_db") is not None: put("loudness", "tp", round(_clamp(min(ad["true_peak_db"], -1.0), -9, 0), 1))
         if ad.get("lra") is not None: put("loudness", "lra", round(_clamp(ad["lra"], 1, 20), 1))
     pc = m["pace"]; dead = 0.0
-    if pc["cuts_per_min"] >= 6 and ad.get("silence_pct", 100) < 4: dead = 0.7   # fast jump-cut pace with almost no silence left in it
+    if v["analysed_s"] < 30: pass   # too short to judge a cut pace
+    elif pc["cuts_per_min"] >= 6 and ad.get("silence_pct", 100) < 4: dead = 0.7   # fast jump-cut pace with almost no silence left in it
     elif pc["cuts_per_min"] >= 2 and ad.get("silence_pct", 100) < 8: dead = 1.5
     put("pace", "dead_air_trim_s", dead)
     if g:
