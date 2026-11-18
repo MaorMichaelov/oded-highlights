@@ -1,0 +1,41 @@
+name: studio-e2e-job
+# Diagnostic end-to-end test of a Studio job on the LIVE app: guest workspace (worker auth, no invite code) -> chat request with a real Twitch VOD -> wait for the studio-worker -> print drafts.
+on:
+  workflow_dispatch:
+    inputs:
+      login: { description: "Twitch login whose finished VOD is used", required: false, default: "kaicenat" }
+      base: { required: false, default: "https://studio-app.odedhl.workers.dev" }
+permissions:
+  contents: read
+  actions: write
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - run: pip install -q yt-dlp
+      - name: Run the journey
+        env:
+          BASE: ${{ inputs.base }}
+          LOGIN: ${{ inputs.login }}
+          GH_RUN_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          case "$BASE" in https://*.workers.dev) ;; *) exit 1;; esac
+          case "$LOGIN" in *[!A-Za-z0-9_]*) exit 1;; esac
+          URL=$(yt-dlp --flat-playlist --playlist-end 3 --print "%(url)s" "https://www.twitch.tv/$LOGIN/videos?filter=archives&sort=time" | sed -n 2p)
+          echo "vod: $URL"; [ -n "$URL" ] || { echo "no VOD found"; exit 1; }
+          G=$(printf 'header = "x-worker-key: %s"\n' "$GH_RUN_TOKEN" | curl -sS -m 30 -K - -X POST -H 'content-type: application/json' -d '{}' "$BASE/studio/worker/testguest")
+          TK=$(echo "$G" | python3 -c "import sys,json;print(json.load(sys.stdin)['token'])"); OID=$(echo "$G" | python3 -c "import sys,json;print(json.load(sys.stdin)['org_id'])")
+          R1=$(curl -sS -m 90 -X POST -H "authorization: Bearer $TK" -H 'content-type: application/json' -d "{\"message\":\"make 3 Shorts from $URL\"}" "$BASE/studio/api/orgs/$OID/assistant"); echo "assistant: $(echo "$R1" | head -c 300)"
+          JID=$(echo "$R1" | python3 -c "import sys,json;print(json.load(sys.stdin)['actions'][0]['job_id'])")
+          echo "job: $JID"; gh workflow run studio-worker.yml --repo "$REPO" --ref main || true
+          for i in $(seq 1 120); do
+            J=$(curl -sS -m 30 -H "authorization: Bearer $TK" "$BASE/studio/api/orgs/$OID/jobs/$JID")
+            ST=$(echo "$J" | python3 -c "import sys,json;j=json.load(sys.stdin)['job'];print(j['status'],j.get('progress'),(j.get('status_text') or {}).get('en',''))" 2>/dev/null)
+            echo "$(date -u +%H:%M:%S) $ST"
+            case "$ST" in draft_ready*|approved*|rejected*|failed*|cancelled*) break;; esac
+            sleep 30
+          done
+          echo "$J" | python3 -c "import sys,json;j=json.load(sys.stdin)['job'];print('FINAL',j['status']);[print(' draft:',d.get('title'),'|',d.get('duration_s'),'s | qa_ok',d.get('qa_ok'),'| preview',bool(d.get('preview_url'))) for d in (j.get('result') or {}).get('drafts',[])]; print('events:',[e.get('e') for e in j.get('events',[])][-8:])"
