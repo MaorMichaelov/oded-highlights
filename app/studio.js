@@ -583,7 +583,7 @@ async function orgIsGuest(env, orgId) { try { const o = await kget(env, K.org(or
 async function workerApi(req, env, p, m) {
   const key = await cfg(env, "worker_key"); const got = req.headers.get("x-worker-key") || "";
   let authed = !!key && safeEq(await sha256(got), await sha256(key));
-  if (!authed && /^gh[sp]_[A-Za-z0-9]{20,}$/.test(got)) authed = await ghActionsTokenOk(env, got);   // the repo's own GitHub Actions run proves itself with its run token: no shared secret to store anywhere
+  if (!authed && /^gh[sp]_[A-Za-z0-9_.-]{20,400}$/.test(got)) authed = await ghActionsTokenOk(env, got);   // the repo's own GitHub Actions run proves itself with its run token: no shared secret to store anywhere
   if (!authed) { if (await limited(env, req, "workerkey_fail", 60)) return err(429, "rate_limited"); return err(401, "unauthorized"); }   // only FAILED attempts count (the real worker polls often)
   if (p === "/studio/worker/queue" && (m === "POST" || m === "GET")) {   // cheap peek for the GitHub Actions poller: how many jobs wait. Claims nothing, changes nothing.
     return json({ queued: (await klist(env, "studio:q:", 20)).length });
