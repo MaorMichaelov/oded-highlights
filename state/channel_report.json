@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-18T13:00:17Z",
+ "generated": "2026-11-18T13:30:25Z",
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -9,21 +9,21 @@
  "totals": {
   "videos_total": 32,
   "videos_public": 16,
-  "views": 21035,
-  "likes": 197,
-  "est_hours_low": 1057.5,
-  "est_hours_high": 2467.1
+  "views": 21116,
+  "likes": 201,
+  "est_hours_low": 1061.7,
+  "est_hours_high": 2476.9
  },
  "by_kind": {
   "other": {
    "n": 13,
-   "views": 20918,
-   "est_hours_mid": 1756.8
+   "views": 20993,
+   "est_hours_mid": 1762.9
   },
   "reaction": {
    "n": 2,
-   "views": 117,
-   "est_hours_mid": 5.5
+   "views": 123,
+   "est_hours_mid": 6.2
   },
   "short": {
    "n": 1,
@@ -32,8 +32,8 @@
   }
  },
  "top_views": [
-  "7pMRRSwuhu0",
   "KwS6vxsn-VQ",
+  "7pMRRSwuhu0",
   "U2vvrhOr5AI",
   "UvCY4MqRuUk",
   "ZA70shTHhSk"
@@ -83,15 +83,15 @@
    "title": "מיכאל מגיב ל-GTA 6 בפעם הראשונה, הוא השתגע?",
    "published": "2026-11-18",
    "privacy": "public",
-   "duration_min": 27.8,
-   "views": 2,
-   "likes": 1,
+   "duration_min": 26.4,
+   "views": 8,
+   "likes": 3,
    "comments": 0,
    "est_hours": [
-    0.2,
-    0.4
+    0.7,
+    1.6
    ],
-   "views_per_day": 40.0,
+   "views_per_day": 141.5,
    "kind": "reaction"
   },
   {
@@ -107,7 +107,7 @@
     3.0,
     7.1
    ],
-   "views_per_day": 65.6,
+   "views_per_day": 63.9,
    "kind": "other"
   },
   {
@@ -123,7 +123,7 @@
     11.5,
     26.8
    ],
-   "views_per_day": 45.3,
+   "views_per_day": 44.5,
    "kind": "other"
   },
   {
@@ -331,7 +331,7 @@
     27.0,
     63.1
    ],
-   "views_per_day": 399.4,
+   "views_per_day": 396.4,
    "kind": "other"
   },
   {
@@ -363,7 +363,7 @@
     0.0,
     0.1
    ],
-   "views_per_day": 0.4,
+   "views_per_day": 0.3,
    "kind": "other"
   },
   {
@@ -404,14 +404,14 @@
    "published": "2026-11-13",
    "privacy": "public",
    "duration_min": 14.9,
-   "views": 2877,
+   "views": 2904,
    "likes": 16,
    "comments": 0,
    "est_hours": [
-    137.3,
-    320.4
+    138.6,
+    323.4
    ],
-   "views_per_day": 559.1,
+   "views_per_day": 562.1,
    "kind": "other"
   },
   {
@@ -420,14 +420,14 @@
    "published": "2026-11-13",
    "privacy": "public",
    "duration_min": 9.6,
-   "views": 5599,
-   "likes": 50,
+   "views": 5636,
+   "likes": 51,
    "comments": 3,
    "est_hours": [
-    242.3,
-    565.4
+    243.9,
+    569.1
    ],
-   "views_per_day": 1083.6,
+   "views_per_day": 1086.4,
    "kind": "other"
   },
   {
@@ -443,7 +443,7 @@
     60.4,
     140.9
    ],
-   "views_per_day": 241.0,
+   "views_per_day": 240.0,
    "kind": "other"
   },
   {
@@ -459,7 +459,7 @@
     5.9,
     13.7
    ],
-   "views_per_day": 10.8,
+   "views_per_day": 10.7,
    "kind": "other"
   },
   {
@@ -468,14 +468,14 @@
    "published": "2026-11-12",
    "privacy": "public",
    "duration_min": 30.9,
-   "views": 5079,
-   "likes": 27,
+   "views": 5090,
+   "likes": 28,
    "comments": 1,
    "est_hours": [
-    376.3,
-    877.9
+    377.1,
+    879.8
    ],
-   "views_per_day": 854.4,
+   "views_per_day": 853.3,
    "kind": "other"
   },
   {
@@ -491,7 +491,7 @@
     3.1,
     7.2
    ],
-   "views_per_day": 19.1,
+   "views_per_day": 19.0,
    "kind": "reaction"
   },
   {
@@ -507,7 +507,7 @@
     204.7,
     477.6
    ],
-   "views_per_day": 932.7,
+   "views_per_day": 929.5,
    "kind": "other"
   },
   {
@@ -523,7 +523,7 @@
     9.1,
     21.1
    ],
-   "views_per_day": 29.6,
+   "views_per_day": 29.5,
    "kind": "other"
   },
   {
