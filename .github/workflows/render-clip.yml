@@ -25,6 +25,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate inputs
         run: python3 scripts/ci_check_inputs.py
+      - name: Free disk space (a 90 min 1080p60 clip needs > 20 GB with its parts; the runner starts with ~14 GB free)
+        run: |
+          df -h / | tail -1
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL 2>/dev/null || true
+          df -h / | tail -1
       - name: Install
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
@@ -97,6 +102,7 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
       - name: Record result
+        if: always()   # also after a failed stage: status.json (failed stage + seconds) must reach the repo so the monitor / health check can see what broke
         run: |
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
           python3 scripts/stations/index.py || true

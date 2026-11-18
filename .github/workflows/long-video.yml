@@ -29,6 +29,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate inputs
         run: python3 scripts/ci_check_inputs.py
+      - name: Free disk space (a 90 min 1080p60 clip needs > 20 GB with its parts; the runner starts with ~14 GB free)
+        run: |
+          df -h / | tail -1
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL 2>/dev/null || true
+          df -h / | tail -1
       - name: Install
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
