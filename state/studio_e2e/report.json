@@ -1,43 +1,43 @@
 {
  "base": "https://studio-app.odedhl.workers.dev",
- "started": "2026-11-18T12:10:47.326Z",
+ "started": "2026-11-18T12:19:08.278Z",
  "profiles": {
-  "desktop-en": {
+  "mobile-he": {
    "steps": [
     {
      "name": "landing",
      "ok": true,
-     "ms": 2332
+     "ms": 3167
     },
     {
      "name": "guest-entry",
      "ok": true,
-     "ms": 2900
+     "ms": 3327
     },
     {
      "name": "setup-channel-errors",
      "ok": true,
-     "ms": 47
+     "ms": 49
     },
     {
      "name": "setup-wrong-channel-then-back",
      "ok": true,
-     "ms": 2571
+     "ms": 2956
     },
     {
      "name": "verify-real-channel-states",
      "ok": true,
-     "ms": 2005
+     "ms": 2579
     },
     {
      "name": "setup-timer-polls-and-cleanup",
      "ok": true,
-     "ms": 11228
+     "ms": 11778
     },
     {
      "name": "reload-mid-verification",
      "ok": true,
-     "ms": 1067
+     "ms": 1087
     },
     {
      "name": "verify-success",
@@ -47,63 +47,37 @@
     {
      "name": "logout",
      "ok": true,
-     "ms": 1633
+     "ms": 1073
     },
     {
      "name": "email-signup-login-wrong-password",
      "ok": true,
-     "ms": 6604
+     "ms": 6599
     },
     {
      "name": "token-expiry",
      "ok": true,
-     "ms": 83
+     "ms": 515
     },
     {
      "name": "deep-links-and-back",
      "ok": true,
-     "ms": 8267
+     "ms": 9006
     },
     {
      "name": "offline-and-slow-network",
      "ok": true,
-     "ms": 5492
+     "ms": 6107
     }
    ],
    "issues": [],
    "layout": [],
-   "texts": [
-    {
-     "at": "landing-switched",
-     "k": "latin-in-he",
-     "tx": "STREAM_17-11.MP4"
-    },
-    {
-     "at": "landing-switched",
-     "k": "latin-in-he",
-     "tx": "CLIP 01"
-    },
-    {
-     "at": "landing-switched",
-     "k": "latin-in-he",
-     "tx": "CLIP 02"
-    },
-    {
-     "at": "landing-switched",
-     "k": "latin-in-he",
-     "tx": "CLIP 03"
-    },
-    {
-     "at": "landing-switched",
-     "k": "latin-in-he",
-     "tx": "CLIP 04"
-    }
-   ],
+   "texts": [],
    "notes": [
-    "verify message for a non-existing Kick channel: Code not visible yet. Make sure it is in your bio/description or stream title and saved.",
-    "verify message for kick.com/odedsvr without the code: Code not visible yet. Make sure it is in your bio/description or stream title and saved.",
-    "wrong password message: Wrong password for this email.",
-    "bad invite link while signed in: Skip to content STUDIO 01 HOME 02 REVIEW 03 ACTIVITY 04 ASSISTANT 05 TEAM 06 CRE"
+    "verify message for a non-existing Kick channel: לא מצאנו ערוץ בשם הזה. בדקו את האיות.",
+    "verify message for kick.com/odedsvr without the code: עוד לא רואים את הקוד. ודא שהוא בביו/בתיאור או בכותרת הסטרים ושמרת.",
+    "wrong password message: הסיסמה לא נכונה לאימייל הזה.",
+    "bad invite link while signed in: דלג לתוכן STUDIO 14:19:50:13 02 00 / שלושה צעדים ומתחילים שלושה צעדים ומתחילים "
    ],
    "skipped": [
     "verification success + everything after it: no WORKER_KEY (the real owner of the channel must put the code in the bio)",
@@ -124,42 +98,42 @@
    ],
    "net": []
   },
-  "mobile-he": {
+  "mobile-en": {
    "steps": [
     {
      "name": "landing",
      "ok": true,
-     "ms": 2142
+     "ms": 3094
     },
     {
      "name": "guest-entry",
      "ok": true,
-     "ms": 2376
+     "ms": 3329
     },
     {
      "name": "setup-channel-errors",
      "ok": true,
-     "ms": 66
+     "ms": 51
     },
     {
      "name": "setup-wrong-channel-then-back",
      "ok": true,
-     "ms": 3092
+     "ms": 2846
     },
     {
      "name": "verify-real-channel-states",
      "ok": true,
-     "ms": 2260
+     "ms": 2439
     },
     {
      "name": "setup-timer-polls-and-cleanup",
      "ok": true,
-     "ms": 11199
+     "ms": 11026
     },
     {
      "name": "reload-mid-verification",
      "ok": true,
-     "ms": 1062
+     "ms": 1067
     },
     {
      "name": "verify-success",
@@ -169,113 +143,229 @@
     {
      "name": "logout",
      "ok": true,
-     "ms": 799
+     "ms": 1617
     },
     {
      "name": "email-signup-login-wrong-password",
      "ok": true,
-     "ms": 7269
+     "ms": 6589
     },
     {
      "name": "token-expiry",
      "ok": true,
-     "ms": 74
+     "ms": 516
     },
     {
      "name": "deep-links-and-back",
      "ok": true,
-     "ms": 9381
+     "ms": 8711
     },
     {
      "name": "offline-and-slow-network",
      "ok": true,
-     "ms": 5408
+     "ms": 6088
     }
    ],
    "issues": [],
    "layout": [],
-   "texts": [
+   "texts": [],
+   "notes": [
+    "verify message for a non-existing Kick channel: We couldn't find that channel. Check the spelling.",
+    "verify message for kick.com/odedsvr without the code: Code not visible yet. Make sure it is in your bio/description or stream title and saved.",
+    "wrong password message: Wrong password for this email.",
+    "bad invite link while signed in: Skip to content STUDIO 14:20:37:24 02 00 / THREE STEPS AND YOU'RE IN THREE STEPS"
+   ],
+   "skipped": [
+    "verification success + everything after it: no WORKER_KEY (the real owner of the channel must put the code in the bio)",
+    "setup-youtube-step (no verified channel)",
+    "home-checklist-and-chips (no verified channel)",
+    "chat-typed-request-and-limits (no verified channel)",
+    "activity-timeline-cancel-refund (no verified channel)",
+    "job-progress-polling (no verified channel)",
+    "review-buttons-undo-title-keyboard-swipe-bulk (no verified channel)",
+    "credits-page (no verified channel)",
+    "team-invite-link (no verified channel)",
+    "invitee-signs-up-and-joins (no verified channel)",
+    "viewer-permissions (no verified channel)",
+    "team-role-change-and-remove (no verified channel)",
+    "settings-language-theme (no verified channel)",
+    "workspace-create-switch (no verified channel)",
+    "channel-remove (no verified channel)"
+   ],
+   "net": []
+  },
+  "desktop-he": {
+   "steps": [
     {
-     "at": "landing",
-     "k": "latin-in-he",
-     "tx": "STREAM_17-11.MP4"
+     "name": "landing",
+     "ok": true,
+     "ms": 3091
     },
     {
-     "at": "landing",
-     "k": "latin-in-he",
-     "tx": "CLIP 01"
+     "name": "guest-entry",
+     "ok": true,
+     "ms": 2860
     },
     {
-     "at": "landing",
-     "k": "latin-in-he",
-     "tx": "CLIP 02"
+     "name": "setup-channel-errors",
+     "ok": true,
+     "ms": 50
     },
     {
-     "at": "landing",
-     "k": "latin-in-he",
-     "tx": "CLIP 03"
+     "name": "setup-wrong-channel-then-back",
+     "ok": true,
+     "ms": 3122
     },
     {
-     "at": "landing",
-     "k": "latin-in-he",
-     "tx": "CLIP 04"
+     "name": "verify-real-channel-states",
+     "ok": true,
+     "ms": 2248
     },
     {
-     "at": "landing-email-form",
-     "k": "latin-in-he",
-     "tx": "STREAM_17-11.MP4"
+     "name": "setup-timer-polls-and-cleanup",
+     "ok": true,
+     "ms": 11326
     },
     {
-     "at": "landing-email-form",
-     "k": "latin-in-he",
-     "tx": "CLIP 01"
+     "name": "reload-mid-verification",
+     "ok": true,
+     "ms": 1047
     },
     {
-     "at": "landing-email-form",
-     "k": "latin-in-he",
-     "tx": "CLIP 02"
+     "name": "verify-success",
+     "ok": true,
+     "ms": 0
     },
     {
-     "at": "landing-email-form",
-     "k": "latin-in-he",
-     "tx": "CLIP 03"
+     "name": "logout",
+     "ok": true,
+     "ms": 1552
     },
     {
-     "at": "landing-email-form",
-     "k": "latin-in-he",
-     "tx": "CLIP 04"
+     "name": "email-signup-login-wrong-password",
+     "ok": true,
+     "ms": 6528
     },
     {
-     "at": "after-logout",
-     "k": "latin-in-he",
-     "tx": "STREAM_17-11.MP4"
+     "name": "token-expiry",
+     "ok": true,
+     "ms": 546
     },
     {
-     "at": "after-logout",
-     "k": "latin-in-he",
-     "tx": "CLIP 01"
+     "name": "deep-links-and-back",
+     "ok": true,
+     "ms": 8816
     },
     {
-     "at": "after-logout",
-     "k": "latin-in-he",
-     "tx": "CLIP 02"
-    },
-    {
-     "at": "after-logout",
-     "k": "latin-in-he",
-     "tx": "CLIP 03"
-    },
-    {
-     "at": "after-logout",
-     "k": "latin-in-he",
-     "tx": "CLIP 04"
+     "name": "offline-and-slow-network",
+     "ok": true,
+     "ms": 6199
     }
    ],
+   "issues": [],
+   "layout": [],
+   "texts": [],
    "notes": [
-    "verify message for a non-existing Kick channel: עוד לא רואים את הקוד. ודא שהוא בביו/בתיאור או בכותרת הסטרים ושמרת.",
+    "verify message for a non-existing Kick channel: לא מצאנו ערוץ בשם הזה. בדקו את האיות.",
     "verify message for kick.com/odedsvr without the code: עוד לא רואים את הקוד. ודא שהוא בביו/בתיאור או בכותרת הסטרים ושמרת.",
     "wrong password message: הסיסמה לא נכונה לאימייל הזה.",
-    "bad invite link while signed in: דלג לתוכן STUDIO 14:12:11:11 02 00 / שלושה צעדים ומתחילים שלושה צעדים ומתחילים "
+    "bad invite link while signed in: דלג לתוכן STUDIO 01 בית 02 אישורים 03 פעילות 04 עוזר 05 צוות 06 קרדיטים 07 הגדרו"
+   ],
+   "skipped": [
+    "verification success + everything after it: no WORKER_KEY (the real owner of the channel must put the code in the bio)",
+    "setup-youtube-step (no verified channel)",
+    "home-checklist-and-chips (no verified channel)",
+    "chat-typed-request-and-limits (no verified channel)",
+    "activity-timeline-cancel-refund (no verified channel)",
+    "job-progress-polling (no verified channel)",
+    "review-buttons-undo-title-keyboard-swipe-bulk (no verified channel)",
+    "credits-page (no verified channel)",
+    "team-invite-link (no verified channel)",
+    "invitee-signs-up-and-joins (no verified channel)",
+    "viewer-permissions (no verified channel)",
+    "team-role-change-and-remove (no verified channel)",
+    "settings-language-theme (no verified channel)",
+    "workspace-create-switch (no verified channel)",
+    "channel-remove (no verified channel)"
+   ],
+   "net": []
+  },
+  "desktop-en": {
+   "steps": [
+    {
+     "name": "landing",
+     "ok": true,
+     "ms": 3161
+    },
+    {
+     "name": "guest-entry",
+     "ok": true,
+     "ms": 2859
+    },
+    {
+     "name": "setup-channel-errors",
+     "ok": true,
+     "ms": 52
+    },
+    {
+     "name": "setup-wrong-channel-then-back",
+     "ok": true,
+     "ms": 2828
+    },
+    {
+     "name": "verify-real-channel-states",
+     "ok": true,
+     "ms": 2622
+    },
+    {
+     "name": "setup-timer-polls-and-cleanup",
+     "ok": true,
+     "ms": 11640
+    },
+    {
+     "name": "reload-mid-verification",
+     "ok": true,
+     "ms": 1015
+    },
+    {
+     "name": "verify-success",
+     "ok": true,
+     "ms": 0
+    },
+    {
+     "name": "logout",
+     "ok": true,
+     "ms": 1528
+    },
+    {
+     "name": "email-signup-login-wrong-password",
+     "ok": true,
+     "ms": 5936
+    },
+    {
+     "name": "token-expiry",
+     "ok": true,
+     "ms": 564
+    },
+    {
+     "name": "deep-links-and-back",
+     "ok": true,
+     "ms": 7542
+    },
+    {
+     "name": "offline-and-slow-network",
+     "ok": true,
+     "ms": 6075
+    }
+   ],
+   "issues": [],
+   "layout": [],
+   "texts": [],
+   "notes": [
+    "verify message for a non-existing Kick channel: We couldn't find that channel. Check the spelling.",
+    "verify message for kick.com/odedsvr without the code: Code not visible yet. Make sure it is in your bio/description or stream title and saved.",
+    "wrong password message: Wrong password for this email.",
+    "bad invite link while signed in: Skip to content STUDIO 01 HOME 02 REVIEW 03 ACTIVITY 04 ASSISTANT 05 TEAM 06 CRE"
    ],
    "skipped": [
     "verification success + everything after it: no WORKER_KEY (the real owner of the channel must put the code in the bio)",
@@ -301,35 +391,61 @@
   "failedSteps": 0,
   "errorIssues": 0,
   "perProfile": {
-   "desktop-en": {
-    "steps": 13,
-    "failed": 0,
-    "bugs": 0,
-    "issues": 0,
-    "layout": 0,
-    "texts": 5,
-    "skipped": 15,
-    "fatal": false
-   },
    "mobile-he": {
     "steps": 13,
     "failed": 0,
     "bugs": 0,
     "issues": 0,
     "layout": 0,
-    "texts": 15,
+    "texts": 0,
+    "skipped": 15,
+    "fatal": false
+   },
+   "mobile-en": {
+    "steps": 13,
+    "failed": 0,
+    "bugs": 0,
+    "issues": 0,
+    "layout": 0,
+    "texts": 0,
+    "skipped": 15,
+    "fatal": false
+   },
+   "desktop-he": {
+    "steps": 13,
+    "failed": 0,
+    "bugs": 0,
+    "issues": 0,
+    "layout": 0,
+    "texts": 0,
+    "skipped": 15,
+    "fatal": false
+   },
+   "desktop-en": {
+    "steps": 13,
+    "failed": 0,
+    "bugs": 0,
+    "issues": 0,
+    "layout": 0,
+    "texts": 0,
     "skipped": 15,
     "fatal": false
    }
   }
  },
  "keyShots": [
-  "desktop-en-01-landing.png",
-  "desktop-en-02-setup-channel.png",
-  "desktop-en-03-setup-verify.png",
   "mobile-he-01-landing.png",
   "mobile-he-02-setup-channel.png",
-  "mobile-he-03-setup-verify.png"
+  "mobile-he-03-setup-verify.png",
+  "mobile-en-01-landing.png",
+  "mobile-en-02-setup-channel.png",
+  "mobile-en-03-setup-verify.png",
+  "desktop-he-01-landing.png",
+  "desktop-he-02-setup-channel.png",
+  "desktop-he-03-setup-verify.png",
+  "desktop-en-01-landing.png",
+  "desktop-en-02-setup-channel.png",
+  "desktop-en-03-setup-verify.png"
  ],
- "finished": "2026-11-18T12:12:16.902Z"
+ "finished": "2026-11-18T12:22:17.412Z"
 }
