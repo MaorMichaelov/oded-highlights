@@ -14,9 +14,19 @@ permissions: { contents: write }
 jobs:
   probe:
     runs-on: ubuntu-latest
+    env:   # workflow inputs go through env vars, never straight into the shell script (injection)
+      IN_SLUG: ${{ inputs.slug }}
+      IN_PLATFORM: ${{ inputs.platform }}
+      IN_VOD: ${{ inputs.vod }}
+      IN_FROM_MIN: ${{ inputs.from_min }}
+      IN_TO_MIN: ${{ inputs.to_min }}
+      IN_K: ${{ inputs.k }}
+      IN_LOCAL: ${{ inputs.local }}
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
+      - name: Validate inputs
+        run: python3 scripts/ci_check_inputs.py
       - name: Install
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
@@ -24,7 +34,7 @@ jobs:
       - name: Probe
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-        run: python3 -u scripts/probe_cut.py --slug "${{ inputs.slug }}" --platform "${{ inputs.platform }}" --vod "${{ inputs.vod }}" --from-min "${{ inputs.from_min }}" --to-min "${{ inputs.to_min }}" --k "${{ inputs.k }}" $([ "${{ inputs.local }}" = "true" ] && echo --local)
+        run: python3 -u scripts/probe_cut.py --slug "${IN_SLUG}" --platform "${IN_PLATFORM}" --vod "${IN_VOD}" --from-min "${IN_FROM_MIN}" --to-min "${IN_TO_MIN}" --k "${IN_K}" $([ "${IN_LOCAL}" = "true" ] && echo --local)
       - name: Record
         if: always()
         run: |

@@ -48,15 +48,10 @@ jobs:
             [ -f state/PAUSE ] && { echo "PAUSE file present, stopping"; exit 0; }
             LIVE_STATUS_ONLY=1 python3 scripts/live_watch.py || echo "status check failed (continuing)"
             python3 scripts/stations/live_alert.py || echo "alert failed (continuing)"
-            git add state; git diff --cached --quiet || { git commit -q -m "state: status $(date -u +%FT%TZ)"; git pull --rebase -q || true; git push -q || true; }
+            bash scripts/git_sync.sh "state: status $(date -u +%FT%TZ)" state
             python3 scripts/live_watch.py || echo "live_watch failed (continuing)"
             python3 scripts/stations/live_alert.py || echo "alert failed (continuing)"
-            git add state
-            if ! git diff --cached --quiet; then
-              git commit -q -m "state: live watch $(date -u +%FT%TZ)"
-              git pull --rebase -q || true
-              git push -q || true
-            fi
+            bash scripts/git_sync.sh "state: live watch $(date -u +%FT%TZ)" state
             python3 scripts/autopilot.py || echo "autopilot failed (continuing)"
             python3 scripts/stations/pick.py || echo "pick station failed (continuing)"
             python3 scripts/yt_stats.py || echo "stats failed (continuing)"
@@ -64,9 +59,9 @@ jobs:
             python3 scripts/stations/timeline.py || echo "timeline skipped"
             python3 scripts/stations/index.py || echo "index failed (continuing)"
             python3 scripts/stations/brief.py || echo "brief skipped"
-            git add state; git diff --cached --quiet || { git commit -q -m "state: pick $(date -u +%FT%TZ)"; git pull --rebase -q || true; git push -q || true; }
+            bash scripts/git_sync.sh "state: pick $(date -u +%FT%TZ)" state
             B=$(python3 -c 'import json;print(json.load(open("state/ingest_state.json")).get("_behind_segs",0))' 2>/dev/null || echo 0)
             LIVE=$(python3 -c 'import json;print(json.load(open("state/live_status.json")).get("live"))' 2>/dev/null || echo False)
             if [ "${B:-0}" -gt 12 ]; then echo "transcription is $B segments behind: no sleep"; elif [ "$LIVE" = "True" ]; then sleep 45; else sleep 300; fi
           done
-          gh workflow run live-loop.yml --ref main
+          for i in 1 2 3 4 5 6; do gh workflow run live-loop.yml --ref main && break; echo "re-dispatch failed (attempt $i)"; sleep $((i*15)); done   # the chain must not break on one API hiccup (the Cloudflare watchdog / monitor are only the backup)

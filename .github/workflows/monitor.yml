@@ -17,4 +17,4 @@ jobs:
         run: |
           git config user.name "highlights-bot"; git config user.email "highlights-bot@users.noreply.github.com"
           python3 scripts/stations/monitor.py || true
-          git add state/health.json; git diff --cached --quiet || { git commit -q -m "state: health"; git pull --rebase -q || true; git push -q || true; }
+          bash scripts/git_sync.sh "state: health" state/health.json state/retries.json

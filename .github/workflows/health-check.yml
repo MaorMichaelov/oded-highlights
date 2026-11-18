@@ -1,0 +1,20 @@
+name: health-check
+# Every 30 min: are the live loops alive, is state fresh, when was the last draft uploaded, quota / UPLOAD_HOLD status, failed or stalled runs, corrupt state files, duplicate drafts.
+# Writes state/health.json (merged with station 6 monitor.py's keys), opens ONE GitHub issue (-> email) per distinct critical problem. Never uploads anything, never restarts anything (monitor.yml + the Cloudflare watchdog do the restarting).
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "7,37 * * * *"
+concurrency: { group: health-check, cancel-in-progress: true }
+permissions: { contents: write, actions: read, issues: write }
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          python3 scripts/health_check.py --issue || echo "::warning::health check reported a critical problem (see the log / state/health.json)"
+          bash scripts/git_sync.sh "state: health check" state/health.json

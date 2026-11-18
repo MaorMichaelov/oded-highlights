@@ -54,8 +54,8 @@ jobs:
             python3 scripts/stations/timeline.py || echo "timeline skipped"   # topic spans for the English streamers too (bug 17 Nov: without it the old window picker found nothing in a chatty stream)
             python3 scripts/stations/pick.py || echo "pick station failed (continuing)"
             python3 scripts/stations/index.py || true
-            git add state; git diff --cached --quiet || { git commit -q -m "state: ${CHANNEL} $(date -u +%FT%TZ)"; git pull --rebase -q || true; git push -q || true; }
+            bash scripts/git_sync.sh "state: ${CHANNEL} $(date -u +%FT%TZ)" state
             B=$(python3 -c 'import json,os;print(json.load(open(os.environ["STATE_DIR"]+"/ingest_state.json")).get("_behind_segs",0))' 2>/dev/null || echo 0)
             if [ "${B:-0}" -gt 12 ]; then echo "behind by $B segments: no sleep"; else sleep 300; fi
           done
-          gh workflow run live-loop-channel.yml --ref main -f channel="$CHANNEL" -f lang="$ASR_LANG" -f yt="$CHANNEL_YT" -f credit="$CHANNEL_CREDIT" -f force_vod="$FORCE_VOD"
+          for i in 1 2 3 4 5 6; do gh workflow run live-loop-channel.yml --ref main -f channel="$CHANNEL" -f lang="$ASR_LANG" -f yt="$CHANNEL_YT" -f credit="$CHANNEL_CREDIT" -f force_vod="$FORCE_VOD"  && break; echo "re-dispatch failed (attempt $i)"; sleep $((i*15)); done
