@@ -1,0 +1,150 @@
+{
+ "base": "https://studio-app.odedhl.workers.dev",
+ "started": "2026-11-18T11:58:43.634Z",
+ "profiles": {
+  "desktop-en": {
+   "steps": [
+    {
+     "name": "landing",
+     "ok": true,
+     "ms": 2177
+    },
+    {
+     "name": "guest-entry",
+     "ok": true,
+     "ms": 2398
+    },
+    {
+     "name": "setup-channel-errors",
+     "ok": true,
+     "ms": 43
+    },
+    {
+     "name": "setup-wrong-channel-then-back",
+     "ok": false,
+     "ms": 12041,
+     "error": "page.waitForSelector: Timeout 12000ms exceeded."
+    },
+    {
+     "name": "verify-real-channel-states",
+     "ok": false,
+     "ms": 12035,
+     "error": "page.waitForSelector: Timeout 12000ms exceeded."
+    },
+    {
+     "name": "setup-timer-polls-and-cleanup",
+     "ok": false,
+     "ms": 32081,
+     "error": "timeout: auto check fires within ~30s"
+    },
+    {
+     "name": "reload-mid-verification",
+     "ok": false,
+     "ms": 233,
+     "error": "code changed after reload"
+    },
+    {
+     "name": "verify-success",
+     "ok": true,
+     "ms": 1
+    },
+    {
+     "name": "logout",
+     "ok": true,
+     "ms": 1623
+    },
+    {
+     "name": "email-signup-login-wrong-password",
+     "ok": true,
+     "ms": 6889
+    },
+    {
+     "name": "token-expiry",
+     "ok": true,
+     "ms": 107
+    },
+    {
+     "name": "deep-links-and-back",
+     "ok": true,
+     "ms": 8865
+    },
+    {
+     "name": "offline-and-slow-network",
+     "ok": true,
+     "ms": 5327
+    }
+   ],
+   "issues": [],
+   "layout": [],
+   "texts": [
+    {
+     "at": "landing-switched",
+     "k": "latin-in-he",
+     "tx": "STREAM_17-11.MP4"
+    },
+    {
+     "at": "landing-switched",
+     "k": "latin-in-he",
+     "tx": "CLIP 01"
+    },
+    {
+     "at": "landing-switched",
+     "k": "latin-in-he",
+     "tx": "CLIP 02"
+    },
+    {
+     "at": "landing-switched",
+     "k": "latin-in-he",
+     "tx": "CLIP 03"
+    },
+    {
+     "at": "landing-switched",
+     "k": "latin-in-he",
+     "tx": "CLIP 04"
+    }
+   ],
+   "notes": [
+    "wrong password message: Wrong password for this email.",
+    "bad invite link while signed in: Skip to content STUDIO 01 HOME 02 REVIEW 03 ACTIVITY 04 ASSISTANT 05 TEAM 06 CRE"
+   ],
+   "skipped": [
+    "verification success + everything after it: no WORKER_KEY (the real owner of the channel must put the code in the bio)",
+    "setup-youtube-step (no verified channel)",
+    "home-checklist-and-chips (no verified channel)",
+    "chat-typed-request-and-limits (no verified channel)",
+    "activity-timeline-cancel-refund (no verified channel)",
+    "job-progress-polling (no verified channel)",
+    "review-buttons-undo-title-keyboard-swipe-bulk (no verified channel)",
+    "credits-page (no verified channel)",
+    "team-invite-link (no verified channel)",
+    "invitee-signs-up-and-joins (no verified channel)",
+    "viewer-permissions (no verified channel)",
+    "team-role-change-and-remove (no verified channel)",
+    "settings-language-theme (no verified channel)",
+    "workspace-create-switch (no verified channel)",
+    "channel-remove (no verified channel)"
+   ]
+  }
+ },
+ "summary": {
+  "failedSteps": 4,
+  "errorIssues": 0,
+  "perProfile": {
+   "desktop-en": {
+    "steps": 13,
+    "failed": 4,
+    "bugs": 0,
+    "issues": 0,
+    "layout": 0,
+    "texts": 5,
+    "skipped": 15,
+    "fatal": false
+   }
+  }
+ },
+ "keyShots": [
+  "desktop-en-01-landing.png",
+  "desktop-en-02-setup-channel.png"
+ ],
+ "finished": "2026-11-18T12:00:07.931Z"
+}
