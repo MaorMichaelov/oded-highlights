@@ -1,0 +1,1627 @@
+{
+ "vod": "137878318",
+ "window": [
+  2400.0,
+  2760.0
+ ],
+ "words": 331,
+ "end": {
+  "end_current": {
+   "ok": 7,
+   "other": 5
+  },
+  "end_tail45_after35": {
+   "ok": 7,
+   "lost": 1,
+   "other": 2,
+   "cut": 1,
+   "late": 1
+  },
+  "end_tail60_after45": {
+   "ok": 8,
+   "lost": 1,
+   "other": 2,
+   "late": 1
+  },
+  "end_plain_0.30": {
+   "ok": 7,
+   "other": 5
+  },
+  "end_plain_0.45": {
+   "ok": 7,
+   "lost": 1,
+   "other": 2,
+   "cut": 1,
+   "late": 1
+  },
+  "end_plain_0.60": {
+   "ok": 8,
+   "lost": 1,
+   "other": 2,
+   "late": 1
+  }
+ },
+ "start": {
+  "start_current": {
+   "ok": 8,
+   "other": 10,
+   "early": 2
+  },
+  "start_lead30_pre25": {
+   "ok": 8,
+   "other": 9,
+   "early": 2,
+   "lost": 1
+  },
+  "start_lead45_pre35": {
+   "ok": 7,
+   "other": 10,
+   "early": 3
+  },
+  "start_plain_0.18": {
+   "ok": 8,
+   "other": 10,
+   "early": 2
+  },
+  "start_plain_0.30": {
+   "ok": 8,
+   "other": 9,
+   "early": 2,
+   "lost": 1
+  }
+ },
+ "lag": {
+  "ms": 0,
+  "confidence": 1.0
+ },
+ "detail": [
+  {
+   "kind": "end_current",
+   "word": " you",
+   "t": 112.32,
+   "cut": 112.62,
+   "after_word_ms": 300,
+   "res": "ok",
+   "heard": " I  got  you."
+  },
+  {
+   "kind": "end_current",
+   "word": " fun.",
+   "t": 349.01,
+   "cut": 349.31,
+   "after_word_ms": 300,
+   "res": "ok",
+   "heard": " We  had  fun."
+  },
+  {
+   "kind": "end_current",
+   "word": " up.",
+   "t": 54.85,
+   "cut": 55.15,
+   "after_word_ms": 300,
+   "res": "other",
+   "heard": " her  the  boom."
+  },
+  {
+   "kind": "end_current",
+   "word": " tough.",
+   "t": 341.77,
+   "cut": 342.07,
+   "after_word_ms": 300,
+   "res": "other",
+   "heard": " the  30  days?"
+  },
+  {
+   "kind": "end_current",
+   "word": " days?",
+   "t": 338.45,
+   "cut": 338.75,
+   "after_word_ms": 300,
+   "res": "ok",
+   "heard": " the  30  days?"
+  },
+  {
+   "kind": "end_current",
+   "word": " G",
+   "t": 66.36,
+   "cut": 66.66,
+   "after_word_ms": 300,
+   "res": "other",
+   "heard": " That  last  dress."
+  },
+  {
+   "kind": "end_current",
+   "word": " ghetto.",
+   "t": 340.09,
+   "cut": 340.39,
+   "after_word_ms": 300,
+   "res": "ok",
+   "heard": " kind  of  ghetto."
+  },
+  {
+   "kind": "end_current",
+   "word": " neon.",
+   "t": 14.21,
+   "cut": 14.51,
+   "after_word_ms": 300,
+   "res": "ok",
+   "heard": " to  give  neon."
+  },
+  {
+   "kind": "end_current",
+   "word": " love.",
+   "t": 10.48,
+   "cut": 10.78,
+   "after_word_ms": 300,
+   "res": "ok",
+   "heard": " and  showing  love?"
+  },
+  {
+   "kind": "end_current",
+   "word": " ready",
+   "t": 85.76,
+   "cut": 86.06,
+   "after_word_ms": 300,
+   "res": "other",
+   "heard": " Let's  do  that!"
+  },
+  {
+   "kind": "end_current",
+   "word": " something.",
+   "t": 21.52,
+   "cut": 21.82,
+   "after_word_ms": 300,
+   "res": "ok",
+   "heard": " size  or  something."
+  },
+  {
+   "kind": "end_current",
+   "word": " the",
+   "t": 69.66,
+   "cut": 69.96,
+   "after_word_ms": 300,
+   "res": "other",
+   "heard": " to  defeat  Kamala."
+  },
+  {
+   "kind": "end_tail45_after35",
+   "word": " you",
+   "t": 112.32,
+   "cut": 112.77,
+   "after_word_ms": 450,
+   "res": "ok",
+   "heard": " I  got  you."
+  },
+  {
+   "kind": "end_tail45_after35",
+   "word": " fun.",
+   "t": 349.01,
+   "cut": 349.46,
+   "after_word_ms": 450,
+   "res": "ok",
+   "heard": " We  had  fun."
+  },
+  {
+   "kind": "end_tail45_after35",
+   "word": " up.",
+   "t": 54.85,
+   "cut": 55.3,
+   "after_word_ms": 450,
+   "res": "lost",
+   "heard": " Let's  get  it."
+  },
+  {
+   "kind": "end_tail45_after35",
+   "word": " tough.",
+   "t": 341.77,
+   "cut": 342.22,
+   "after_word_ms": 450,
+   "res": "other",
+   "heard": " It  was  so..."
+  },
+  {
+   "kind": "end_tail45_after35",
+   "word": " days?",
+   "t": 338.45,
+   "cut": 338.9,
+   "after_word_ms": 450,
+   "res": "cut",
+   "heard": " the  30  day?"
+  },
+  {
+   "kind": "end_tail45_after35",
+   "word": " G",
+   "t": 66.36,
+   "cut": 66.81,
+   "after_word_ms": 450,
+   "res": "ok",
+   "heard": " What's  love,  G?"
+  },
+  {
+   "kind": "end_tail45_after35",
+   "word": " ghetto.",
+   "t": 340.09,
+   "cut": 340.54,
+   "after_word_ms": 450,
+   "res": "ok",
+   "heard": " was  kinda  ghetto."
+  },
+  {
+   "kind": "end_tail45_after35",
+   "word": " neon.",
+   "t": 14.21,
+   "cut": 14.66,
+   "after_word_ms": 450,
+   "res": "ok",
+   "heard": " to  give  neon."
+  },
+  {
+   "kind": "end_tail45_after35",
+   "word": " love.",
+   "t": 10.48,
+   "cut": 10.93,
+   "after_word_ms": 450,
+   "res": "ok",
+   "heard": " and  show  love?"
+  },
+  {
+   "kind": "end_tail45_after35",
+   "word": " ready",
+   "t": 85.76,
+   "cut": 86.21,
+   "after_word_ms": 450,
+   "res": "other",
+   "heard": " to  do  it."
+  },
+  {
+   "kind": "end_tail45_after35",
+   "word": " something.",
+   "t": 21.52,
+   "cut": 21.97,
+   "after_word_ms": 450,
+   "res": "ok",
+   "heard": " size  or  something."
+  },
+  {
+   "kind": "end_tail45_after35",
+   "word": " the",
+   "t": 69.66,
+   "cut": 70.11,
+   "after_word_ms": 450,
+   "res": "late",
+   "heard": " defeat  the  monster."
+  },
+  {
+   "kind": "end_tail60_after45",
+   "word": " you",
+   "t": 112.32,
+   "cut": 112.92,
+   "after_word_ms": 600,
+   "res": "ok",
+   "heard": " I  got  you."
+  },
+  {
+   "kind": "end_tail60_after45",
+   "word": " fun.",
+   "t": 349.01,
+   "cut": 349.61,
+   "after_word_ms": 600,
+   "res": "ok",
+   "heard": " we  had  fun."
+  },
+  {
+   "kind": "end_tail60_after45",
+   "word": " up.",
+   "t": 54.85,
+   "cut": 55.45,
+   "after_word_ms": 600,
+   "res": "lost",
+   "heard": " Let's  get  it."
+  },
+  {
+   "kind": "end_tail60_after45",
+   "word": " tough.",
+   "t": 341.77,
+   "cut": 342.33,
+   "after_word_ms": 560,
+   "res": "other",
+   "heard": " very,  it  was..."
+  },
+  {
+   "kind": "end_tail60_after45",
+   "word": " days?",
+   "t": 338.45,
+   "cut": 338.93,
+   "after_word_ms": 480,
+   "res": "ok",
+   "heard": " the  30  days?"
+  },
+  {
+   "kind": "end_tail60_after45",
+   "word": " G",
+   "t": 66.36,
+   "cut": 66.86,
+   "after_word_ms": 500,
+   "res": "ok",
+   "heard": " What's  up,  G?"
+  },
+  {
+   "kind": "end_tail60_after45",
+   "word": " ghetto.",
+   "t": 340.09,
+   "cut": 340.61,
+   "after_word_ms": 520,
+   "res": "ok",
+   "heard": " kind  of  ghetto."
+  },
+  {
+   "kind": "end_tail60_after45",
+   "word": " neon.",
+   "t": 14.21,
+   "cut": 14.81,
+   "after_word_ms": 600,
+   "res": "ok",
+   "heard": " to  give  neon."
+  },
+  {
+   "kind": "end_tail60_after45",
+   "word": " love.",
+   "t": 10.48,
+   "cut": 11.08,
+   "after_word_ms": 600,
+   "res": "ok",
+   "heard": " show  it  love?"
+  },
+  {
+   "kind": "end_tail60_after45",
+   "word": " ready",
+   "t": 85.76,
+   "cut": 86.36,
+   "after_word_ms": 600,
+   "res": "other",
+   "heard": " to  do  it."
+  },
+  {
+   "kind": "end_tail60_after45",
+   "word": " something.",
+   "t": 21.52,
+   "cut": 22.12,
+   "after_word_ms": 600,
+   "res": "ok",
+   "heard": " side  or  something."
+  },
+  {
+   "kind": "end_tail60_after45",
+   "word": " the",
+   "t": 69.66,
+   "cut": 70.26,
+   "after_word_ms": 600,
+   "res": "late",
+   "heard": " defeat  the  monster."
+  },
+  {
+   "kind": "end_plain_0.30",
+   "word": " you",
+   "t": 112.32,
+   "cut": 112.62,
+   "after_word_ms": 300,
+   "res": "ok",
+   "heard": " I  got  you."
+  },
+  {
+   "kind": "end_plain_0.30",
+   "word": " fun.",
+   "t": 349.01,
+   "cut": 349.31,
+   "after_word_ms": 300,
+   "res": "ok",
+   "heard": " We  had  fun."
+  },
+  {
+   "kind": "end_plain_0.30",
+   "word": " up.",
+   "t": 54.85,
+   "cut": 55.15,
+   "after_word_ms": 300,
+   "res": "other",
+   "heard": " her  the  boom."
+  },
+  {
+   "kind": "end_plain_0.30",
+   "word": " tough.",
+   "t": 341.77,
+   "cut": 342.07,
+   "after_word_ms": 300,
+   "res": "other",
+   "heard": " the  30  days?"
+  },
+  {
+   "kind": "end_plain_0.30",
+   "word": " days?",
+   "t": 338.45,
+   "cut": 338.75,
+   "after_word_ms": 300,
+   "res": "ok",
+   "heard": " the  30  days?"
+  },
+  {
+   "kind": "end_plain_0.30",
+   "word": " G",
+   "t": 66.36,
+   "cut": 66.66,
+   "after_word_ms": 300,
+   "res": "other",
+   "heard": " That  last  dress."
+  },
+  {
+   "kind": "end_plain_0.30",
+   "word": " ghetto.",
+   "t": 340.09,
+   "cut": 340.39,
+   "after_word_ms": 300,
+   "res": "ok",
+   "heard": " kind  of  ghetto."
+  },
+  {
+   "kind": "end_plain_0.30",
+   "word": " neon.",
+   "t": 14.21,
+   "cut": 14.51,
+   "after_word_ms": 300,
+   "res": "ok",
+   "heard": " to  give  neon."
+  },
+  {
+   "kind": "end_plain_0.30",
+   "word": " love.",
+   "t": 10.48,
+   "cut": 10.78,
+   "after_word_ms": 300,
+   "res": "ok",
+   "heard": " and  showing  love?"
+  },
+  {
+   "kind": "end_plain_0.30",
+   "word": " ready",
+   "t": 85.76,
+   "cut": 86.06,
+   "after_word_ms": 300,
+   "res": "other",
+   "heard": " can  do  that."
+  },
+  {
+   "kind": "end_plain_0.30",
+   "word": " something.",
+   "t": 21.52,
+   "cut": 21.82,
+   "after_word_ms": 300,
+   "res": "ok",
+   "heard": " size  or  something."
+  },
+  {
+   "kind": "end_plain_0.30",
+   "word": " the",
+   "t": 69.66,
+   "cut": 69.96,
+   "after_word_ms": 300,
+   "res": "other",
+   "heard": " to  defeat  Kamala."
+  },
+  {
+   "kind": "end_plain_0.45",
+   "word": " you",
+   "t": 112.32,
+   "cut": 112.77,
+   "after_word_ms": 450,
+   "res": "ok",
+   "heard": " I  got  you."
+  },
+  {
+   "kind": "end_plain_0.45",
+   "word": " fun.",
+   "t": 349.01,
+   "cut": 349.46,
+   "after_word_ms": 450,
+   "res": "ok",
+   "heard": " We  had  fun."
+  },
+  {
+   "kind": "end_plain_0.45",
+   "word": " up.",
+   "t": 54.85,
+   "cut": 55.3,
+   "after_word_ms": 450,
+   "res": "lost",
+   "heard": " Let's  get  it."
+  },
+  {
+   "kind": "end_plain_0.45",
+   "word": " tough.",
+   "t": 341.77,
+   "cut": 342.22,
+   "after_word_ms": 450,
+   "res": "other",
+   "heard": " It  was  so..."
+  },
+  {
+   "kind": "end_plain_0.45",
+   "word": " days?",
+   "t": 338.45,
+   "cut": 338.9,
+   "after_word_ms": 450,
+   "res": "cut",
+   "heard": " the  30  day?"
+  },
+  {
+   "kind": "end_plain_0.45",
+   "word": " G",
+   "t": 66.36,
+   "cut": 66.81,
+   "after_word_ms": 450,
+   "res": "ok",
+   "heard": " What's  love,  G?"
+  },
+  {
+   "kind": "end_plain_0.45",
+   "word": " ghetto.",
+   "t": 340.09,
+   "cut": 340.54,
+   "after_word_ms": 450,
+   "res": "ok",
+   "heard": " was  kinda  ghetto."
+  },
+  {
+   "kind": "end_plain_0.45",
+   "word": " neon.",
+   "t": 14.21,
+   "cut": 14.66,
+   "after_word_ms": 450,
+   "res": "ok",
+   "heard": " to  give  neon."
+  },
+  {
+   "kind": "end_plain_0.45",
+   "word": " love.",
+   "t": 10.48,
+   "cut": 10.93,
+   "after_word_ms": 450,
+   "res": "ok",
+   "heard": " and  show  love?"
+  },
+  {
+   "kind": "end_plain_0.45",
+   "word": " ready",
+   "t": 85.76,
+   "cut": 86.21,
+   "after_word_ms": 450,
+   "res": "other",
+   "heard": " to  do  it."
+  },
+  {
+   "kind": "end_plain_0.45",
+   "word": " something.",
+   "t": 21.52,
+   "cut": 21.97,
+   "after_word_ms": 450,
+   "res": "ok",
+   "heard": " size  or  something."
+  },
+  {
+   "kind": "end_plain_0.45",
+   "word": " the",
+   "t": 69.66,
+   "cut": 70.11,
+   "after_word_ms": 450,
+   "res": "late",
+   "heard": " defeat  the  monster."
+  },
+  {
+   "kind": "end_plain_0.60",
+   "word": " you",
+   "t": 112.32,
+   "cut": 112.92,
+   "after_word_ms": 600,
+   "res": "ok",
+   "heard": " I  got  you."
+  },
+  {
+   "kind": "end_plain_0.60",
+   "word": " fun.",
+   "t": 349.01,
+   "cut": 349.61,
+   "after_word_ms": 600,
+   "res": "ok",
+   "heard": " we  had  fun."
+  },
+  {
+   "kind": "end_plain_0.60",
+   "word": " up.",
+   "t": 54.85,
+   "cut": 55.45,
+   "after_word_ms": 600,
+   "res": "lost",
+   "heard": " Let's  get  it."
+  },
+  {
+   "kind": "end_plain_0.60",
+   "word": " tough.",
+   "t": 341.77,
+   "cut": 342.33,
+   "after_word_ms": 560,
+   "res": "other",
+   "heard": " very,  it  was..."
+  },
+  {
+   "kind": "end_plain_0.60",
+   "word": " days?",
+   "t": 338.45,
+   "cut": 338.93,
+   "after_word_ms": 480,
+   "res": "ok",
+   "heard": " the  30  days?"
+  },
+  {
+   "kind": "end_plain_0.60",
+   "word": " G",
+   "t": 66.36,
+   "cut": 66.86,
+   "after_word_ms": 500,
+   "res": "ok",
+   "heard": " What's  up,  G?"
+  },
+  {
+   "kind": "end_plain_0.60",
+   "word": " ghetto.",
+   "t": 340.09,
+   "cut": 340.61,
+   "after_word_ms": 520,
+   "res": "ok",
+   "heard": " kind  of  ghetto."
+  },
+  {
+   "kind": "end_plain_0.60",
+   "word": " neon.",
+   "t": 14.21,
+   "cut": 14.81,
+   "after_word_ms": 600,
+   "res": "ok",
+   "heard": " to  give  neon."
+  },
+  {
+   "kind": "end_plain_0.60",
+   "word": " love.",
+   "t": 10.48,
+   "cut": 11.08,
+   "after_word_ms": 600,
+   "res": "ok",
+   "heard": " show  it  love?"
+  },
+  {
+   "kind": "end_plain_0.60",
+   "word": " ready",
+   "t": 85.76,
+   "cut": 86.36,
+   "after_word_ms": 600,
+   "res": "other",
+   "heard": " to  do  it."
+  },
+  {
+   "kind": "end_plain_0.60",
+   "word": " something.",
+   "t": 21.52,
+   "cut": 22.12,
+   "after_word_ms": 600,
+   "res": "ok",
+   "heard": " side  or  something."
+  },
+  {
+   "kind": "end_plain_0.60",
+   "word": " the",
+   "t": 69.66,
+   "cut": 70.26,
+   "after_word_ms": 600,
+   "res": "late",
+   "heard": " defeat  the  monster."
+  },
+  {
+   "kind": "start_current",
+   "word": " oh",
+   "t": 113.02,
+   "cut": 112.84,
+   "before_word_ms": 180,
+   "res": "ok",
+   "heard": " Oh  shit,  sorry."
+  },
+  {
+   "kind": "start_current",
+   "word": " out",
+   "t": 95.31,
+   "cut": 95.13,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " You  gotta  find"
+  },
+  {
+   "kind": "start_current",
+   "word": " It",
+   "t": 342.37,
+   "cut": 342.19,
+   "before_word_ms": 180,
+   "res": "ok",
+   "heard": " It  was  tough,"
+  },
+  {
+   "kind": "start_current",
+   "word": " get",
+   "t": 96.19,
+   "cut": 96.01,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " You  have  one"
+  },
+  {
+   "kind": "start_current",
+   "word": " Love,",
+   "t": 59.26,
+   "cut": 59.08,
+   "before_word_ms": 180,
+   "res": "early",
+   "heard": " to  love  man,"
+  },
+  {
+   "kind": "start_current",
+   "word": " put",
+   "t": 66.9,
+   "cut": 66.72,
+   "before_word_ms": 180,
+   "res": "early",
+   "heard": " I  put  this"
+  },
+  {
+   "kind": "start_current",
+   "word": " that's",
+   "t": 85.12,
+   "cut": 84.94,
+   "before_word_ms": 180,
+   "res": "ok",
+   "heard": " That's  what  you"
+  },
+  {
+   "kind": "start_current",
+   "word": " your",
+   "t": 110.72,
+   "cut": 110.54,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " Come  get  the"
+  },
+  {
+   "kind": "start_current",
+   "word": " I",
+   "t": 12.99,
+   "cut": 12.81,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " I'm  about  to"
+  },
+  {
+   "kind": "start_current",
+   "word": " But",
+   "t": 315.62,
+   "cut": 315.44,
+   "before_word_ms": 180,
+   "res": "ok",
+   "heard": " But  I  knew"
+  },
+  {
+   "kind": "start_current",
+   "word": " find",
+   "t": 86.88,
+   "cut": 86.7,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " Hey,  yeah,  we"
+  },
+  {
+   "kind": "start_current",
+   "word": " Hey.",
+   "t": 326.84,
+   "cut": 326.66,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " Bye."
+  },
+  {
+   "kind": "start_current",
+   "word": " Neon,",
+   "t": 54.05,
+   "cut": 53.87,
+   "before_word_ms": 180,
+   "res": "ok",
+   "heard": " Neon,  give  it"
+  },
+  {
+   "kind": "start_current",
+   "word": " It",
+   "t": 338.97,
+   "cut": 338.79,
+   "before_word_ms": 180,
+   "res": "ok",
+   "heard": " It  was  kind"
+  },
+  {
+   "kind": "start_current",
+   "word": " It",
+   "t": 340.65,
+   "cut": 340.47,
+   "before_word_ms": 180,
+   "res": "ok",
+   "heard": " It  was  very,"
+  },
+  {
+   "kind": "start_current",
+   "word": " don't",
+   "t": 298.97,
+   "cut": 298.79,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " But  they  love"
+  },
+  {
+   "kind": "start_current",
+   "word": " He's",
+   "t": 51.16,
+   "cut": 50.98,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " All  right,  guys,"
+  },
+  {
+   "kind": "start_current",
+   "word": " With",
+   "t": 15.72,
+   "cut": 15.54,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " He's  right  here."
+  },
+  {
+   "kind": "start_current",
+   "word": " motherfuckers",
+   "t": 71.23,
+   "cut": 71.05,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " I  see  a"
+  },
+  {
+   "kind": "start_current",
+   "word": " How's",
+   "t": 332.06,
+   "cut": 331.88,
+   "before_word_ms": 180,
+   "res": "ok",
+   "heard": " How's  life?  Good."
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " oh",
+   "t": 113.02,
+   "cut": 112.72,
+   "before_word_ms": 300,
+   "res": "ok",
+   "heard": " Oh  shit,  sorry."
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " out",
+   "t": 95.31,
+   "cut": 95.01,
+   "before_word_ms": 300,
+   "res": "other",
+   "heard": " You  better  find"
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " It",
+   "t": 342.37,
+   "cut": 342.07,
+   "before_word_ms": 300,
+   "res": "ok",
+   "heard": " It  was  like,"
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " get",
+   "t": 96.19,
+   "cut": 95.89,
+   "before_word_ms": 300,
+   "res": "other",
+   "heard": " You  have  one"
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " Love,",
+   "t": 59.26,
+   "cut": 58.96,
+   "before_word_ms": 300,
+   "res": "early",
+   "heard": " I  love  man,"
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " put",
+   "t": 66.9,
+   "cut": 66.6,
+   "before_word_ms": 300,
+   "res": "other",
+   "heard": " putting  this  all"
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " that's",
+   "t": 85.12,
+   "cut": 84.82,
+   "before_word_ms": 300,
+   "res": "ok",
+   "heard": " That's  a  new"
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " your",
+   "t": 110.72,
+   "cut": 110.42,
+   "before_word_ms": 300,
+   "res": "other",
+   "heard": " Let  me  get"
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " I",
+   "t": 12.99,
+   "cut": 12.69,
+   "before_word_ms": 300,
+   "res": "other",
+   "heard": " I'm  gonna  get"
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " But",
+   "t": 315.62,
+   "cut": 315.32,
+   "before_word_ms": 300,
+   "res": "ok",
+   "heard": " But  I  knew"
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " find",
+   "t": 86.88,
+   "cut": 86.58,
+   "before_word_ms": 300,
+   "res": "other",
+   "heard": " We  are  the"
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " Hey.",
+   "t": 326.84,
+   "cut": 326.54,
+   "before_word_ms": 300,
+   "res": "other",
+   "heard": " Thank  you."
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " Neon,",
+   "t": 54.05,
+   "cut": 53.75,
+   "before_word_ms": 300,
+   "res": "ok",
+   "heard": " Neon,  give  him"
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " It",
+   "t": 338.97,
+   "cut": 338.67,
+   "before_word_ms": 300,
+   "res": "ok",
+   "heard": " It  was  kind"
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " It",
+   "t": 340.65,
+   "cut": 340.35,
+   "before_word_ms": 300,
+   "res": "ok",
+   "heard": " It  was  very"
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " don't",
+   "t": 298.97,
+   "cut": 298.67,
+   "before_word_ms": 300,
+   "res": "early",
+   "heard": " I  don't  fuck"
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " He's",
+   "t": 51.16,
+   "cut": 50.86,
+   "before_word_ms": 300,
+   "res": "other",
+   "heard": " All  right,  bro."
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " With",
+   "t": 15.72,
+   "cut": 15.42,
+   "before_word_ms": 300,
+   "res": "lost",
+   "heard": " These  right  here."
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " motherfuckers",
+   "t": 71.23,
+   "cut": 70.93,
+   "before_word_ms": 300,
+   "res": "other",
+   "heard": " And  get  them"
+  },
+  {
+   "kind": "start_lead30_pre25",
+   "word": " How's",
+   "t": 332.06,
+   "cut": 331.76,
+   "before_word_ms": 300,
+   "res": "ok",
+   "heard": " How's  life?  Good."
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " oh",
+   "t": 113.02,
+   "cut": 112.57,
+   "before_word_ms": 450,
+   "res": "ok",
+   "heard": " Oh  shit.  Sorry."
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " out",
+   "t": 95.31,
+   "cut": 94.86,
+   "before_word_ms": 450,
+   "res": "other",
+   "heard": " We  better  find"
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " It",
+   "t": 342.37,
+   "cut": 341.8,
+   "before_word_ms": 570,
+   "res": "ok",
+   "heard": " It  was  tough."
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " get",
+   "t": 96.19,
+   "cut": 95.74,
+   "before_word_ms": 450,
+   "res": "other",
+   "heard": " Okay,  we're  gonna"
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " Love,",
+   "t": 59.26,
+   "cut": 58.81,
+   "before_word_ms": 450,
+   "res": "other",
+   "heard": " Joy  and  the"
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " put",
+   "t": 66.9,
+   "cut": 66.45,
+   "before_word_ms": 450,
+   "res": "other",
+   "heard": " MJ  putting  his"
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " that's",
+   "t": 85.12,
+   "cut": 84.67,
+   "before_word_ms": 450,
+   "res": "early",
+   "heard": " It's  summertime.  That's"
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " your",
+   "t": 110.72,
+   "cut": 110.27,
+   "before_word_ms": 450,
+   "res": "other",
+   "heard": " I  got  you."
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " I",
+   "t": 12.99,
+   "cut": 12.54,
+   "before_word_ms": 450,
+   "res": "other",
+   "heard": " noise  right  now."
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " But",
+   "t": 315.62,
+   "cut": 315.17,
+   "before_word_ms": 450,
+   "res": "ok",
+   "heard": " But  I  knew"
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " find",
+   "t": 86.88,
+   "cut": 86.43,
+   "before_word_ms": 450,
+   "res": "other",
+   "heard": " We  have  a"
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " Hey.",
+   "t": 326.84,
+   "cut": 326.39,
+   "before_word_ms": 450,
+   "res": "ok",
+   "heard": " Hey!  Hi!"
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " Neon,",
+   "t": 54.05,
+   "cut": 53.6,
+   "before_word_ms": 450,
+   "res": "ok",
+   "heard": " Neon,  give  me"
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " It",
+   "t": 338.97,
+   "cut": 338.52,
+   "before_word_ms": 450,
+   "res": "ok",
+   "heard": " It  was  kind"
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " It",
+   "t": 340.65,
+   "cut": 340.2,
+   "before_word_ms": 450,
+   "res": "ok",
+   "heard": " It  was  very"
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " don't",
+   "t": 298.97,
+   "cut": 298.52,
+   "before_word_ms": 450,
+   "res": "early",
+   "heard": " I  don't  fuck"
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " He's",
+   "t": 51.16,
+   "cut": 50.71,
+   "before_word_ms": 450,
+   "res": "other",
+   "heard": " Yeah,  she's  locked"
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " With",
+   "t": 15.72,
+   "cut": 15.32,
+   "before_word_ms": 400,
+   "res": "other",
+   "heard": " Get  these  right"
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " motherfuckers",
+   "t": 71.23,
+   "cut": 70.78,
+   "before_word_ms": 450,
+   "res": "other",
+   "heard": " I  ain't  getting"
+  },
+  {
+   "kind": "start_lead45_pre35",
+   "word": " How's",
+   "t": 332.06,
+   "cut": 331.61,
+   "before_word_ms": 450,
+   "res": "early",
+   "heard": " Hey,  how's  life?"
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " oh",
+   "t": 113.02,
+   "cut": 112.84,
+   "before_word_ms": 180,
+   "res": "ok",
+   "heard": " Oh  shit,  sorry."
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " out",
+   "t": 95.31,
+   "cut": 95.13,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " You  gotta  find"
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " It",
+   "t": 342.37,
+   "cut": 342.19,
+   "before_word_ms": 180,
+   "res": "ok",
+   "heard": " It  was  tough,"
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " get",
+   "t": 96.19,
+   "cut": 96.01,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " You  have  one"
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " Love,",
+   "t": 59.26,
+   "cut": 59.08,
+   "before_word_ms": 180,
+   "res": "early",
+   "heard": " to  love  man,"
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " put",
+   "t": 66.9,
+   "cut": 66.72,
+   "before_word_ms": 180,
+   "res": "early",
+   "heard": " I  put  this"
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " that's",
+   "t": 85.12,
+   "cut": 84.94,
+   "before_word_ms": 180,
+   "res": "ok",
+   "heard": " That's  what  you"
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " your",
+   "t": 110.72,
+   "cut": 110.54,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " Come  get  the"
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " I",
+   "t": 12.99,
+   "cut": 12.81,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " I'm  about  to"
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " But",
+   "t": 315.62,
+   "cut": 315.44,
+   "before_word_ms": 180,
+   "res": "ok",
+   "heard": " But  I  knew"
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " find",
+   "t": 86.88,
+   "cut": 86.7,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " Hey,  yeah,  we"
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " Hey.",
+   "t": 326.84,
+   "cut": 326.66,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " Bye."
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " Neon,",
+   "t": 54.05,
+   "cut": 53.87,
+   "before_word_ms": 180,
+   "res": "ok",
+   "heard": " Neon,  give  it"
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " It",
+   "t": 338.97,
+   "cut": 338.79,
+   "before_word_ms": 180,
+   "res": "ok",
+   "heard": " It  was  kind"
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " It",
+   "t": 340.65,
+   "cut": 340.47,
+   "before_word_ms": 180,
+   "res": "ok",
+   "heard": " It  was  very,"
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " don't",
+   "t": 298.97,
+   "cut": 298.79,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " But  they  love"
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " He's",
+   "t": 51.16,
+   "cut": 50.98,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " All  right,  guys,"
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " With",
+   "t": 15.72,
+   "cut": 15.54,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " He's  right  here."
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " motherfuckers",
+   "t": 71.23,
+   "cut": 71.05,
+   "before_word_ms": 180,
+   "res": "other",
+   "heard": " I  see  a"
+  },
+  {
+   "kind": "start_plain_0.18",
+   "word": " How's",
+   "t": 332.06,
+   "cut": 331.88,
+   "before_word_ms": 180,
+   "res": "ok",
+   "heard": " How's  life?  Good."
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " oh",
+   "t": 113.02,
+   "cut": 112.72,
+   "before_word_ms": 300,
+   "res": "ok",
+   "heard": " Oh  shit,  sorry."
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " out",
+   "t": 95.31,
+   "cut": 95.01,
+   "before_word_ms": 300,
+   "res": "other",
+   "heard": " You  better  find"
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " It",
+   "t": 342.37,
+   "cut": 342.07,
+   "before_word_ms": 300,
+   "res": "ok",
+   "heard": " It  was  like,"
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " get",
+   "t": 96.19,
+   "cut": 95.89,
+   "before_word_ms": 300,
+   "res": "other",
+   "heard": " You  have  one"
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " Love,",
+   "t": 59.26,
+   "cut": 58.96,
+   "before_word_ms": 300,
+   "res": "early",
+   "heard": " I  love  man,"
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " put",
+   "t": 66.9,
+   "cut": 66.6,
+   "before_word_ms": 300,
+   "res": "other",
+   "heard": " putting  this  all"
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " that's",
+   "t": 85.12,
+   "cut": 84.82,
+   "before_word_ms": 300,
+   "res": "ok",
+   "heard": " That's  a  new"
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " your",
+   "t": 110.72,
+   "cut": 110.42,
+   "before_word_ms": 300,
+   "res": "other",
+   "heard": " Let  me  get"
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " I",
+   "t": 12.99,
+   "cut": 12.69,
+   "before_word_ms": 300,
+   "res": "other",
+   "heard": " I'm  gonna  get"
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " But",
+   "t": 315.62,
+   "cut": 315.32,
+   "before_word_ms": 300,
+   "res": "ok",
+   "heard": " But  I  knew"
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " find",
+   "t": 86.88,
+   "cut": 86.58,
+   "before_word_ms": 300,
+   "res": "other",
+   "heard": " We  are  the"
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " Hey.",
+   "t": 326.84,
+   "cut": 326.54,
+   "before_word_ms": 300,
+   "res": "other",
+   "heard": " Thank  you."
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " Neon,",
+   "t": 54.05,
+   "cut": 53.75,
+   "before_word_ms": 300,
+   "res": "ok",
+   "heard": " Neon,  give  him"
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " It",
+   "t": 338.97,
+   "cut": 338.67,
+   "before_word_ms": 300,
+   "res": "ok",
+   "heard": " It  was  kind"
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " It",
+   "t": 340.65,
+   "cut": 340.35,
+   "before_word_ms": 300,
+   "res": "ok",
+   "heard": " It  was  very"
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " don't",
+   "t": 298.97,
+   "cut": 298.67,
+   "before_word_ms": 300,
+   "res": "early",
+   "heard": " I  don't  fuck"
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " He's",
+   "t": 51.16,
+   "cut": 50.86,
+   "before_word_ms": 300,
+   "res": "other",
+   "heard": " All  right,  bro."
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " With",
+   "t": 15.72,
+   "cut": 15.42,
+   "before_word_ms": 300,
+   "res": "lost",
+   "heard": " These  right  here."
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " motherfuckers",
+   "t": 71.23,
+   "cut": 70.93,
+   "before_word_ms": 300,
+   "res": "other",
+   "heard": " And  get  them"
+  },
+  {
+   "kind": "start_plain_0.30",
+   "word": " How's",
+   "t": 332.06,
+   "cut": 331.76,
+   "before_word_ms": 300,
+   "res": "ok",
+   "heard": " How's  life?  Good."
+  }
+ ]
+}
