@@ -188,6 +188,7 @@ def resolve_source(job, workdir, cfg=None, runner=sh, resolver=None):
         hints = [job.get("channel"), (job.get("hints") or {}).get("slug"), src.get("slug")]
         name = newest_recording(ingest_dir, hints) if ingest_dir else None
         ci = job.get("channel_info") or {}
+        if src.get("platform") and src.get("slug"): ci = {"platform": src.get("platform"), "slug": src.get("slug")}   # the request named the streamer (a pasted channel link)
         if name: ref = "ingest:" + name
         elif cfg.get("platform_vod") and cfg.get("trusted") and ci.get("platform"): ref, title0, vod_dur = latest_platform_vod(ci.get("platform"), ci.get("slug"), runner)   # owner's own test org only
         else: raise SourceError("no_recording", "no finished stream recording found yet")

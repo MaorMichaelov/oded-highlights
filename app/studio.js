@@ -415,10 +415,15 @@ function smallTalk(text, L, turn, always) {
   let cat = stCategory(String(text || "")); if (!cat) { if (!always) return null; cat = "idk"; } const pool = ST[cat][L] || ST[cat].en; let i = ((turn || 0) + String(text).length) % pool.length; let r = pool[i]; if (r === stLast) r = pool[(i + 1) % pool.length]; stLast = r; return r;
 }
 
+
+// a link to a CHANNEL page (kick.com/name, twitch.tv/name, .../videos) is a request to work on that streamer's live / latest broadcast, not a single video
+function channelLink(link) {
+  try { const x = new URL(link); const h = x.hostname.replace(/^www\./, "").toLowerCase(); if (!/^(kick\.com|twitch\.tv)$/.test(h)) return null; const seg = x.pathname.split("/").filter(Boolean); if (!seg.length || seg[0] === "videos" || seg[0] === "clip" || (seg[1] && !/^videos?$/i.test(seg[1]))) return null; return parseChannelInput(h + "/" + seg[0]); } catch (e) { return null; }
+}
 const LINK_RE = /https?:\/\/[^\s<>"']+/i;
 function safeLink(raw) { try { const x = new URL(String(raw).replace(/[).,!?]+$/, "")); if (!/^https?:$/.test(x.protocol)) return null; const h = x.hostname.toLowerCase(); if (!h.includes(".") || /^(localhost|127\.|10\.|192\.168\.|169\.254\.|0\.)/.test(h) || /^\d+\.\d+\.\d+\.\d+$/.test(h)) return null; return x.toString().slice(0, 300); } catch (e) { return null; } }
 const linkSite = (l) => { const h = new URL(l).hostname.replace(/^www\./, ""); return /kick\.com/.test(h) ? "Kick" : /twitch\.tv/.test(h) ? "Twitch" : /youtu/.test(h) ? "YouTube" : /tiktok/.test(h) ? "TikTok" : h; };
-function linkChoices(L, link) { return L === "he" ? [{ label: "5 שורטס", text: `תכין 5 שורטס מ ${link}` }, { label: "10 שורטס + סרטון ארוך", text: `תכין 10 שורטס וסרטון ארוך מ ${link}` }, { label: "סרטון ארוך בלבד", text: `תכין סרטון ארוך מ ${link}` }] : [{ label: "5 Shorts", text: `make 5 Shorts from ${link}` }, { label: "10 Shorts + a long video", text: `make 10 Shorts and a long video from ${link}` }, { label: "Long video only", text: `make a long video from ${link}` }]; }
+function linkChoices(L, link) { const ch = channelLink(link); if (ch) return L === "he" ? [{ label: "5 שורטס מהלייב עכשיו", text: `תכין 5 שורטס מהשידור החי של ${link}` }, { label: "10 שורטס + סרטון ארוך", text: `תכין 10 שורטס וסרטון ארוך מהשידור החי של ${link}` }, { label: "סרטון ארוך מהלייב", text: `תכין סרטון ארוך מהשידור החי של ${link}` }] : [{ label: "5 Shorts from the live now", text: `make 5 Shorts from the live stream of ${link}` }, { label: "10 Shorts + a long video", text: `make 10 Shorts and a long video from the live stream of ${link}` }, { label: "Long video from the live", text: `make a long video from the live stream of ${link}` }]; return L === "he" ? [{ label: "5 שורטס", text: `תכין 5 שורטס מ ${link}` }, { label: "10 שורטס + סרטון ארוך", text: `תכין 10 שורטס וסרטון ארוך מ ${link}` }, { label: "סרטון ארוך בלבד", text: `תכין סרטון ארוך מ ${link}` }] : [{ label: "5 Shorts", text: `make 5 Shorts from ${link}` }, { label: "10 Shorts + a long video", text: `make 10 Shorts and a long video from ${link}` }, { label: "Long video only", text: `make a long video from ${link}` }]; }
 
 // ---------- a precise, honest status report: what each job is doing, whether it is moving, what happens next (built from the job data, never guessed by a model)
 const minsAgo = (iso) => { const t = Date.parse(iso || ""); return Number.isFinite(t) ? Math.max(0, Math.round((Date.now() - t) / 60000)) : null; };
@@ -487,7 +492,8 @@ async function assistant(env, org, me, role, b, store) {
     const ch = chans.find((c) => c.id === b.channel_id) || chans[0];
     if (!ch) reply = L === "he" ? "קודם נחבר ערוץ: הוסיפו את הערוץ שלכם בעמוד ההתחלה ואמתו בעלות. זה לוקח דקה." : "First let's connect a channel: add your channel on the setup page and verify ownership. Takes a minute.";
     else {
-      const source = u.link ? { type: "url", ref: u.link, duration_min: null } : { type: "auto", when: u.when, duration_min: null }, credits = estimateCredits(source); const fresh = await kget(env, K.org(org.id));
+      const cl = u.link ? channelLink(u.link) : null;
+      const source = cl ? { type: "auto", when: u.when === "last_stream" ? "live_now" : u.when, platform: cl.platform, slug: cl.slug, duration_min: null } : u.link ? { type: "url", ref: u.link, duration_min: null } : { type: "auto", when: u.when, duration_min: null }, credits = estimateCredits(source); const fresh = await kget(env, K.org(org.id));
       if (fresh.credits < credits) reply = L === "he" ? `נגמרו הקרדיטים (צריך ${credits}, יש ${fresh.credits}). אפשר להוסיף בעמוד הקרדיטים.` : `Out of credits (need ${credits}, have ${fresh.credits}). You can top up on the Credits page.`;
       else {
         const job = await createJob(env, org, { channel_id: ch.id, kind: "edit", source, style_id: ch.style_id, outputs: { shorts: u.shorts, long: u.long }, credits, hints: { mood: u.mood, text: u.text } });

@@ -252,4 +252,11 @@ assert.ok([...env.KV.m.keys()].every((k) => k.startsWith("studio:")));
 assert.equal(understand("תכין 5 שורטס מהלייב עכשיו").when, "live_now"); assert.equal(understand("make 3 shorts from the live stream").when, "live_now"); assert.equal(understand("5 שורטס מאתמול").when, "yesterday"); ok("live_now intent");
 // ---- the owner's real phrasings of "where is it" are status questions
 for (const q of ["איפה הוא נמצא כרגע מה הוא עושה?", "וכרגע איפה הוא", "איפה הוא נמצא מי מה שביקשתי", "איפה זה נמצא"]) assert.equal(understand(q).intent, "status", q); ok("status phrasings from the log");
+// ---- a pasted CHANNEL link means "that streamer's live / latest broadcast": auto source with platform + slug; a video link stays a URL source
+{ const g = await call("POST", "/studio/api/guest", {}); const tk = g.j.token, oid = g.j.org_id; const ask = async (m) => (await call("POST", `/studio/api/orgs/${oid}/assistant`, { message: m }, tk)).j;
+  const b = await ask("https://kick.com/igz"); assert.ok(b.choices && /שידור החי|live stream/.test(b.choices[0].text) === true || /live/i.test(b.choices[0].label), JSON.stringify(b.choices));
+  const r = await ask("תכין 3 שורטס מהלייב של https://kick.com/igz"); const jb = (await call("GET", `/studio/api/orgs/${oid}/jobs/${r.actions[0].job_id}`, null, tk)).j.job;
+  assert.equal(jb.source.type, "auto"); assert.equal(jb.source.platform, "kick"); assert.equal(jb.source.slug, "igz"); assert.equal(jb.source.when, "live_now");
+  const r2 = await ask("make 2 Shorts from https://www.twitch.tv/videos/123456789"); const jb2 = (await call("GET", `/studio/api/orgs/${oid}/jobs/${r2.actions[0].job_id}`, null, tk)).j.job; assert.equal(jb2.source.type, "url");
+  ok("channel link -> live_now job on that streamer"); }
 console.log(`\n${n} test groups passed`);
