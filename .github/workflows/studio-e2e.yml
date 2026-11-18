@@ -1,0 +1,49 @@
+name: studio-e2e
+# Scripted user journey against the DEPLOYED customer preview (Cloudflare Worker studio-app): Playwright + Chromium, mobile 390x844 and desktop 1280x800, Hebrew and English.
+# (the assistant's sandbox cannot reach *.workers.dev, GitHub runners can). Writes state/studio_e2e/report.json + a few key screenshots (overwritten each run); every screenshot is also an artifact.
+# Never touches the owner app: only https://*.workers.dev URLs that are not oded-app are accepted. No YouTube, no uploads.
+# Optional secret STUDIO_WORKER_KEY (the studio's x-worker-key): enables the part of the journey that needs a verified channel (jobs, review, team); the test channel is flagged e2e so the real render worker never claims its jobs.
+on:
+  workflow_dispatch:
+    inputs:
+      url: { description: "studio worker base url", required: true, default: "https://studio-app.odedhl.workers.dev" }
+      profiles: { description: "comma list of mobile-he,mobile-en,desktop-he,desktop-en", required: false, default: "mobile-he,mobile-en,desktop-he,desktop-en" }
+concurrency: { group: studio-e2e, cancel-in-progress: false }
+permissions: { contents: write }
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:   # workflow inputs go through env vars, never straight into the shell script (injection)
+      IN_URL: ${{ inputs.url }}
+      IN_PROFILES: ${{ inputs.profiles }}
+      STUDIO_WORKER_KEY: ${{ secrets.STUDIO_WORKER_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate inputs
+        run: |
+          python3 scripts/ci_check_inputs.py
+          case "$IN_URL" in https://oded-app.*|https://oded-app-test.*) echo "::error::refusing to test the owner app"; exit 1;; esac
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - name: Install Playwright
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.49.1
+          npx playwright install --with-deps chromium
+      - name: Journey
+        id: journey
+        env: { OUT: /tmp/e2e_full }
+        run: |
+          export BASE="$IN_URL" PROFILES="${IN_PROFILES:-mobile-he,mobile-en,desktop-he,desktop-en}" WORKER_KEY="$STUDIO_WORKER_KEY"
+          node tests/studio_e2e/run.mjs   # exit 1 when a step failed or an error-level issue (console error, uncaught exception, failed request, 4xx/5xx nobody allowed) was collected
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: studio-e2e, path: /tmp/e2e_full, retention-days: 7 }
+      - name: Commit report + key screenshots
+        if: always()
+        run: |
+          rm -rf state/studio_e2e; mkdir -p state/studio_e2e
+          [ -f /tmp/e2e_full/report.json ] || { echo "no report"; exit 0; }
+          cp /tmp/e2e_full/report.json state/studio_e2e/
+          node -e 'const r=require("/tmp/e2e_full/report.json"),fs=require("fs");const ks=new Set((r.keyShots||[]).filter(f=>/^(mobile-he|desktop-en)-/.test(f)));for(const f of fs.readdirSync("/tmp/e2e_full"))if(/^[a-z-]+-FAIL-.*\.png$/.test(f))ks.add(f);for(const f of [...ks].slice(0,30))fs.copyFileSync("/tmp/e2e_full/"+f,"state/studio_e2e/"+f)'
+          bash scripts/git_sync.sh "state: studio e2e report" state/studio_e2e

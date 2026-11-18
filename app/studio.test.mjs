@@ -10,10 +10,11 @@ class KV {   // minimal Workers KV mock (get/put/delete/list with prefix)
   async list({ prefix = "", limit = 1000 } = {}) { return { keys: [...this.m.keys()].filter((k) => k.startsWith(prefix)).sort().slice(0, limit).map((name) => ({ name })) }; }
 }
 const env = { KV: new KV() }; env.KV.m.set("studio:cfg:worker_key", "wk_test");
-let kickBio = "hello", kickLive = null, ghStyles = [];
+let kickBio = "hello", kickLive = null, ghStyles = [], twitchBio = "hello";
 const fakeFetch = async (url, opt = {}) => {
   const R = (o, s = 200) => ({ ok: s < 400, status: s, json: async () => o });
   if (url.startsWith("https://kick.com/api/v2/channels/")) { const slug = url.split("/").pop(); if (slug === "nobody") return R({}, 404); return R({ user_id: 1, user: { id: 1, username: slug, bio: kickBio, youtube: "@x" }, livestream: kickLive }); }
+  if (url.startsWith("https://gql.twitch.tv/")) { const l = JSON.parse(opt.body).variables.l; if (l === "ghost") return R({ data: { user: null } }); return R({ data: { user: { id: "9", displayName: l, description: twitchBio, stream: null } } }); }
   if (url.includes("api.github.com/repos/") && url.endsWith("/config/styles")) return R(ghStyles.map((n) => ({ name: n + ".json", type: "file", download_url: "https://raw/" + n })));
   if (url.startsWith("https://raw/")) return R({ name: "Style " + url.split("/").pop(), description: "d" });
   return R({}, 500);
@@ -30,7 +31,10 @@ assert.match(newVerifyCode(), /^ODH-[A-HJ-NP-Z2-9]{8}$/); assert.equal(findCode(
 assert.ok(canTransition("queued", "running")); assert.ok(!canTransition("approved", "queued")); assert.ok(can("editor", "job.create") && !can("viewer", "job.create") && !can("editor", "team.manage")); ok("state machine + perms");
 const u1 = understand("תכין 5 שורטס מצחיקים מאתמול"); assert.equal(u1.intent, "create"); assert.equal(u1.shorts, 5); assert.equal(u1.when, "yesterday"); assert.equal(u1.mood, "funny"); assert.ok(u1.he);
 const u2 = understand("make three hype Shorts from my last stream"); assert.equal(u2.shorts, 3); assert.equal(u2.mood, "hype"); assert.equal(u2.when, "last_stream");
-const u3 = understand("what's the status?"); assert.equal(u3.intent, "status"); assert.equal(understand("make a long video").long, true); assert.equal(understand("hello").intent, "help"); ok("assistant parser");
+const u3 = understand("what's the status?"); assert.equal(u3.intent, "status"); assert.equal(understand("make a long video").long, true); assert.equal(understand("hello").intent, "help");
+assert.equal(understand("3 רגעים מטורפים מהשבוע").when, "week");   // regression: the Hebrew chip said "מהשבוע" but only "שבוע שעבר" was understood, so it silently cut the latest stream
+assert.equal(understand("I need 3 things").intent, "help"); assert.equal(understand("I want a pizza").intent, "help"); assert.equal(understand("תכין לי משהו").intent, "help");   // regression: chatter with a number or "want/need" spent a credit
+assert.equal(understand("make 4 shorts").intent, "create"); assert.equal(understand("5 שורטס מצחיקים מאתמול").intent, "create"); assert.equal(understand("make highlights from the stream").intent, "create"); ok("assistant parser");
 assert.equal(renderMsg("found_moments", { n: 5 }).en, "Found 5 moments, cutting..."); ok("progress messages");
 const pw = await hashPassword("secret123"); assert.equal((await hashPassword("secret123", pw.salt)).hash, pw.hash); assert.notEqual((await hashPassword("secret124", pw.salt)).hash, pw.hash); ok("pbkdf2");
 
@@ -59,7 +63,8 @@ r = await call("POST", "/studio/api/signup", { email: "b@x.com", password: "pass
 r = await call("POST", `/studio/api/orgs/${ORG2}/channels`, { url: "kick.com/odedsvr" }, T2); const CH2 = r.j.channel; kickBio = CH2.verify_code;
 r = await call("POST", `/studio/api/orgs/${ORG2}/channels/${CH2.id}/verify`, null, T2); assert.equal(r.s, 409); ok("channel claimed once");
 assert.equal((await call("GET", `/studio/api/orgs/${ORG}/jobs`, null, T2)).s, 404); ok("cross-org isolation (404)");
-r = await call("POST", `/studio/api/orgs/${ORG}/channels`, { url: "twitch.tv/somebody" }, T1); const TW = r.j.channel; r = await call("POST", `/studio/api/orgs/${ORG}/channels/${TW.id}/verify`, null, T1); assert.equal(r.j.error, "twitch_not_configured"); ok("twitch needs config");
+r = await call("POST", `/studio/api/orgs/${ORG}/channels`, { url: "twitch.tv/somebody" }, T1); const TW = r.j.channel; r = await call("POST", `/studio/api/orgs/${ORG}/channels/${TW.id}/verify`, null, T1); assert.equal(r.j.verified, false); twitchBio = "x " + TW.verify_code; r = await call("POST", `/studio/api/orgs/${ORG}/channels/${TW.id}/verify`, null, T1); assert.equal(r.j.verified, true); assert.equal(r.j.channel.verified_via, "bio"); ok("twitch verification without a Twitch app (public web API fallback)");
+r = await call("POST", `/studio/api/orgs/${ORG}/channels`, { url: "twitch.tv/ghost" }, T1); r = await call("POST", `/studio/api/orgs/${ORG}/channels/${r.j.channel.id}/verify`, null, T1); assert.equal(r.s, 502); assert.equal(r.j.error, "channel_not_found"); ok("twitch unknown channel");
 assert.equal((await call("POST", `/studio/api/orgs/${ORG}/channels/${CH.id}/youtube`, null, T1)).s, 501); ok("youtube todo stub");
 
 // team: invite -> accept -> roles
@@ -125,6 +130,15 @@ await call("POST", `/studio/worker/jobs/${IJ}`, { status: "draft_ready", drafts:
 r = await call("GET", `/studio/api/orgs/${ORG}/jobs/${IJ}`, null, T1); assert.equal(r.j.job.result.drafts[0].qa_score, 97); assert.equal(r.j.job.result.drafts[0].local_id, IJ + "/short_1.mp4"); assert.equal(r.j.job.result.drafts[0].private, true);
 r = await call("POST", `/studio/api/orgs/${ORG}/channels/${CH.id}/ingest`, null, T1); assert.notEqual(r.j.ingest_key, IK);
 assert.equal((await call("POST", "/studio/worker/ingest", { op: "check", key: IK }, null, W)).s, 404); ok("ingest key + worker ingest endpoint");
+// E2E hook: only worker key + guest workspaces; e2e jobs are invisible to a normal claim, claim {job_id} takes exactly that job
+{ const g = await call("POST", "/studio/api/guest", {}); const GT = g.j.token, GO = g.j.org_id; const gc = (await call("POST", `/studio/api/orgs/${GO}/channels`, { url: "kick.com/odedsvr" }, GT)).j.channel;
+  assert.equal((await call("POST", "/studio/worker/e2e/verify", { org: GO, channel: gc.id })).s, 401); assert.equal((await call("POST", "/studio/worker/e2e/verify", { org: ORG, channel: CH.id }, null, W)).s, 403);   // real customer workspace: refused
+  r = await call("POST", "/studio/worker/e2e/verify", { org: GO, channel: gc.id }, null, W); assert.equal(r.s, 200); assert.equal(r.j.channel.status, "verified");
+  r = await call("POST", `/studio/api/orgs/${GO}/assistant`, { message: "make 2 shorts" }, GT); const GJ = r.j.actions[0].job_id; assert.equal((await call("GET", `/studio/api/orgs/${GO}/jobs/${GJ}`, null, GT)).j.job.e2e, true);
+  assert.equal((await call("POST", "/studio/worker/claim", {}, null, W)).j.job, null); assert.ok(env.KV.m.has([...env.KV.m.keys()].find((k) => k.startsWith("studio:q:") && k.endsWith(GJ))));   // not claimed, still queued
+  assert.equal((await call("POST", "/studio/worker/claim", { job_id: GJ }, null, W)).j.job.id, GJ);
+  await call("POST", `/studio/worker/jobs/${GJ}`, { status: "failed" }, null, W); await call("POST", `/studio/worker/jobs/${GJ}`, { status: "failed" }, null, W);   // a re-sent failure must not refund twice
+  assert.equal((await call("GET", `/studio/api/orgs/${GO}`, null, GT)).j.org.credits, 2); ok("e2e hook + claim by id + single refund"); }
 r = await call("POST", "/studio/api/logout", null, T1); assert.equal((await call("GET", "/studio/api/me", null, T1)).s, 401); ok("logout");
 // per-account login throttle: 10 wrong passwords lock the account for an hour whatever the IP; bad worker key attempts are counted
 for (let i = 0; i < 10; i++) await call("POST", "/studio/api/login", { email: "victim@x.com", password: "wrong" + i }, null, { "cf-connecting-ip": "9.9.9." + i });

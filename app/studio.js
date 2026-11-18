@@ -105,7 +105,12 @@ export async function fetchChannelPublic(platform, slug, env, fetchImpl = fetch)
     }
     if (platform === "twitch") {
       const c = await kget(env, K.cfg("twitch")) || (env.STUDIO_TWITCH_ID ? { id: env.STUDIO_TWITCH_ID, secret: env.STUDIO_TWITCH_SECRET } : null);
-      if (!c || !c.id) return { ok: false, error: "twitch_not_configured", hint: "put {id,secret} of a Twitch app (client credentials) into KV key studio:cfg:twitch" };
+      if (!c || !c.id) {   // no Twitch app configured: read the same PUBLIC fields (bio + live title) from Twitch's web GraphQL endpoint. Unofficial: replace with the Helix branch below once a Twitch app exists (put {id,secret} into KV studio:cfg:twitch).
+        const g = await fetchImpl("https://gql.twitch.tv/gql", { method: "POST", headers: { "client-id": "kimne78kx3ncx6brgo4mv6wki5h1ko", "content-type": "application/json" }, body: JSON.stringify({ query: "query($l:String!){user(login:$l){id displayName description stream{title}}}", variables: { l: slug } }) });
+        if (!g.ok) return { ok: false, error: "fetch_failed_" + g.status, hint: "twitch web API refused the request and no Twitch app is configured (KV studio:cfg:twitch)" };
+        const gj = await g.json(); const usr = gj && gj.data && gj.data.user; if (!usr) return { ok: false, error: "channel_not_found" };
+        return { ok: true, user_id: String(usr.id || ""), display: usr.displayName, linked_youtube: null, texts: [["bio", usr.description], ["stream_title", usr.stream && usr.stream.title]] };
+      }
       let tok = await env.KV.get(K.cache("twitch_tok"));
       if (!tok) {
         const t = await fetchImpl(`https://id.twitch.tv/oauth2/token?client_id=${encodeURIComponent(c.id)}&client_secret=${encodeURIComponent(c.secret)}&grant_type=client_credentials`, { method: "POST" });
@@ -150,9 +155,10 @@ export async function listStyles(env, fetchImpl = fetch) {
 const JOB_FLOW = { queued: ["running", "cancelled"], running: ["qa", "failed", "cancelled"], qa: ["draft_ready", "failed"], draft_ready: ["approved", "rejected"], approved: [], rejected: [], failed: [], cancelled: [] };
 export const canTransition = (from, to) => (JOB_FLOW[from] || []).includes(to);
 export const estimateCredits = (src) => Math.max(1, Math.ceil((Number(src && src.duration_min) || 60) / 60));   // 1 credit = 1 started hour of source; TODO(pricing): see PRODUCT_PLAN.md
-async function refund(env, job) {
+async function refund(env, job) {   // the caller saves the job afterwards; we save it HERE first (credits_held = 0) so a crash between the two writes loses a credit instead of paying it twice
   if (!job.credits_held) return; const o = await kget(env, K.org(job.org)); if (!o) return;
-  o.credits += job.credits_held; job.credits_held = 0; await kput(env, K.org(o.id), o);   // TODO(D1): not atomic, use a ledger table + transaction
+  const n = job.credits_held; job.credits_held = 0; job.updated = now(); await kput(env, K.job(job.id), job);
+  o.credits += n; await kput(env, K.org(o.id), o);   // TODO(D1): not atomic, use a ledger table + transaction
 }
 // preview_url = where the browser can play a small preview rendition of a draft (preview phase: a public GitHub release asset made by .github/workflows/studio-worker.yml, see docs/STUDIO_PREVIEW_SETUP.md).
 // Only that exact shape is accepted (https, github.com release download of an .mp4), so a leaked worker key cannot point the player at an arbitrary site.
@@ -169,11 +175,11 @@ export const MSG = {
   found_moments: { he: "מצאנו {n} רגעים, חותכים...", en: "Found {n} moments, cutting..." },
   rendering: { he: "מכינים קליפ {i} מתוך {n}...", en: "Making clip {i} of {n}..." },
   qa: { he: "בודקים איכות...", en: "Quality check..." },
-  draft_ready: { he: "{n} טיוטות מוכנות - תעבור עליהן!", en: "{n} drafts are ready - take a look!" },
+  draft_ready: { he: "{n} טיוטות מוכנות - תעברו עליהן!", en: "{n} drafts are ready - take a look!" },
   approved: { he: "אושר. מעולה!", en: "Approved. Nice!" },
   rejected: { he: "נדחה. אפשר לבקש גרסה אחרת בצ'אט.", en: "Rejected. Ask in the chat for another take." },
-  failed: { he: "משהו השתבש. החזרנו לך את הקרדיט.", en: "Something went wrong. Your credit is back." },
-  cancelled: { he: "בוטל. החזרנו לך את הקרדיט.", en: "Cancelled. Your credit is back." },
+  failed: { he: "משהו השתבש. החזרנו לכם את הקרדיט.", en: "Something went wrong. Your credit is back." },
+  cancelled: { he: "בוטל. החזרנו לכם את הקרדיט.", en: "Cancelled. Your credit is back." },
 };
 export const renderMsg = (key, vars = {}) => { const t = MSG[key]; if (!t) return null; const f = (s) => s.replace(/\{(\w+)\}/g, (_, k) => (vars[k] != null ? String(vars[k]).slice(0, 20) : "")); return { he: f(t.he), en: f(t.en) }; };
 const setStatusText = (job, key, vars) => { const m = renderMsg(key, vars); if (m) job.status_text = m; };
@@ -186,10 +192,11 @@ export function understand(text) {
   const status = /status|progress|ready yet|how.*(going|long)|what.?s up|מה המצב|התקדמות|מוכן כבר|עוד כמה|איפה זה/.test(t);
   const wantsLong = /\blong\b|full video|compilation|סרטון ארוך|וידאו ארוך|סרטון מלא|סיכום|קומפילציה|יוטיוב ארוך/.test(t);
   const wantsShorts = /short|clip|reel|tiktok|שורט|קליפ|קצר/.test(t);
-  const when = /yesterday|אתמול/.test(t) ? "yesterday" : /last week|שבוע שעבר/.test(t) ? "week" : "last_stream";   // default: the latest stream
+  const when = /yesterday|אתמול/.test(t) ? "yesterday" : /last week|this week|past week|שבוע שעבר|השבוע|מהשבוע|שבוע האחרון|בשבוע/.test(t) ? "week" : "last_stream";   // default: the latest stream
   const mood = /funny|lol|hilarious|מצחיק|הזוי|צחוק/.test(t) ? "funny" : /hype|epic|insane|clutch|מטורף|אפי/.test(t) ? "hype" : /fail|rage|כעס|פיל/.test(t) ? "fail" : null;
   const make = /make|create|cut|edit|give|need|want|תעשה|תכין|צור|תחתוך|תערוך|תן|רוצה|צריך|בא לי/.test(t);
-  const intent = status ? "status" : make || wantsLong || wantsShorts || count ? "create" : "help";
+  const noun = /moment|highlight|video|stream|vod|הייטלייט|היילייט|רגע|רגעים|סרטון|סטרים|וידאו/.test(t);   // a bare "I need 3 things" or "want help" must NOT spend a credit: a request needs a clip/video word
+  const intent = status ? "status" : wantsLong || wantsShorts || (noun && (make || count)) ? "create" : "help";
   const shorts = wantsLong && !wantsShorts && !count ? 0 : Math.min(30, count || 5);
   return { intent, he, shorts, long: wantsLong, when, mood, text: raw };
 }
@@ -239,15 +246,15 @@ async function assistant(env, org, me, role, b, store) {
   else if (u.intent === "help") reply = HELP[L];
   else if (u.intent === "status") {
     const jobs = (await kgetMany(env, (await klist(env, K.jobsOfOrg(org.id), 500)).map((k) => K.job(k.split(":")[3])))).sort((a, c) => (a.created < c.created ? 1 : -1));
-    const j = jobs[0]; reply = !j ? (L === "he" ? "עדיין אין עבודות. בקש משהו בצ'אט!" : "No jobs yet. Ask me for something!") : `${(j.status_text || renderMsg(j.status) || { he: j.status, en: j.status })[L]} (${j.progress}%)`;
+    const j = jobs[0]; reply = !j ? (L === "he" ? "עדיין אין עבודות. בקשו משהו בצ'אט!" : "No jobs yet. Ask me for something!") : `${(j.status_text || renderMsg(j.status) || { he: j.status, en: j.status })[L]} (${j.progress}%)`;
     if (j) actions.push({ type: "show_job", job_id: j.id });
-  } else if (!can(role, "job.create")) reply = L === "he" ? "לצפיינים אין הרשאה ליצור עבודות. בקש מהבעלים להפוך אותך לעורך." : "Viewers can't create jobs. Ask the owner to make you an editor.";
+  } else if (!can(role, "job.create")) reply = L === "he" ? "לצופים אין הרשאה ליצור עבודות. בקשו מהבעלים להפוך אתכם לעורכים." : "Viewers can't create jobs. Ask the owner to make you an editor.";
   else {
     const chans = (await kgetMany(env, await klist(env, K.chansOfOrg(org.id)))).filter((c) => c.status === "verified"); const ch = chans.find((c) => c.id === b.channel_id) || chans[0];
-    if (!ch) reply = L === "he" ? "קודם נחבר ערוץ: הדבק קישור לערוץ שלך למעלה ואמת בעלות. זה לוקח דקה." : "First let's connect a channel: paste your channel link above and verify ownership. Takes a minute.";
+    if (!ch) reply = L === "he" ? "קודם נחבר ערוץ: הוסיפו את הערוץ שלכם בעמוד ההתחלה ואמתו בעלות. זה לוקח דקה." : "First let's connect a channel: add your channel on the setup page and verify ownership. Takes a minute.";
     else {
       const source = { type: "auto", when: u.when, duration_min: null }, credits = estimateCredits(source); const fresh = await kget(env, K.org(org.id));
-      if (fresh.credits < credits) reply = L === "he" ? `נגמרו הקרדיטים (צריך ${credits}, יש ${fresh.credits}). אפשר להוסיף בלשונית תשלום.` : `Out of credits (need ${credits}, have ${fresh.credits}). You can top up in Billing.`;
+      if (fresh.credits < credits) reply = L === "he" ? `נגמרו הקרדיטים (צריך ${credits}, יש ${fresh.credits}). אפשר להוסיף בעמוד הקרדיטים.` : `Out of credits (need ${credits}, have ${fresh.credits}). You can top up on the Credits page.`;
       else {
         const job = await createJob(env, org, { channel_id: ch.id, kind: "edit", source, style_id: ch.style_id, outputs: { shorts: u.shorts, long: u.long }, credits, hints: { mood: u.mood, text: u.text } });
         const what = [u.shorts ? (L === "he" ? `${u.shorts} שורטס${u.mood ? " " + MOOD_TXT[u.mood].he : ""}` : `${u.shorts} ${u.mood ? MOOD_TXT[u.mood].en + " " : ""}Shorts`) : "", u.long ? (L === "he" ? "סרטון ארוך" : "a long video") : ""].filter(Boolean).join(L === "he" ? " ו" : " and ");
@@ -277,7 +284,7 @@ export async function handleStudio(req, env, fetchImpl = fetch) {
 
   // --- public: signup / login
   if (path === "/signup" && m === "POST") {
-    if (await limited(env, req, "signup", 10)) return err(429, "rate_limited");
+    if (await limited(env, req, "signup", 20)) return err(429, "rate_limited");
     const email = clean(b.email, 254).toLowerCase(); const pw = String(b.password || ""); const name = clean(b.name, 80) || email.split("@")[0];
     if (!validEmail(email)) return err(400, "bad_email"); if (pw.length < 8) return err(400, "password_too_short");
     if (await env.KV.get(K.email(email))) return err(409, "email_exists");
@@ -289,7 +296,7 @@ export async function handleStudio(req, env, fetchImpl = fetch) {
   }
   if (path === "/guest" && m === "POST") {   // no email, no password: one click creates a throw-away workspace (owner request for the preview phase); disable with env STUDIO_GUEST=0
     if (env.STUDIO_GUEST === "0") return err(403, "guest_disabled");
-    if (await limited(env, req, "guest", 8)) return err(429, "rate_limited");
+    if (await limited(env, req, "guest", 30)) return err(429, "rate_limited");
     const uid = "u_" + rnd(8), orgId = "o_" + rnd(8), email = "guest-" + rnd(6) + "@guest.invalid", name = "Guest";
     await Promise.all([kput(env, K.user(uid), { id: uid, email, name, guest: true, pw: await hashPassword(rnd(24)), created: now() }), env.KV.put(K.email(email), uid),
       kput(env, K.org(orgId), { id: orgId, name: "My studio", owner: uid, plan: "trial", credits: TRIAL_CREDITS, created: now() })]);
@@ -297,7 +304,7 @@ export async function handleStudio(req, env, fetchImpl = fetch) {
     return json({ token: await newSession(env, uid), user: { id: uid, email, name }, org_id: orgId });
   }
   if (path === "/login" && m === "POST") {
-    if (await limited(env, req, "login", 20)) return err(429, "rate_limited");
+    if (await limited(env, req, "login", 60)) return err(429, "rate_limited");
     const email = clean(b.email, 254).toLowerCase(); const uid = await env.KV.get(K.email(email)); const usr = uid && await kget(env, K.user(uid));
     const bad = () => err(401, "bad_credentials");
     if (email) { const ak = K.rl("acct:" + email.slice(0, 120)); const fails = parseInt((await env.KV.get(ak)) || "0"); if (fails >= 10) return err(429, "rate_limited"); b._ak = ak; b._fails = fails; }   // per-account: 10 wrong passwords per hour, whatever the IP
@@ -368,7 +375,7 @@ export async function handleStudio(req, env, fetchImpl = fetch) {
     if (act === "" && m === "DELETE") { let d = need("channel.manage"); if (d) return d; await env.KV.delete(K.chan(orgId, ch.id)); if (ch.status === "verified") await env.KV.delete(K.claim(ch.platform, ch.slug)); return json({ ok: true }); }
     if (act === "/verify" && m === "POST") {
       let d = need("channel.manage"); if (d) return d; if (ch.status === "verified") return json({ channel: ch });
-      if (await limited(env, req, "verify:" + ch.id, 30)) return err(429, "rate_limited");
+      if (await limited(env, req, "verify:" + ch.id, 200)) return err(429, "rate_limited");   // the page re-checks every 8-30 s while open
       if (Date.parse(ch.verify_expires) < Date.now()) { ch.verify_code = newVerifyCode(); ch.verify_expires = new Date(Date.now() + VERIFY_TTL_H * 36e5).toISOString(); await kput(env, K.chan(orgId, ch.id), ch); return err(410, "code_expired", { new_code: ch.verify_code }); }
       const pub = await fetchChannelPublic(ch.platform, ch.slug, env, fetchImpl); if (!pub.ok) return err(502, pub.error, { hint: pub.hint });
       const where = findCode(ch.verify_code, pub.texts); if (!where) return json({ verified: false, reason: "code_not_found", checked: pub.texts.map(([w]) => w), he: "עוד לא רואים את הקוד. ודא שהוא בביו/בתיאור או בכותרת הסטרים ושמרת.", en: "Code not visible yet. Make sure it is in your bio/description or stream title and saved." });
@@ -449,7 +456,8 @@ async function newSession(env, uid) { const t = "s_" + rnd(32); await kput(env, 
 export async function createJob(env, org, f) {
   const id = "j_" + rnd(8), t = now(); const o = await kget(env, K.org(org.id)); const held = Math.min(f.credits || 0, o.credits);
   if (held) { o.credits -= held; await kput(env, K.org(o.id), o); }   // TODO(D1): atomic reservation
-  const job = { id, org: org.id, channel: f.channel_id, kind: f.kind || "edit", source: f.source, style_id: f.style_id || DEFAULT_STYLE, outputs: f.outputs || {}, hints: f.hints || {}, status: "queued", status_text: MSG.queued, credits_held: held, created: t, updated: t, queued_at: t, progress: 0, result: { drafts: [] }, events: [{ t, e: "queued" }] };
+  const chRec = f.channel_id ? await kget(env, K.chan(org.id, f.channel_id)) : null;
+  const job = { id, ...(chRec && chRec.e2e ? { e2e: true } : {}), org: org.id, channel: f.channel_id, kind: f.kind || "edit", source: f.source, style_id: f.style_id || DEFAULT_STYLE, outputs: f.outputs || {}, hints: f.hints || {}, status: "queued", status_text: MSG.queued, credits_held: held, created: t, updated: t, queued_at: t, progress: 0, result: { drafts: [] }, events: [{ t, e: "queued" }] };
   await Promise.all([kput(env, K.job(id), job), kput(env, K.jobOfOrg(org.id, id), { t }), kput(env, K.queue(t, id), { id })]);
   return job;
 }
@@ -463,14 +471,27 @@ async function workerApi(req, env, p, m) {
   }
   if (p === "/studio/worker/claim" && m === "POST") {
     // TODO(D1): KV is eventually consistent, two workers could claim the same job. With one worker it is fine; with several use a Durable Object/D1 UPDATE ... WHERE status='queued'.
-    for (const k of await klist(env, "studio:q:", 20)) {
-      const ref = await kget(env, k); await env.KV.delete(k); const job = ref && await kget(env, K.job(ref.id)); if (!job || job.status !== "queued") continue;
+    // Optional body {job_id}: claim exactly that job (used by the E2E tests; jobs of e2e-marked channels are never handed to a normal claim, so the real render worker ignores them).
+    const cb = await body(req).catch(() => ({})); const want = clean(cb && cb.job_id, 40);
+    for (const k of await klist(env, "studio:q:", 100)) {
+      const ref = await kget(env, k); const job = ref && await kget(env, K.job(ref.id));
+      if (!job || job.status !== "queued") { await env.KV.delete(k); continue; }   // stale queue entry (cancelled/claimed elsewhere)
+      if (want ? job.id !== want : job.e2e) continue;
+      await env.KV.delete(k);
       job.status = "running"; setStatusText(job, "running"); job.updated = now(); job.events.push({ t: job.updated, e: "running" }); await kput(env, K.job(job.id), job);
       const ch = await kget(env, K.chan(job.org, job.channel));   // platform + slug let the worker resolve "my last stream" (type auto) of a trusted org from the platform's VODs
       return json({ job: { id: job.id, org: job.org, channel: job.channel, kind: job.kind, source: job.source, style_id: job.style_id, outputs: job.outputs, hints: job.hints || {}, channel_info: ch ? { platform: ch.platform, slug: ch.slug } : null } });
       // TODO(youtube): hand the worker a short-lived access token (refreshed here) instead of the refresh token.
     }
     return json({ job: null });
+  }
+  if (p === "/studio/worker/e2e/verify" && m === "POST") {
+    // Test hook for the Playwright journey (.github/workflows/studio-e2e.yml): marks a channel verified WITHOUT the ownership check so the rest of the product can be exercised on the deployed app.
+    // Only with the worker key AND only for workspaces whose owner is a throw-away guest account; such channels are flagged e2e, their jobs are never claimed by the real render worker.
+    const b = await body(req).catch(() => null); if (!b) return err(400, "bad_json"); const orgId = clean(b.org, 40), chId = clean(b.channel, 40);
+    const org = await kget(env, K.org(orgId)), owner = org && await kget(env, K.user(org.owner)); if (!owner || !owner.guest) return err(403, "not_a_guest_workspace");
+    const ch = await kget(env, K.chan(orgId, chId)); if (!ch) return err(404, "not_found");
+    Object.assign(ch, { status: "verified", verified_at: now(), verified_via: "e2e", e2e: true }); await kput(env, K.chan(orgId, ch.id), ch); return json({ channel: ch });
   }
   if (p === "/studio/worker/ingest" && m === "POST") {
     // Called by scripts/ingest_watcher.py (x-worker-key). op "check": is this restream key known (MediaMTX auth hook). op "job": a recording of that stream is ready -> create the job (credits held like any job). idem makes a re-sent call return the same job.

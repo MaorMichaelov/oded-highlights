@@ -698,7 +698,7 @@ async function loadCore() {
 }
 function notifyChanges() {   // toast when a job reaches draft_ready / failed since the last poll
   if (S.prevJobs) { let nd = 0, nf = 0; for (const j of S.jobs) { const p = S.prevJobs[j.id]; if (p && p !== j.status) { if (j.status === "draft_ready") nd += (j.result.drafts || []).length; if (j.status === "failed") nf++; } }
-    if (nd) toast(tf("new_drafts_toast", { n: nd }), { action: t("review_now"), fn: () => go("review") }); if (nf) toast(t("job_failed_toast"), { kind: "bad" }); }
+    if (nd && route.name !== "review") toast(tf("new_drafts_toast", { n: nd }), { action: t("review_now"), fn: () => go("review") });   // already on the review screen: the card just appears (the toast would cover the approve/reject buttons) if (nf) toast(t("job_failed_toast"), { kind: "bad" }); }
   S.prevJobs = Object.fromEntries(S.jobs.map((j) => [j.id, j.status]));
 }
 async function loadYt() {
@@ -707,7 +707,7 @@ async function loadYt() {
 }
 async function loadMembers() { try { const m = await api("GET", op() + "/members"); S.members = m.members; S.invites = m.invites; } catch (e) { S.members = S.members || []; } }
 async function loadChat() { try { const c = await api("GET", op() + "/assistant"); S.chat = c.history || []; S.chatHint = c.hint || null; } catch (e) { S.chat = S.chat || []; } }
-function sessionExpired() { token = null; LS.del("studio_token"); S.ready = false; S.user = null; stopPoll(); renderApp(); }
+function sessionExpired() { token = null; LS.del("studio_token"); S.ready = false; S.user = null; S.org = null; S.orgs = []; S.channels = []; S.jobs = []; S.chat = null; S.members = null; S.inviteOut = null; S.prevJobs = null; stopPoll(); renderApp(); toast(t("e_unauthorized"), { kind: "bad", ms: 7000 }); }
 
 /* poll: faster while a job is running, pauses while the tab is hidden */
 let pollT = null;
@@ -747,7 +747,10 @@ function parseRoute() { const m = location.hash.match(/^#\/([a-z]+)(?:\/(.+))?/)
 function onHash() {
   const hy = location.hash.match(/youtube=(connected|error=([A-Za-z_]+))/), hi = location.hash.match(/invite=(inv_[a-f0-9]+)/);
   if (hy) { history.replaceState(null, "", location.pathname + location.search + "#/setup"); parseRoute(); if (hy[1] === "connected") { toast(t("yt_connected_toast")); } else toast(t("e_yt_return", { code: hy[2] }), { kind: "bad" }); if (S.ready) loadCore().then(() => renderRoute(true)).catch(() => {}); else renderApp(); return; }
-  if (hi) { S.inviteToken = hi[1]; history.replaceState(null, "", location.pathname + location.search + "#/home"); renderApp(); return; }
+  if (hi) { S.inviteToken = hi[1]; S.invitePreview = null; history.replaceState(null, "", location.pathname + location.search + "#/home");
+    if (token || DEMO) S.ready = false;   // signed in: boot() loads the invite preview first, then shows the join screen
+    else if (!DEMO) api("POST", "/invites/preview", { token: S.inviteToken }).then((p) => { S.invitePreview = p; if (!token && S.inviteToken) renderAuth(); }).catch(() => { S.inviteToken = null; toast(t("e_invite_invalid"), { kind: "bad" }); });   // landing shows "you were invited to X" and prefills the invited email
+    renderApp(); return; }
   parseRoute(); if (S.ready) renderRoute(true);
 }
 addEventListener("hashchange", onHash);
@@ -801,7 +804,7 @@ function renderRoute(enter) {
 }
 function softRender() { updateChrome(); const a = document.activeElement; if (a && $("#view") && $("#view").contains(a) && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) { dirty = true; return; } if (route.name === "chat") return; renderRoute(false); }
 addEventListener("focusout", () => { if (dirty) setTimeout(() => { const a = document.activeElement; if (!(a && /INPUT|TEXTAREA|SELECT/.test(a.tagName))) { dirty = false; renderRoute(false); } }, 50); });
-async function logout() { try { await api("POST", "/logout"); } catch (e) {} token = null; LS.del("studio_token"); S.ready = false; S.user = null; S.org = null; S.orgs = []; S.channels = []; S.jobs = []; S.chat = null; S.members = null; stopPoll(); if (DEMO) demoLanding = true; history.replaceState(null, "", location.pathname + location.search); renderApp(); }
+async function logout() { try { await api("POST", "/logout"); } catch (e) {} token = null; LS.del("studio_token"); S.ready = false; S.user = null; S.org = null; S.orgs = []; S.channels = []; S.jobs = []; S.chat = null; S.members = null; S.inviteOut = null; stopPoll(); if (DEMO) demoLanding = true; history.replaceState(null, "", location.pathname + location.search); renderApp(); }
 
 /* ---------- 6a. auth + landing ---------- */
 let demoLanding = DEMO && (FORCE_DEMO ? QS.get("auto") !== "1" : QS.get("landing") === "1");
@@ -848,7 +851,7 @@ const themeBtn = () => h("button", { class: "iconbtn", type: "button", "aria-lab
 function renderInvite() {
   const p = S.invitePreview || {}, msg = h("div", { class: "errtxt", role: "alert" });
   $("#app").replaceChildren(h("div", { class: "auth" }, h("div", { class: "card authcard stack" }, h("div", { class: "empty" }, h("div", { class: "art" }, icon("users")), h("h2", null, t("invite_title")), h("p", null, t("invite_for", { org: p.org || "", role: t("r_" + (p.role || "editor")) }))), msg,
-    h("button", { class: "btn lg block", onclick: async (e) => { e.currentTarget.disabled = true; try { await api("POST", "/invites/accept", { token: S.inviteToken }); S.inviteToken = null; S.invitePreview = null; S.ready = false; renderApp(); } catch (x) { msg.textContent = errText(x); e.currentTarget.disabled = false; } } }, t("invite_join")),
+    h("button", { class: "btn lg block", onclick: async (e) => { e.currentTarget.disabled = true; try { const ar = await api("POST", "/invites/accept", { token: S.inviteToken }); if (ar && ar.org_id) { LS.set("studio_org", ar.org_id); S.org = null; S.chat = null; S.members = null; S.inviteOut = null; } S.inviteToken = null; S.invitePreview = null; S.ready = false; renderApp(); } catch (x) { msg.textContent = errText(x); e.currentTarget.disabled = false; } } }, t("invite_join")),
     h("button", { class: "btn ghost block", onclick: () => { S.inviteToken = null; S.invitePreview = null; renderApp(); } }, t("invite_later")))));
 }
 
@@ -869,9 +872,10 @@ ROUTES.setup = function () {
     root.append(h("form", { class: "card pad-lg stack", onsubmit: async (e) => { e.preventDefault(); if (!parseChan(inp.value)) { err.textContent = t("e_bad_channel"); inp.focus(); return; } btn.disabled = true; try { await api("POST", op() + "/channels", { url: inp.value }); await loadCore(); renderRoute(true); } catch (x) { err.textContent = errText(x); btn.disabled = false; } } },
       h("h2", null, t("su1_t")), h("p", { class: "muted" }, t("su1_d")), h("div", { class: "field" }, h("label", { for: "chIn", class: "sr" }, t("su1_t")), inp, det), err, btn)); setTimeout(() => inp.focus(), 80);
   } else if (step === 2) {
-    const c = pending, secs = h("span", { class: "tabnum" }, "8"), msg = h("div", { class: "small", role: "status", "aria-live": "polite" }, S.verifyMsg || ""), codeTxt = h("code", null, c.verify_code);
-    let left = 8, busy = false, timer = null; const label = h("span", { class: "row small muted" }, h("span", { class: "spin" }), h("span", { class: "wl" }, t("su2_wait", { s: left })));
-    const check = async () => { if (busy) return; busy = true; $(".wl", label).textContent = t("su2_checking"); try { const r = await api("POST", op() + "/channels/" + c.id + "/verify"); if (r.verified || (r.channel && r.channel.status === "verified")) { S.verifyMsg = ""; toast(t("su2_ok")); await loadCore(); renderRoute(true); return; } S.verifyMsg = r[lang] || t("su2_notyet"); msg.textContent = S.verifyMsg; } catch (e) { if (e.error === "code_expired") { await loadCore(); renderRoute(true); toast(t("e_code_expired")); return; } S.verifyMsg = errText(e); msg.textContent = S.verifyMsg; } busy = false; left = 8; };
+    const c = pending; if (S.verifyFor !== c.id) { S.verifyFor = c.id; S.verifyMsg = ""; }   // a message from a previous channel must not show for this one
+    const secs = h("span", { class: "tabnum" }, "8"), msg = h("div", { class: "small", role: "status", "aria-live": "polite" }, S.verifyMsg || ""), codeTxt = h("code", null, c.verify_code);
+    let left = 8, busy = false, timer = null, tries = 0; const label = h("span", { class: "row small muted" }, h("span", { class: "spin" }), h("span", { class: "wl" }, t("su2_wait", { s: left })));
+    const check = async () => { if (busy) return; busy = true; $(".wl", label).textContent = t("su2_checking"); try { const r = await api("POST", op() + "/channels/" + c.id + "/verify"); if (r.verified || (r.channel && r.channel.status === "verified")) { S.verifyMsg = ""; toast(t("su2_ok")); await loadCore(); renderRoute(true); return; } S.verifyMsg = r[lang] || t("su2_notyet"); msg.textContent = S.verifyMsg; } catch (e) { if (e.error === "code_expired") { await loadCore(); renderRoute(true); toast(t("e_code_expired")); return; } S.verifyMsg = errText(e); msg.textContent = S.verifyMsg; } busy = false; tries++; left = Math.min(30, 8 + tries * 4); };   // back off 8s, 12s, 16s ... 30s so the auto check never trips the server rate limit
     timer = setInterval(() => { if (busy || document.hidden) return; left--; if (left <= 0) check(); $(".wl", label).textContent = busy ? t("su2_checking") : t("su2_wait", { s: Math.max(left, 0) }); }, 1000); cleanups.push(() => clearInterval(timer));
     const how = c.platform === "kick" ? "su2_kick" : "su2_twitch";
     root.append(h("div", { class: "card pad-lg stack" }, h("div", { class: "row between wrap" }, h("h2", null, t("su2_t")), platTag(c.platform), ),
@@ -919,7 +923,7 @@ function timeline(j, idx, failed) {
 }
 function checklist() {
   const ver = verifiedCh().length, yt = ytState() === "connected", first = S.jobs.length > 0;
-  const items = [["ck_account", null, true, null], ["ck_channel", "ck_channel_d", S.channels.length > 0, ["ck_do_channel", "setup"]], ["ck_verify", "ck_verify_d", ver > 0, ["ck_do_verify", "setup"]], ["ck_yt", "ck_yt_d", yt || LS.get("studio_skip_yt") === "1" && ver > 0 && yt, ["ck_do_yt", "setup"]], ["ck_first", "ck_first_d", first, ["ck_do_first", "chat"]]];
+  const items = [["ck_account", null, true, null], ["ck_channel", "ck_channel_d", S.channels.length > 0, ["ck_do_channel", "setup"]], ["ck_verify", "ck_verify_d", ver > 0, ["ck_do_verify", "setup"]], ["ck_yt", "ck_yt_d", yt || (LS.get("studio_skip_yt") === "1" && ver > 0), ["ck_do_yt", "setup"]], ["ck_first", "ck_first_d", first, ["ck_do_first", "chat"]]];
   const n = items.filter((i) => i[2]).length; if (n === items.length) return null;
   const nowIdx = items.findIndex((i) => !i[2]);
   return h("section", { class: "card pad-lg" }, h("div", { class: "row between" }, h("h2", null, t("setup_title")), h("span", { class: "chip accent" }, t("setup_of", { a: n, b: items.length }))), h("div", { class: "bar", style: { margin: "12px 0 6px" } }, h("i", { style: { width: (n / items.length * 100) + "%" } })),
@@ -1009,7 +1013,7 @@ ROUTES.review = function () {
   root.append(h("div", { class: "rv-stage" }, card)); if (dock && !desk) root.append(dock);
   if (canEdit()) {
     attachSwipe(card, () => decide(c, "approve"), () => decide(c, "reject"));
-    const same = cards.filter((x) => x.j.id === c.j.id); if (same.length > 1) { let armed = false; const b = h("button", { class: "btn secondary block bulk", type: "button", onclick: async (e) => { if (!armed) { armed = true; e.currentTarget.textContent = t("approve_all_sure"); setTimeout(() => { armed = false; if (e.currentTarget.isConnected) e.currentTarget.textContent = t("approve_all", { n: same.length }); }, 3500); return; } e.currentTarget.disabled = true; try { await api("POST", op() + "/jobs/" + c.j.id + "/approve"); await loadCore(); toast(t("approved_toast")); renderRoute(false); } catch (x) { toast(errText(x), { kind: "bad" }); } } }, t("approve_all", { n: same.length })); if (dock && !desk) root.insertBefore(b, dock); else root.append(b); }
+    const same = cards.filter((x) => x.j.id === c.j.id); if (same.length > 1) { let armed = false; const b = h("button", { class: "btn secondary block bulk", type: "button", onclick: async (e) => { const me = e.currentTarget; if (!armed) { armed = true; me.textContent = t("approve_all_sure"); setTimeout(() => { armed = false; if (me.isConnected && !me.disabled) me.textContent = t("approve_all", { n: same.length }); }, 3500); return; } me.disabled = true; try { await api("POST", op() + "/jobs/" + c.j.id + "/approve"); await loadCore(); toast(t("approved_toast")); renderRoute(false); } catch (x) { toast(errText(x), { kind: "bad" }); } } }, t("approve_all", { n: same.length })); if (dock && !desk) root.insertBefore(b, dock); else root.append(b); }
   }
   void jobsWith; void total; void mobile; return root;
 };
@@ -1063,11 +1067,11 @@ ROUTES.team = function () {
   root.append(h("section", { class: "card" }, h("h2", null, t("tm_members") + " (" + S.members.length + ")"), h("div", { class: "list", style: { marginTop: "8px" } }, ...S.members.map(memberRow))));
   if (S.invites.length) root.append(h("section", { class: "card" }, h("h2", null, t("tm_pending")), h("div", { class: "list", style: { marginTop: "8px" } }, ...S.invites.map((i) => h("div", { class: "li" }, h("span", { class: "avatar" }, icon("mail")), h("div", { class: "grow" }, h("b", { class: "ltr trunc" }, i.email), h("div", { class: "small muted" }, t("r_" + i.role) + " · " + t("tm_expires", { d: dateTxt(i.expires) }))), owner ? h("button", { class: "btn ghost sm", type: "button", onclick: async () => { try { await api("DELETE", op() + "/invites/" + i.id); await loadMembers(); renderRoute(false); } catch (x) { toast(errText(x), { kind: "bad" }); } } }, t("tm_revoke")) : null)))));
   if (!owner) { root.append(h("div", { class: "notice" }, icon("lock"), t("tm_owner_only"))); return root; }
-  const email = h("input", { class: "input", id: "invEmail", type: "email", dir: "ltr", autocomplete: "off", placeholder: "editor@example.com", required: true }), err = h("div", { class: "errtxt", role: "alert" }), out = h("div"); let role = "editor";
+  const email = h("input", { class: "input", id: "invEmail", type: "email", dir: "ltr", autocomplete: "off", placeholder: "editor@example.com", required: true }), err = h("div", { class: "errtxt", role: "alert" }), out = S.inviteOut || (S.inviteOut = h("div")); let role = "editor";   // out survives the re-render that refreshes the pending list
   const roleCard = (r) => h("label", { class: "role-card" }, h("input", { type: "radio", name: "role", value: r, checked: r === "editor", onchange: () => { role = r; } }), h("div", null, h("b", null, t("r_" + r)), h("span", null, t("rd_" + r))));
   const sub = h("button", { class: "btn lg block", type: "submit" }, icon("link"), t("tm_send"));
   root.append(h("form", { class: "card pad-lg stack", onsubmit: async (e) => { e.preventDefault(); err.textContent = ""; if (!/^\S+@\S+\.\S+$/.test(email.value.trim())) { err.textContent = t("e_email"); email.focus(); return; } sub.disabled = true;
-    try { const r = await api("POST", op() + "/invites", { email: email.value.trim(), role }); const em = email.value.trim(); email.value = ""; out.replaceChildren(h("div", { class: "notice ok" }, icon("check"), t("tm_link_ready", { email: em })), h("div", { class: "linkbox" }, h("code", null, r.accept_url), h("button", { class: "btn sm", type: "button", onclick: () => copyText(r.accept_url) }, icon("copy"), t("copy"))), h("div", { class: "row wrap" }, h("a", { class: "btn secondary sm", target: "_blank", rel: "noopener", href: "https://wa.me/?text=" + encodeURIComponent(r.accept_url) }, icon("send", "flip-send"), t("tm_whatsapp"))), h("div", { class: "small muted" }, t("tm_email_note"))); await loadMembers(); }
+    try { const r = await api("POST", op() + "/invites", { email: email.value.trim(), role }); const em = email.value.trim(); email.value = ""; out.replaceChildren(h("div", { class: "notice ok" }, icon("check"), t("tm_link_ready", { email: em })), h("div", { class: "linkbox" }, h("code", null, r.accept_url), h("button", { class: "btn sm", type: "button", onclick: () => copyText(r.accept_url) }, icon("copy"), t("copy"))), h("div", { class: "row wrap" }, h("a", { class: "btn secondary sm", target: "_blank", rel: "noopener", href: "https://wa.me/?text=" + encodeURIComponent(r.accept_url) }, icon("send", "flip-send"), t("tm_whatsapp"))), h("div", { class: "small muted" }, t("tm_email_note"))); await loadMembers(); if (route.name === "team") renderRoute(false); }
     catch (x) { err.textContent = errText(x); } sub.disabled = false; } },
     h("h2", null, t("tm_invite")), h("p", { class: "muted small" }, t("tm_invite_d")), h("div", { class: "field" }, h("label", { for: "invEmail" }, t("email")), email), h("div", { class: "stack tight", role: "radiogroup" }, roleCard("editor"), roleCard("viewer")), err, sub, out));
   return root;
@@ -1089,7 +1093,7 @@ ROUTES.credits = function () {
 /* ---------- 6i. settings + more ---------- */
 function createOrgForm() {
   const inp = h("input", { class: "input", id: "orgName", placeholder: t("se_ws_name"), "aria-label": t("se_ws_name"), maxlength: 80 }); const sub = h("button", { class: "btn", type: "submit" }, t("se_ws_create"));
-  return h("form", { class: "row wrap", onsubmit: async (e) => { e.preventDefault(); if (!inp.value.trim()) return; sub.disabled = true; try { const r = await api("POST", "/orgs", { name: inp.value.trim() }); LS.set("studio_org", r.org_id); S.org = null; S.ready = false; S.chat = null; S.members = null; renderApp(); } catch (x) { toast(errText(x), { kind: "bad" }); sub.disabled = false; } } }, h("div", { class: "grow" }, inp), sub);
+  return h("form", { class: "row wrap", onsubmit: async (e) => { e.preventDefault(); if (!inp.value.trim()) return; sub.disabled = true; try { const r = await api("POST", "/orgs", { name: inp.value.trim() }); LS.set("studio_org", r.org_id); S.org = null; S.ready = false; S.chat = null; S.members = null; S.inviteOut = null; renderApp(); } catch (x) { toast(errText(x), { kind: "bad" }); sub.disabled = false; } } }, h("div", { class: "grow" }, inp), sub);
 }
 ROUTES.more = function () {
   const item = (r, ic, lbl, sub) => h("a", { class: "menu-item", href: "#/" + r }, icon(ic), h("div", { class: "grow" }, t(lbl), sub ? h("small", null, sub) : null), icon("chev", "flip"));
@@ -1114,7 +1118,7 @@ ROUTES.settings = function () {
   root.append(h("section", { class: "card stack" }, h("div", null, h("h2", null, t("se_auto")), h("p", { class: "small muted" }, t("se_auto_d"))), h("div", { class: "stack tight", role: "radiogroup" }, opt(1, true), opt(2, false), opt(3, false))));
   root.append(h("section", { class: "card stack" }, h("div", null, h("h2", null, t("se_notif")), h("p", { class: "small muted" }, t("se_notif_d"))), ...["nt1", "nt2", "nt3"].map((k) => h("div", { class: "row between" }, h("span", null, t(k), " ", h("span", { class: "chip" }, t("soon"))), h("label", { class: "switch" }, h("input", { type: "checkbox", disabled: true, "aria-label": t(k) }), h("i"))))));
   const multi = S.orgs.length > 1;
-  root.append(h("section", { class: "card stack" }, h("h2", null, t("se_ws")), h("div", { class: "row between wrap" }, h("div", null, h("b", null, S.org.name), h("div", { class: "small muted" }, t("r_" + S.org.role))), multi ? h("select", { class: "input sel", "aria-label": t("se_ws_switch"), onchange: (e) => { S.org = S.orgs.find((o) => o.id === e.target.value); LS.set("studio_org", S.org.id); S.ready = false; S.chat = null; S.members = null; S.jobs = []; S.channels = []; S.prevJobs = null; renderApp(); } }, ...S.orgs.map((o) => h("option", { value: o.id, selected: o.id === S.org.id }, o.name))) : null),
+  root.append(h("section", { class: "card stack" }, h("h2", null, t("se_ws")), h("div", { class: "row between wrap" }, h("div", null, h("b", null, S.org.name), h("div", { class: "small muted" }, t("r_" + S.org.role))), multi ? h("select", { class: "input sel", "aria-label": t("se_ws_switch"), onchange: (e) => { S.org = S.orgs.find((o) => o.id === e.target.value); LS.set("studio_org", S.org.id); S.ready = false; S.chat = null; S.members = null; S.inviteOut = null; S.jobs = []; S.channels = []; S.prevJobs = null; renderApp(); } }, ...S.orgs.map((o) => h("option", { value: o.id, selected: o.id === S.org.id }, o.name))) : null),
     h("p", { class: "small muted" }, t("se_ws_d")), createOrgForm()));
   root.append(h("div", { class: "notice" }, icon("shield"), t("se_about_d")));
   return root;
@@ -1166,7 +1170,7 @@ function demoTick() {
     else j.status_text = dmsg("rendering", { i: Math.max(1, Math.ceil((j.progress - 58) / 36 * n)), n });
   }
 }
-function demoScenario(s) { demoInit(s); S.ready = false; S.chat = null; S.members = null; S.jobs = []; S.channels = []; S.prevJobs = null; S.local = {}; S.skipped = []; LS.del("studio_skip_yt"); token = "demo"; demoLanding = false; history.replaceState(null, "", "#/home"); renderApp(); }
+function demoScenario(s) { demoInit(s); S.ready = false; S.chat = null; S.members = null; S.inviteOut = null; S.jobs = []; S.channels = []; S.prevJobs = null; S.local = {}; S.skipped = []; LS.del("studio_skip_yt"); token = "demo"; demoLanding = false; history.replaceState(null, "", "#/home"); renderApp(); }
 const clone = (o) => JSON.parse(JSON.stringify(o));
 function demoUnderstand(text) {
   const raw = String(text).trim(), tl = raw.toLowerCase(), he = /[֐-׿]/.test(raw); let n = (tl.match(/\d+/) || [])[0]; n = n ? Math.min(30, +n) : 0;

@@ -20,6 +20,7 @@ RULES = {
     "BASE_URL": r"https://stream\.kick\.com/[A-Za-z0-9/._-]{1,300}",
     "URL": r"https://[A-Za-z0-9.-]+\.workers\.dev",   # app-test only; watch-video takes free text via env and does not use this validator for it
     "PREFIXES": r"[A-Za-z0-9_,-]{1,100}",
+    "PROFILES": r"[a-z,-]{1,80}",
 }
 NUMERIC = {"FROM_MIN", "TO_MIN", "TOTAL_MIN", "DAYS", "N", "K", "MAX_UPLOAD", "PER_WINDOW", "LONG_EVERY", "FIRST_SEG", "LAST_SEG", "START_SEG", "MAX_SEGS", "MAX_MB", "MAX_ARTIFACTS", "VOD_INDEX", "SEGS"}
 FREE = {"CREDIT", "FOCUS", "TITLE_HINT", "HEAD", "ACCENT", "TEXT", "QUESTION", "URLS"}
