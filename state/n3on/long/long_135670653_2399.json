@@ -1,0 +1,42 @@
+{
+ "title": "N3on guides Crystal through knee lifts, sprint drills and a 35‑lb carry",
+ "description": "Clips from N3on's live streams on Kick (https://kick.com/n3on) | Unofficial fan channel, not affiliated.\nN3on guides Crystal through a high‑intensity boot camp, starting with knee‑up drills and sprint gates. They move on to push‑ups, burpee broad jumps, bear crawls, and finish with hill climbs and cool‑down stretches. The session is full of encouragement, jokes, and real‑time adjustments for fatigue.\n\nClip from the live stream: Kick (https://kick.com/n3on)\nThis is an unofficial fan channel: all clips are taken from N3on's streams. It is not N3on's official channel.\n\n#n3on #crystal #bootcamp #fitnesschallenge #kickstream #Kick #ClipGlobe",
+ "tags": [
+  "N3on",
+  "Crystal",
+  "boot camp workout",
+  "kick livestream",
+  "sprint gates",
+  "burpee broad jump",
+  "bear crawl",
+  "hill climb",
+  "N3on",
+  "highlights"
+ ],
+ "privacy": "private",
+ "score": 100,
+ "source": {
+  "slug": "n3on",
+  "platform": "kick",
+  "vod": "135670653",
+  "start_s": 2400,
+  "end_s": 4621,
+  "start_exact": 2399.68,
+  "end_exact": 4621.3,
+  "bumper_s": 2.5,
+  "vod_title": "N3on x Crystal 24HR",
+  "minutes": 37.1
+ },
+ "qa": {
+  "score": 57,
+  "fail": [
+   "ends inside the word 'pushed'"
+  ],
+  "warn": [
+   "audio ends abruptly (just before the end it is only 3 dB below the speech level)",
+   "clip starts inside a loud sound (8 dB below the speech level)",
+   "true peak 1.8 dBFS (clipping)"
+  ]
+ },
+ "qa_fail": true
+}
