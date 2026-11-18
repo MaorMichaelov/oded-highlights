@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-18T11:30:08Z",
- "fetched_epoch": 1795001408.2325377,
+ "fetched_at": "2026-11-18T12:00:10Z",
+ "fetched_epoch": 1795003210.3488579,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -8,6 +8,16 @@
   "videos": 14
  },
  "videos": [
+  {
+   "id": "oVu8HC8nE6o",
+   "title": "מיכאל מגיב ל-GTA 6 בפעם הראשונה, הוא השתגע?",
+   "published": "2026-11-18T11:53:55Z",
+   "privacy": "public",
+   "duration": "P0D",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
   {
    "id": "UYZ1XfFnneE",
    "title": "עודד חושף לסנסיי את מונופול של הסאבתון",
@@ -24,7 +34,7 @@
    "published": "2026-11-17T10:00:01Z",
    "privacy": "public",
    "duration": "PT1H33M46S",
-   "views": 52,
+   "views": 51,
    "likes": 7,
    "comments": 0
   },
@@ -194,7 +204,7 @@
    "published": "2026-11-13T10:00:09Z",
    "privacy": "public",
    "duration": "PT4M43S",
-   "views": 74,
+   "views": 75,
    "likes": 3,
    "comments": 0
   },
@@ -244,7 +254,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 5061,
+   "views": 5038,
    "likes": 27,
    "comments": 1
   },
@@ -299,5 +309,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 99
+ "total_uploads_incl_private": 100
 }
