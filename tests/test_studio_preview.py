@@ -159,7 +159,7 @@ class WorkflowFile(unittest.TestCase):
         import re
         for m in re.finditer(r"\$\{\{[^}]*\}\}", self.text):
             expr = m.group(0)
-            if "secrets." in expr: line = [l for l in self.text.splitlines() if expr in l][0]; self.assertRegex(line, r"^\s+[A-Z_]+: \$\{\{", "secrets are only assigned to env vars: " + line)
+            if "secrets." in expr: line = [l for l in self.text.splitlines() if expr in l][0]; self.assertRegex(line, r"^\s+[A-Z0-9_]+: \$\{\{", "secrets are only assigned to env vars: " + line)
         self.assertNotRegex(self.text, r"run:[^\n]*\$\{\{")   # no expression pasted straight into a shell line
         self.assertNotIn("set -x", self.text); self.assertNotIn("echo $STUDIO", self.text)
     def test_missing_secrets_exit_zero_with_a_clear_message(self):
