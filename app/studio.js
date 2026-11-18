@@ -355,7 +355,7 @@ export async function handleStudio(req, env, fetchImpl = fetch) {
     return json({ job: pubJob(job) });
   }
   let x1 = null;
-  if ((x = sub.match(/^\/jobs\/(j_[a-f0-9]+)(\/[a-z]+|\/drafts\/\d+\/(?:approve|reject))?$/))) {
+  if ((x = sub.match(/^\/jobs\/(j_[a-f0-9]+)(\/[a-z]+|\/drafts\/\d+\/(?:approve|reject|title))?$/))) {
     const job = await kget(env, K.job(x[1])); if (!job || job.org !== orgId) return err(404, "not_found"); const act = x[2] && x[2].startsWith("/drafts") ? "/draft" : x[2] || "";
     if (act === "" && m === "GET") return json({ job: pubJob(job) });
     // Approve / reject: per draft (the swipe action in the UI) or all undecided drafts at once (bulk buttons). When every draft has a decision the job is closed.
@@ -368,6 +368,12 @@ export async function handleStudio(req, env, fetchImpl = fetch) {
       job.events.push({ t: now(), e: "draft_" + verdict, by: me.id, n: targets.length });
       if (job.result.drafts.every((dr) => dr.decision)) { job.status = job.result.drafts.some((dr) => dr.decision === "approved") ? "approved" : "rejected"; setStatusText(job, job.status); }
       job.updated = now(); await kput(env, K.job(job.id), job); return json({ job: pubJob(job) });
+    }
+    // Inline title edit from the review screen: the customer may rename a draft before approving (the render worker / YouTube step reads the final title from job.result.drafts[i].title).
+    if ((x1 = sub.match(/^\/jobs\/j_[a-f0-9]+\/drafts\/(\d+)\/title$/))) {
+      let d = need("job.review"); if (d) return d; if (m !== "POST") return err(405, "method"); const dr = job.result.drafts[parseInt(x1[1])]; if (!dr) return err(404, "draft_not_found");
+      if (!["draft_ready", "approved"].includes(job.status)) return err(409, "bad_state", { status: job.status }); const title = clean(b.title, 100); if (!title) return err(400, "title_required");
+      dr.title = title; dr.title_edited = true; job.events.push({ t: now(), e: "draft_title", by: me.id }); job.updated = now(); await kput(env, K.job(job.id), job); return json({ job: pubJob(job) });
     }
     if (act === "/cancel" && m === "POST") {
       let d = need("job.create"); if (d) return d; if (!canTransition(job.status, "cancelled")) return err(409, "bad_state", { status: job.status });

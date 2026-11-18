@@ -1,0 +1,1188 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Rubik:wght@500;600;700;800&display=swap">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%235b4bdb'/%3E%3Cpath d='M12 9.5v13l11-6.5z' fill='white'/%3E%3C/svg%3E">
+<style>
+/* ===== Design tokens: dark-first, ONE vivid accent (violet) with a gradient + glow, glass surfaces. Everything below uses these variables. ===== */
+:root{
+  --bg:#07070b; --surface:#0f0f17; --surface-2:#181824; --glass:rgba(22,22,34,.62); --border:rgba(255,255,255,.08); --border-strong:rgba(255,255,255,.17);
+  --text:#f5f5fb; --muted:#a4a4bb; --faint:#70708a;
+  --accent:#9a82ff; --accent-hover:#b09bff; --accent-soft:rgba(139,109,255,.16); --on-accent:#ffffff;
+  --grad:linear-gradient(135deg,#7a55fa 0%,#a24cf0 100%); --glow:0 8px 32px -6px rgba(139,92,255,.55);
+  --ok:#3fdc9a; --ok-soft:rgba(63,220,154,.13); --bad:#ff7070; --bad-soft:rgba(255,112,112,.14); --warn:#ffc857; --warn-soft:rgba(255,200,87,.13);
+  --shadow:0 1px 0 rgba(255,255,255,.04) inset,0 8px 28px -10px rgba(0,0,0,.7); --shadow-lg:0 24px 64px -16px rgba(0,0,0,.8);
+  --aurora:radial-gradient(900px 480px at 85% -8%,rgba(122,85,250,.26),transparent 62%),radial-gradient(700px 420px at 5% 12%,rgba(224,82,160,.12),transparent 60%);
+  --r-sm:10px; --r:16px; --r-lg:24px; --r-pill:999px;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
+  --font:Inter,Heebo,system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Hebrew","Arial Hebrew",Arial,sans-serif;
+  --display:Rubik,Inter,Heebo,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --nav-h:66px; --top-h:58px; --tap:46px; --maxw:760px;
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  --bg:#f5f4fb; --surface:#ffffff; --surface-2:#efeef8; --glass:rgba(255,255,255,.78); --border:rgba(30,30,70,.09); --border-strong:rgba(30,30,70,.2);
+  --text:#14141f; --muted:#585870; --faint:#8b8ba3;
+  --accent:#5b3fe0; --accent-hover:#4a31c4; --accent-soft:rgba(91,63,224,.09);
+  --glow:0 8px 28px -8px rgba(110,70,240,.5);
+  --ok:#0c7a55; --ok-soft:rgba(12,122,85,.1); --bad:#c0302a; --bad-soft:rgba(192,48,42,.09); --warn:#8f5f00; --warn-soft:rgba(143,95,0,.11);
+  --shadow:0 1px 2px rgba(30,30,70,.06),0 8px 24px -10px rgba(30,30,70,.14); --shadow-lg:0 20px 50px -16px rgba(40,30,100,.28);
+  --aurora:radial-gradient(900px 480px at 85% -8%,rgba(122,85,250,.15),transparent 62%),radial-gradient(700px 420px at 5% 12%,rgba(224,82,160,.08),transparent 60%);
+}}
+:root[data-theme="light"]{
+  --bg:#f5f4fb; --surface:#ffffff; --surface-2:#efeef8; --glass:rgba(255,255,255,.78); --border:rgba(30,30,70,.09); --border-strong:rgba(30,30,70,.2);
+  --text:#14141f; --muted:#585870; --faint:#8b8ba3;
+  --accent:#5b3fe0; --accent-hover:#4a31c4; --accent-soft:rgba(91,63,224,.09);
+  --glow:0 8px 28px -8px rgba(110,70,240,.5);
+  --ok:#0c7a55; --ok-soft:rgba(12,122,85,.1); --bad:#c0302a; --bad-soft:rgba(192,48,42,.09); --warn:#8f5f00; --warn-soft:rgba(143,95,0,.11);
+  --shadow:0 1px 2px rgba(30,30,70,.06),0 8px 24px -10px rgba(30,30,70,.14); --shadow-lg:0 20px 50px -16px rgba(40,30,100,.28);
+  --aurora:radial-gradient(900px 480px at 85% -8%,rgba(122,85,250,.15),transparent 62%),radial-gradient(700px 420px at 5% 12%,rgba(224,82,160,.08),transparent 60%);
+}
+
+/* ===== Base ===== */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;color-scheme:light dark}
+:root[data-theme="light"]{color-scheme:light}
+:root[data-theme="dark"]{color-scheme:dark}
+body{margin:0;background-color:var(--bg);background-image:var(--aurora);background-attachment:fixed;background-repeat:no-repeat;color:var(--text);font:16px/1.55 var(--font);-webkit-tap-highlight-color:transparent;min-height:100vh;min-height:100dvh}
+h1,h2,h3,p{margin:0}
+h1,h2,h3,.display,.brand{font-family:var(--display)}
+h1{font-size:1.6rem;line-height:1.2;font-weight:700;letter-spacing:-.015em}
+h2{font-size:1.15rem;line-height:1.3;font-weight:600}
+.display{font-size:clamp(1.75rem,5.4vw,2.35rem);line-height:1.12;font-weight:700;letter-spacing:-.025em}
+.gradtxt{background:linear-gradient(100deg,#a78bff,#e879c6 70%,#ffa56b);-webkit-background-clip:text;background-clip:text;color:transparent}
+h3{font-size:1rem;font-weight:650}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--accent)}
+bdi,.ltr{unicode-bidi:isolate}
+.ltr{direction:ltr;display:inline-block}
+:focus{outline:none}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;inset-inline-start:8px;top:-60px;background:var(--accent);color:var(--on-accent);padding:10px 14px;border-radius:var(--r-sm);z-index:100;text-decoration:none}
+.skip:focus{top:8px}
+.hidden{display:none!important}
+.muted{color:var(--muted)}
+.small{font-size:.875rem}
+.ic{display:inline-flex;width:1.25em;height:1.25em;flex:none;vertical-align:middle}
+.ic svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+[dir="rtl"] .flip{transform:scaleX(-1)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* ===== Buttons, chips, inputs ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:var(--tap);padding:0 var(--s5);border-radius:var(--r-pill);border:1px solid rgba(255,255,255,.14);font-weight:650;text-decoration:none;background:var(--grad);color:#fff;box-shadow:var(--glow),0 1px 0 rgba(255,255,255,.25) inset;transition:filter .15s,transform .12s,box-shadow .15s,background .15s;white-space:nowrap;user-select:none}
+.btn:hover{filter:brightness(1.12);box-shadow:0 10px 36px -6px rgba(139,92,255,.7),0 1px 0 rgba(255,255,255,.25) inset}
+.btn:active{transform:scale(.97)}
+.btn[disabled],.btn[aria-disabled="true"]{opacity:.5;cursor:not-allowed;transform:none}
+.btn.secondary{background:var(--glass);color:var(--text);border-color:var(--border-strong);box-shadow:none;backdrop-filter:blur(10px)}
+.btn.secondary:hover{background:var(--surface-2);filter:none;box-shadow:none}
+.btn.ghost{background:transparent;color:var(--accent);padding:0 var(--s3);box-shadow:none;border-color:transparent}
+.btn.ghost:hover{background:var(--accent-soft);filter:none;box-shadow:none}
+
+.btn.lg{min-height:54px;padding:0 var(--s5);font-size:1.05rem}
+.btn.sm{min-height:36px;padding:0 var(--s3);font-size:.875rem}
+.btn.block{width:100%}
+.iconbtn{display:inline-flex;align-items:center;justify-content:center;width:var(--tap);height:var(--tap);border-radius:50%;border:0;background:transparent;color:var(--text);position:relative}
+.iconbtn:hover{background:var(--surface-2)}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:2px 10px;border-radius:var(--r-pill);background:var(--surface-2);color:var(--muted);font-size:.8125rem;font-weight:600;white-space:nowrap}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.accent{background:var(--accent-soft);color:var(--accent)}
+button.chip{border:1.5px solid var(--border);background:var(--surface);color:var(--text);min-height:40px;padding:4px 14px;font-size:.9rem;font-weight:550;white-space:normal;text-align:start}
+button.chip:hover{border-color:var(--accent);background:var(--accent-soft)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.lbl{font-size:.875rem;font-weight:650;color:var(--muted)}
+.input,select.input,textarea.input{width:100%;min-height:var(--tap);padding:10px 14px;border-radius:var(--r-sm);border:1.5px solid var(--border-strong);background:var(--surface);color:var(--text)}
+.input::placeholder{color:var(--faint)}
+.input:focus-visible{outline:3px solid var(--accent-soft);border-color:var(--accent);outline-offset:0}
+.input[aria-invalid="true"]{border-color:var(--bad)}
+.pwrap{position:relative;direction:ltr}
+.pwrap .iconbtn{position:absolute;right:2px;top:0;height:100%;width:var(--tap);color:var(--muted)}
+.pwrap .input{padding-right:48px;text-align:left}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:var(--r-pill);padding:3px;gap:2px}
+.seg button{border:0;background:transparent;min-height:38px;padding:0 16px;border-radius:var(--r-pill);font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;border-inline-end-color:transparent;animation:spin .8s linear infinite;display:inline-block;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+.enter>*{animation:rise .35s ease both}
+.enter>*:nth-child(2){animation-delay:.04s}.enter>*:nth-child(3){animation-delay:.08s}.enter>*:nth-child(4){animation-delay:.12s}.enter>*:nth-child(5){animation-delay:.16s}
+
+/* ===== Cards & layout ===== */
+.card{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:var(--s4);box-shadow:var(--shadow);backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3)}
+.card.flat{box-shadow:none}
+.card.pad-lg{padding:var(--s5)}
+.stack{display:flex;flex-direction:column;gap:var(--s4)}
+.stack.tight{gap:var(--s2)}
+.row{display:flex;align-items:center;gap:var(--s3)}
+.row.wrap{flex-wrap:wrap}
+.row.between{justify-content:space-between}
+.grow{flex:1;min-width:0}
+.page-head{display:flex;flex-direction:column;gap:var(--s1);margin-bottom:var(--s5)}
+.page-head p{color:var(--muted)}
+.sec-title{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);margin:var(--s5) 0 var(--s3)}
+.sec-title h2{font-size:1.05rem}
+.divider{height:1px;background:var(--border);margin:var(--s3) 0;border:0}
+.list{display:flex;flex-direction:column}
+.list>.li{display:flex;align-items:center;gap:var(--s3);padding:var(--s3) 0;border-top:1px solid var(--border);min-height:56px}
+.list>.li:first-child{border-top:0}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:750;flex:none;text-transform:uppercase}
+.bar{height:8px;border-radius:var(--r-pill);background:var(--surface-2);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--grad);box-shadow:0 0 12px rgba(139,92,255,.6);border-radius:inherit;transition:width .6s ease}
+.bar.ok>i{background:var(--ok)}
+.notice{display:flex;gap:var(--s3);align-items:flex-start;padding:var(--s3) var(--s4);border-radius:var(--r-sm);background:var(--accent-soft);color:var(--text);font-size:.9375rem}
+.notice .ic{color:var(--accent);margin-top:2px}
+.notice.warn{background:var(--warn-soft)}.notice.warn .ic{color:var(--warn)}
+.notice.bad{background:var(--bad-soft)}.notice.bad .ic{color:var(--bad)}
+.notice.ok{background:var(--ok-soft)}.notice.ok .ic{color:var(--ok)}
+.errtxt{color:var(--bad);font-size:.9rem;min-height:1.3em}
+.empty{text-align:center;padding:var(--s6) var(--s4);display:flex;flex-direction:column;align-items:center;gap:var(--s3)}
+.empty .art{width:84px;height:84px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+.empty .art .ic{width:40px;height:40px}
+.empty p{color:var(--muted);max-width:34ch}
+.skel{background:linear-gradient(90deg,var(--surface-2),var(--border),var(--surface-2));background-size:200% 100%;animation:shine 1.3s linear infinite;border-radius:var(--r-sm);min-height:20px}
+@keyframes shine{to{background-position:-200% 0}}
+kbd{font:600 .8rem var(--font);background:var(--surface-2);border:1px solid var(--border-strong);border-bottom-width:2px;border-radius:6px;padding:1px 7px}
+
+/* ===== App shell: topbar + bottom tabs on phones, sidebar on desktop ===== */
+.shell{min-height:100vh;min-height:100dvh}
+.top{position:sticky;top:0;z-index:20;height:calc(var(--top-h) + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);padding-inline:var(--s4);display:flex;align-items:center;gap:var(--s3);background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.1rem;color:var(--text);text-decoration:none;letter-spacing:-.01em}
+.logo{width:32px;height:32px;border-radius:10px;background:var(--grad);box-shadow:var(--glow);color:#fff;display:grid;place-items:center;flex:none}
+.logo .ic{width:18px;height:18px}
+.credit-pill{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);font-weight:700;font-size:.9rem;text-decoration:none;color:var(--text)}
+.credit-pill .ic{color:var(--accent)}
+.main{padding:var(--s5) var(--s4) calc(var(--nav-h) + var(--s6) + env(safe-area-inset-bottom));max-width:calc(var(--maxw) + 2 * var(--s4));margin-inline:auto}
+.main:focus{outline:none}
+.tabbar{position:fixed;inset-inline:0;bottom:0;z-index:30;height:calc(var(--nav-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:grid;grid-template-columns:repeat(5,1fr);background:var(--surface);border-top:1px solid var(--border)}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--muted);text-decoration:none;font-size:.72rem;font-weight:650;position:relative;min-width:0;padding:6px 2px}
+.tab .ic{width:24px;height:24px}
+.tab[aria-current="page"]{color:var(--accent)}
+.tab[aria-current="page"]::before{content:"";position:absolute;top:0;width:28px;height:3px;border-radius:0 0 3px 3px;background:var(--accent)}
+.tab span.lbl{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:inherit;color:inherit;font-weight:inherit}
+.badge{position:absolute;top:4px;inset-inline-start:calc(50% + 6px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--bad);color:#fff;font-size:.7rem;font-weight:800;display:grid;place-items:center;line-height:1}
+.side{display:none}
+@media (min-width:900px){
+  .only-mob{display:none!important}
+  .shell{display:grid;grid-template-columns:260px minmax(0,1fr)}
+  .side{display:flex;flex-direction:column;gap:var(--s2);position:sticky;top:0;height:100vh;padding:var(--s5) var(--s4);background:var(--surface);border-inline-end:1px solid var(--border)}
+  .side .brand{margin-bottom:var(--s4);padding-inline:var(--s2)}
+  .side .tab{flex-direction:row;justify-content:flex-start;gap:var(--s3);font-size:1rem;padding:0 var(--s3);min-height:46px;border-radius:var(--r-sm)}
+  .side .tab:hover{background:var(--surface-2)}
+  .side .tab[aria-current="page"]{background:var(--accent-soft)}
+  .side .tab[aria-current="page"]::before{display:none}
+  .side .badge{position:static;margin-inline-start:auto}
+  .side .spacer{flex:1}
+  .tabbar,.top .brand{display:none}
+  .top{background:transparent;border:0;backdrop-filter:none;justify-content:flex-end;height:var(--top-h)}
+  .main{padding-bottom:var(--s7);padding-top:var(--s4)}
+  .main.wide{max-width:1040px}
+}
+
+/* ===== Toasts ===== */
+#toasts{position:fixed;inset-inline:0;bottom:calc(var(--nav-h) + 12px + env(safe-area-inset-bottom));z-index:60;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding-inline:var(--s4)}
+@media (min-width:900px){#toasts{bottom:24px}}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:var(--s3);max-width:520px;width:100%;background:var(--surface-2);border:1px solid var(--border-strong);color:var(--text);backdrop-filter:blur(16px);border-radius:var(--r);padding:10px 10px 10px 16px;padding-inline:16px 10px;box-shadow:var(--shadow-lg);animation:rise .25s ease both;font-weight:550}
+.toast .grow{padding-block:4px}
+.toast button{background:transparent;border:0;color:inherit;font-weight:800;min-height:40px;padding:0 12px;border-radius:var(--r-pill);text-decoration:underline}
+.toast.bad{background:var(--bad-soft);color:var(--bad);border-color:var(--bad)}
+.toast .tbar{position:absolute}
+
+/* ===== Auth ===== */
+.auth-top{position:absolute;top:calc(var(--s3) + env(safe-area-inset-top));inset-inline-end:var(--s4);display:flex;gap:var(--s2)}
+.hero{text-align:center;display:flex;flex-direction:column;align-items:center;gap:var(--s3);max-width:420px}
+.hero .logo{width:56px;height:56px;border-radius:16px}.hero .logo .ic{width:30px;height:30px}
+.hero p{color:var(--muted)}
+.perks{display:flex;gap:var(--s2);flex-wrap:wrap;justify-content:center}
+
+/* ===== Home ===== */
+.cta-card{display:flex;align-items:center;gap:var(--s4);padding:var(--s4) var(--s5);border-radius:var(--r-lg);background:linear-gradient(120deg,#6a46f0,#a24cf0 55%,#e0559e);color:#fff;text-decoration:none;box-shadow:0 18px 50px -14px rgba(139,92,255,.65);position:relative;overflow:hidden;transition:transform .15s}
+.cta-card::after{content:"";position:absolute;inset:0;background:radial-gradient(300px 120px at 20% -20%,rgba(255,255,255,.28),transparent 70%);pointer-events:none}
+.cta-card:hover{transform:translateY(-2px)}
+.cta-card .big{font-family:var(--display);font-size:2.6rem;font-weight:700;line-height:1}
+.cta-card .btn{background:#fff;color:#4b2fd0;box-shadow:none;border:0;position:relative;z-index:1}
+@media (max-width:600px){.cta-card{flex-wrap:wrap;padding:var(--s4)}.cta-card .grow{flex-basis:calc(100% - 70px)}.cta-card .btn{width:100%}.cta-card{order:0}.cta-card .big{font-size:2.2rem}}
+.cta-card h2{font-size:1.15rem}
+.cta-card p{opacity:.9;font-size:.9rem}
+.check-item{display:flex;align-items:center;gap:var(--s3);padding:var(--s3) 0;border-top:1px solid var(--border);min-height:56px}
+.check-item:first-of-type{border-top:0}
+.dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--border-strong);display:grid;place-items:center;flex:none;color:transparent}
+.dot .ic{width:16px;height:16px}
+.check-item.done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.check-item.done .txt{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--faint)}
+.check-item.now .dot{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.check-item .txt{flex:1;min-width:0;font-weight:600}
+.check-item .txt small{display:block;font-weight:400;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:var(--s2)}
+
+/* ===== Job cards + live timeline ===== */
+.job{display:flex;flex-direction:column;gap:var(--s3)}
+.job-head{display:flex;align-items:flex-start;gap:var(--s3);justify-content:space-between}
+.job-title{font-weight:700}
+.job-sub{color:var(--muted);font-size:.875rem}
+.live{display:flex;align-items:center;gap:var(--s3);font-weight:600}
+.live .pulse{width:10px;height:10px;border-radius:50%;background:var(--accent);animation:pulse 1.2s ease-in-out infinite;flex:none}
+.pct{font-variant-numeric:tabular-nums;font-weight:800;color:var(--accent)}
+.tl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.tl li{display:flex;gap:var(--s3);align-items:flex-start;position:relative;padding-bottom:var(--s3);color:var(--faint);font-size:.9375rem}
+.tl li:last-child{padding-bottom:0}
+.tl li::before{content:"";position:absolute;inset-inline-start:10px;top:22px;bottom:0;width:2px;background:var(--border);transform:translateX(-1px)}
+[dir="rtl"] .tl li::before{transform:translateX(1px)}
+.tl li:last-child::before{display:none}
+.tl .nd{width:22px;height:22px;border-radius:50%;border:2px solid var(--border-strong);background:var(--surface);flex:none;display:grid;place-items:center;color:#fff;z-index:1}
+.tl .nd .ic{width:13px;height:13px}
+.tl li.done{color:var(--text)}
+.tl li.done .nd{background:var(--ok);border-color:var(--ok)}
+.tl li.done::before{background:var(--ok)}
+.tl li.now{color:var(--text);font-weight:700}
+.tl li.now .nd{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 4px var(--accent-soft),0 0 18px rgba(139,92,255,.5)}
+.tl li.now .nd::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1.2s ease-in-out infinite}
+.tl li.failed .nd{border-color:var(--bad);background:var(--bad)}
+.tl small{display:block;font-weight:400;color:var(--muted)}
+.evlog{font-size:.85rem;color:var(--muted)}
+.evlog summary{cursor:pointer;min-height:36px;display:flex;align-items:center}
+.evlog ul{margin:0;padding-inline-start:18px}
+
+/* ===== Review ===== */
+.rv-top{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);margin-bottom:var(--s3)}
+.pips{display:flex;gap:6px;align-items:center}
+.pips i{width:8px;height:8px;border-radius:50%;background:var(--border-strong)}
+.pips i.on{background:var(--accent);width:22px;border-radius:5px}
+.rv-stage{position:relative}
+.rv-card{background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--border-strong);user-select:none;-webkit-user-select:none;border-radius:var(--r-lg);box-shadow:var(--shadow-lg);overflow:hidden;touch-action:pan-y;position:relative;display:grid;grid-template-columns:1fr;will-change:transform;animation:pop .3s ease both}
+.rv-card.dragging{transition:none;cursor:grabbing}
+.rv-card.settle{transition:transform .22s ease,opacity .22s ease}
+.rv-stamp{position:absolute;top:18px;z-index:5;padding:6px 16px;border:3px solid;border-radius:10px;font-weight:900;font-size:1.3rem;letter-spacing:.04em;opacity:0;pointer-events:none;transform:rotate(-10deg);background:color-mix(in srgb,var(--surface) 70%,transparent)}
+.rv-stamp.yes{inset-inline-start:18px;color:var(--ok);border-color:var(--ok)}
+.rv-stamp.no{inset-inline-end:18px;color:var(--bad);border-color:var(--bad);transform:rotate(10deg)}
+.rv-media{padding:var(--s4) var(--s4) 0;display:flex;justify-content:center}
+.rv-body{padding:var(--s4);display:flex;flex-direction:column;gap:var(--s3)}
+.player{position:relative;border-radius:var(--r);overflow:hidden;background:#111;color:#fff;display:grid;place-items:center;width:100%;max-width:100%}
+.player.v{aspect-ratio:9/16;height:min(40vh,380px);width:auto}
+.player.h{aspect-ratio:16/9;width:100%}
+.player .poster{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:var(--s4);background:var(--pg,linear-gradient(160deg,#5645d4,#e052a0))}
+.player .poster::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.55))}
+.player .ptitle{position:relative;z-index:1;font-weight:800;font-size:1.15rem;line-height:1.25;text-shadow:0 2px 8px rgba(0,0,0,.5);overflow:hidden;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical}
+.player .play{position:relative;z-index:2;width:72px;height:72px;border-radius:50%;border:0;background:rgba(255,255,255,.95);color:#111;display:grid;place-items:center;box-shadow:0 6px 24px rgba(0,0,0,.4);transition:transform .15s}
+.player .play:hover{transform:scale(1.07)}
+.player .play .ic{width:32px;height:32px;margin-inline-start:3px}
+.player .ptag{position:absolute;top:12px;inset-inline-start:12px;z-index:2;background:rgba(0,0,0,.55);color:#fff;border-radius:var(--r-pill);padding:3px 10px;font-size:.78rem;font-weight:700;display:flex;gap:6px;align-items:center}
+.player iframe,.player video{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+.player .fake{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding:var(--s4) var(--s4) var(--s5);background:var(--pg);background-size:300% 300%;animation:drift 6s ease-in-out infinite}
+@keyframes drift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.player .cap{font-weight:900;font-size:1.35rem;text-align:center;text-shadow:0 2px 0 #000,0 0 12px rgba(0,0,0,.6);-webkit-text-stroke:1px rgba(0,0,0,.5);animation:pop .25s ease both;max-width:90%}
+.player .scrub{position:absolute;inset-inline:12px;bottom:10px;height:4px;border-radius:2px;background:rgba(255,255,255,.35);overflow:hidden}
+.player .scrub i{display:block;height:100%;background:#fff;width:0}
+.title-edit{display:flex;align-items:flex-start;gap:var(--s2)}
+.title-edit h2{flex:0 1 auto;font-size:1.2rem;line-height:1.35;overflow-wrap:anywhere}
+.title-edit .iconbtn{width:40px;height:40px;color:var(--muted);flex:none}
+.title-form{display:flex;flex-direction:column;gap:var(--s2)}
+.rv-dock{display:flex;flex-direction:column;gap:var(--s2);position:sticky;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom));z-index:10;padding:var(--s4) 0 var(--s2);margin-top:calc(-1 * var(--s2));background:linear-gradient(180deg,transparent,var(--bg) 28%)}
+@media (max-width:899px){.player.v{height:min(37vh,340px)}.rv-media{padding-top:var(--s3)}.rv-body{gap:var(--s2)}.rv-from{display:none}.title-edit h2{font-size:1.05rem}}
+.rv-inline{display:flex;flex-direction:column;gap:var(--s3);margin-top:var(--s3)}
+.view-review .page-head{margin-bottom:var(--s3)}
+@media (max-width:899px){.view-review .page-head{display:none}.main{padding-top:var(--s3)}}
+.rv-actions{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);direction:ltr}
+.rv-actions .btn{min-height:58px;font-size:1.1rem;border-radius:var(--r)}
+.rv-actions .no{background:var(--bad-soft);color:var(--bad);box-shadow:none;border-color:transparent}
+.rv-actions .no:hover{background:var(--bad);color:#fff}
+.rv-actions .yes{background:linear-gradient(135deg,#17b97a,#3fdc9a);color:#04261a;box-shadow:0 12px 30px -10px rgba(63,220,154,.6);border-color:transparent}
+.rv-actions .yes:hover{filter:brightness(1.1)}
+.hintline{display:flex;gap:var(--s3);justify-content:center;align-items:center;color:var(--muted);font-size:.85rem;flex-wrap:wrap}
+.hintline.mob{display:flex}.hintline.desk{display:none}
+@media (hover:hover) and (pointer:fine){.hintline.mob{display:none}.hintline.desk{display:flex}}
+.meta-row{display:flex;gap:var(--s2);flex-wrap:wrap}
+@media (min-width:900px){
+  .rv-card{grid-template-columns:auto 1fr;align-items:stretch}
+  .rv-media{padding:var(--s5);background:var(--surface-2)}
+  .rv-body{padding:var(--s5);justify-content:center;gap:var(--s4)}
+  .player.v{height:min(58vh,520px)}
+  .player.h{width:min(560px,40vw)}
+}
+
+/* ===== Chat ===== */
+.chat-wrap{display:flex;flex-direction:column;min-height:calc(100dvh - var(--top-h) - var(--nav-h) - 80px)}
+.msgs{flex:1;display:flex;flex-direction:column;gap:var(--s3);padding-bottom:var(--s4)}
+.msg{display:flex;gap:var(--s2);max-width:88%;align-items:flex-end}
+.msg .bub{padding:10px 14px;border-radius:18px;background:var(--surface);border:1px solid var(--border);white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.me{align-self:flex-end;flex-direction:row-reverse}
+.msg.me .bub{background:var(--grad);color:#fff;border-color:transparent;border-end-end-radius:6px}
+.msg.bot .bub{border-end-start-radius:6px}
+.msg .av{width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:none}
+.msg .av .ic{width:16px;height:16px}
+.msg time{display:block;font-size:.72rem;color:var(--faint);margin-top:2px;padding-inline:6px}
+.msg.me time{text-align:end}
+.act-link{margin-top:var(--s2);display:flex}
+.typing{display:inline-flex;gap:4px;padding:14px 16px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--faint);animation:pulse 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+.composer{position:sticky;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,var(--bg) 20%);padding-top:var(--s3);margin-inline:calc(-1 * var(--s4));padding-inline:var(--s4);padding-bottom:var(--s2);display:flex;flex-direction:column;gap:var(--s2)}
+.composer .box{display:flex;gap:var(--s2);align-items:flex-end;background:var(--surface);border:1.5px solid var(--border-strong);border-radius:26px;padding:6px 6px 6px 16px;padding-inline:16px 6px}
+.composer textarea{flex:1;border:0;background:transparent;resize:none;max-height:140px;min-height:34px;padding:8px 0;line-height:1.4}
+.composer textarea:focus-visible{outline:none}
+.composer .box:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.composer .send{width:44px;height:44px;border-radius:50%;border:0;background:var(--grad);box-shadow:var(--glow);color:#fff;display:grid;place-items:center;flex:none}
+.composer .send[disabled]{opacity:.4}
+.composer .send .flip-send{transform:scaleX(-1)}
+[dir="ltr"] .composer .send .flip-send{transform:none}
+.chipscroll{display:flex;gap:var(--s2);overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.chipscroll::-webkit-scrollbar{display:none}
+.chipscroll .chip{flex:none}
+@media (min-width:900px){.composer{bottom:0;margin-inline:0;padding-inline:0}.chat-wrap{min-height:calc(100vh - var(--top-h) - 80px)}}
+
+/* ===== Team / credits / settings ===== */
+.big-num{font-size:3.2rem;font-weight:850;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.ring{--p:50;width:132px;height:132px;border-radius:50%;background:conic-gradient(var(--accent) calc(var(--p)*1%),var(--surface-2) 0);display:grid;place-items:center;flex:none}
+.ring>div{width:104px;height:104px;border-radius:50%;background:var(--surface);display:grid;place-items:center;text-align:center}
+.ring .big-num{font-size:2.2rem}
+.role-card{display:flex;gap:var(--s3);align-items:flex-start;padding:var(--s3);border:1.5px solid var(--border);border-radius:var(--r-sm);cursor:pointer;background:var(--surface)}
+.role-card:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.role-card input{margin-top:5px;accent-color:var(--accent);width:18px;height:18px}
+.role-card b{display:block}
+.role-card span{color:var(--muted);font-size:.875rem}
+.linkbox{display:flex;gap:var(--s2);align-items:center;background:var(--surface-2);border-radius:var(--r-sm);padding:var(--s2) var(--s2) var(--s2) var(--s3);padding-inline:var(--s3) var(--s2)}
+.linkbox code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:start;font-size:.85rem}
+.switch{position:relative;display:inline-block;width:48px;height:28px;flex:none}
+.switch input{position:absolute;inset:0;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.switch i{position:absolute;inset:0;border-radius:14px;background:var(--border-strong);transition:background .15s;pointer-events:none}
+.switch i::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .15s}
+.switch input:checked+i{background:var(--accent)}
+.switch input:checked+i::after{transform:translateX(20px)}
+[dir="rtl"] .switch input:checked+i::after{transform:translateX(-20px)}
+.switch input:disabled{cursor:not-allowed}.switch input:disabled+i{opacity:.5}
+.switch input:focus-visible+i{outline:3px solid var(--accent);outline-offset:2px}
+.menu-item{display:flex;align-items:center;gap:var(--s3);padding:var(--s3) var(--s4);min-height:60px;text-decoration:none;color:var(--text);border-top:1px solid var(--border);font-weight:600;background:none;border-inline:0;border-bottom:0;width:100%;text-align:start}
+.menu-item:first-child{border-top:0}
+.menu-item .ic:first-child{color:var(--accent);width:24px;height:24px}
+.menu-item .grow small{display:block;font-weight:400;color:var(--muted)}
+.menu-card{padding:0;overflow:hidden}
+
+/* ===== Setup wizard ===== */
+.stepper{display:flex;align-items:center;gap:var(--s2);margin-bottom:var(--s5)}
+.stepper .st{display:flex;align-items:center;gap:var(--s2);color:var(--muted);font-weight:650;font-size:.875rem}
+.stepper .st b{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);color:var(--muted);font-size:.9rem;flex:none}
+.stepper .st.done b{background:var(--ok);color:#fff}
+.stepper .st.now{color:var(--text)}.stepper .st.now b{background:var(--accent);color:var(--on-accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.stepper .ln{flex:1;height:2px;background:var(--border);min-width:12px}
+.stepper .ln.done{background:var(--ok)}
+.code-box{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);padding:var(--s4);border:2px dashed var(--accent);border-radius:var(--r);background:var(--accent-soft)}
+.code-box code{font:800 1.6rem/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.06em;direction:ltr;user-select:all;overflow-wrap:anywhere}
+ol.steps{margin:0;padding-inline-start:22px;display:flex;flex-direction:column;gap:6px}
+.plat{display:inline-flex;align-items:center;gap:6px;font-weight:700}
+.plat i{width:10px;height:10px;border-radius:3px;background:var(--accent)}
+.plat.kick i{background:#53fc18}.plat.twitch i{background:#9146ff}
+.yt-badge{width:44px;height:32px;border-radius:9px;background:#e62117;color:#fff;display:grid;place-items:center;flex:none}
+.yt-badge .ic{width:18px;height:18px}
+.yt-badge .ic svg{fill:#fff;stroke:none}
+.opt{display:flex;gap:var(--s3);align-items:flex-start;padding:var(--s3);border:1.5px solid var(--border);border-radius:var(--r-sm);background:var(--surface)}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.off{opacity:.65}
+.opt input{margin-top:5px;accent-color:var(--accent);width:18px;height:18px}
+.opt b{display:block}.opt span{color:var(--muted);font-size:.875rem}
+
+/* ===== premium layer: content column, ribbon, landing, misc ===== */
+.content{min-width:0}
+.boot{min-height:100vh;display:grid;place-items:center;gap:var(--s3);color:var(--accent)}
+.boot .spin{width:34px;height:34px}
+.center{text-align:center}.tabnum{font-variant-numeric:tabular-nums}
+.trunc{display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
+select.input.sel{width:auto;min-width:110px;padding-block:6px}
+.input.lg{min-height:54px;font-size:1.05rem}
+.wrapli{flex-wrap:wrap}
+.ticks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.ticks li{display:flex;gap:10px;align-items:flex-start}.ticks .ic{color:var(--ok);margin-top:3px}
+.empty .art.ok{background:var(--ok-soft);color:var(--ok)}
+.empty .art{box-shadow:0 0 0 8px var(--accent-soft)}
+.empty .art.ok{box-shadow:0 0 0 8px var(--ok-soft)}
+.orgchip{display:flex;align-items:center;gap:var(--s3);padding:var(--s3);border-radius:var(--r);background:var(--surface-2);border:1px solid var(--border)}
+.orgchip .orgname{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.detect{min-height:28px}
+.glassbtn{background:var(--glass);border:1px solid var(--border)}
+.live-card{border-color:rgba(139,109,255,.45);box-shadow:var(--shadow),0 0 0 1px rgba(139,109,255,.2),0 12px 48px -18px rgba(139,92,255,.55)}
+.ribbon{display:flex;align-items:center;gap:var(--s2);padding:6px var(--s4);background:var(--accent-soft);border-bottom:1px solid var(--border);font-size:.78rem;font-weight:650;white-space:nowrap;overflow:hidden}
+.ribbon .ic{width:1em;height:1em;color:var(--accent)}
+.ribbon button{border:1px solid var(--border-strong);background:var(--glass);border-radius:var(--r-pill);padding:4px 12px;font-size:.78rem;font-weight:650;min-height:30px}
+.ribbon button:hover{border-color:var(--accent)}
+.orgchip,.side .tab{transition:background .15s}
+.stepper .lbl-s{white-space:nowrap}
+@media (max-width:520px){.stepper .lbl-s{display:none}.stepper .st.now .lbl-s{display:inline}}
+
+/* landing / auth */
+.auth{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"copy" "card" "vis";justify-items:center;align-content:center;gap:var(--s5);min-height:100vh;min-height:100dvh;padding:calc(var(--s7) + env(safe-area-inset-top)) var(--s4) var(--s6);position:relative;overflow:hidden}
+.landing{grid-area:copy;display:flex;flex-direction:column;gap:var(--s4);max-width:560px;width:100%}
+.auth .authcard{grid-area:card;width:100%;max-width:440px;padding:var(--s5);display:flex;flex-direction:column;gap:var(--s4);box-shadow:var(--shadow-lg);border-color:var(--border-strong);background:var(--glass)}
+.visual{grid-area:vis;width:100%}
+.auth-top{position:absolute;top:calc(var(--s3) + env(safe-area-inset-top));inset-inline-end:var(--s4);display:flex;gap:var(--s2);align-items:center;z-index:5}
+.brand.big{font-size:1.25rem}
+.lead{color:var(--muted);font-size:1.0625rem;max-width:48ch}
+.perks{display:flex;gap:var(--s2);flex-wrap:wrap}
+.perks .chip{background:var(--glass);border:1px solid var(--border);min-height:32px}
+.perks .ic{color:var(--accent)}
+.stage{position:relative;height:330px;width:100%;max-width:440px;margin-inline:auto}
+.ph{position:absolute;top:10px;width:138px;aspect-ratio:9/16;border-radius:22px;background:var(--g);box-shadow:var(--shadow-lg),0 0 0 1px rgba(255,255,255,.16) inset;display:flex;flex-direction:column;justify-content:flex-end;gap:10px;padding:14px;overflow:hidden;color:#fff;animation:floaty 7s ease-in-out infinite}
+.ph::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.12),transparent 40%,rgba(0,0,0,.45));pointer-events:none}
+.phcap{position:relative;z-index:1;font-family:var(--display);font-weight:800;font-size:1.05rem;line-height:1.1;text-shadow:0 2px 0 rgba(0,0,0,.45)}
+.phbar{position:relative;z-index:1;height:4px;border-radius:2px;background:rgba(255,255,255,.35)}
+.ph.p1{left:calc(50% - 69px);z-index:3;top:0;transform-origin:50% 100%;animation:floaty 7s ease-in-out infinite,swipeDemo 7s ease-in-out infinite}
+.ph.p2{left:calc(50% - 168px);z-index:2;top:26px;transform:rotate(-9deg);animation-delay:-2.3s}
+.ph.p3{left:calc(50% + 30px);z-index:1;top:26px;transform:rotate(9deg);animation-delay:-4.6s}
+@keyframes floaty{50%{translate:0 -9px}}
+@keyframes swipeDemo{0%,38%{transform:none}52%{transform:translateX(48px) rotate(7deg)}64%,100%{transform:none}}
+.float{position:absolute;z-index:6;display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:16px;background:var(--glass);border:1px solid var(--border-strong);backdrop-filter:blur(16px);box-shadow:var(--shadow-lg);font-size:.82rem;animation:floaty 6s ease-in-out infinite}
+.float .ic{color:var(--accent)}
+.float b{display:block;font-weight:650}
+.float .bar{display:block;width:150px;margin-top:6px;height:6px}
+.float .bar i.anim{animation:fillbar 5s ease-in-out infinite;width:10%}
+@keyframes fillbar{0%{width:6%}80%,100%{width:96%}}
+.float.f1{inset-inline-end:0;top:62px;animation-delay:-1s}
+.float.f2{inset-inline-start:0;bottom:34px;animation-delay:-3s;padding:8px 14px 8px 10px}
+.float .okdot{width:26px;height:26px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center}
+.float .okdot .ic{color:#fff;width:15px;height:15px}
+@media (min-width:900px){
+  .auth{grid-template-columns:minmax(0,1fr) 440px;grid-template-areas:"copy card" "vis card";column-gap:72px;row-gap:var(--s4);justify-items:stretch;align-content:center;max-width:1180px;margin-inline:auto;padding-inline:var(--s6)}
+  .auth .authcard{justify-self:end;align-self:center}
+  .landing{justify-self:end}
+  .visual{justify-self:end;max-width:560px}
+  .stage{height:360px;max-width:560px}.ph{width:156px}
+  .ph.p1{left:calc(50% - 78px)}.ph.p2{left:calc(50% - 200px)}.ph.p3{left:calc(50% + 44px)}
+  .auth .display{font-size:3rem}
+}
+</style>
+</head>
+<body>
+<a class="skip" id="skipLink" href="#main"></a>
+<div id="app"></div>
+<div id="toasts" role="status" aria-live="polite"></div>
+<script>
+"use strict";
+/* ============================================================================================
+   Studio UI: single file, no build step, vanilla JS. Sections:
+   1 config + i18n   2 helpers + icons   3 api   4 state + loaders   5 shell + router
+   6 views (auth, setup, home, review, jobs, chat, team, credits, settings, more)   7 demo backend (?demo=1)
+   Every network call maps 1:1 to docs/PRODUCT_ARCHITECTURE.md (section 4) and docs/YOUTUBE_CONNECT.md.
+   ============================================================================================ */
+const FORCE_DEMO = true;                       // docs/studio_demo.html is this file with FORCE_DEMO=true (see docs/UI_NOTES.md)
+const QS = new URLSearchParams(location.search);
+const DEMO = FORCE_DEMO || QS.get("demo") === "1";
+
+/* ---------- 1. i18n: he (default, RTL) + en. t("key", {vars}); values may be strings or functions of vars ---------- */
+const LS = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }, del(k) { try { localStorage.removeItem(k); } catch (e) {} } };
+let lang = QS.get("lang") || LS.get("studio_lang") || (/^en/i.test(navigator.language || "") ? "en" : "he"); if (lang !== "he" && lang !== "en") lang = "he";
+const P = (n, h1, hn, e1, en) => (lang === "he" ? (n === 1 ? h1 : hn) : (n === 1 ? e1 : en)).replace("{n}", n);
+const I = {
+  skip: ["דלג לתוכן", "Skip to content"],
+  nav_home: ["בית", "Home"], nav_review: ["אישורים", "Review"], nav_chat: ["עוזר", "Assistant"], nav_jobs: ["פעילות", "Activity"], nav_more: ["עוד", "More"],
+  nav_team: ["צוות", "Team"], nav_credits: ["קרדיטים", "Credits"], nav_settings: ["הגדרות", "Settings"],
+  loading: ["רגע, טוענים...", "Just a moment..."], retry: ["נסו שוב", "Try again"], back: ["חזרה", "Back"], close: ["סגירה", "Close"], cancel: ["ביטול", "Cancel"], save: ["שמירה", "Save"], copy: ["העתקה", "Copy"], copied: ["הועתק", "Copied"], soon: ["בקרוב", "Soon"], you: ["אתם", "You"], remove: ["הסרה", "Remove"], undo: ["ביטול פעולה", "Undo"], next: ["הבא", "Next"], skip_step: ["אחר כך", "Later"], open: ["פתיחה", "Open"], dismiss: ["סגירה", "Dismiss"],
+  net_err: ["אין חיבור לשרת. בדקו את האינטרנט ונסו שוב.", "Can't reach the server. Check your connection and try again."],
+  generic_err: ["משהו השתבש. נסו שוב בעוד רגע.", "Something went wrong. Please try again in a moment."],
+  // auth + landing
+  hero_title: ["הסטרימים שלכם הופכים לשורטס. אוטומטית.", "Your streams, turned into Shorts. Automatically."],
+  hero_sub: ["מדביקים קישור לערוץ, מחברים יוטיוב, והעוזר מוצא את הרגעים, חותך, מוסיף כתוביות ומכין טיוטות. אתם רק מאשרים.", "Paste your channel, connect YouTube, and the assistant finds the moments, cuts, captions and drafts. You just approve."],
+  perk1: ["טיוטות פרטיות בלבד", "Private drafts only"], perk2: ["שום דבר לא עולה בלי אישור", "Nothing goes live without you"], perk3: ["עברית ואנגלית", "Hebrew and English"],
+  auth_title: ["כניסה או הרשמה", "Sign in or sign up"], auth_hint: ["חדשים כאן? ניצור חשבון אוטומטית, בלי טפסים ארוכים.", "New here? We create your account automatically. No long forms."],
+  email: ["אימייל", "Email"], password: ["סיסמה", "Password"], pw_hint: ["לפחות 8 תווים", "At least 8 characters"], show_pw: ["הצגת סיסמה", "Show password"], hide_pw: ["הסתרת סיסמה", "Hide password"],
+  continue: ["המשך", "Continue"], try_demo: ["חזרה לדמו", "Back to the demo"], demo_note: ["זה דמו עם נתונים לדוגמה. שום דבר לא נשלח לשום מקום.", "This is a demo with sample data. Nothing is sent anywhere."],
+  invite_banner: ["הוזמנתם להצטרף ל-{org} בתור {role}. התחברו או הירשמו כדי להצטרף.", "You were invited to join {org} as {role}. Sign in or sign up to join."],
+  invite_title: ["הזמנה לצוות", "Team invitation"], invite_join: ["הצטרפות לצוות", "Join the team"], invite_for: ["{org} מזמינים אתכם להצטרף בתור {role}.", "{org} invited you to join as {role}."], invite_later: ["לא עכשיו", "Not now"],
+  e_pw_short: ["הסיסמה צריכה להיות באורך 8 תווים לפחות.", "The password needs at least 8 characters."], e_email: ["נראה שהאימייל לא תקין.", "That email doesn't look right."], e_wrong_pw: ["הסיסמה לא נכונה לאימייל הזה.", "Wrong password for this email."],
+  e_rate_limited: ["יותר מדי ניסיונות. חכו כמה דקות ונסו שוב.", "Too many tries. Wait a few minutes and try again."], e_forbidden: ["אין לכם הרשאה לפעולה הזו.", "You don't have permission for that."],
+  e_insufficient_credits: ["נגמרו הקרדיטים.", "You're out of credits."], e_bad_state: ["המצב השתנה בינתיים. רעננו ונסו שוב.", "Things changed in the meantime. Refresh and try again."],
+  e_channel_not_verified: ["הערוץ עדיין לא אומת.", "The channel isn't verified yet."], e_channel_already_claimed: ["הערוץ הזה כבר מאומת בחשבון אחר.", "This channel is already verified by another account."],
+  e_invite_invalid: ["ההזמנה לא תקפה או שפג תוקפה.", "This invitation isn't valid or has expired."], e_invite_for_other_email: ["ההזמנה נשלחה לאימייל אחר. התחברו עם האימייל שהוזמן.", "This invitation was sent to a different email. Sign in with the invited address."],
+  e_twitch_not_configured: ["אימות ערוצי טוויץ' עדיין לא הופעל. נחזור אליכם בקרוב.", "Twitch verification isn't switched on yet. Coming soon."], e_fetch: ["לא הצלחנו לקרוא את עמוד הערוץ כרגע. נסו שוב בעוד דקה.", "We couldn't read the channel page right now. Try again in a minute."],
+  e_yt_not_configured: ["חיבור יוטיוב עוד לא הופעל בשרת. אפשר להמשיך בינתיים.", "YouTube connect isn't switched on yet. You can continue for now."], e_payment: ["תשלום באתר יתווסף בקרוב.", "Online payment is coming soon."],
+  e_yt_return: ["החיבור ליוטיוב לא הושלם ({code}). אפשר לנסות שוב.", "YouTube wasn't connected ({code}). You can try again."], e_unauthorized: ["צריך להתחבר מחדש.", "Please sign in again."],
+  e_bad_channel: ["לא זיהינו את הערוץ. הדביקו קישור כמו kick.com/name או twitch.tv/name.", "We couldn't recognise that channel. Paste a link like kick.com/name or twitch.tv/name."], e_channel_not_found: ["לא מצאנו ערוץ בשם הזה. בדקו את האיות.", "We couldn't find that channel. Check the spelling."],
+  e_code_expired: ["פג תוקף הקוד. יצרנו קוד חדש, הדביקו אותו ונסו שוב.", "The code expired. We made a new one: paste it and try again."],
+  // roles
+  r_owner: ["בעלים", "Owner"], r_editor: ["עורך", "Editor"], r_viewer: ["צופה", "Viewer"],
+  rd_editor: ["יוצר בקשות, מאשר ודוחה טיוטות", "Creates requests, approves and rejects drafts"], rd_viewer: ["צפייה בלבד", "View only"], rd_owner: ["הכול: צוות, ערוצים, קרדיטים ויוטיוב", "Everything: team, channels, credits and YouTube"],
+  // home
+  hi: ["שלום, {name}", "Hey, {name}"], hi_sub_none: ["הכול שקט כרגע. בקשו מהעוזר לחתוך משהו חדש.", "All quiet for now. Ask the assistant to cut something new."],
+  hi_sub_work: ["העוזר עובד בשבילכם. אפשר לעקוב כאן בזמן אמת.", "The assistant is working for you. Follow along here, live."],
+  waiting_title: [(v) => P(v.n, "טיוטה אחת מחכה לכם", "{n} טיוטות מחכות לכם", "1 draft is waiting for you", "{n} drafts are waiting for you")], waiting_sub: ["כמה שניות לטיוטה. החליקו ימינה לאישור, שמאלה לדחייה.", "A few seconds each. Swipe right to approve, left to reject."], review_now: ["לאישורים", "Review now"],
+  setup_title: ["בואו נתחיל", "Let's get you set up"], setup_of: ["{a} מתוך {b}", "{a} of {b}"],
+  ck_account: ["יצרתם חשבון", "Account created"], ck_channel: ["הוסיפו את הערוץ שלכם", "Add your channel"], ck_verify: ["אמתו שהערוץ שלכם", "Verify it's yours"], ck_yt: ["חברו את יוטיוב", "Connect YouTube"], ck_first: ["בקשו את הקליפים הראשונים", "Ask for your first clips"],
+  ck_channel_d: ["הדביקו קישור לקיק או לטוויץ'", "Paste a Kick or Twitch link"], ck_verify_d: ["קוד קצר בביו, בודקים אוטומטית", "A short code in your bio, checked automatically"], ck_yt_d: ["כדי שהטיוטות יעלו לערוץ שלכם (פרטי)", "So drafts land on your channel (private)"], ck_first_d: ["למשל: 5 שורטס מצחיקים מאתמול", "e.g. 5 funny Shorts from yesterday"],
+  ck_do_channel: ["הוספה", "Add"], ck_do_verify: ["אימות", "Verify"], ck_do_yt: ["חיבור", "Connect"], ck_do_first: ["לעוזר", "Ask"],
+  active_jobs: ["עובדים על זה עכשיו", "Working on it now"], recent: ["לאחרונה", "Recently"], all_activity: ["כל הפעילות", "All activity"], ask_next: ["מה לחתוך עכשיו?", "What should we cut next?"], ask_next_sub: ["לחיצה אחת ושולחים לעוזר:", "One tap and it goes to the assistant:"],
+  chip1: ["5 שורטס מצחיקים מאתמול", "5 funny Shorts from yesterday"], chip2: ["סרטון ארוך מהסטרים האחרון", "A long video from the latest stream"], chip3: ["3 רגעים מטורפים מהשבוע", "3 hype Shorts from last week"], chip4: ["מה המצב?", "What's the status?"],
+  home_empty_t: ["עוד לא חתכנו כלום", "Nothing cut yet"], home_empty_d: ["כתבו לעוזר מה אתם רוצים ובתוך דקות מתחילים לעבוד.", "Tell the assistant what you want and we start within minutes."],
+  need_owner: ["הבעלים צריך לחבר ערוץ", "The owner needs to connect a channel"], need_owner_d: ["אחרי שהבעלים יחבר ויאמת ערוץ, תוכלו ליצור ולאשר קליפים כאן.", "Once the owner connects and verifies a channel you can create and approve clips here."],
+  // setup wizard
+  su_title: ["שלושה צעדים ומתחילים", "Three steps and you're in"], su_sub: ["בערך שתי דקות. אפשר לעצור ולחזור בכל רגע.", "About two minutes. You can stop and come back anytime."],
+  su1: ["הערוץ", "Channel"], su2: ["אימות", "Verify"], su3: ["יוטיוב", "YouTube"],
+  su1_t: ["איפה אתם משדרים?", "Where do you stream?"], su1_d: ["הדביקו את הקישור לערוץ בקיק או בטוויץ'. זה הכול, בלי תפריטים.", "Paste your Kick or Twitch channel link. That's all, no dropdowns."],
+  su1_ph: ["kick.com/yourname  או  twitch.tv/yourname", "kick.com/yourname  or  twitch.tv/yourname"], su1_btn: ["הוספת הערוץ", "Add channel"], su1_detect: ["זיהינו: {p} / {s}", "Detected: {p} / {s}"],
+  su2_t: ["הוכיחו שהערוץ שלכם", "Prove it's your channel"], su2_d: ["שימו את הקוד הזה בביו (או בכותרת הסטרים) ושמרו. אפשר למחוק אחרי האימות.", "Put this code in your bio (or stream title) and save. You can delete it afterwards."],
+  su2_kick: ["פתחו את kick.com ← פרופיל ← עריכה", "Open kick.com, then Profile, then Edit"], su2_twitch: ["פתחו את טוויץ' ← הערוץ ← אודות (About)", "Open Twitch, then your channel, then About"], su2_paste: ["הדביקו את הקוד בביו ולחצו שמירה", "Paste the code in the bio and hit save"], su2_back: ["חזרו לכאן. נבדוק לבד.", "Come back here. We check on our own."],
+  su2_wait: ["בודקים אוטומטית בעוד {s} שניות", "Checking automatically in {s}s"], su2_checking: ["בודקים עכשיו...", "Checking now..."], su2_now: ["בדקו עכשיו", "Check now"], su2_other: ["זה לא הערוץ הנכון? החליפו", "Wrong channel? Change it"], su2_ok: ["הערוץ אומת. כל הכבוד!", "Channel verified. Nice!"],
+  su2_notyet: ["עוד לא רואים את הקוד. ודאו שהוא בביו או בכותרת הסטרים ושמרתם.", "We can't see the code yet. Make sure it's in your bio or stream title and saved."],
+  su3_t: ["חברו את יוטיוב", "Connect YouTube"], su3_d: ["כדי שהטיוטות יעלו ישר לערוץ שלכם.", "So drafts upload straight to your channel."], su3_p1: ["הכול עולה כטיוטה פרטית בלבד", "Everything uploads as a private draft"], su3_p2: ["שום דבר לא מתפרסם בלי האישור שלכם", "Nothing goes public without your approval"], su3_p3: ["אפשר לנתק בכל רגע בלחיצה", "Disconnect anytime with one click"],
+  su3_btn: ["חיבור יוטיוב", "Connect YouTube"], su3_later: ["אעשה את זה אחר כך", "I'll do it later"], su3_soon: ["חיבור יוטיוב יופעל בקרוב. אפשר להמשיך בינתיים.", "YouTube connect switches on soon. You can continue for now."],
+  su_done_t: ["הכול מוכן!", "You're all set!"], su_done_d: ["עכשיו בקשו מהעוזר את הקליפים הראשונים.", "Now ask the assistant for your first clips."],
+  yt_ok: ["מחובר", "Connected"], yt_none: ["לא מחובר", "Not connected"], yt_reconnect: ["צריך לחבר מחדש", "Reconnect needed"], yt_connected_toast: ["יוטיוב חובר בהצלחה", "YouTube connected"],
+  // review
+  rv_title: ["אישורים", "Review"], rv_sub: ["טיוטות שמחכות להחלטה שלכם", "Drafts waiting for your decision"], rv_count: ["{a} מתוך {b}", "{a} of {b}"],
+  approve: ["אישור", "Approve"], reject: ["דחייה", "Reject"], approved: ["אושר", "Approved"], rejected: ["נדחה", "Rejected"], approved_toast: ["אושר", "Approved"], rejected_toast: ["נדחה", "Rejected"], later: ["אחר כך", "Later"],
+  rv_hint_m: ["החליקו ימינה לאישור, שמאלה לדחייה", "Swipe right to approve, left to reject"], rv_hint_d: ["מקלדת:", "Keyboard:"], rv_hint_d2: ["אישור", "approve"], rv_hint_d3: ["דחייה", "reject"],
+  rv_empty_t: ["הכול מטופל!", "All caught up!"], rv_empty_d: ["אין טיוטות שמחכות. בקשו מהעוזר משהו חדש.", "No drafts waiting. Ask the assistant for something new."], rv_empty_b: ["בקשו משהו חדש", "Ask for something new"],
+  approve_all: ["אישור כל הטיוטות ({n})", "Approve all ({n})"], approve_all_sure: ["בטוחים? לחצו שוב", "Sure? Tap again"],
+  short: ["שורט", "Short"], longv: ["סרטון ארוך", "Long video"], priv: ["טיוטה פרטית", "Private draft"], qa_ok: ["עבר בדיקת איכות", "Passed quality check"], qa_notes: ["הערת איכות", "Quality note"],
+  edit_title: ["עריכת כותרת", "Edit title"], title_lbl: ["כותרת", "Title"], title_saved: ["הכותרת עודכנה", "Title updated"], title_max: ["עד 100 תווים", "Up to 100 characters"],
+  play: ["ניגון", "Play"], preview_wait: ["התצוגה המקדימה בהכנה. אפשר לפתוח את הטיוטה ביוטיוב.", "Preview is being prepared. You can open the draft on YouTube."], open_yt: ["פתיחה ביוטיוב", "Open on YouTube"], yt_play_note: ["אם הסרטון לא מתנגן, התחברו ליוטיוב עם אותו חשבון או פתחו אותו ביוטיוב.", "If it won't play, sign in to YouTube with the same account or open it on YouTube."],
+  view_only: ["אתם במצב צפייה. רק עורכים ובעלים יכולים לאשר.", "You're in view-only mode. Only editors and owners can approve."], from_job: ["מתוך: {t}", "From: {t}"],
+  // jobs
+  jb_title: ["פעילות", "Activity"], jb_sub: ["כל מה שהעוזר עשה ועושה בשבילכם", "Everything the assistant did and is doing for you"], jb_empty_t: ["אין פעילות עדיין", "No activity yet"], jb_empty_d: ["כשתבקשו קליפים, תראו כאן בדיוק מה קורה, שלב אחרי שלב.", "Once you ask for clips you'll see exactly what's happening, step by step."],
+  st_queued: ["בתור", "Queued"], st_running: ["בעבודה", "Working"], st_qa: ["בדיקת איכות", "Quality check"], st_draft_ready: ["מוכן לאישור", "Ready to review"], st_approved: ["אושר", "Approved"], st_rejected: ["נדחה", "Rejected"], st_failed: ["נכשל", "Failed"], st_cancelled: ["בוטל", "Cancelled"],
+  tl_queued: ["בתור", "In the queue"], tl_fetch: ["מביאים את הסטרים", "Fetching the stream"], tl_listen: ["מקשיבים ומתמללים", "Listening and transcribing"], tl_moments: ["מוצאים רגעים", "Finding the moments"], tl_cut: ["חותכים וערוכים", "Cutting and editing"], tl_qa: ["בדיקת איכות", "Quality check"], tl_ready: ["טיוטות מוכנות", "Drafts ready"],
+  cancel_job: ["ביטול הבקשה", "Cancel request"], cancelled_toast: ["בוטל. הקרדיט חזר אליכם.", "Cancelled. Your credit is back."], review_drafts: ["לאישור הטיוטות", "Review drafts"], ask_again: ["בקשו שוב בצ'אט", "Ask again in chat"], log: ["יומן אירועים", "Event log"],
+  result_line: ["{a} אושרו, {r} נדחו", "{a} approved, {r} rejected"], credit_back: ["הקרדיט חזר", "Credit refunded"], credits_n: [(v) => P(v.n, "קרדיט אחד", "{n} קרדיטים", "1 credit", "{n} credits")],
+  failed_hint: ["לא נורא: הקרדיט חזר. אפשר לבקש שוב.", "No worries: your credit is back. You can ask again."],
+  longvideo: ["סרטון ארוך", "a long video"], clips: ["קליפים", "clips"], shorts_n: ["{n} שורטס", "{n} Shorts"],
+  w_yesterday: ["מהסטרים של אתמול", "from yesterday's stream"], w_last_stream: ["מהסטרים האחרון", "from the latest stream"], w_week: ["מהשבוע האחרון", "from last week"],
+  m_funny: ["מצחיקים", "funny"], m_hype: ["מטורפים", "hype"], m_fail: ["של פיילים", "fail"],
+  new_drafts_toast: [(v) => P(v.n, "טיוטה חדשה מוכנה!", "{n} טיוטות חדשות מוכנות!", "A new draft is ready!", "{n} new drafts are ready!")], job_failed_toast: ["בקשה נכשלה. הקרדיט חזר.", "A request failed. Credit refunded."],
+  ago_now: ["עכשיו", "just now"],
+  // chat
+  ch_title: ["העוזר", "Assistant"], ch_sub: ["כתבו מה אתם רוצים בשפה חופשית", "Say what you want in plain words"], ch_ph: ["למשל: תכין 5 שורטס מצחיקים מאתמול", "e.g. make 5 funny Shorts from yesterday"], ch_send: ["שליחה", "Send"],
+  ch_hello: ["היי! אני העוזר שלכם. אפשר לבקש \"תכין 5 שורטס מצחיקים מאתמול\" או לשאול \"מה המצב?\". אני מעדכן כאן כשהטיוטות מוכנות.", "Hi! I'm your assistant. Try \"make 5 funny Shorts from yesterday\" or ask \"what's the status?\". I'll update you here when drafts are ready."],
+  ch_see: ["לצפייה בהתקדמות", "See progress"], ch_review: ["לאישורים", "Review drafts"], ch_channel: ["ערוץ", "Channel"], ch_cost: ["בקשה אחת משתמשת בקרדיט אחד לכל שעת סטרים.", "A request uses 1 credit per hour of stream."], ch_novfy: ["כדי לבקש קליפים צריך קודם לחבר ולאמת ערוץ.", "To ask for clips, connect and verify a channel first."],
+  // team
+  tm_title: ["צוות", "Team"], tm_sub: ["הזמינו עורכים שיעבדו איתכם", "Invite editors to work with you"], tm_members: ["חברי הצוות", "Members"], tm_pending: ["הזמנות שנשלחו", "Pending invitations"], tm_invite: ["הזמנת מישהו", "Invite someone"],
+  tm_invite_d: ["נשלח קישור הצטרפות. אפשר להעתיק אותו ולשלוח בוואטסאפ.", "We make a join link. Copy it and send it on WhatsApp or by email."], tm_send: ["יצירת קישור הזמנה", "Create invite link"], tm_link_ready: ["הקישור מוכן. שלחו אותו ל-{email}:", "Link ready. Send it to {email}:"], tm_whatsapp: ["שליחה בוואטסאפ", "Send on WhatsApp"], tm_email_note: ["שליחת מייל אוטומטית תתווסף בקרוב, בינתיים מעתיקים את הקישור.", "Automatic email is coming soon. For now, copy the link."],
+  tm_expires: ["תוקף עד {d}", "Expires {d}"], tm_revoke: ["ביטול הזמנה", "Revoke"], tm_removed: ["הוסר מהצוות", "Removed from the team"], tm_role_set: ["התפקיד עודכן", "Role updated"], tm_owner_only: ["רק הבעלים יכולים להזמין ולנהל חברי צוות.", "Only the owner can invite and manage team members."], tm_remove_q: ["להסיר את {email} מהצוות?", "Remove {email} from the team?"],
+  tm_empty_inv: ["אין הזמנות פתוחות", "No open invitations"],
+  // credits
+  cr_title: ["קרדיטים", "Credits"], cr_sub: ["כמה נשאר לכם ואיך משתמשים בו", "What you have left and how it's used"], cr_left: ["קרדיטים שנותרו", "credits left"], cr_plan: ["חבילה", "Plan"], plan_trial: ["ניסיון", "Trial"], plan_none: ["ללא חבילה", "No plan"],
+  cr_how: ["איך זה עובד", "How credits work"], cr_how1: ["קרדיט אחד = עד שעה אחת של סטרים שנחתכת לקליפים", "1 credit = up to 1 hour of stream cut into clips"], cr_how2: ["הקרדיט נשמר כשמבקשים, ומוחזר אוטומטית אם הבקשה בוטלה או נכשלה", "A credit is held when you ask, and refunded automatically if the request is cancelled or fails"], cr_how3: ["מצב ניסיון כולל {n} קרדיטים חינם", "The trial includes {n} free credits"],
+  cr_buy: ["קניית קרדיטים", "Buy credits"], cr_buy_soon: ["תשלום באתר יתווסף בקרוב. נעדכן אתכם.", "Online checkout is coming soon. We'll let you know."], cr_usage: ["שימוש אחרון", "Recent usage"], cr_usage_empty: ["עוד לא השתמשתם בקרדיטים.", "You haven't used any credits yet."], cr_low: ["נשארו מעט קרדיטים", "You're running low on credits"],
+  // settings
+  se_title: ["הגדרות", "Settings"], se_account: ["חשבון", "Account"], se_logout: ["יציאה", "Sign out"], se_look: ["שפה ומראה", "Language and look"], se_lang: ["שפה", "Language"], se_theme: ["מראה", "Appearance"], th_auto: ["אוטומטי", "Auto"], th_light: ["בהיר", "Light"], th_dark: ["כהה", "Dark"],
+  se_ws: ["סביבת עבודה", "Workspace"], se_ws_new: ["סביבה חדשה", "New workspace"], se_ws_name: ["שם הסביבה", "Workspace name"], se_ws_create: ["יצירה", "Create"], se_ws_switch: ["מעבר בין סביבות", "Switch workspace"], se_ws_d: ["סוכנים ועורכים עם כמה לקוחות יכולים לפתוח סביבה לכל לקוח.", "Agencies and editors with several clients can keep one workspace per client."],
+  se_channels: ["ערוצים ויוטיוב", "Channels and YouTube"], se_add_channel: ["הוספת ערוץ", "Add a channel"], se_verified: ["מאומת", "Verified"], se_pending: ["ממתין לאימות", "Awaiting verification"], se_style: ["סגנון: הסגנון שלנו", "Style: Our style"],
+  se_yt_note: ["כל ההעלאות פרטיות. פרסום מתבצע רק אחרי שאישרתם.", "All uploads are private. Publishing only happens after you approve."], yt_connect: ["חיבור יוטיוב", "Connect YouTube"], yt_disconnect: ["ניתוק", "Disconnect"], yt_disc_ok: ["יוטיוב נותק", "YouTube disconnected"], remove_ch_q: ["להסיר את הערוץ?", "Remove this channel?"], verify_now: ["לאימות", "Verify"],
+  se_auto: ["רמת אוטונומיה", "Autonomy level"], se_auto_d: ["כמה לתת לעוזר להחליט לבד.", "How much the assistant decides on its own."], au1: ["אני מאשר הכול", "I approve everything"], au1d: ["כל טיוטה מחכה לאישור שלכם. מומלץ להתחלה.", "Every draft waits for your approval. Recommended to start."], au2: ["אישור אוטומטי לטיוטות נקיות", "Auto-approve clean drafts"], au2d: ["טיוטות שעברו את כל בדיקות האיכות יאושרו לבד.", "Drafts that pass every quality check get approved automatically."], au3: ["אוטופיילוט מלא", "Full autopilot"], au3d: ["העוזר מזהה סטרים שנגמר, חותך ומתזמן לבד.", "The assistant spots finished streams, cuts and schedules by itself."],
+  se_notif: ["התראות", "Notifications"], se_notif_d: ["נעדכן אתכם כשיש משהו לאשר. עדיין לא פעיל.", "We'll ping you when something needs approval. Not active yet."], nt1: ["מייל כשהטיוטות מוכנות", "Email when drafts are ready"], nt2: ["התראה בדפדפן", "Browser notification"], nt3: ["סיכום שבועי", "Weekly summary"],
+  se_about: ["אודות", "About"], se_about_d: ["הכול עולה כטיוטה פרטית. אתם בשליטה מלאה, ואפשר לנתק את יוטיוב בכל רגע.", "Everything uploads as a private draft. You stay in control, and you can disconnect YouTube anytime."],
+  more_title: ["עוד", "More"], demo_ribbon: ["דמו · נתונים לדוגמה", "Demo · sample data"], demo_new: ["חשבון חדש", "New account"], demo_full: ["חשבון פעיל", "Busy account"],
+};
+const t = (k, v) => { const e = I[k]; if (!e) return k; let s = e[lang === "he" ? 0 : (e.length > 1 ? 1 : 0)]; if (typeof s === "function") return s(v || {}); return v ? s.replace(/\{(\w+)\}/g, (_, x) => (v[x] != null ? v[x] : "")) : s; };
+// function-valued entries hold a single (lang-aware) function: I[k] = [fn]; t() handles both shapes
+const tf = (k, v) => { const e = I[k]; return typeof e[0] === "function" ? e[0](v || {}) : t(k, v); };
+const MOOD = { funny: "m_funny", hype: "m_hype", fail: "m_fail" }, WHENK = { yesterday: "w_yesterday", last_stream: "w_last_stream", week: "w_week" };
+
+/* ---------- 2. helpers + icons ---------- */
+const $ = (s, r) => (r || document).querySelector(s);
+const add = (e, kids) => { for (const k of kids.flat(Infinity)) { if (k == null || k === false) continue; e.append(k.nodeType ? k : document.createTextNode(String(k))); } return e; };
+const h = (tag, a, ...kids) => {
+  const e = document.createElement(tag);
+  if (a) for (const k in a) { const v = a[k]; if (v == null || v === false) continue;
+    if (k === "class") e.className = v; else if (k === "html") e.innerHTML = v; else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else if (k === "style" && typeof v === "object") { for (const x in v) { if (x.startsWith("--")) e.style.setProperty(x, v[x]); else e.style[x] = v[x]; } } else e.setAttribute(k, v === true ? "" : v); }
+  return add(e, kids);
+};
+const IC = {
+  home: '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>', film: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9.5 5 2.5-5 2.5z"/>',
+  chat: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>', activity: '<path d="M3 12h4l3-8 4 16 3-8h4"/>',
+  more: '<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
+  users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/>',
+  coins: '<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',
+  sliders: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>',
+  check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>', x: '<path d="M6 6l12 12M18 6 6 18"/>', play: '<path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/>',
+  pencil: '<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16zM13.5 6.5l4 4"/>', copy: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/>',
+  lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', send: '<path d="M3 11.5 21 3l-8.5 18-2.5-7.5z"/>',
+  sparkles: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/>',
+  logout: '<path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M15 8l4 4-4 4M19 12H9"/>', plus: '<path d="M12 5v14M5 12h14"/>', trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+  bell: '<path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4zM10 21h4"/>', mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/>', shield: '<path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="m9 12 2.2 2.2L15.5 10"/>',
+  alert: '<path d="M12 4 2.5 20h19zM12 10v4M12 17.5v.01"/>', info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/>', undo: '<path d="M9 7 4 12l5 5M4 12h11a5 5 0 0 1 0 10h-3"/>',
+  bolt: '<path d="M13 3 5 14h6l-1 7 8-11h-6z"/>', globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.500 5.600 12 3z"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6 19 19M5 19l1.4-1.4M17.6 6.4 19 5"/>', eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  eyeoff: '<path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.500 0 10 7 10 7a17 17 0 0 1-3 3.800M6.600 6.600A16.500 16.500 0 0 0 2 12s3.500 7 10 7a9.600 9.600 0 0 0 4.400-1M9.900 9.900a3 3 0 0 0 4.200 4.200"/>',
+  ext: '<path d="M14 4h6v6M20 4 10 14M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>', chev: '<path d="m9 6 6 6-6 6"/>', arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>', clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  yt: '<path d="M21.600 7.200a2.500 2.500 0 0 0-1.800-1.800C18.200 5 12 5 12 5s-6.200 0-7.800.4A2.500 2.500 0 0 0 2.400 7.200C2 8.800 2 12 2 12s0 3.200.4 4.800a2.500 2.500 0 0 0 1.800 1.800C5.800 19 12 19 12 19s6.200 0 7.800-.4a2.500 2.500 0 0 0 1.800-1.800c.4-1.600.4-4.800.4-4.800s0-3.200-.4-4.800zM10 15V9l5.200 3z" fill="currentColor" stroke="none"/>',
+  moon: '<path d="M20 14.500A8.500 8.500 0 0 1 9.500 4 8.500 8.500 0 1 0 20 14.500z"/>', refresh: '<path d="M20 11a8 8 0 0 0-14.500-3M4 4v4h4M4 13a8 8 0 0 0 14.500 3M20 20v-4h-4"/>', film2: '<path d="M4 6h16M4 18h16M7 6v12M17 6v12M4 12h16"/>',
+};
+const icon = (n, cls) => h("span", { class: "ic" + (cls ? " " + cls : ""), "aria-hidden": "true", html: '<svg viewBox="0 0 24 24">' + (IC[n] || "") + "</svg>" });
+const initials = (s) => String(s || "?").replace(/@.*/, "").trim().slice(0, 2) || "?";
+const pad2 = (n) => String(n).padStart(2, "0");
+function ago(iso) {
+  const s = (Date.now() - Date.parse(iso)) / 1000; if (!(s === s)) return ""; if (s < 60) return t("ago_now");
+  const f = new Intl.RelativeTimeFormat(lang, { numeric: "auto" }); if (s < 3600) return f.format(-Math.round(s / 60), "minute"); if (s < 86400) return f.format(-Math.round(s / 3600), "hour"); return f.format(-Math.round(s / 86400), "day");
+}
+const dateTxt = (iso) => { try { return new Date(iso).toLocaleDateString(lang === "he" ? "he-IL" : "en-GB", { day: "numeric", month: "short" }); } catch (e) { return ""; } };
+const timeTxt = (iso) => { try { return new Date(iso).toLocaleTimeString(lang === "he" ? "he-IL" : "en-GB", { hour: "2-digit", minute: "2-digit" }); } catch (e) { return ""; } };
+const hashN = (s) => { let x = 0; for (const c of String(s)) x = (x * 31 + c.charCodeAt(0)) >>> 0; return x; };
+const GRADS = ["linear-gradient(155deg,#5b3fe0,#e052a0 60%,#ffb36b)", "linear-gradient(155deg,#0f9b8e,#3a6cf0 70%,#8b5cf6)", "linear-gradient(155deg,#f0506e,#f58b3a 70%,#ffd36b)", "linear-gradient(155deg,#2d1b6b,#7a55fa 60%,#30c9e8)", "linear-gradient(155deg,#16a34a,#0ea5b7 70%,#3b82f6)", "linear-gradient(155deg,#be185d,#7c3aed 70%,#2563eb)"];
+const gradFor = (s) => GRADS[hashN(s) % GRADS.length];
+const copyText = async (txt) => { try { await navigator.clipboard.writeText(txt); } catch (e) { const ta = h("textarea", { style: { position: "fixed", opacity: 0 } }); ta.value = txt; document.body.append(ta); ta.select(); try { document.execCommand("copy"); } catch (x) {} ta.remove(); } toast(t("copied")); };
+
+/* ---------- 3. api ---------- */
+let token = LS.get("studio_token");
+async function api(method, path, body, opt) {
+  if (DEMO) return demoApi(method, path, body);
+  let r; const url = path.startsWith("/studio/") ? path : "/studio/api" + path;
+  try { r = await fetch(url, { method, headers: { "content-type": "application/json", ...(token ? { authorization: "Bearer " + token } : {}) }, body: body ? JSON.stringify(body) : undefined, keepalive: !!(opt && opt.keepalive) }); }
+  catch (e) { throw { error: "network", _status: 0 }; }
+  const j = await r.json().catch(() => ({})); if (!r.ok) { j._status = r.status; if (r.status === 401 && token && !/login|signup/.test(path)) { sessionExpired(); } throw j; } return j;
+}
+function errText(e) {
+  if (!e) return t("generic_err"); if (e[lang] && typeof e[lang] === "string") return e[lang];
+  const c = e.error; if (c === "network") return t("net_err"); if (/^fetch_failed|fetch_exception/.test(c || "")) return t("e_fetch");
+  const map = { bad_credentials: "e_wrong_pw", email_exists: "e_wrong_pw", password_too_short: "e_pw_short", bad_email: "e_email", rate_limited: "e_rate_limited", forbidden: "e_forbidden", insufficient_credits: "e_insufficient_credits", bad_state: "e_bad_state", channel_not_verified: "e_channel_not_verified", channel_already_claimed: "e_channel_already_claimed", channel_already_connected: "e_channel_already_claimed",
+    invite_invalid: "e_invite_invalid", invite_for_other_email: "e_invite_for_other_email", twitch_not_configured: "e_twitch_not_configured", yt_not_configured: "e_yt_not_configured", enc_key_missing: "e_yt_not_configured", payment_not_implemented: "e_payment", youtube_oauth_not_implemented: "e_yt_not_configured", unauthorized: "e_unauthorized", bad_channel: "e_bad_channel", channel_not_found: "e_channel_not_found", code_expired: "e_code_expired" };
+  return map[c] ? t(map[c]) : t("generic_err");
+}
+
+/* ---------- 4. state + loaders ---------- */
+const S = { user: null, orgs: [], org: null, channels: [], jobs: [], members: null, invites: [], chat: null, chatHint: null, yt: {}, ready: false, local: {}, skipped: [], inviteToken: null, invitePreview: null, lastSig: "", prevJobs: null, verifyMsg: "", ytSoon: false, theme: LS.get("studio_theme") || "auto", fresh: {} };
+const pendingCommits = new Map();
+const isOwner = () => S.org && S.org.role === "owner";
+const canEdit = () => S.org && (S.org.role === "owner" || S.org.role === "editor");
+const op = () => "/orgs/" + S.org.id;
+const verifiedCh = () => S.channels.filter((c) => c.status === "verified");
+const ytState = () => { const v = verifiedCh(); return v.some((c) => c.yt && c.yt.status === "connected") ? "connected" : v.some((c) => c.yt && c.yt.status === "needs_reconnect") ? "reconnect" : "none"; };
+async function loadMe() {
+  const me = await api("GET", "/me"); S.user = me.user; S.orgs = me.orgs;
+  S.org = S.orgs.find((o) => S.org && o.id === S.org.id) || S.orgs.find((o) => o.id === LS.get("studio_org")) || S.orgs[0] || null; if (S.org) LS.set("studio_org", S.org.id);
+}
+async function loadCore() {
+  await loadMe(); if (!S.org) return;
+  const [c, j] = await Promise.all([api("GET", op() + "/channels"), api("GET", op() + "/jobs")]); S.channels = c.channels; S.jobs = j.jobs;
+  const sig = JSON.stringify([S.org, S.channels, S.jobs.map((x) => [x.id, x.status, x.progress, x.status_text, x.result && x.result.drafts, x.updated])]);
+  const changed = sig !== S.lastSig; S.lastSig = sig; notifyChanges(); S.ready = true; return changed;
+}
+function notifyChanges() {   // toast when a job reaches draft_ready / failed since the last poll
+  if (S.prevJobs) { let nd = 0, nf = 0; for (const j of S.jobs) { const p = S.prevJobs[j.id]; if (p && p !== j.status) { if (j.status === "draft_ready") nd += (j.result.drafts || []).length; if (j.status === "failed") nf++; } }
+    if (nd) toast(tf("new_drafts_toast", { n: nd }), { action: t("review_now"), fn: () => go("review") }); if (nf) toast(t("job_failed_toast"), { kind: "bad" }); }
+  S.prevJobs = Object.fromEntries(S.jobs.map((j) => [j.id, j.status]));
+}
+async function loadYt() {
+  if (DEMO) return; S.yt = {};
+  await Promise.all(verifiedCh().map((c) => api("GET", `/studio/yt/status?org_id=${S.org.id}&channel_id=${c.id}`).then((r) => { S.yt[c.id] = r; }).catch(() => {})));
+}
+async function loadMembers() { try { const m = await api("GET", op() + "/members"); S.members = m.members; S.invites = m.invites; } catch (e) { S.members = S.members || []; } }
+async function loadChat() { try { const c = await api("GET", op() + "/assistant"); S.chat = c.history || []; S.chatHint = c.hint || null; } catch (e) { S.chat = S.chat || []; } }
+function sessionExpired() { token = null; LS.del("studio_token"); S.ready = false; S.user = null; stopPoll(); renderApp(); }
+
+/* poll: faster while a job is running, pauses while the tab is hidden */
+let pollT = null;
+function stopPoll() { clearTimeout(pollT); pollT = null; }
+function schedulePoll() {
+  stopPoll(); if (!token && !DEMO) return;
+  const active = S.jobs.some((j) => ["queued", "running", "qa"].includes(j.status));
+  pollT = setTimeout(async () => { if (document.hidden) return schedulePoll(); try { if (await loadCore()) softRender(); } catch (e) {} schedulePoll(); }, active ? 3500 : 15000);
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden && S.ready) { loadCore().then((c) => c && softRender()).catch(() => {}); schedulePoll(); } });
+addEventListener("pagehide", () => { for (const [, p] of pendingCommits) { clearTimeout(p.timer); p.run(true); } });
+
+/* ---------- toasts ---------- */
+function toast(msg, o) {
+  o = o || {}; const box = $("#toasts"); while (box.children.length > 2) box.firstChild.remove();
+  const el = h("div", { class: "toast" + (o.kind === "bad" ? " bad" : "") }, h("div", { class: "grow" }, msg));
+  const kill = () => { clearTimeout(tm); el.remove(); };
+  if (o.action) el.append(h("button", { type: "button", onclick: () => { kill(); o.fn && o.fn(); } }, o.action));
+  const tm = setTimeout(kill, o.ms || 4500); box.append(el); return kill;
+}
+
+/* ---------- 5. shell + router ---------- */
+let route = { name: "home", arg: null }, cleanups = [], dirty = false;
+const ROUTES = {};
+const NAV = [["home", "home", "nav_home"], ["review", "film", "nav_review"], ["chat", "chat", "nav_chat"], ["jobs", "activity", "nav_jobs"], ["more", "more", "nav_more"]];
+const SIDE = [["home", "home", "nav_home"], ["review", "film", "nav_review"], ["jobs", "activity", "nav_jobs"], ["chat", "chat", "nav_chat"], ["team", "users", "nav_team"], ["credits", "coins", "nav_credits"], ["settings", "sliders", "nav_settings"]];
+const go = (name, arg) => { const nh = "#/" + name + (arg ? "/" + arg : ""); if (location.hash === nh) onHash(); else location.hash = nh; };
+const goReplace = (name) => { history.replaceState(null, "", "#/" + name); parseRoute(); };
+const isActive = (j) => ["queued", "running", "qa"].includes(j.status);
+const pendingCards = () => { const out = []; for (const j of S.jobs.slice().sort((a, b) => (a.created < b.created ? 1 : -1))) if (j.status === "draft_ready") (j.result.drafts || []).forEach((d, i) => { const key = j.id + ":" + i; if (!d.decision && !S.local[key]) out.push({ j, d, i, key }); }); const sk = S.skipped; return [...out.filter((c) => !sk.includes(c.key)), ...out.filter((c) => sk.includes(c.key))]; };
+const firstName = () => { const n = (S.user && (S.user.name || S.user.email)) || ""; return String(n).replace(/@.*/, "").split(/[\s._-]/)[0] || n; };
+const jobTitle = (j) => { const o = j.outputs || {}, hs = j.hints || {}; const bits = []; if (o.shorts) bits.push(lang === "he" ? o.shorts + " שורטס" + (hs.mood ? " " + t(MOOD[hs.mood]) : "") : o.shorts + " " + (hs.mood ? t(MOOD[hs.mood]) + " " : "") + "Shorts"); if (o.long) bits.push(t("longvideo")); return bits.join(lang === "he" ? " ו" : " + ") || t("clips"); };
+const jobWhen = (j) => (j.source && WHENK[j.source.when] ? t(WHENK[j.source.when]) : "");
+const stText = (j) => (j.status_text && j.status_text[lang]) || t("st_" + j.status);
+
+function parseRoute() { const m = location.hash.match(/^#\/([a-z]+)(?:\/(.+))?/); route = { name: m ? m[1] : "home", arg: m ? m[2] : null }; if (!ROUTES[route.name]) route = { name: "home", arg: null }; }
+function onHash() {
+  const hy = location.hash.match(/youtube=(connected|error=([A-Za-z_]+))/), hi = location.hash.match(/invite=(inv_[a-f0-9]+)/);
+  if (hy) { history.replaceState(null, "", location.pathname + location.search + "#/setup"); parseRoute(); if (hy[1] === "connected") { toast(t("yt_connected_toast")); } else toast(t("e_yt_return", { code: hy[2] }), { kind: "bad" }); if (S.ready) loadCore().then(() => renderRoute(true)).catch(() => {}); else renderApp(); return; }
+  if (hi) { S.inviteToken = hi[1]; history.replaceState(null, "", location.pathname + location.search + "#/home"); renderApp(); return; }
+  parseRoute(); if (S.ready) renderRoute(true);
+}
+addEventListener("hashchange", onHash);
+
+function applyChrome() { const d = document.documentElement; d.lang = lang; d.dir = lang === "he" ? "rtl" : "ltr"; if (S.theme === "light" || S.theme === "dark") d.setAttribute("data-theme", S.theme); else d.removeAttribute("data-theme"); $("#skipLink").textContent = t("skip"); }
+function setLang(l) { lang = l; LS.set("studio_lang", l); applyChrome(); renderApp(); }
+function setTheme(m) { S.theme = m; LS.set("studio_theme", m); applyChrome(); }
+
+function renderApp() {
+  applyChrome(); cleanups.forEach((f) => f()); cleanups = [];
+  if (!token && !DEMO) return renderAuth();
+  if (DEMO && demoLanding) return renderAuth();
+  if (!S.ready) { $("#app").replaceChildren(h("div", { class: "boot" }, h("span", { class: "spin" }))); return boot(); }
+  if (S.inviteToken) return renderInvite();
+  if (!S.org) return renderNoOrg();
+  renderShell(); parseRoute(); renderRoute(true);
+}
+let booting = false;
+async function boot() {
+  if (booting) return; booting = true;
+  try {
+    if (S.inviteToken && !S.invitePreview) { try { S.invitePreview = await api("POST", "/invites/preview", { token: S.inviteToken }); } catch (e) { S.inviteToken = null; } }
+    await loadCore(); await loadYt(); schedulePoll();
+  } catch (e) { if (e && e._status === 401) { booting = false; return; } $("#app").replaceChildren(h("div", { class: "boot stack" }, h("p", null, errText(e)), h("button", { class: "btn", onclick: () => { booting = false; renderApp(); } }, t("retry")))); booting = false; return; }
+  booting = false; renderApp();
+}
+function renderNoOrg() { $("#app").replaceChildren(h("div", { class: "auth" }, h("div", { class: "card stack" }, h("h2", null, t("se_ws_new")), createOrgForm(), h("button", { class: "btn ghost", onclick: logout }, t("se_logout"))))); }
+
+function renderShell() {
+  const brand = () => h("a", { class: "brand", href: "#/home" }, h("span", { class: "logo" }, icon("play")), h("span", null, "Studio"));
+  const mk = (cls, [r, ic, lbl]) => h("a", { class: "tab", href: "#/" + r, "data-r": r }, icon(ic), h("span", { class: "lbl" }, t(lbl)), r === "review" ? h("span", { class: "badge hidden", "data-badge": "1" }) : null);
+  const side = h("aside", { class: "side", "aria-label": "Studio" }, brand(), ...SIDE.map((x) => mk("side", x)), h("div", { class: "spacer" }), h("div", { class: "orgchip" }, h("span", { class: "avatar" }, initials(S.org.name)), h("div", { class: "grow" }, h("b", { class: "orgname" }), h("div", { class: "small muted orgrole" }))));
+  const top = h("header", { class: "top" }, brand(), h("div", { class: "grow" }), h("a", { class: "credit-pill", href: "#/credits", id: "creditPill" }), h("a", { class: "iconbtn only-mob", href: "#/settings", "aria-label": t("nav_settings") }, icon("sliders")));
+  const ribbon = DEMO ? h("div", { class: "ribbon" }, h("span", null, icon("sparkles"), " ", t("demo_ribbon")), h("span", { class: "grow" }), h("button", { type: "button", onclick: () => demoScenario("new") }, t("demo_new")), h("button", { type: "button", onclick: () => demoScenario("full") }, t("demo_full"))) : null;
+  const bar = h("nav", { class: "tabbar", "aria-label": "Studio" }, ...NAV.map((x) => mk("tab", x)));
+  $("#app").replaceChildren(h("div", { class: "shell" }, side, h("div", { class: "content" }, ribbon, top, h("main", { id: "main", class: "main", tabindex: "-1" }, h("div", { id: "view" }))), bar));
+}
+function updateChrome() {
+  if (!$("#view")) return; const n = pendingCards().length, nav = route.name, more = ["more", "team", "credits", "settings"].includes(nav);
+  document.querySelectorAll(".tab").forEach((a) => { const r = a.dataset.r, inSide = a.parentElement.classList.contains("side"); const cur = r === nav || (!inSide && r === "more" && more); if (cur) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); const b = $("[data-badge]", a); if (b) { b.textContent = n; b.classList.toggle("hidden", !n); } });
+  const cp = $("#creditPill"); if (cp) { cp.replaceChildren(icon("bolt"), String(S.org.credits)); cp.setAttribute("aria-label", t("cr_title") + ": " + S.org.credits); }
+  const on = $(".orgname"); if (on) { on.textContent = S.org.name; $(".orgrole").textContent = t("r_" + S.org.role); }
+  document.title = t(({ more: "more_title", setup: "su_title", review: "rv_title", jobs: "jb_title", chat: "ch_title", team: "tm_title", credits: "cr_title", settings: "se_title", home: "nav_home" })[nav]) + " · Studio";
+}
+function renderRoute(enter) {
+  cleanups.forEach((f) => f()); cleanups = []; dirty = false; if (!$("#view")) return renderApp();
+  if (route.name === "home" && isOwner() && !verifiedCh().length) { goReplace("setup"); }
+  const node = ROUTES[route.name](); node.classList.toggle("enter", !!enter); node.classList.add("view-" + route.name);
+  const main = $("#main"); main.classList.toggle("wide", route.name === "review"); $("#view").replaceChildren(node); updateChrome();
+  if (enter) { window.scrollTo(0, 0); if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur(); }
+}
+function softRender() { updateChrome(); const a = document.activeElement; if (a && $("#view") && $("#view").contains(a) && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) { dirty = true; return; } if (route.name === "chat") return; renderRoute(false); }
+addEventListener("focusout", () => { if (dirty) setTimeout(() => { const a = document.activeElement; if (!(a && /INPUT|TEXTAREA|SELECT/.test(a.tagName))) { dirty = false; renderRoute(false); } }, 50); });
+async function logout() { try { await api("POST", "/logout"); } catch (e) {} token = null; LS.del("studio_token"); S.ready = false; S.user = null; S.org = null; S.orgs = []; S.channels = []; S.jobs = []; S.chat = null; S.members = null; stopPoll(); if (DEMO) demoLanding = true; history.replaceState(null, "", location.pathname + location.search); renderApp(); }
+
+/* ---------- 6a. auth + landing ---------- */
+let demoLanding = DEMO && (FORCE_DEMO ? QS.get("auto") !== "1" : QS.get("landing") === "1");
+function heroVisual() {
+  const ph = (cls, g, cap) => h("div", { class: "ph " + cls, style: { "--g": g } }, h("span", { class: "phcap" }, cap), h("span", { class: "phbar" }));
+  return h("div", { class: "stage", "aria-hidden": "true" },
+    ph("p3", GRADS[1], lang === "he" ? "הרגע ההזוי" : "That clutch"), ph("p2", GRADS[2], lang === "he" ? "לא האמנתי" : "No way"), ph("p1", GRADS[0], lang === "he" ? "אפיק" : "Epic"),
+    h("div", { class: "float f1" }, icon("sparkles"), h("div", null, h("b", null, lang === "he" ? "מצאנו 5 רגעים, חותכים..." : "Found 5 moments, cutting..."), h("span", { class: "bar" }, h("i", { class: "anim" })))),
+    h("div", { class: "float f2" }, h("span", { class: "okdot" }, icon("check")), h("b", null, t("approved"))));
+}
+function renderAuth() {
+  const err = h("div", { class: "errtxt", role: "alert" }), em = h("input", { class: "input", id: "email", type: "email", autocomplete: "username", inputmode: "email", required: true, dir: "ltr", value: DEMO ? "demo@streamer.tv" : (S.invitePreview ? S.invitePreview.email || "" : "") });
+  const pw = h("input", { class: "input", id: "pw", type: "password", autocomplete: "current-password", required: true, minlength: 8, dir: "ltr", value: DEMO ? "demo12345" : "" });
+  const eye = h("button", { type: "button", class: "iconbtn", "aria-label": t("show_pw"), onclick: () => { const s = pw.type === "password"; pw.type = s ? "text" : "password"; eye.replaceChildren(icon(s ? "eyeoff" : "eye")); eye.setAttribute("aria-label", t(s ? "hide_pw" : "show_pw")); } }, icon("eye"));
+  const go1 = h("button", { class: "btn lg block", type: "submit" }, h("span", null, t("continue")), icon("arrow", "flip"));
+  const form = h("form", { class: "stack", novalidate: true, onsubmit: async (e) => {
+    e.preventDefault(); err.textContent = ""; const body = { email: em.value.trim(), password: pw.value };
+    if (!/^\S+@\S+\.\S+$/.test(body.email)) { err.textContent = t("e_email"); em.setAttribute("aria-invalid", "true"); em.focus(); return; } em.removeAttribute("aria-invalid");
+    if (body.password.length < 8) { err.textContent = t("e_pw_short"); pw.setAttribute("aria-invalid", "true"); pw.focus(); return; } pw.removeAttribute("aria-invalid");
+    go1.disabled = true; go1.replaceChildren(h("span", { class: "spin" }));
+    try { let r; try { r = await api("POST", "/login", body); } catch (e1) { if (e1._status !== 401) throw e1; r = await api("POST", "/signup", body); } token = r.token; LS.set("studio_token", token); demoLanding = false; S.ready = false; renderApp(); }
+    catch (e2) { err.textContent = errText(e2); go1.disabled = false; go1.replaceChildren(h("span", null, t("continue")), icon("arrow", "flip")); }
+  } },
+    S.inviteToken && S.invitePreview ? h("div", { class: "notice" }, icon("mail"), h("div", null, t("invite_banner", { org: S.invitePreview.org, role: t("r_" + S.invitePreview.role) }))) : null,
+    h("div", { class: "field" }, h("label", { for: "email" }, t("email")), em), h("div", { class: "field" }, h("label", { for: "pw" }, t("password")), h("div", { class: "pwrap" }, pw, eye), h("div", { class: "small muted" }, t("pw_hint"))), err, go1,
+    h("p", { class: "small muted center" }, DEMO ? t("demo_note") : t("auth_hint")));
+  const title = t("hero_title"), cut = title.indexOf(". "), a = cut > 0 ? title.slice(0, cut + 1) : title, b = cut > 0 ? title.slice(cut + 2) : "";
+  $("#app").replaceChildren(h("div", { class: "auth" },
+    h("div", { class: "auth-top" }, langSwitch(), themeBtn()),
+    h("section", { class: "landing" }, h("a", { class: "brand big", href: "#" }, h("span", { class: "logo" }, icon("play")), h("span", null, "Studio")),
+      h("h1", { class: "display" }, a, " ", b ? h("span", { class: "gradtxt" }, b) : null), h("p", { class: "lead" }, t("hero_sub")),
+      h("div", { class: "perks" }, ...["perk1", "perk2", "perk3"].map((k) => h("span", { class: "chip" }, icon(k === "perk3" ? "globe" : k === "perk1" ? "lock" : "shield"), t(k))))),
+    h("section", { class: "card glass authcard" }, h("h2", null, t("auth_title")), form), h("div", { class: "visual" }, heroVisual())));
+  setTimeout(() => { if (!em.value) em.focus(); }, 50);
+}
+const langSwitch = () => h("div", { class: "seg", role: "group", "aria-label": t("se_lang") }, ...[["he", "עב"], ["en", "EN"]].map(([l, x]) => h("button", { type: "button", "aria-pressed": String(lang === l), "aria-label": l === "he" ? "עברית" : "English", onclick: () => lang !== l && setLang(l) }, x)));
+const themeBtn = () => h("button", { class: "iconbtn glassbtn", type: "button", "aria-label": t("se_theme"), onclick: () => { const dark = document.documentElement.getAttribute("data-theme") === "dark" || (S.theme === "auto" && !matchMedia("(prefers-color-scheme: light)").matches); setTheme(dark ? "light" : "dark"); renderApp(); } }, icon("moon"));
+function renderInvite() {
+  const p = S.invitePreview || {}, msg = h("div", { class: "errtxt", role: "alert" });
+  $("#app").replaceChildren(h("div", { class: "auth" }, h("div", { class: "card glass authcard stack" }, h("div", { class: "empty" }, h("div", { class: "art" }, icon("users")), h("h2", null, t("invite_title")), h("p", null, t("invite_for", { org: p.org || "", role: t("r_" + (p.role || "editor")) }))), msg,
+    h("button", { class: "btn lg block", onclick: async (e) => { e.currentTarget.disabled = true; try { await api("POST", "/invites/accept", { token: S.inviteToken }); S.inviteToken = null; S.invitePreview = null; S.ready = false; renderApp(); } catch (x) { msg.textContent = errText(x); e.currentTarget.disabled = false; } } }, t("invite_join")),
+    h("button", { class: "btn ghost block", onclick: () => { S.inviteToken = null; S.invitePreview = null; renderApp(); } }, t("invite_later")))));
+}
+
+/* ---------- 6b. setup wizard (channel -> verify -> youtube) ---------- */
+const parseChan = (s) => { const m = String(s).match(/(?:^|\/\/)(?:www\.|m\.)?(kick\.com|twitch\.tv)\/([A-Za-z0-9_-]{2,25})/i) || String(s).trim().match(/^(kick|twitch)[: ]+@?([A-Za-z0-9_-]{2,25})$/i); return m ? { platform: /kick/i.test(m[1]) ? "kick" : "twitch", slug: m[2].toLowerCase() } : null; };
+const platTag = (p) => h("span", { class: "plat " + p }, h("i"), p === "kick" ? "Kick" : "Twitch");
+ROUTES.setup = function () {
+  const pending = S.channels.find((c) => c.status === "pending"), ver = verifiedCh()[0];
+  const forceNew = route.arg === "new" && !pending; const step = forceNew || !S.channels.length || (!pending && !ver) ? 1 : !ver ? 2 : 3; const doneAll = !forceNew && ver && (ytState() === "connected" || LS.get("studio_skip_yt") === "1");
+  const stp = (n, lbl) => [h("div", { class: "st " + (step > n ? "done" : step === n ? "now" : "") }, h("b", null, step > n ? icon("check") : n), h("span", { class: "lbl-s" }, t(lbl))), n < 3 ? h("div", { class: "ln " + (step > n ? "done" : "") }) : null];
+  const root = h("div", { class: "stack" }, h("div", { class: "page-head" }, h("h1", null, t("su_title")), h("p", null, t("su_sub"))), h("div", { class: "stepper", role: "list" }, stp(1, "su1"), stp(2, "su2"), stp(3, "su3")));
+  if (!isOwner()) { root.append(h("div", { class: "card empty" }, h("div", { class: "art" }, icon("lock")), h("h2", null, t("need_owner")), h("p", null, t("need_owner_d")))); return root; }
+  if (doneAll) { root.append(h("div", { class: "card glass empty" }, h("div", { class: "art ok" }, icon("check")), h("h2", null, t("su_done_t")), h("p", null, t("su_done_d")), h("button", { class: "btn lg", onclick: () => go("chat") }, t("ck_do_first"), icon("arrow", "flip")))); return root; }
+  if (step === 1) {
+    const err = h("div", { class: "errtxt", role: "alert" }), det = h("div", { class: "small muted detect", "aria-live": "polite" }), inp = h("input", { class: "input lg", id: "chIn", dir: "ltr", placeholder: t("su1_ph"), autocomplete: "off", autocapitalize: "off", spellcheck: "false", inputmode: "url" });
+    const btn = h("button", { class: "btn lg block", type: "submit" }, t("su1_btn"), icon("arrow", "flip"));
+    inp.oninput = () => { const p = parseChan(inp.value); det.replaceChildren(p ? h("span", { class: "chip ok" }, icon("check"), t("su1_detect", { p: p.platform === "kick" ? "Kick" : "Twitch", s: p.slug })) : ""); err.textContent = ""; };
+    root.append(h("form", { class: "card glass pad-lg stack", onsubmit: async (e) => { e.preventDefault(); if (!parseChan(inp.value)) { err.textContent = t("e_bad_channel"); inp.focus(); return; } btn.disabled = true; try { await api("POST", op() + "/channels", { url: inp.value }); await loadCore(); renderRoute(true); } catch (x) { err.textContent = errText(x); btn.disabled = false; } } },
+      h("h2", null, t("su1_t")), h("p", { class: "muted" }, t("su1_d")), h("div", { class: "field" }, h("label", { for: "chIn", class: "sr" }, t("su1_t")), inp, det), err, btn)); setTimeout(() => inp.focus(), 80);
+  } else if (step === 2) {
+    const c = pending, secs = h("span", { class: "tabnum" }, "8"), msg = h("div", { class: "small", role: "status", "aria-live": "polite" }, S.verifyMsg || ""), codeTxt = h("code", null, c.verify_code);
+    let left = 8, busy = false, timer = null; const label = h("span", { class: "row small muted" }, h("span", { class: "spin" }), h("span", { class: "wl" }, t("su2_wait", { s: left })));
+    const check = async () => { if (busy) return; busy = true; $(".wl", label).textContent = t("su2_checking"); try { const r = await api("POST", op() + "/channels/" + c.id + "/verify"); if (r.verified || (r.channel && r.channel.status === "verified")) { S.verifyMsg = ""; toast(t("su2_ok")); await loadCore(); renderRoute(true); return; } S.verifyMsg = r[lang] || t("su2_notyet"); msg.textContent = S.verifyMsg; } catch (e) { if (e.error === "code_expired") { await loadCore(); renderRoute(true); toast(t("e_code_expired")); return; } S.verifyMsg = errText(e); msg.textContent = S.verifyMsg; } busy = false; left = 8; };
+    timer = setInterval(() => { if (busy || document.hidden) return; left--; if (left <= 0) check(); $(".wl", label).textContent = busy ? t("su2_checking") : t("su2_wait", { s: Math.max(left, 0) }); }, 1000); cleanups.push(() => clearInterval(timer));
+    const how = c.platform === "kick" ? "su2_kick" : "su2_twitch";
+    root.append(h("div", { class: "card glass pad-lg stack" }, h("div", { class: "row between wrap" }, h("h2", null, t("su2_t")), platTag(c.platform), ),
+      h("p", { class: "muted" }, t("su2_d")), h("div", { class: "code-box" }, codeTxt, h("button", { class: "btn secondary", type: "button", onclick: () => copyText(c.verify_code) }, icon("copy"), t("copy"))),
+      h("ol", { class: "steps" }, h("li", null, t(how)), h("li", null, t("su2_paste")), h("li", null, t("su2_back"))), h("div", { class: "row between wrap" }, label, h("button", { class: "btn", type: "button", onclick: check }, t("su2_now"))), msg,
+      h("button", { class: "btn ghost sm", type: "button", onclick: async () => { try { await api("DELETE", op() + "/channels/" + c.id); await loadCore(); renderRoute(true); } catch (e) { toast(errText(e), { kind: "bad" }); } } }, t("su2_other"))));
+  } else {
+    root.append(h("div", { class: "card glass pad-lg stack" }, h("div", { class: "row" }, h("span", { class: "yt-badge" }, icon("yt")), h("div", null, h("h2", null, t("su3_t")), h("p", { class: "muted small" }, t("su3_d")))),
+      h("ul", { class: "ticks" }, ...["su3_p1", "su3_p2", "su3_p3"].map((k) => h("li", null, icon("check"), t(k)))), S.ytSoon ? h("div", { class: "notice warn" }, icon("info"), t("su3_soon")) : null,
+      h("button", { class: "btn lg block", type: "button", onclick: () => connectYouTube(ver) }, icon("yt"), t("su3_btn")),
+      h("button", { class: "btn ghost block", type: "button", onclick: () => { LS.set("studio_skip_yt", "1"); go("home"); } }, t("su3_later"))));
+  }
+  return root;
+};
+async function connectYouTube(ch) {
+  try { const r = await api("POST", "/studio/yt/start", { org_id: S.org.id, channel_id: ch.id }); if (r.url) { if (DEMO) { location.assign(r.url); } else location.assign(r.url); } }
+  catch (e) { if ([404, 501, 503].includes(e._status) || /yt_not_configured|enc_key_missing/.test(e.error || "")) { S.ytSoon = true; toast(t("su3_soon")); renderRoute(false); } else toast(errText(e), { kind: "bad" }); }
+}
+
+/* ---------- 6c. home ---------- */
+function jobCard(j, opt) {
+  opt = opt || {}; const act = isActive(j), idx = stepIndex(j), failed = j.status === "failed";
+  const drafts = (j.result && j.result.drafts) || [], waiting = drafts.filter((d) => !d.decision).length;
+  const chip = h("span", { class: "chip " + ({ draft_ready: "accent", approved: "ok", failed: "bad", rejected: "", cancelled: "", running: "accent", queued: "", qa: "accent" })[j.status] }, t("st_" + j.status));
+  const card = h("article", { class: "card glass job" + (act ? " live-card" : ""), id: "job-" + j.id },
+    h("div", { class: "job-head" }, h("div", { class: "grow" }, h("div", { class: "job-title" }, jobTitle(j)), h("div", { class: "job-sub" }, [jobWhen(j), ago(j.created)].filter(Boolean).join(" · "))), chip));
+  if (act) card.append(h("div", { class: "live" }, h("span", { class: "pulse" }), h("span", { class: "grow" }, stText(j)), /%/.test(stText(j)) ? null : h("span", { class: "pct" }, Math.round(j.progress || 0) + "%")), h("div", { class: "bar", role: "progressbar", "aria-valuenow": Math.round(j.progress || 0), "aria-valuemin": 0, "aria-valuemax": 100 }, h("i", { style: { width: Math.max(3, j.progress || 0) + "%" } })));
+  if (act || opt.timeline || failed) card.append(timeline(j, idx, failed));
+  if (failed) card.append(h("div", { class: "notice bad" }, icon("alert"), h("div", null, stText(j), " ", t("failed_hint"))));
+  if (j.status === "draft_ready" && waiting) card.append(h("a", { class: "btn", href: "#/review" }, icon("film"), t("review_drafts") + " (" + waiting + ")"));
+  if (["approved", "rejected"].includes(j.status) || (j.status === "draft_ready" && !waiting)) { const a = drafts.filter((d) => d.decision === "approved").length, r = drafts.filter((d) => d.decision === "rejected").length; card.append(h("div", { class: "job-sub" }, t("result_line", { a, r }))); }
+  if (["queued", "running"].includes(j.status) && canEdit() && opt.cancel !== false) card.append(h("button", { class: "btn ghost sm start", type: "button", onclick: async (e) => { e.currentTarget.disabled = true; try { await api("POST", op() + "/jobs/" + j.id + "/cancel"); toast(t("cancelled_toast")); await loadCore(); softRender(); } catch (x) { toast(errText(x), { kind: "bad" }); e.currentTarget.disabled = false; } } }, t("cancel_job")));
+  if (opt.log && (j.events || []).length) card.append(h("details", { class: "evlog" }, h("summary", null, t("log")), h("ul", null, ...j.events.slice().reverse().map((ev) => h("li", null, timeTxt(ev.t) + " · " + ev.e + (ev.note ? " · " + ev.note : ""))))));
+  return card;
+}
+const STEPS = ["tl_queued", "tl_fetch", "tl_listen", "tl_moments", "tl_cut", "tl_qa", "tl_ready"];
+function stepIndex(j) {
+  if (j.status === "queued") return 0; if (["draft_ready", "approved", "rejected"].includes(j.status)) return 6; if (j.status === "qa") return 5;
+  const en = (j.status_text && j.status_text.en) || ""; if (/Making clip|Rendering/i.test(en)) return 4; if (/Found/i.test(en)) return 3; if (/Listening|Transcrib/i.test(en)) return 2; if (/Fetching|Download/i.test(en)) return 1;
+  const p = j.progress || 0; return p < 8 ? 1 : p < 50 ? 2 : p < 60 ? 3 : 4;
+}
+function timeline(j, idx, failed) {
+  const fin = ["draft_ready", "approved", "rejected"].includes(j.status);
+  return h("ol", { class: "tl", "aria-label": t("jb_title") }, ...STEPS.map((k, n) => { const done = fin ? true : n < idx, now = !fin && n === idx, bad = failed && now; return h("li", { class: bad ? "failed" : done ? "done" : now ? "now" : "", "aria-current": now ? "step" : null }, h("span", { class: "nd" }, done || fin ? icon("check") : bad ? icon("x") : null), h("div", null, t(k), )); }));
+}
+function checklist() {
+  const ver = verifiedCh().length, yt = ytState() === "connected", first = S.jobs.length > 0;
+  const items = [["ck_account", null, true, null], ["ck_channel", "ck_channel_d", S.channels.length > 0, ["ck_do_channel", "setup"]], ["ck_verify", "ck_verify_d", ver > 0, ["ck_do_verify", "setup"]], ["ck_yt", "ck_yt_d", yt || LS.get("studio_skip_yt") === "1" && ver > 0 && yt, ["ck_do_yt", "setup"]], ["ck_first", "ck_first_d", first, ["ck_do_first", "chat"]]];
+  const n = items.filter((i) => i[2]).length; if (n === items.length) return null;
+  const nowIdx = items.findIndex((i) => !i[2]);
+  return h("section", { class: "card glass pad-lg" }, h("div", { class: "row between" }, h("h2", null, t("setup_title")), h("span", { class: "chip accent" }, t("setup_of", { a: n, b: items.length }))), h("div", { class: "bar", style: { margin: "12px 0 6px" } }, h("i", { style: { width: (n / items.length * 100) + "%" } })),
+    ...items.map((it, i) => h("div", { class: "check-item " + (it[2] ? "done" : i === nowIdx ? "now" : "") }, h("span", { class: "dot" }, icon("check")), h("div", { class: "txt" }, t(it[0]), it[1] && !it[2] ? h("small", null, t(it[1])) : null), !it[2] && i === nowIdx && it[3] && (isOwner() || it[3][1] === "chat") ? h("button", { class: "btn sm", type: "button", onclick: () => go(it[3][1]) }, t(it[3][0])) : null)));
+}
+ROUTES.home = function () {
+  const root = h("div", { class: "stack" }), cards = pendingCards(), act = S.jobs.filter(isActive), ver = verifiedCh();
+  root.append(h("div", { class: "page-head" }, h("h1", { class: "display" }, t("hi", { name: firstName() })), h("p", null, act.length ? t("hi_sub_work") : t("hi_sub_none"))));
+  if (cards.length) root.append(h("a", { class: "cta-card", href: "#/review" }, h("span", { class: "big" }, cards.length), h("div", { class: "grow" }, h("h2", null, tf("waiting_title", { n: cards.length })), h("p", null, t("waiting_sub"))), h("span", { class: "btn" }, t("review_now"), icon("arrow", "flip"))));
+  const ck = checklist(); if (ck) root.append(ck);
+  if (!ver.length && !isOwner()) root.append(h("div", { class: "card empty" }, h("div", { class: "art" }, icon("lock")), h("h2", null, t("need_owner")), h("p", null, t("need_owner_d"))));
+  if (act.length) root.append(h("div", null, h("div", { class: "sec-title", style: { marginTop: 0 } }, h("h2", null, t("active_jobs"))), h("div", { class: "stack" }, ...act.map((j) => jobCard(j, { timeline: true })))));
+  if (ver.length && canEdit()) root.append(h("section", { class: "card glass" }, h("h2", null, t("ask_next")), h("p", { class: "muted small", style: { margin: "2px 0 12px" } }, t("ask_next_sub")), h("div", { class: "chips" }, ...["chip1", "chip2", "chip3"].map((k) => h("button", { class: "chip", type: "button", onclick: () => askAssistant(t(k)) }, icon("sparkles"), t(k))))));
+  const rec = S.jobs.filter((j) => !isActive(j)).slice(0, 3);
+  if (rec.length) root.append(h("div", null, h("div", { class: "sec-title" }, h("h2", null, t("recent")), h("a", { class: "btn ghost sm", href: "#/jobs" }, t("all_activity"), icon("chev", "flip"))), h("div", { class: "stack" }, ...rec.map((j) => jobCard(j)))));
+  else if (!act.length && ver.length && !ck) root.append(h("div", { class: "card empty" }, h("div", { class: "art" }, icon("sparkles")), h("h2", null, t("home_empty_t")), h("p", null, t("home_empty_d")), h("a", { class: "btn", href: "#/chat" }, t("ck_do_first"))));
+  return root;
+};
+
+/* ---------- 6d. review: big preview + approve/reject (swipe, buttons, arrow keys), inline title edit ---------- */
+function decide(card, verdict) {
+  const { j, i, key } = card; S.local[key] = verdict; const label = t(verdict === "approve" ? "approved_toast" : "rejected_toast");
+  const run = async (ka) => { pendingCommits.delete(key); try { await api("POST", op() + "/jobs/" + j.id + "/drafts/" + i + "/" + verdict, null, { keepalive: !!ka }); } catch (e) { delete S.local[key]; if (!ka) toast(errText(e), { kind: "bad" }); } if (!ka) { try { await loadCore(); } catch (e) {} delete S.local[key]; if (!pendingCommits.size || route.name !== "review") softRender(); else updateChrome(); } };
+  const timer = setTimeout(() => run(false), 5200); pendingCommits.set(key, { timer, run });
+  toast(label, { action: t("undo"), ms: 5000, fn: () => { clearTimeout(timer); pendingCommits.delete(key); delete S.local[key]; renderRoute(false); } });
+  if (verdict === "approve") S.ok = (S.ok || 0) + 1; renderRoute(true);
+}
+function flyOut(card, dir, cb) { card.classList.add("settle"); card.style.transform = `translateX(${dir > 0 ? "120%" : "-120%"}) rotate(${dir > 0 ? 12 : -12}deg)`; card.style.opacity = 0; const st = $(dir > 0 ? ".rv-stamp.yes" : ".rv-stamp.no", card); if (st) st.style.opacity = 1; setTimeout(cb, 210); }
+function attachSwipe(card, onYes, onNo) {
+  let x0 = null, y0 = 0, dx = 0, id = null, moved = false; const yes = $(".rv-stamp.yes", card), no = $(".rv-stamp.no", card);
+  card.addEventListener("pointerdown", (e) => { if (e.button > 0 || e.target.closest("button,input,textarea,a,iframe,video,.noswipe")) return; x0 = e.clientX; y0 = e.clientY; dx = 0; id = e.pointerId; moved = false; });
+  card.addEventListener("pointermove", (e) => { if (x0 == null || e.pointerId !== id) return; dx = e.clientX - x0; const dy = e.clientY - y0; if (!moved) { if (Math.abs(dx) < 8) return; if (Math.abs(dy) > Math.abs(dx)) { x0 = null; return; } moved = true; try { card.setPointerCapture(id); } catch (x) {} card.classList.add("dragging"); } card.style.transform = `translateX(${dx}px) rotate(${dx / 24}deg)`; yes.style.opacity = Math.max(0, Math.min(1, dx / 110)); no.style.opacity = Math.max(0, Math.min(1, -dx / 110)); });
+  const end = (e) => { if (x0 == null || e.pointerId !== id) return; x0 = null; card.classList.remove("dragging"); if (!moved) return; if (Math.abs(dx) > 110) flyOut(card, dx, dx > 0 ? onYes : onNo); else { card.classList.add("settle"); card.style.transform = ""; yes.style.opacity = no.style.opacity = 0; } };
+  card.addEventListener("pointerup", end); card.addEventListener("pointercancel", end);
+}
+function player(c) {
+  const { d, j } = c, isLong = d.kind === "long", box = h("div", { class: "player " + (isLong ? "h" : "v"), style: { "--pg": gradFor(d.title + j.id) } });
+  const tag = h("span", { class: "ptag" }, icon(isLong ? "film" : "bolt"), t(isLong ? "longv" : "short"));
+  const poster = h("div", { class: "poster" }, h("div", { class: "ptitle" }, d.title)), play = h("button", { class: "play", type: "button", "aria-label": t("play") + ": " + d.title, onclick: start }, icon("play"));
+  box.append(poster, tag, play);
+  function start() {
+    if (d.preview_url) { box.replaceChildren(h("video", { src: d.preview_url, controls: true, autoplay: true, playsinline: true }), tag); return; }
+    if (d.demo || DEMO) { fake(); return; }
+    if (d.yt_video_id) { box.replaceChildren(h("iframe", { src: "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(d.yt_video_id) + "?autoplay=1&playsinline=1&rel=0", allow: "autoplay; encrypted-media; picture-in-picture", allowfullscreen: true, title: d.title }), tag); return; }
+    toast(t("preview_wait"));
+  }
+  function fake() {
+    const words = String(d.title).replace(/[!?.,]/g, "").split(/\s+/).filter(Boolean), cap = h("div", { class: "cap" }, words[0] || ""), sc = h("i"), total = 9000; let n = 0;
+    const f = h("div", { class: "fake" }, cap, h("div", { class: "scrub" }, sc)); box.replaceChildren(f, tag); const tm = setInterval(() => { n++; cap.replaceWith(cap.cloneNode(false)); const c2 = $(".cap", f) || f.firstChild; c2.textContent = words.slice(n % Math.max(1, words.length), (n % Math.max(1, words.length)) + 2).join(" ") || words[0]; }, 520);
+    const t0 = performance.now(), raf = () => { if (!f.isConnected) return; sc.style.width = (((performance.now() - t0) % total) / total * 100) + "%"; requestAnimationFrame(raf); }; requestAnimationFrame(raf); cleanups.push(() => clearInterval(tm));
+  }
+  return box;
+}
+function titleEditor(c) {
+  const wrap = h("div"); const show = () => { wrap.replaceChildren(h("div", { class: "title-edit" }, h("h2", null, c.d.title), canEdit() ? h("button", { class: "iconbtn", type: "button", "aria-label": t("edit_title"), onclick: edit }, icon("pencil")) : null)); };
+  function edit() {
+    const inp = h("input", { class: "input", id: "tIn", maxlength: 100, value: c.d.title, "aria-label": t("title_lbl") }), err = h("div", { class: "errtxt", role: "alert" });
+    const saveBtn = h("button", { class: "btn", type: "submit" }, t("save")), form = h("form", { class: "title-form noswipe", onsubmit: async (e) => { e.preventDefault(); const v = inp.value.trim().slice(0, 100); if (!v || v === c.d.title) return show(); saveBtn.disabled = true; try { await api("POST", op() + "/jobs/" + c.j.id + "/drafts/" + c.i + "/title", { title: v }); c.d.title = v; toast(t("title_saved")); renderRoute(false); } catch (x) { err.textContent = errText(x); saveBtn.disabled = false; } } },
+      inp, h("div", { class: "small muted" }, t("title_max")), err, h("div", { class: "row" }, saveBtn, h("button", { class: "btn secondary", type: "button", onclick: show }, t("cancel")))); inp.onkeydown = (e) => { if (e.key === "Escape") { e.stopPropagation(); show(); } };
+    wrap.replaceChildren(form); inp.focus(); inp.select();
+  }
+  show(); return wrap;
+}
+ROUTES.review = function () {
+  const cards = pendingCards(), root = h("div", { class: "stack" });
+  const jobsWith = S.jobs.filter((j) => j.status === "draft_ready");
+  const total = cards.length + Object.keys(S.local).length;
+  root.append(h("div", { class: "page-head" }, h("h1", { class: "display" }, t("rv_title")), h("p", null, t("rv_sub"))));
+  if (!cards.length) { root.append(h("div", { class: "card glass empty" }, h("div", { class: "art ok" }, icon("check")), h("h2", null, t("rv_empty_t")), h("p", null, t("rv_empty_d")), canEdit() ? h("a", { class: "btn lg", href: "#/chat" }, icon("sparkles"), t("rv_empty_b")) : null)); return root; }
+  const c = cards[0], mobile = matchMedia("(max-width:899px)").matches;
+  const pips = h("div", { class: "pips", "aria-hidden": "true" }, ...cards.slice(0, 8).map((x, n) => h("i", { class: n === 0 ? "on" : "" })));
+  root.append(h("div", { class: "rv-top" }, h("span", { class: "chip accent" }, t("rv_count", { a: 1, b: cards.length })), pips, cards.length > 1 ? h("button", { class: "btn ghost sm", type: "button", onclick: () => { S.skipped.push(c.key); renderRoute(false); } }, t("later")) : h("span")));
+  const card = h("article", { class: "rv-card", tabindex: "0", "aria-label": c.d.title },
+    h("div", { class: "rv-stamp yes", "aria-hidden": "true" }, t("approved")), h("div", { class: "rv-stamp no", "aria-hidden": "true" }, t("rejected")),
+    h("div", { class: "rv-media" }, player(c)),
+    h("div", { class: "rv-body" }, titleEditor(c),
+      h("div", { class: "meta-row" }, h("span", { class: "chip" }, icon(c.d.kind === "long" ? "film" : "bolt"), t(c.d.kind === "long" ? "longv" : "short")), h("span", { class: "chip" }, icon("lock"), t("priv")), c.d.qa_ok ? h("span", { class: "chip ok" }, icon("check"), t("qa_ok")) : (c.d.qa_notes ? h("span", { class: "chip warn" }, icon("alert"), c.d.qa_notes) : null)),
+      h("div", { class: "small muted rv-from" }, t("from_job", { t: jobTitle(c.j) + (jobWhen(c.j) ? " · " + jobWhen(c.j) : "") })),
+      !canEdit() ? h("div", { class: "notice" }, icon("info"), t("view_only")) : null));
+  const desk = matchMedia("(min-width:900px)").matches;
+  const dock = canEdit() ? h("div", { class: desk ? "rv-inline" : "rv-dock" }, h("div", { class: "rv-actions" }, h("button", { class: "btn no", type: "button", onclick: () => flyOut(card, -1, () => decide(c, "reject")) }, icon("x"), t("reject")), h("button", { class: "btn yes", type: "button", onclick: () => flyOut(card, 1, () => decide(c, "approve")) }, icon("check"), t("approve"))),
+    h("div", { class: "hintline mob" }, icon("arrow", "flip"), t("rv_hint_m")), h("div", { class: "hintline desk" }, t("rv_hint_d"), h("kbd", null, "←"), t("rv_hint_d3"), h("kbd", null, "→"), t("rv_hint_d2"))) : null;
+  if (desk && dock) $(".rv-body", card).append(dock);
+  root.append(h("div", { class: "rv-stage" }, card)); if (dock && !desk) root.append(dock);
+  if (canEdit()) {
+    attachSwipe(card, () => decide(c, "approve"), () => decide(c, "reject"));
+    const same = cards.filter((x) => x.j.id === c.j.id); if (same.length > 1) { let armed = false; const b = h("button", { class: "btn secondary block", type: "button", onclick: async (e) => { if (!armed) { armed = true; e.currentTarget.textContent = t("approve_all_sure"); setTimeout(() => { armed = false; if (e.currentTarget.isConnected) e.currentTarget.textContent = t("approve_all", { n: same.length }); }, 3500); return; } e.currentTarget.disabled = true; try { await api("POST", op() + "/jobs/" + c.j.id + "/approve"); await loadCore(); toast(t("approved_toast")); renderRoute(false); } catch (x) { toast(errText(x), { kind: "bad" }); } } }, t("approve_all", { n: same.length })); root.append(b); }
+  }
+  void jobsWith; void total; void mobile; return root;
+};
+let wasDesk = matchMedia("(min-width:900px)").matches; addEventListener("resize", () => { const d = matchMedia("(min-width:900px)").matches; if (d !== wasDesk) { wasDesk = d; if (S.ready && route.name === "review") renderRoute(false); } });
+document.addEventListener("keydown", (e) => {
+  if (route.name !== "review" || e.altKey || e.ctrlKey || e.metaKey || !canEdit()) return; const a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT|BUTTON/.test(a.tagName) && e.key !== "ArrowLeft" && e.key !== "ArrowRight") return; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return;
+  const cards = pendingCards(); if (!cards.length) return; const card = $(".rv-card"); if (!card || card.style.opacity === "0") return;
+  if (e.key === "ArrowRight") { e.preventDefault(); flyOut(card, 1, () => decide(cards[0], "approve")); } else if (e.key === "ArrowLeft") { e.preventDefault(); flyOut(card, -1, () => decide(cards[0], "reject")); }
+});
+
+/* ---------- 6e. activity (all jobs, live timeline) ---------- */
+ROUTES.jobs = function () {
+  const root = h("div", { class: "stack" }), list = S.jobs.slice().sort((a, b) => (isActive(a) === isActive(b) ? (a.created < b.created ? 1 : -1) : isActive(a) ? -1 : 1));
+  root.append(h("div", { class: "page-head" }, h("h1", { class: "display" }, t("jb_title")), h("p", null, t("jb_sub"))));
+  if (!list.length) { root.append(h("div", { class: "card empty" }, h("div", { class: "art" }, icon("activity")), h("h2", null, t("jb_empty_t")), h("p", null, t("jb_empty_d")), canEdit() && verifiedCh().length ? h("a", { class: "btn", href: "#/chat" }, t("rv_empty_b")) : null)); return root; }
+  list.forEach((j) => root.append(jobCard(j, { timeline: route.arg === j.id || isActive(j), log: true }))); return root;
+};
+
+/* ---------- 6f. assistant chat ---------- */
+function askAssistant(text) { S.chatDraft = text; S.chatAuto = true; go("chat"); }
+ROUTES.chat = function () {
+  const root = h("div", { class: "chat-wrap" }), list = h("div", { class: "msgs", "aria-live": "polite", role: "log" }), ver = verifiedCh();
+  root.append(h("div", { class: "page-head" }, h("h1", { class: "display" }, t("ch_title")), h("p", null, t("ch_sub"))), list);
+  const bubble = (m) => h("div", { class: "msg " + (m.r === "user" ? "me" : "bot") }, m.r === "user" ? null : h("span", { class: "av" }, icon("sparkles")), h("div", null, h("div", { class: "bub" }, m.text), m.actions && m.actions.length ? h("div", { class: "act-link" }, ...m.actions.map((a) => h("a", { class: "btn sm secondary", href: a.type === "job_created" || a.type === "show_job" ? "#/jobs/" + a.job_id : "#/review" }, icon("activity"), t("ch_see")))) : null, m.t ? h("time", null, timeTxt(m.t)) : null));
+  const paint = () => { const msgs = S.chat || []; list.replaceChildren(...[bubble({ r: "bot", text: t("ch_hello") }), ...msgs.map(bubble), S.typing ? h("div", { class: "msg bot" }, h("span", { class: "av" }, icon("sparkles")), h("div", { class: "bub typing" }, h("i"), h("i"), h("i"))) : null].filter(Boolean)); window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }); };
+  const ta = h("textarea", { id: "chatIn", rows: 1, placeholder: t("ch_ph"), "aria-label": t("ch_ph"), maxlength: 500 }), sendB = h("button", { class: "send", type: "submit", "aria-label": t("ch_send"), disabled: true }, icon("send", "flip-send"));
+  const grow = () => { ta.style.height = "auto"; ta.style.height = Math.min(ta.scrollHeight, 140) + "px"; sendB.disabled = !ta.value.trim() || !!S.typing; };
+  const sendMsg = async (txt) => {
+    txt = (txt || ta.value).trim(); if (!txt || S.typing) return; ta.value = ""; grow(); S.chat = (S.chat || []).concat([{ r: "user", text: txt, t: new Date().toISOString() }]); S.typing = true; paint();
+    try { const r = await api("POST", op() + "/assistant", { message: txt, channel_id: (ver[0] || {}).id }); S.chat = S.chat.concat([{ r: "bot", text: r.reply, t: new Date().toISOString(), actions: r.actions || [] }]); if ((r.actions || []).length) loadCore().then(() => updateChrome()).catch(() => {}); }
+    catch (e) { S.chat = S.chat.concat([{ r: "bot", text: errText(e), t: new Date().toISOString() }]); } S.typing = false; paint(); sendB.disabled = !ta.value.trim();
+  };
+  ta.oninput = grow; ta.onkeydown = (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); sendMsg(); } };
+  const chips = h("div", { class: "chipscroll" }, ...["chip1", "chip2", "chip3", "chip4"].map((k) => h("button", { class: "chip", type: "button", onclick: () => sendMsg(t(k)) }, t(k))));
+  const comp = h("form", { class: "composer", onsubmit: (e) => { e.preventDefault(); sendMsg(); } }, ver.length ? chips : h("div", { class: "notice warn" }, icon("info"), t("ch_novfy")), h("div", { class: "box" }, ta, sendB), h("div", { class: "small muted center" }, t("ch_cost")));
+  root.append(comp); if (!canEdit()) { ta.disabled = true; }
+  if (S.chat == null) { list.replaceChildren(h("div", { class: "skel", style: { height: "56px", width: "70%" } }), h("div", { class: "skel", style: { height: "56px", width: "50%", alignSelf: "flex-end" } })); loadChat().then(() => { if (route.name === "chat") paint(); }); } else paint();
+  if (S.chatAuto && S.chatDraft) { const d = S.chatDraft; S.chatAuto = false; S.chatDraft = null; setTimeout(() => (S.chat == null ? loadChat() : Promise.resolve()).then(() => sendMsg(d)), 250); }
+  if (matchMedia("(min-width:900px)").matches) setTimeout(() => ta.focus(), 60);
+  return root;
+};
+
+/* ---------- 6g. team ---------- */
+ROUTES.team = function () {
+  const root = h("div", { class: "stack" }); root.append(h("div", { class: "page-head" }, h("h1", { class: "display" }, t("tm_title")), h("p", null, t("tm_sub"))));
+  if (S.members == null) { loadMembers().then(() => route.name === "team" && renderRoute(false)); root.append(h("div", { class: "skel", style: { height: "120px" } })); return root; }
+  const me = S.user.id, owner = isOwner();
+  const memberRow = (m) => h("div", { class: "li" }, h("span", { class: "avatar" }, initials(m.email)), h("div", { class: "grow" }, h("b", { class: "ltr trunc" }, m.email), m.uid === me ? h("span", { class: "small muted" }, " · " + t("you")) : null, h("div", { class: "small muted" }, t("rd_" + m.role))),
+    owner && m.role !== "owner" ? h("select", { class: "input sel", "aria-label": t("r_" + m.role), onchange: async (e) => { try { await api("PATCH", op() + "/members/" + m.uid, { role: e.target.value }); toast(t("tm_role_set")); await loadMembers(); renderRoute(false); } catch (x) { toast(errText(x), { kind: "bad" }); } } }, ...["editor", "viewer"].map((r) => h("option", { value: r, selected: m.role === r }, t("r_" + r)))) : h("span", { class: "chip " + (m.role === "owner" ? "accent" : "") }, t("r_" + m.role)),
+    owner && m.role !== "owner" ? h("button", { class: "iconbtn", type: "button", "aria-label": t("remove") + " " + m.email, onclick: async () => { if (!confirm(t("tm_remove_q", { email: m.email }))) return; try { await api("DELETE", op() + "/members/" + m.uid); toast(t("tm_removed")); await loadMembers(); renderRoute(false); } catch (x) { toast(errText(x), { kind: "bad" }); } } }, icon("trash")) : null);
+  root.append(h("section", { class: "card glass" }, h("h2", null, t("tm_members") + " (" + S.members.length + ")"), h("div", { class: "list", style: { marginTop: "8px" } }, ...S.members.map(memberRow))));
+  if (S.invites.length) root.append(h("section", { class: "card glass" }, h("h2", null, t("tm_pending")), h("div", { class: "list", style: { marginTop: "8px" } }, ...S.invites.map((i) => h("div", { class: "li" }, h("span", { class: "avatar" }, icon("mail")), h("div", { class: "grow" }, h("b", { class: "ltr trunc" }, i.email), h("div", { class: "small muted" }, t("r_" + i.role) + " · " + t("tm_expires", { d: dateTxt(i.expires) }))), owner ? h("button", { class: "btn ghost sm", type: "button", onclick: async () => { try { await api("DELETE", op() + "/invites/" + i.id); await loadMembers(); renderRoute(false); } catch (x) { toast(errText(x), { kind: "bad" }); } } }, t("tm_revoke")) : null)))));
+  if (!owner) { root.append(h("div", { class: "notice" }, icon("lock"), t("tm_owner_only"))); return root; }
+  const email = h("input", { class: "input", id: "invEmail", type: "email", dir: "ltr", autocomplete: "off", placeholder: "editor@example.com", required: true }), err = h("div", { class: "errtxt", role: "alert" }), out = h("div"); let role = "editor";
+  const roleCard = (r) => h("label", { class: "role-card" }, h("input", { type: "radio", name: "role", value: r, checked: r === "editor", onchange: () => { role = r; } }), h("div", null, h("b", null, t("r_" + r)), h("span", null, t("rd_" + r))));
+  const sub = h("button", { class: "btn lg block", type: "submit" }, icon("link"), t("tm_send"));
+  root.append(h("form", { class: "card glass pad-lg stack", onsubmit: async (e) => { e.preventDefault(); err.textContent = ""; if (!/^\S+@\S+\.\S+$/.test(email.value.trim())) { err.textContent = t("e_email"); email.focus(); return; } sub.disabled = true;
+    try { const r = await api("POST", op() + "/invites", { email: email.value.trim(), role }); const em = email.value.trim(); email.value = ""; out.replaceChildren(h("div", { class: "notice ok" }, icon("check"), t("tm_link_ready", { email: em })), h("div", { class: "linkbox" }, h("code", null, r.accept_url), h("button", { class: "btn sm", type: "button", onclick: () => copyText(r.accept_url) }, icon("copy"), t("copy"))), h("div", { class: "row wrap" }, h("a", { class: "btn secondary sm", target: "_blank", rel: "noopener", href: "https://wa.me/?text=" + encodeURIComponent(r.accept_url) }, icon("send", "flip-send"), t("tm_whatsapp"))), h("div", { class: "small muted" }, t("tm_email_note"))); await loadMembers(); }
+    catch (x) { err.textContent = errText(x); } sub.disabled = false; } },
+    h("h2", null, t("tm_invite")), h("p", { class: "muted small" }, t("tm_invite_d")), h("div", { class: "field" }, h("label", { for: "invEmail" }, t("email")), email), h("div", { class: "stack tight", role: "radiogroup" }, roleCard("editor"), roleCard("viewer")), err, sub, out));
+  return root;
+};
+IC.link = '<path d="M10 14a4 4 0 0 0 5.700 0l3-3a4 4 0 0 0-5.700-5.700l-1 1M14 10a4 4 0 0 0-5.700 0l-3 3A4 4 0 0 0 11 18.700l1-1"/>';
+
+/* ---------- 6h. credits ---------- */
+ROUTES.credits = function () {
+  const root = h("div", { class: "stack" }), cr = S.org.credits, max = Math.max(cr, S.org.plan === "trial" ? 2 : 10), used = S.jobs.filter((j) => (j.credits_held || 0) > 0 || ["approved", "rejected", "draft_ready", "running", "queued", "qa"].includes(j.status));
+  root.append(h("div", { class: "page-head" }, h("h1", { class: "display" }, t("cr_title")), h("p", null, t("cr_sub"))));
+  root.append(h("section", { class: "card glass pad-lg" }, h("div", { class: "row", style: { gap: "24px" } }, h("div", { class: "ring", style: { "--p": Math.min(100, cr / max * 100) } }, h("div", null, h("div", { class: "big-num" }, cr), h("div", { class: "small muted" }, t("cr_left")))), h("div", { class: "stack tight grow" }, h("div", { class: "chip accent", style: { alignSelf: "flex-start" } }, t("cr_plan") + ": " + t("plan_" + (S.org.plan === "trial" ? "trial" : "none"))), cr <= 1 ? h("div", { class: "chip warn", style: { alignSelf: "flex-start" } }, icon("alert"), t("cr_low")) : null, isOwner() ? h("button", { class: "btn", type: "button", onclick: buy }, icon("coins"), t("cr_buy")) : null)), h("div", { id: "buyMsg" })));
+  root.append(h("section", { class: "card glass" }, h("h2", null, t("cr_how")), h("ul", { class: "ticks", style: { marginTop: "10px" } }, h("li", null, icon("check"), t("cr_how1")), h("li", null, icon("check"), t("cr_how2")), h("li", null, icon("check"), t("cr_how3", { n: 2 })))));
+  root.append(h("section", { class: "card glass" }, h("h2", null, t("cr_usage")), used.length ? h("div", { class: "list", style: { marginTop: "8px" } }, ...used.slice(0, 8).map((j) => h("div", { class: "li" }, h("div", { class: "grow" }, h("b", null, jobTitle(j)), h("div", { class: "small muted" }, [jobWhen(j), ago(j.created)].filter(Boolean).join(" · "))), h("span", { class: "chip " + (["failed", "cancelled"].includes(j.status) ? "ok" : "") }, ["failed", "cancelled"].includes(j.status) ? t("credit_back") : tf("credits_n", { n: Math.max(1, j.credits_held || 1) }))))) : h("p", { class: "muted", style: { marginTop: "8px" } }, t("cr_usage_empty"))));
+  async function buy() { try { const r = await api("POST", op() + "/billing/checkout", {}); if (r.url) location.assign(r.url); } catch (e) { const box = $("#buyMsg"); if (box) box.replaceChildren(h("div", { class: "notice", style: { marginTop: "14px" } }, icon("info"), e._status === 501 || e.error === "payment_not_implemented" ? t("cr_buy_soon") : errText(e))); } }
+  return root;
+};
+
+/* ---------- 6i. settings + more ---------- */
+function createOrgForm() {
+  const inp = h("input", { class: "input", id: "orgName", placeholder: t("se_ws_name"), "aria-label": t("se_ws_name"), maxlength: 80 }); const sub = h("button", { class: "btn", type: "submit" }, t("se_ws_create"));
+  return h("form", { class: "row wrap", onsubmit: async (e) => { e.preventDefault(); if (!inp.value.trim()) return; sub.disabled = true; try { const r = await api("POST", "/orgs", { name: inp.value.trim() }); LS.set("studio_org", r.org_id); S.org = null; S.ready = false; S.chat = null; S.members = null; renderApp(); } catch (x) { toast(errText(x), { kind: "bad" }); sub.disabled = false; } } }, h("div", { class: "grow" }, inp), sub);
+}
+ROUTES.more = function () {
+  const item = (r, ic, lbl, sub) => h("a", { class: "menu-item", href: "#/" + r }, icon(ic), h("div", { class: "grow" }, t(lbl), sub ? h("small", null, sub) : null), icon("chev", "flip"));
+  return h("div", { class: "stack" }, h("div", { class: "page-head" }, h("h1", { class: "display" }, t("more_title"))), h("div", { class: "card glass menu-card" }, item("team", "users", "nav_team", S.org.name), item("credits", "coins", "nav_credits", S.org.credits + " " + t("cr_left")), item("settings", "sliders", "nav_settings")),
+    h("div", { class: "card glass row between wrap" }, h("span", { class: "lbl" }, t("se_lang")), langSwitch()), h("button", { class: "btn secondary block", type: "button", onclick: logout }, icon("logout"), t("se_logout")));
+};
+ROUTES.settings = function () {
+  const root = h("div", { class: "stack" }); root.append(h("div", { class: "page-head" }, h("h1", { class: "display" }, t("se_title"))));
+  root.append(h("section", { class: "card glass" }, h("h2", null, t("se_account")), h("div", { class: "row between wrap", style: { marginTop: "10px" } }, h("div", { class: "row" }, h("span", { class: "avatar" }, initials(S.user.email)), h("div", null, h("b", { class: "ltr" }, S.user.email), h("div", { class: "small muted" }, t("r_" + S.org.role)))), h("button", { class: "btn secondary", type: "button", onclick: logout }, icon("logout"), t("se_logout")))));
+  root.append(h("section", { class: "card glass stack" }, h("h2", null, t("se_look")), h("div", { class: "row between wrap" }, h("span", { class: "lbl" }, t("se_lang")), langSwitch()),
+    h("div", { class: "row between wrap" }, h("span", { class: "lbl" }, t("se_theme")), h("div", { class: "seg", role: "group", "aria-label": t("se_theme") }, ...["auto", "light", "dark"].map((m) => h("button", { type: "button", "aria-pressed": String(S.theme === m), onclick: () => { setTheme(m); renderRoute(false); } }, t("th_" + m)))))));
+  // channels + youtube
+  const chSec = h("section", { class: "card glass" }, h("h2", null, t("se_channels")), h("p", { class: "small muted", style: { margin: "4px 0 8px" } }, t("se_yt_note")));
+  const rows = S.channels.map((c) => { const yt = (c.yt && c.yt.status) || "not_connected", ytc = yt === "connected";
+    return h("div", { class: "li wrapli" }, h("div", { class: "grow" }, h("div", { class: "row wrap", style: { gap: "8px" } }, platTag(c.platform), h("b", { class: "ltr" }, c.slug), h("span", { class: "chip " + (c.status === "verified" ? "ok" : "warn") }, t(c.status === "verified" ? "se_verified" : "se_pending"))), c.status === "verified" ? h("div", { class: "small muted", style: { marginTop: "4px" } }, icon("yt"), " ", ytc ? t("yt_ok") + (c.yt.title ? ": " + c.yt.title : "") : yt === "needs_reconnect" ? t("yt_reconnect") : t("yt_none")) : null),
+      isOwner() ? h("div", { class: "row wrap" }, c.status === "pending" ? h("button", { class: "btn sm", type: "button", onclick: () => go("setup") }, t("verify_now")) : (ytc ? h("button", { class: "btn secondary sm", type: "button", onclick: async () => { try { await api("POST", "/studio/yt/disconnect", { org_id: S.org.id, channel_id: c.id }); toast(t("yt_disc_ok")); await loadCore(); renderRoute(false); } catch (e) { toast(errText(e), { kind: "bad" }); } } }, t("yt_disconnect")) : h("button", { class: "btn sm", type: "button", onclick: () => connectYouTube(c) }, icon("yt"), yt === "needs_reconnect" ? t("yt_reconnect") : t("yt_connect"))),
+        h("button", { class: "iconbtn", type: "button", "aria-label": t("remove"), onclick: async () => { if (!confirm(t("remove_ch_q"))) return; try { await api("DELETE", op() + "/channels/" + c.id); await loadCore(); renderRoute(false); } catch (e) { toast(errText(e), { kind: "bad" }); } } }, icon("trash"))) : null); });
+  chSec.append(h("div", { class: "list" }, ...rows), S.ytSoon ? h("div", { class: "notice warn", style: { marginTop: "12px" } }, icon("info"), t("su3_soon")) : null, h("div", { class: "small muted", style: { marginTop: "10px" } }, t("se_style")), isOwner() ? h("button", { class: "btn secondary", style: { marginTop: "12px" }, type: "button", onclick: () => go("setup", "new") }, icon("plus"), t("se_add_channel")) : null);
+  root.append(chSec);
+  // autonomy placeholder
+  const opt = (n, on) => h("label", { class: "opt " + (on ? "sel" : "off") }, h("input", { type: "radio", name: "auto", checked: on, disabled: !on }), h("div", null, h("b", null, t("au" + n), on ? null : h("span", { class: "chip", style: { marginInlineStart: "8px" } }, t("soon"))), h("span", null, t("au" + n + "d"))));
+  root.append(h("section", { class: "card glass stack" }, h("div", null, h("h2", null, t("se_auto")), h("p", { class: "small muted" }, t("se_auto_d"))), h("div", { class: "stack tight", role: "radiogroup" }, opt(1, true), opt(2, false), opt(3, false))));
+  root.append(h("section", { class: "card glass stack" }, h("div", null, h("h2", null, t("se_notif")), h("p", { class: "small muted" }, t("se_notif_d"))), ...["nt1", "nt2", "nt3"].map((k) => h("div", { class: "row between" }, h("span", null, t(k), " ", h("span", { class: "chip" }, t("soon"))), h("label", { class: "switch" }, h("input", { type: "checkbox", disabled: true, "aria-label": t(k) }), h("i"))))));
+  const multi = S.orgs.length > 1;
+  root.append(h("section", { class: "card glass stack" }, h("h2", null, t("se_ws")), h("div", { class: "row between wrap" }, h("div", null, h("b", null, S.org.name), h("div", { class: "small muted" }, t("r_" + S.org.role))), multi ? h("select", { class: "input sel", "aria-label": t("se_ws_switch"), onchange: (e) => { S.org = S.orgs.find((o) => o.id === e.target.value); LS.set("studio_org", S.org.id); S.ready = false; S.chat = null; S.members = null; S.jobs = []; S.channels = []; S.prevJobs = null; renderApp(); } }, ...S.orgs.map((o) => h("option", { value: o.id, selected: o.id === S.org.id }, o.name))) : null),
+    h("p", { class: "small muted" }, t("se_ws_d")), createOrgForm()));
+  root.append(h("div", { class: "notice" }, icon("shield"), t("se_about_d")));
+  return root;
+};
+
+/* ---------- 7. demo backend (?demo=1): same endpoints and shapes as studio.js, in memory, with live job simulation ---------- */
+let D = null, demoTimer = null;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const DM = {
+  queued: { he: "בתור - מתחילים עוד רגע", en: "Queued - starting in a moment" }, running: { he: "מתחילים לעבוד על זה...", en: "Getting started..." }, downloading: { he: "מביאים את הסטרים...", en: "Fetching your stream..." },
+  transcribing: { he: "מקשיבים לסטרים... {pct}%", en: "Listening to the stream... {pct}%" }, found_moments: { he: "מצאנו {n} רגעים, חותכים...", en: "Found {n} moments, cutting..." }, rendering: { he: "מכינים קליפ {i} מתוך {n}...", en: "Making clip {i} of {n}..." },
+  qa: { he: "בודקים איכות...", en: "Quality check..." }, draft_ready: { he: "{n} טיוטות מוכנות - תעבור עליהן!", en: "{n} drafts are ready - take a look!" }, approved: { he: "אושר. מעולה!", en: "Approved. Nice!" }, rejected: { he: "נדחה.", en: "Rejected." },
+  failed: { he: "משהו השתבש. החזרנו לך את הקרדיט.", en: "Something went wrong. Your credit is back." }, cancelled: { he: "בוטל. החזרנו לך את הקרדיט.", en: "Cancelled. Your credit is back." },
+};
+const dmsg = (k, v) => { const o = {}; for (const l of ["he", "en"]) o[l] = DM[k][l].replace(/\{(\w+)\}/g, (_, x) => (v && v[x] != null ? v[x] : "")); return o; };
+const TITLES = { he: ["הקלאץ' שאף אחד לא ציפה לו", "הצ'אט השתגע כשזה קרה", "ריי-קוויט תוך 3 שניות", "ככה ניצחתי עם חיים אחד", "הרגע שבו הכול התהפך", "לא האמנתי שזה עבד"], en: ["The clutch nobody saw coming", "Chat lost it when this happened", "Rage quit in 3 seconds", "How I won with 1 HP", "The moment everything flipped", "I can't believe that worked"] };
+const LONGT = { he: "הלייטס המלא: הסטרים הכי מטורף של השבוע", en: "Full highlights: the wildest stream of the week" };
+function demoDrafts(shorts, long, off, decisions) {
+  const L = lang, out = []; for (let i = 0; i < shorts; i++) out.push({ kind: "short", title: TITLES[L][(i + (off || 0)) % 6], yt_video_id: "", qa_ok: i !== 2, qa_notes: i === 2 ? (L === "he" ? "הכתוביות קרובות לקצה, בדקו בעין" : "Captions sit close to the edge, check by eye") : "", private: true, decision: decisions ? decisions[i] || null : null, demo: true });
+  if (long) out.push({ kind: "long", title: LONGT[L], yt_video_id: "", qa_ok: true, qa_notes: "", private: true, decision: decisions ? decisions[shorts] || null : null, demo: true }); return out;
+}
+function demoInit(scn) {
+  const he = lang === "he", now = Date.now(), iso = (ms) => new Date(now - ms).toISOString(), role = ["owner", "editor", "viewer"].includes(QS.get("role")) ? QS.get("role") : "owner", full = scn === "full" || scn === "yt";
+  const ch = (st, yt) => ({ id: "c_demo", org: "o_demo", platform: "kick", slug: "noa-plays", status: st, verify_code: "ODH-K7M2QXA9", verify_expires: new Date(now + 40 * 36e5).toISOString(), style_id: "signature", yt: { status: yt ? "connected" : "not_connected", title: yt ? "Noa Plays" : undefined }, created: iso(9e8) });
+  const job = (id, o) => Object.assign({ id, org: "o_demo", channel: "c_demo", kind: "edit", style_id: "signature", outputs: { shorts: 3, long: false }, hints: {}, source: { type: "auto", when: "last_stream" }, status: "queued", status_text: dmsg("queued"), credits_held: 1, created: iso(6e5), updated: iso(6e4), progress: 0, result: { drafts: [] }, events: [{ t: iso(6e5), e: "queued" }] }, o);
+  const jobs = scn === "full" ? [
+    job("j_ready", { outputs: { shorts: 3, long: true }, hints: { mood: "funny" }, source: { type: "auto", when: "yesterday" }, status: "draft_ready", status_text: dmsg("draft_ready", { n: 4 }), created: iso(26 * 6e4), progress: 100, result: { drafts: demoDrafts(3, true, 0) }, events: [{ t: iso(26 * 6e4), e: "queued" }, { t: iso(25 * 6e4), e: "running" }, { t: iso(3 * 6e4), e: "qa" }, { t: iso(2 * 6e4), e: "draft_ready" }] }),
+    job("j_run", { outputs: { shorts: 5, long: false }, hints: { mood: "hype" }, status: "running", status_text: dmsg("transcribing", { pct: 38 }), created: iso(3 * 6e4), progress: 26, events: [{ t: iso(3 * 6e4), e: "queued" }, { t: iso(2.5 * 6e4), e: "running" }] }),
+    job("j_done", { outputs: { shorts: 3, long: false }, source: { type: "auto", when: "week" }, status: "approved", status_text: dmsg("approved"), created: iso(30 * 36e5), credits_held: 1, progress: 100, result: { drafts: demoDrafts(3, false, 3, ["approved", "approved", "rejected"]) } }),
+    job("j_fail", { outputs: { shorts: 2, long: false }, status: "failed", status_text: dmsg("failed"), created: iso(54 * 36e5), credits_held: 0, progress: 22 }),
+  ] : [];
+  D = { scn, user: { id: "u_demo", email: "demo@streamer.tv", name: he ? "נועה" : "Noa" }, orgs: [{ id: "o_demo", name: he ? "הצוות של נועה" : "Noa's team", role, plan: "trial", credits: full ? 7 : 2 }],
+    channels: scn === "new" ? [] : scn === "verify" ? [ch("pending", false)] : [ch("verified", scn === "full")], jobs, verifyCalls: 0,
+    members: [...(role === "owner" ? [] : [{ uid: "u_own", email: "owner@example.com", role: "owner" }]), { uid: "u_demo", email: "demo@streamer.tv", role }, ...(full ? [{ uid: "u_ed1", email: "editor.dan@example.com", role: "editor" }, { uid: "u_vi1", email: "manager.tal@example.com", role: "viewer" }] : [])],
+    invites: full ? [{ id: "a1b2c3d4e5f6", email: "newcut@example.com", role: "editor", expires: new Date(now + 5 * 864e5).toISOString() }] : [],
+    chat: full ? [{ r: "user", t: iso(28 * 6e4), text: he ? "תכין 3 שורטס מצחיקים וגם סרטון ארוך מאתמול" : "make 3 funny Shorts and a long video from yesterday" }, { r: "bot", t: iso(28 * 6e4), text: he ? "סבבה! מכין 3 שורטס מצחיקים וסרטון ארוך מהסטרים של אתמול. אעדכן כאן כשהטיוטות מוכנות. אפשר לבטל כל עוד זה בתור." : "On it! Making 3 funny Shorts and a long video from yesterday's stream. I'll update you here when drafts are ready. You can cancel while it's queued." }] : [] };
+  clearInterval(demoTimer); demoTimer = setInterval(demoTick, 2600);
+}
+function demoTick() {
+  if (!D) return; for (const j of D.jobs) {
+    if (!["queued", "running", "qa"].includes(j.status)) continue; const n = j.outputs.shorts + (j.outputs.long ? 1 : 0), now = new Date().toISOString(); j.updated = now;
+    if (j.status === "queued") { j.status = "running"; j.progress = 3; j.status_text = dmsg("running"); j.events.push({ t: now, e: "running" }); continue; }
+    if (j.status === "qa") { j.status = "draft_ready"; j.progress = 100; j.result.drafts = demoDrafts(j.outputs.shorts, j.outputs.long, 2); j.status_text = dmsg("draft_ready", { n }); j.events.push({ t: now, e: "draft_ready" }); continue; }
+    j.progress = Math.min(100, j.progress + 6);
+    if (j.progress >= 94) { j.status = "qa"; j.status_text = dmsg("qa"); j.events.push({ t: now, e: "qa" }); }
+    else if (j.progress < 12) j.status_text = dmsg("downloading");
+    else if (j.progress < 50) j.status_text = dmsg("transcribing", { pct: Math.round((j.progress - 12) / 38 * 100) });
+    else if (j.progress < 58) j.status_text = dmsg("found_moments", { n });
+    else j.status_text = dmsg("rendering", { i: Math.max(1, Math.ceil((j.progress - 58) / 36 * n)), n });
+  }
+}
+function demoScenario(s) { demoInit(s); S.ready = false; S.chat = null; S.members = null; S.jobs = []; S.channels = []; S.prevJobs = null; S.local = {}; S.skipped = []; LS.del("studio_skip_yt"); token = "demo"; demoLanding = false; history.replaceState(null, "", "#/home"); renderApp(); }
+const clone = (o) => JSON.parse(JSON.stringify(o));
+function demoUnderstand(text) {
+  const raw = String(text).trim(), tl = raw.toLowerCase(), he = /[֐-׿]/.test(raw); let n = (tl.match(/\d+/) || [])[0]; n = n ? Math.min(30, +n) : 0;
+  const status = /status|progress|what.?s up|מה המצב|התקדמות|איפה זה/.test(tl), long = /\blong\b|full video|סרטון ארוך|סרטון מלא|ארוך/.test(tl), shortsWord = /short|clip|שורט|קליפ/.test(tl);
+  const when = /yesterday|אתמול/.test(tl) ? "yesterday" : /week|שבוע/.test(tl) ? "week" : "last_stream", mood = /funny|מצחיק|הזוי/.test(tl) ? "funny" : /hype|epic|מטורף|אפי/.test(tl) ? "hype" : /fail|rage|פייל/.test(tl) ? "fail" : null;
+  const make = /make|create|cut|want|need|תכין|תעשה|רוצה|צריך|תחתוך/.test(tl) || long || shortsWord || n; return { he, intent: status ? "status" : make ? "create" : "help", shorts: long && !shortsWord && !n ? 0 : (n || 5), long, when, mood, text: raw };
+}
+async function demoApi(method, path, body) {
+  await sleep(140 + Math.random() * 120); const E = (s, code, x) => { throw Object.assign({ error: code, _status: s }, x || {}); }; const ok = (o) => clone(o);
+  if (path === "/login" || path === "/signup") { token = "demo"; return { token: "demo", user: D.user, org_id: "o_demo" }; }
+  if (path === "/logout") return { ok: true };
+  if (path === "/invites/preview") return { org: lang === "he" ? "הצוות של נועה" : "Noa's team", role: "editor", email: "demo@streamer.tv" };
+  if (path === "/invites/accept") return { ok: true };
+  if (path === "/me") return ok({ user: D.user, orgs: D.orgs });
+  if (path === "/orgs" && method === "POST") { const o = { id: "o_" + Math.random().toString(16).slice(2, 10), name: body.name, role: "owner", plan: "none", credits: 0 }; D.orgs.push(o); return { org_id: o.id }; }
+  let m; const org = D.orgs[0], role = org.role;
+  if (path.startsWith("/studio/yt/")) {
+    if (path.startsWith("/studio/yt/start")) { const c = D.channels[0]; if (c) c.yt = { status: "connected", title: "Noa Plays" }; return { url: "#youtube=connected&org=o_demo", expires_in: 600 }; }
+    if (path.startsWith("/studio/yt/disconnect")) { const c = D.channels[0]; if (c) c.yt = { status: "not_connected" }; return { ok: true }; }
+    return { connected: !!(D.channels[0] && D.channels[0].yt.status === "connected") };
+  }
+  if (!(m = path.match(/^\/orgs\/o_[a-z0-9]+(\/.*)?$/))) E(404, "not_found"); const sub = m[1] || "", need = (x) => { if ((x === "edit" && role === "viewer") || (x === "owner" && role !== "owner")) E(403, "forbidden"); };
+  if (sub === "" ) return ok({ org, role });
+  if (sub === "/channels" && method === "GET") return ok({ channels: D.channels });
+  if (sub === "/channels" && method === "POST") { need("owner"); const pc = parseChan(body.url); if (!pc) E(400, "bad_channel"); D.verifyCalls = 0; const c = { id: "c_demo", org: org.id, platform: pc.platform, slug: pc.slug, status: "pending", verify_code: "ODH-K7M2QXA9", verify_expires: new Date(Date.now() + 48 * 36e5).toISOString(), style_id: "signature", yt: { status: "not_connected" }, created: new Date().toISOString() }; D.channels = [c]; return ok({ channel: c }); }
+  if ((m = sub.match(/^\/channels\/(c_\w+)(\/verify)?$/))) { const c = D.channels[0]; if (!c) E(404, "not_found"); if (method === "DELETE") { D.channels = []; return { ok: true }; }
+    if (m[2]) { D.verifyCalls++; if (D.verifyCalls < 2) return { verified: false, reason: "code_not_found", he: "עוד לא רואים את הקוד. ודאו שהוא בביו או בכותרת הסטרים ושמרתם.", en: "Code not visible yet. Make sure it is in your bio or stream title and saved." }; c.status = "verified"; return ok({ verified: true, channel: c }); } }
+  if (sub === "/jobs" && method === "GET") return ok({ jobs: D.jobs });
+  if ((m = sub.match(/^\/jobs\/(j_\w+)\/(cancel|approve|reject)$/))) { need("edit"); const j = D.jobs.find((x) => x.id === m[1]); if (!j) E(404, "not_found");
+    if (m[2] === "cancel") { if (!["queued", "running"].includes(j.status)) E(409, "bad_state"); j.status = "cancelled"; j.status_text = dmsg("cancelled"); org.credits += j.credits_held; j.credits_held = 0; return ok({ job: j }); }
+    if (j.status !== "draft_ready") E(409, "bad_state"); for (const d of j.result.drafts) if (!d.decision) d.decision = m[2] === "approve" ? "approved" : "rejected"; demoClose(j); return ok({ job: j }); }
+  if ((m = sub.match(/^\/jobs\/(j_\w+)\/drafts\/(\d+)\/(approve|reject|title)$/))) { need("edit"); const j = D.jobs.find((x) => x.id === m[1]), d = j && j.result.drafts[+m[2]]; if (!d) E(404, "not_found");
+    if (m[3] === "title") { d.title = String(body.title || "").trim().slice(0, 100) || d.title; return ok({ job: j }); } if (j.status !== "draft_ready") E(409, "bad_state"); d.decision = m[3] === "approve" ? "approved" : "rejected"; demoClose(j); return ok({ job: j }); }
+  if (sub === "/members" && method === "GET") return ok({ members: D.members, invites: D.invites });
+  if (sub === "/invites" && method === "POST") { need("owner"); const id = Math.random().toString(16).slice(2, 14).padEnd(12, "0"); D.invites.push({ id, email: body.email, role: body.role, expires: new Date(Date.now() + 7 * 864e5).toISOString() }); return { ok: true, invite_id: id, accept_url: location.origin + "/studio#invite=inv_" + id + "00" }; }
+  if ((m = sub.match(/^\/invites\/(\w+)$/)) && method === "DELETE") { need("owner"); D.invites = D.invites.filter((i) => i.id !== m[1]); return { ok: true }; }
+  if ((m = sub.match(/^\/members\/(u_\w+)$/))) { need("owner"); if (method === "PATCH") { const x = D.members.find((q) => q.uid === m[1]); if (x) x.role = body.role; return { ok: true }; } D.members = D.members.filter((q) => q.uid !== m[1]); return { ok: true }; }
+  if (sub === "/assistant" && method === "GET") return ok({ history: D.chat, hint: { he: "", en: "" } });
+  if (sub === "/assistant" && method === "POST") {
+    const u = demoUnderstand(body.message), L = u.he ? "he" : "en"; let reply, actions = [];
+    if (u.intent === "help") reply = L === "he" ? "אפשר לבקש בשפה חופשית, למשל: \"תכין 5 שורטס מצחיקים מאתמול\" או \"מה המצב?\"" : "Ask in plain words, e.g. \"make 5 funny Shorts from yesterday\" or \"what's the status?\"";
+    else if (u.intent === "status") { const j = D.jobs[0]; reply = j ? `${j.status_text[L]} (${Math.round(j.progress)}%)` : (L === "he" ? "עדיין אין עבודות. בקשו משהו בצ'אט!" : "No jobs yet. Ask me for something!"); if (j) actions.push({ type: "show_job", job_id: j.id }); }
+    else if (role === "viewer") reply = L === "he" ? "לצופים אין הרשאה ליצור עבודות. בקשו מהבעלים להפוך אתכם לעורכים." : "Viewers can't create jobs. Ask the owner to make you an editor.";
+    else if (!D.channels.some((c) => c.status === "verified")) reply = L === "he" ? "קודם נחבר ערוץ: הדביקו קישור לערוץ ואמתו בעלות. זה לוקח דקה." : "First let's connect a channel: paste your channel link and verify ownership. Takes a minute.";
+    else if (org.credits < 1) reply = L === "he" ? "נגמרו הקרדיטים (צריך 1, יש 0)." : "Out of credits (need 1, have 0).";
+    else { org.credits -= 1; const id = "j_" + Math.random().toString(16).slice(2, 10), now = new Date().toISOString(); D.jobs.unshift({ id, org: org.id, channel: "c_demo", kind: "edit", style_id: "signature", outputs: { shorts: u.shorts, long: u.long }, hints: { mood: u.mood, text: u.text }, source: { type: "auto", when: u.when }, status: "queued", status_text: dmsg("queued"), credits_held: 1, created: now, updated: now, progress: 0, result: { drafts: [] }, events: [{ t: now, e: "queued" }] }); actions.push({ type: "job_created", job_id: id });
+      const what = [u.shorts ? (L === "he" ? `${u.shorts} שורטס${u.mood ? " " + t(MOOD[u.mood]) : ""}` : `${u.shorts} ${u.mood ? t(MOOD[u.mood]) + " " : ""}Shorts`) : "", u.long ? (L === "he" ? "סרטון ארוך" : "a long video") : ""].filter(Boolean).join(L === "he" ? " ו" : " and ");
+      reply = L === "he" ? `סבבה! מכין ${what} ${I[WHENK[u.when]][0]}. אעדכן כאן כשהטיוטות מוכנות. אפשר לבטל כל עוד זה בתור.` : `On it! Making ${what} ${I[WHENK[u.when]][1]}. I'll update you here when drafts are ready. You can cancel while it's queued.`; }
+    const now = new Date().toISOString(); D.chat.push({ r: "user", t: now, text: u.text }, { r: "bot", t: now, text: reply }); return { reply, actions, parsed: u };
+  }
+  if (sub === "/billing" && method === "GET") return { plan: org.plan, credits: org.credits };
+  if (sub === "/billing/checkout") { need("owner"); E(501, "payment_not_implemented"); }
+  E(404, "not_found");
+}
+function demoClose(j) { const ds = j.result.drafts; if (ds.every((d) => d.decision)) { j.status = ds.some((d) => d.decision === "approved") ? "approved" : "rejected"; j.status_text = dmsg(j.status); } j.updated = new Date().toISOString(); }
+// the demo "server" answers PATCH/DELETE/GET with the same shapes; title edit is POST .../drafts/:i/title (see app/studio.js)
+
+/* ---------- start ---------- */
+if (DEMO) { demoInit(QS.get("scenario") || "full"); if (!demoLanding) token = "demo"; }
+applyChrome();
+if (/youtube=|invite=/.test(location.hash)) onHash(); else renderApp();
+</script>
+</body>
+</html>

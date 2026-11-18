@@ -92,6 +92,8 @@ r = await call("GET", `/studio/api/orgs/${ORG}/jobs/${JOB}`, null, T1); assert.e
 assert.equal((await call("POST", `/studio/api/orgs/${ORG}/jobs/${JOB}/drafts/0/approve`, null, TV)).s, 403);   // viewer cannot
 r = await call("POST", `/studio/api/orgs/${ORG}/jobs/${JOB}/drafts/0/approve`, null, TE); assert.equal(r.j.job.result.drafts[0].decision, "approved"); assert.equal(r.j.job.status, "draft_ready");
 r = await call("POST", `/studio/api/orgs/${ORG}/jobs/${JOB}/drafts/1/reject`, null, TE); assert.equal(r.j.job.status, "draft_ready");
+r = await call("POST", `/studio/api/orgs/${ORG}/jobs/${JOB}/drafts/2/title`, { title: "  New title  " }, TE); assert.equal(r.s, 200); assert.equal(r.j.job.result.drafts[2].title, "New title"); assert.equal(r.j.job.result.drafts[2].title_edited, true);
+assert.equal((await call("POST", `/studio/api/orgs/${ORG}/jobs/${JOB}/drafts/2/title`, { title: "  " }, TE)).s, 400); assert.equal((await call("POST", `/studio/api/orgs/${ORG}/jobs/${JOB}/drafts/9/title`, { title: "x" }, TE)).s, 404); assert.equal((await call("POST", `/studio/api/orgs/${ORG}/jobs/${JOB}/drafts/2/title`, { title: "x" }, TV)).s, 403); ok("draft title edit");
 assert.equal((await call("POST", `/studio/api/orgs/${ORG}/jobs/${JOB}/drafts/9/approve`, null, TE)).s, 404);
 r = await call("POST", `/studio/api/orgs/${ORG}/jobs/${JOB}/reject`, null, TE); assert.equal(r.j.job.status, "approved"); assert.equal(r.j.job.result.drafts[2].decision, "rejected"); ok("worker flow + per-draft approve/reject + bulk");
 
