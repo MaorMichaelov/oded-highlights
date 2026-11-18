@@ -504,8 +504,8 @@ const I = {
   generic_err: ["משהו השתבש. נסו שוב בעוד רגע.", "Something went wrong. Please try again in a moment."],
   // auth + landing
   hero_title: ["הסטרים נגמר. הקליפים כבר חתוכים.", "Stream ends. Clips are cut."], hero_eb: ["עריכה אוטומטית לסטרימרים", "Auto-edit for streamers"], clips_bin: ["קליפים בסל", "clips in bin"], jobs_n: ["עבודות", "jobs"], nle_status: ["נמצאו 4 קליפים · עברו בדיקת איכות · טיוטות פרטיות", "4 clips found · QA passed · private drafts"], clip_lbl: ["קליפ", "Clip"], in_lbl: ["כניסה", "In"], out_lbl: ["יציאה", "Out"], dur_lbl: ["אורך", "Dur"], you_u: ["אתם", "You"],
-  hero_sub: ["מדביקים קישור לערוץ, מחברים יוטיוב, והעוזר מוצא את הרגעים, חותך, מוסיף כתוביות ומכין טיוטות. אתם רק מאשרים.", "Paste your channel, connect YouTube, and the assistant finds the moments, cuts, captions and drafts. You just approve."],
-  perk1: ["טיוטות פרטיות בלבד", "Private drafts only"], perk2: ["שום דבר לא עולה בלי אישור", "Nothing goes live without you"], perk3: ["עברית ואנגלית", "Hebrew and English"],
+  hero_sub: ["מדביקים קישור לערוץ, מחברים יוטיוב, והעוזר מוצא את הרגעים וחותך שורטס וגם סרטונים ארוכים: ריאקשנים, שיחות עם אורחים, משחקים ואירועים. אתם רק מאשרים.", "Paste your channel, connect YouTube, and the assistant finds the moments and cuts Shorts and long videos: reactions, guest talks, games and events. You just approve."],
+  perk1: ["טיוטות פרטיות בלבד", "Private drafts only"], perk2: ["שום דבר לא עולה בלי אישור", "Nothing goes live without you"], perk3: ["שורטס וסרטונים ארוכים", "Shorts and long videos"], perk4: ["עברית ואנגלית", "Hebrew and English"],
   guest_go: ["כניסה לסטודיו", "Enter the studio"], guest_or: ["או עם אימייל", "or with email"], guest_hint: ["בלי סיסמה ובלי אימייל. נכנסים ישר.", "No password, no email. Straight in."],
   auth_title: ["ברוכים הבאים", "Welcome"], auth_hint: ["חדשים כאן? ניצור חשבון אוטומטית, בלי טפסים ארוכים.", "New here? We create your account automatically. No long forms."],
   email: ["אימייל", "Email"], password: ["סיסמה", "Password"], pw_hint: ["לפחות 8 תווים", "At least 8 characters"], show_pw: ["הצגת סיסמה", "Show password"], hide_pw: ["הסתרת סיסמה", "Hide password"],
@@ -843,7 +843,7 @@ function renderAuth() {
     h("div", { class: "auth-top" }, h("a", { class: "brand", href: "#" }, h("span", { class: "logo" }), h("span", null, "Studio")), h("div", { class: "grp" }, langSwitch(), themeBtn())),
     h("section", { class: "landing" }, h("div", { class: "eyebrow" }, h("span", { class: "rec" }), h("b", null, "REC"), h("span", { "data-tc": "" }, nowTc()), h("span", null, "· " + t("hero_eb"))),
       h("h1", { class: "display" }, a, " ", b ? h("span", { class: "hot" }, b) : null), h("p", { class: "lead" }, t("hero_sub")),
-      h("div", { class: "perks" }, ...["perk1", "perk2", "perk3"].map((k) => h("span", { class: "chip" }, icon(k === "perk3" ? "globe" : k === "perk1" ? "lock" : "shield"), t(k))))),
+      h("div", { class: "perks" }, ...["perk1", "perk2", "perk3", "perk4"].map((k) => h("span", { class: "chip" }, icon(k === "perk4" ? "globe" : k === "perk3" ? "play" : k === "perk1" ? "lock" : "shield"), t(k))))),
     h("section", { class: "card authcard" }, h("div", { class: "bar-h" }, h("span", null, h("span", { class: "rec" }), t("auth_title")), h("span", null, "CH-01")), h("div", { class: "body" }, guestBtn, h("p", { class: "small muted center" }, t("guest_hint")), h("details", { class: "emailbox" }, h("summary", null, t("guest_or")), form))), h("div", { class: "visual" }, nle())));
 }
 const langSwitch = () => h("div", { class: "seg", role: "group", "aria-label": t("se_lang") }, ...[["he", "עב"], ["en", "EN"]].map(([l, x]) => h("button", { type: "button", "aria-pressed": String(lang === l), "aria-label": l === "he" ? "עברית" : "English", onclick: () => lang !== l && setLang(l) }, x)));
