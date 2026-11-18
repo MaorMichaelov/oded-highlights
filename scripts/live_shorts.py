@@ -7,9 +7,15 @@ HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 import vod_shorts as V
 def newest(slug, platform):
     if platform == "twitch":
-        r = V.sh(["yt-dlp", "--flat-playlist", "--playlist-end", "1", "--print", "%(id)s|%(title)s", f"https://www.twitch.tv/{slug}/videos?filter=archives&sort=time"]).stdout.strip().split("|", 1)
-        if not r[0]: return None
-        vid = r[0].lstrip("v"); au, _ = V.twitch_urls(vid); return {"vod": vid, "title": r[1] if len(r) > 1 else "", "audio": au}
+        r = V.sh(["yt-dlp", "--playlist-end", "1", "--print", "%(id)s|%(timestamp)s|%(duration)s|%(title)s", f"https://www.twitch.tv/{slug}/videos?filter=archives&sort=time"]).stdout.strip().split("|", 3)
+        if not r[0] or len(r) < 4: return None
+        def num(x):
+            try: return float(x)
+            except Exception: return None
+        ts, du = num(r[1]), num(r[2])
+        if ts is not None and ts < time.time() - 30 * 3600: return None          # an old broadcast, not the one running now: record the live stream instead
+        if ts is not None and du is not None and ts + du < time.time() - 900: return None   # it ended more than 15 minutes ago
+        vid = r[0].lstrip("v"); au, _ = V.twitch_urls(vid); return {"vod": vid, "title": r[3], "audio": au}
     d = V.jget(f"https://kick.com/api/v2/channels/{slug}/videos")
     if not d or not d[0].get("source"): return None
     base = d[0]["source"].rsplit("/master.m3u8", 1)[0]; return {"vod": str(d[0]["id"]), "title": d[0].get("session_title") or "", "audio": f"{base}/480p30/playlist.m3u8"}
@@ -54,7 +60,8 @@ def main():
         return record_mode(a)
     dur = media_minutes(cur["audio"])
     sf = f"state/{a.slug}/live_state.json"; st = json.load(open(sf)) if os.path.exists(sf) else {}
-    if st.get("vod") != cur["vod"]: st = {"vod": cur["vod"], "done_to_min": max(0, int(dur) - a.window) if not a.force else 0}   # a new stream: start with the latest window, not the whole past
+    if st.get("vod") != cur["vod"]:   # a new stream: start with the latest FINISHED window (not the whole past), and remember it at once so the next windows are contiguous
+        st = {"vod": cur["vod"], "done_to_min": max(0, int(dur - 2) - a.window) if not a.force else 0}; os.makedirs(f"state/{a.slug}", exist_ok=True); json.dump(st, open(sf, "w"))
     a_, b_ = st["done_to_min"], st["done_to_min"] + a.window
     if b_ > dur - 2: print(f"stream at {dur:.0f} min, next window {a_}-{b_} not complete yet"); return 0
     env = dict(os.environ, **({"SHORTS_FOCUS": a.focus} if a.focus else {}), **({"SHORTS_FOCUS_ONLY": "1"} if (a.focus and a.focus_only) else {}))

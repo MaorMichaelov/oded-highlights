@@ -32,8 +32,11 @@ def gemini(prompt):
             except Exception as e: print("gemini", model, "failed (next model/key):", r.stdout[:100].replace("\n", " "))
     return None
 def llm(prompt):   # Gemini first (the free Groq key is shared with the live loop and often rate-limited), then Groq with model rotation
-    g = gemini(prompt)
-    if g: return g
+    g = None
+    for _try in range(3):   # Gemini often answers 503 "high demand" for a minute: retry with a pause before falling back
+        g = gemini(prompt)
+        if g: return g
+        if _try < 2: time.sleep(6 * (_try + 1))
     for rnd in range(3):
         for m in ("openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3-32b"):
             try:
