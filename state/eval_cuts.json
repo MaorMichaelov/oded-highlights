@@ -1,5 +1,5 @@
 {
- "items": 52,
+ "items": 53,
  "duplicates": [
   [
    "n3on/short_137878318_1650",
@@ -54,6 +54,10 @@
   "n3on/long_138250688_321": [
    "7/8 chapter titles have no support in the transcript at that time (00:32 Skate contest brief)",
    "chapters cover only 45% of the video"
+  ],
+  "n3on/long_138250688_7799": [
+   "start is not at a sentence start",
+   "8/10 chapter titles have no support in the transcript at that time (00:00 Intro and opening remarks)"
   ],
   "kaicenat/clip_723617784": [
    "TITLE hype word: Surprise"
