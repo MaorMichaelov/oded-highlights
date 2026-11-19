@@ -1,24 +1,24 @@
 {
- "generated": "2026-11-19T16:56:00Z",
+ "generated": "2026-11-19T17:27:54Z",
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
   "views": 21910,
-  "videos": 16
+  "videos": 17
  },
  "totals": {
-  "videos_total": 33,
-  "videos_public": 17,
-  "views": 22248,
-  "likes": 212,
-  "est_hours_low": 1123.7,
-  "est_hours_high": 2622.0
+  "videos_total": 34,
+  "videos_public": 18,
+  "views": 22246,
+  "likes": 214,
+  "est_hours_low": 1123.2,
+  "est_hours_high": 2621.1
  },
  "by_kind": {
   "other": {
-   "n": 14,
-   "views": 22103,
-   "est_hours_mid": 1863.7
+   "n": 15,
+   "views": 22101,
+   "est_hours_mid": 1863.2
   },
   "reaction": {
    "n": 2,
@@ -47,6 +47,22 @@
  ],
  "videos": [
   {
+   "id": "pH67jh-wzdM",
+   "title": "עודד מציג את המונופול של הסאבתון - הצ'אט מחליט הכל!",
+   "published": "2026-11-19",
+   "privacy": "public",
+   "duration_min": 17.9,
+   "views": 2,
+   "likes": 2,
+   "comments": 0,
+   "est_hours": [
+    0.1,
+    0.3
+   ],
+   "views_per_day": 40.0,
+   "kind": "other"
+  },
+  {
    "id": "heYUCmJI7Kk",
    "title": "זיגי בפעם הראשונה ב-GTA 6, הוא לא היה מוכן לזה",
    "published": "2026-11-18",
@@ -59,7 +75,7 @@
     1.2,
     2.8
    ],
-   "views_per_day": 12.4,
+   "views_per_day": 12.1,
    "kind": "other"
   },
   {
@@ -75,7 +91,7 @@
     2.4,
     5.7
    ],
-   "views_per_day": 28.4,
+   "views_per_day": 27.8,
    "kind": "other"
   },
   {
@@ -91,7 +107,7 @@
     2.9,
     6.8
    ],
-   "views_per_day": 25.5,
+   "views_per_day": 25.1,
    "kind": "other"
   },
   {
@@ -107,7 +123,7 @@
     2.2,
     5.1
    ],
-   "views_per_day": 21.7,
+   "views_per_day": 21.3,
    "kind": "reaction"
   },
   {
@@ -116,14 +132,14 @@
    "published": "2026-11-17",
    "privacy": "public",
    "duration_min": 19.0,
-   "views": 76,
+   "views": 78,
    "likes": 3,
    "comments": 0,
    "est_hours": [
-    4.6,
-    10.8
+    4.7,
+    11.1
    ],
-   "views_per_day": 39.5,
+   "views_per_day": 40.0,
    "kind": "other"
   },
   {
@@ -132,14 +148,14 @@
    "published": "2026-11-17",
    "privacy": "public",
    "duration_min": 93.8,
-   "views": 70,
+   "views": 69,
    "likes": 8,
    "comments": 0,
    "est_hours": [
-    15.8,
-    36.8
+    15.5,
+    36.2
    ],
-   "views_per_day": 30.6,
+   "views_per_day": 29.9,
    "kind": "other"
   },
   {
@@ -347,7 +363,7 @@
     26.9,
     62.9
    ],
-   "views_per_day": 282.0,
+   "views_per_day": 280.4,
    "kind": "other"
   },
   {
@@ -427,7 +443,7 @@
     145.8,
     340.1
    ],
-   "views_per_day": 484.0,
+   "views_per_day": 482.3,
    "kind": "other"
   },
   {
@@ -443,7 +459,7 @@
     258.0,
     602.0
    ],
-   "views_per_day": 941.8,
+   "views_per_day": 938.5,
    "kind": "other"
   },
   {
@@ -459,7 +475,7 @@
     61.1,
     142.6
    ],
-   "views_per_day": 199.3,
+   "views_per_day": 198.6,
    "kind": "other"
   },
   {
@@ -484,14 +500,14 @@
    "published": "2026-11-12",
    "privacy": "public",
    "duration_min": 30.9,
-   "views": 5287,
+   "views": 5282,
    "likes": 29,
    "comments": 1,
    "est_hours": [
-    391.7,
-    913.9
+    391.3,
+    913.0
    ],
-   "views_per_day": 743.8,
+   "views_per_day": 740.8,
    "kind": "other"
   },
   {
@@ -507,7 +523,7 @@
     3.2,
     7.5
    ],
-   "views_per_day": 16.6,
+   "views_per_day": 16.5,
    "kind": "reaction"
   },
   {
@@ -523,7 +539,7 @@
     214.6,
     500.7
    ],
-   "views_per_day": 819.6,
+   "views_per_day": 817.1,
    "kind": "other"
   },
   {
@@ -539,7 +555,7 @@
     9.5,
     22.2
    ],
-   "views_per_day": 26.5,
+   "views_per_day": 26.4,
    "kind": "other"
   },
   {

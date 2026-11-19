@@ -1,13 +1,23 @@
 {
- "fetched_at": "2026-11-19T16:56:00Z",
- "fetched_epoch": 1795107360.0767012,
+ "fetched_at": "2026-11-19T17:27:54Z",
+ "fetched_epoch": 1795109274.9612613,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
   "views": 21910,
-  "videos": 16
+  "videos": 17
  },
  "videos": [
+  {
+   "id": "pH67jh-wzdM",
+   "title": "עודד מציג את המונופול של הסאבתון - הצ'אט מחליט הכל!",
+   "published": "2026-11-19T17:14:29Z",
+   "privacy": "public",
+   "duration": "PT17M55S",
+   "views": 2,
+   "likes": 2,
+   "comments": 0
+  },
   {
    "id": "heYUCmJI7Kk",
    "title": "זיגי בפעם הראשונה ב-GTA 6, הוא לא היה מוכן לזה",
@@ -54,7 +64,7 @@
    "published": "2026-11-17T18:43:03Z",
    "privacy": "public",
    "duration": "PT18M59S",
-   "views": 76,
+   "views": 78,
    "likes": 3,
    "comments": 0
   },
@@ -64,7 +74,7 @@
    "published": "2026-11-17T10:00:01Z",
    "privacy": "public",
    "duration": "PT1H33M46S",
-   "views": 70,
+   "views": 69,
    "likes": 8,
    "comments": 0
   },
@@ -284,7 +294,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 5287,
+   "views": 5282,
    "likes": 29,
    "comments": 1
   },
@@ -339,5 +349,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 103
+ "total_uploads_incl_private": 104
 }
