@@ -1365,6 +1365,19 @@
    ],
    "v": 2,
    "rv": 1
+  },
+  "107": {
+   "label": "דיבר על GTA 6 ושמחים",
+   "kind": "talk",
+   "kw": [
+    "GTA 6",
+    "התרגשות",
+    "שידור",
+    "קהל",
+    "בידור"
+   ],
+   "v": 2,
+   "rv": 1
   }
  },
  "spans": [
@@ -1745,6 +1758,15 @@
    "clip_worthy": false,
    "why": "",
    "closed": true
+  },
+  {
+   "from": 31800,
+   "to": 32400,
+   "title": "שיחה על GTA 6 והחגיגה",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -2384,8 +2406,14 @@
    "to": 32100,
    "label": "אומר שלא שלם כסף לחתונה, מתכנן לשחק GTA",
    "kind": "talk"
+  },
+  {
+   "from": 32100,
+   "to": 32400,
+   "label": "דיבר על GTA 6 ושמחים",
+   "kind": "talk"
   }
  ],
- "transcript_end": 32298,
- "updated": "2026-11-19T23:31:42Z"
+ "transcript_end": 32418,
+ "updated": "2026-11-19T23:34:47Z"
 }
