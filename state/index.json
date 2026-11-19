@@ -388,10 +388,15 @@
    "who": "עודד, צ'אט",
    "peak": "15:50"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/I0hkdFblYeE",
+  "draft_at": "2026-11-19T21:23:07Z",
+  "quality_errors": [],
   "auto": true
  },
  {

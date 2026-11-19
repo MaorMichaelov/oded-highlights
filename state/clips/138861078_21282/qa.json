@@ -1,0 +1,40 @@
+{
+ "score": 100,
+ "fail": [],
+ "warn": [],
+ "metrics": {
+  "audio": {
+   "duration_s": 1042.99,
+   "floor_db": -49.0,
+   "speech_db": -17.8,
+   "dyn_db": 31.2,
+   "tail_rms_db": -28.3,
+   "tail_rel_speech_db": -10.5,
+   "head_rel_speech_db": -14.8,
+   "lead_silence_s": 0.04,
+   "trail_silence_s": 0.03,
+   "lufs": -18.8,
+   "tp": -3.0,
+   "sync": {
+    "v_dur": 1042.966667,
+    "a_dur": 1042.988312,
+    "dur_diff_s": 0.022,
+    "start_diff_s": 0.021,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0
+  },
+  "title_flags": [],
+  "title_truth": {
+   "missing_words": [
+    "פותח",
+    "הנשק"
+   ],
+   "missing_names": [],
+   "bad_quotes": [],
+   "ratio": 0.33,
+   "checked": 6
+  }
+ }
+}
