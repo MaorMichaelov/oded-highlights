@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-19T20:10:32Z",
- "fetched_epoch": 1795119032.6906197,
+ "fetched_at": "2026-11-19T20:41:25Z",
+ "fetched_epoch": 1795120885.8393052,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -64,7 +64,7 @@
    "published": "2026-11-19T17:14:29Z",
    "privacy": "public",
    "duration": "PT17M55S",
-   "views": 8,
+   "views": 16,
    "likes": 5,
    "comments": 0
   },
@@ -324,7 +324,7 @@
    "published": "2026-11-13T08:00:35Z",
    "privacy": "public",
    "duration": "PT15M2S",
-   "views": 1270,
+   "views": 1271,
    "likes": 19,
    "comments": 2
   },
