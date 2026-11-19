@@ -1297,6 +1297,13 @@
    ],
    "v": 2,
    "rv": 1
+  },
+  "101": {
+   "label": "דיבור חסר משמעות",
+   "kind": "idle",
+   "kw": [],
+   "v": 2,
+   "rv": 1
   }
  },
  "spans": [
@@ -1635,11 +1642,11 @@
   },
   {
    "from": 29700,
-   "to": 30300,
-   "title": "גטאו-6: כסף ואלביט",
+   "to": 30600,
+   "title": "דיבר על GTA VI והכסף",
    "kind": "talk",
-   "clip_worthy": false,
-   "why": "משך פחות מ-15 דקות",
+   "clip_worthy": true,
+   "why": "",
    "closed": false
   }
  ],
@@ -2244,8 +2251,14 @@
    "to": 30300,
    "label": "מתקשר על GTA VI ומשטט",
    "kind": "talk"
+  },
+  {
+   "from": 30300,
+   "to": 30600,
+   "label": "דיבור חסר משמעות",
+   "kind": "idle"
   }
  ],
- "transcript_end": 30557,
- "updated": "2026-11-19T23:05:24Z"
+ "transcript_end": 30762,
+ "updated": "2026-11-19T23:07:51Z"
 }
