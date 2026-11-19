@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-19T15:11:09Z",
+ "generated": "2026-11-19T15:41:38Z",
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -59,7 +59,7 @@
     1.0,
     2.4
    ],
-   "views_per_day": 11.3,
+   "views_per_day": 11.1,
    "kind": "other"
   },
   {
@@ -75,7 +75,7 @@
     2.4,
     5.7
    ],
-   "views_per_day": 30.2,
+   "views_per_day": 29.7,
    "kind": "other"
   },
   {
@@ -91,7 +91,7 @@
     2.9,
     6.8
    ],
-   "views_per_day": 27.2,
+   "views_per_day": 26.7,
    "kind": "other"
   },
   {
@@ -107,7 +107,7 @@
     2.2,
     5.1
    ],
-   "views_per_day": 23.1,
+   "views_per_day": 22.7,
    "kind": "reaction"
   },
   {
@@ -123,7 +123,7 @@
     4.5,
     10.5
    ],
-   "views_per_day": 39.9,
+   "views_per_day": 39.5,
    "kind": "other"
   },
   {
@@ -139,7 +139,7 @@
     15.8,
     36.8
    ],
-   "views_per_day": 31.6,
+   "views_per_day": 31.3,
    "kind": "other"
   },
   {
@@ -347,7 +347,7 @@
     26.9,
     62.9
    ],
-   "views_per_day": 287.2,
+   "views_per_day": 285.7,
    "kind": "other"
   },
   {
@@ -411,7 +411,7 @@
     1.7,
     4.0
    ],
-   "views_per_day": 12.9,
+   "views_per_day": 12.8,
    "kind": "other"
   },
   {
@@ -427,7 +427,7 @@
     145.1,
     338.6
    ],
-   "views_per_day": 487.4,
+   "views_per_day": 485.8,
    "kind": "other"
   },
   {
@@ -443,7 +443,7 @@
     258.0,
     602.0
    ],
-   "views_per_day": 952.7,
+   "views_per_day": 949.5,
    "kind": "other"
   },
   {
@@ -459,7 +459,7 @@
     61.0,
     142.3
    ],
-   "views_per_day": 201.3,
+   "views_per_day": 200.6,
    "kind": "other"
   },
   {
@@ -475,7 +475,7 @@
     6.4,
     14.9
    ],
-   "views_per_day": 10.0,
+   "views_per_day": 9.9,
    "kind": "other"
   },
   {
@@ -491,7 +491,7 @@
     391.3,
     913.0
    ],
-   "views_per_day": 750.8,
+   "views_per_day": 748.6,
    "kind": "other"
   },
   {
@@ -523,7 +523,7 @@
     214.1,
     499.6
    ],
-   "views_per_day": 826.1,
+   "views_per_day": 823.7,
    "kind": "other"
   },
   {
