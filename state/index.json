@@ -445,10 +445,15 @@
    "who": "עודד",
    "peak": "04:33"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/2XAZT2Fvs5A",
+  "draft_at": "2026-11-19T23:15:04Z",
+  "quality_errors": [],
   "auto": true
  },
  {

@@ -1,0 +1,44 @@
+{
+ "score": 69,
+ "fail": [
+  "silence of 8s inside the video"
+ ],
+ "warn": [
+  "clip starts inside a loud sound (1 dB below the speech level)"
+ ],
+ "metrics": {
+  "audio": {
+   "duration_s": 1233.7,
+   "floor_db": -51.7,
+   "speech_db": -17.6,
+   "dyn_db": 34.1,
+   "tail_rms_db": -46.5,
+   "tail_rel_speech_db": -28.8,
+   "head_rel_speech_db": -0.9,
+   "lead_silence_s": 0.02,
+   "trail_silence_s": 0.21,
+   "lufs": -19.0,
+   "tp": -3.6,
+   "sync": {
+    "v_dur": 1233.683333,
+    "a_dur": 1233.694979,
+    "dur_diff_s": 0.012,
+    "start_diff_s": 0.021,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 8.241354
+  },
+  "title_flags": [],
+  "title_truth": {
+   "missing_words": [
+    "מתבלבל",
+    "בשוד"
+   ],
+   "missing_names": [],
+   "bad_quotes": [],
+   "ratio": 0.33,
+   "checked": 6
+  }
+ }
+}
