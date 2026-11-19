@@ -1808,10 +1808,10 @@
   {
    "from": 32700,
    "to": 33300,
-   "title": "משחק GTA VI",
+   "title": "משחק GTA VI עם צ'אט",
    "kind": "game",
    "clip_worthy": false,
-   "why": "קטע 5 דקות של משחק",
+   "why": "קטע קצר של 10 דקות בלבד",
    "closed": false
   }
  ],
@@ -2478,6 +2478,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 33432,
- "updated": "2026-11-19T23:50:47Z"
+ "transcript_end": 33550,
+ "updated": "2026-11-19T23:52:36Z"
 }
