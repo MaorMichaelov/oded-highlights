@@ -1,0 +1,41 @@
+{
+ "score": 94,
+ "fail": [],
+ "warn": [
+  "leading dead air 1.28s"
+ ],
+ "metrics": {
+  "audio": {
+   "duration_s": 1161.99,
+   "floor_db": -100.0,
+   "speech_db": -16.4,
+   "dyn_db": 83.6,
+   "tail_rms_db": -45.9,
+   "tail_rel_speech_db": -29.5,
+   "head_rel_speech_db": -47.5,
+   "lead_silence_s": 1.28,
+   "trail_silence_s": 0.04,
+   "lufs": -17.2,
+   "tp": -4.7,
+   "sync": {
+    "v_dur": 1161.966016,
+    "a_dur": 1161.987667,
+    "dur_diff_s": 0.022,
+    "start_diff_s": 0.021,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 5.506229
+  },
+  "title_flags": [],
+  "title_truth": {
+   "missing_words": [
+    "ציור"
+   ],
+   "missing_names": [],
+   "bad_quotes": [],
+   "ratio": 0.14,
+   "checked": 7
+  }
+ }
+}

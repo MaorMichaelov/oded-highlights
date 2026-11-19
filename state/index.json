@@ -344,10 +344,15 @@
    "who": "עודד, הצ'אט, יובל, דימן",
    "peak": "02:27"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/HRZSCiubnps",
+  "draft_at": "2026-11-19T18:56:49Z",
+  "quality_errors": [],
   "auto": true
  },
  {
