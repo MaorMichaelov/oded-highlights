@@ -1,0 +1,19 @@
+{
+ "errors": [
+  "too many long silences (dead air)"
+ ],
+ "warnings": [
+  "3 silence(s) >= 8 s (max 11s)"
+ ],
+ "info": {
+  "width": 1920,
+  "height": 1080,
+  "fps": 60.0,
+  "mbps": 12.3,
+  "duration": 1407.3,
+  "planned_body": 1395.3,
+  "expected": 1407.3,
+  "lufs": -18.6,
+  "source": "1920,1080,60/1\n\n1920,1080,60/1"
+ }
+}

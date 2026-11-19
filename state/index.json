@@ -330,10 +330,16 @@
    "who": "עודד, הצ'אט",
    "peak": "12:42"
   },
-  "stages": {},
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "failed"
+  },
   "draft": null,
   "draft_at": null,
-  "quality_errors": null,
+  "quality_errors": [
+   "too many long silences (dead air)"
+  ],
   "auto": true
  },
  {
