@@ -1642,11 +1642,20 @@
   },
   {
    "from": 29700,
-   "to": 30600,
-   "title": "דיבר על GTA VI והכסף",
+   "to": 30300,
+   "title": "דיבור על GTA VI והכסף",
    "kind": "talk",
-   "clip_worthy": true,
-   "why": "",
+   "clip_worthy": false,
+   "why": "קטן מ-15 דקות וכולל דיבור רגיל ללא אירוע מיוחד",
+   "closed": true
+  },
+  {
+   "from": 30300,
+   "to": 30600,
+   "title": "דיבור חסר משמעות",
+   "kind": "idle",
+   "clip_worthy": false,
+   "why": "קטן מ-15 דקות וכולל דיבור ללא תוכן משמעותי",
    "closed": false
   }
  ],
@@ -2259,6 +2268,6 @@
    "kind": "idle"
   }
  ],
- "transcript_end": 30762,
- "updated": "2026-11-19T23:07:51Z"
+ "transcript_end": 30844,
+ "updated": "2026-11-19T23:09:01Z"
 }
