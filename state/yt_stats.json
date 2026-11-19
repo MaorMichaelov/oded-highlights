@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-19T19:36:07Z",
- "fetched_epoch": 1795116967.6540956,
+ "fetched_at": "2026-11-19T20:10:32Z",
+ "fetched_epoch": 1795119032.6906197,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -8,6 +8,16 @@
   "videos": 18
  },
  "videos": [
+  {
+   "id": "SxZP4FNw_L4",
+   "title": "זה היה משוגע, אחי! (GTA VI)!",
+   "published": "2026-11-19T19:39:00Z",
+   "privacy": "private",
+   "duration": "PT33M18S",
+   "views": 1,
+   "likes": 0,
+   "comments": 0
+  },
   {
    "id": "zRelwNeFMfE",
    "title": "\"תקוף בסכום!\" (אתגר ציור, בוס והגרלות)!",
@@ -114,7 +124,7 @@
    "published": "2026-11-17T10:00:01Z",
    "privacy": "public",
    "duration": "PT1H33M46S",
-   "views": 70,
+   "views": 69,
    "likes": 8,
    "comments": 0
   },
@@ -294,7 +304,7 @@
    "published": "2026-11-13T09:30:26Z",
    "privacy": "public",
    "duration": "PT14M55S",
-   "views": 3054,
+   "views": 3061,
    "likes": 16,
    "comments": 0
   },
@@ -354,7 +364,7 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 5891,
+   "views": 5916,
    "likes": 54,
    "comments": 4
   },
@@ -389,5 +399,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 108
+ "total_uploads_incl_private": 109
 }

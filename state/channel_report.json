@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-19T19:36:07Z",
+ "generated": "2026-11-19T20:10:32Z",
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -7,18 +7,18 @@
   "videos": 18
  },
  "totals": {
-  "videos_total": 38,
+  "videos_total": 39,
   "videos_public": 19,
-  "views": 22276,
+  "views": 22307,
   "likes": 218,
-  "est_hours_low": 1125.5,
-  "est_hours_high": 2626.4
+  "est_hours_low": 1126.4,
+  "est_hours_high": 2628.7
  },
  "by_kind": {
   "other": {
    "n": 16,
-   "views": 22131,
-   "est_hours_mid": 1866.9
+   "views": 22162,
+   "est_hours_mid": 1868.5
   },
   "reaction": {
    "n": 2,
@@ -46,6 +46,22 @@
   "ZA70shTHhSk"
  ],
  "videos": [
+  {
+   "id": "SxZP4FNw_L4",
+   "title": "זה היה משוגע, אחי! (GTA VI)!",
+   "published": "2026-11-19",
+   "privacy": "private",
+   "duration_min": 33.3,
+   "views": 1,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.1,
+    0.2
+   ],
+   "views_per_day": 20.0,
+   "kind": "game"
+  },
   {
    "id": "zRelwNeFMfE",
    "title": "\"תקוף בסכום!\" (אתגר ציור, בוס והגרלות)!",
@@ -91,7 +107,7 @@
     0.3,
     0.8
    ],
-   "views_per_day": 100.0,
+   "views_per_day": 83.7,
    "kind": "other"
   },
   {
@@ -107,7 +123,7 @@
     0.1,
     0.1
    ],
-   "views_per_day": 20.0,
+   "views_per_day": 14.4,
    "kind": "other"
   },
   {
@@ -123,7 +139,7 @@
     0.5,
     1.1
    ],
-   "views_per_day": 81.3,
+   "views_per_day": 65.4,
    "kind": "other"
   },
   {
@@ -139,7 +155,7 @@
     1.2,
     2.8
    ],
-   "views_per_day": 11.3,
+   "views_per_day": 11.1,
    "kind": "other"
   },
   {
@@ -155,7 +171,7 @@
     2.4,
     5.7
    ],
-   "views_per_day": 25.9,
+   "views_per_day": 25.4,
    "kind": "other"
   },
   {
@@ -171,7 +187,7 @@
     2.9,
     6.8
    ],
-   "views_per_day": 23.3,
+   "views_per_day": 22.9,
    "kind": "other"
   },
   {
@@ -187,7 +203,7 @@
     2.2,
     5.1
    ],
-   "views_per_day": 19.8,
+   "views_per_day": 19.5,
    "kind": "reaction"
   },
   {
@@ -203,7 +219,7 @@
     4.7,
     11.1
    ],
-   "views_per_day": 38.3,
+   "views_per_day": 37.9,
    "kind": "other"
   },
   {
@@ -212,14 +228,14 @@
    "published": "2026-11-17",
    "privacy": "public",
    "duration_min": 93.8,
-   "views": 70,
+   "views": 69,
    "likes": 8,
    "comments": 0,
    "est_hours": [
-    15.8,
-    36.8
+    15.5,
+    36.2
    ],
-   "views_per_day": 29.2,
+   "views_per_day": 28.5,
    "kind": "other"
   },
   {
@@ -427,7 +443,7 @@
     26.9,
     62.9
    ],
-   "views_per_day": 274.3,
+   "views_per_day": 272.7,
    "kind": "other"
   },
   {
@@ -500,14 +516,14 @@
    "published": "2026-11-13",
    "privacy": "public",
    "duration_min": 14.9,
-   "views": 3054,
+   "views": 3061,
    "likes": 16,
    "comments": 0,
    "est_hours": [
-    145.8,
-    340.1
+    146.1,
+    340.9
    ],
-   "views_per_day": 475.7,
+   "views_per_day": 475.0,
    "kind": "other"
   },
   {
@@ -523,7 +539,7 @@
     258.0,
     602.0
    ],
-   "views_per_day": 925.5,
+   "views_per_day": 922.1,
    "kind": "other"
   },
   {
@@ -539,7 +555,7 @@
     61.1,
     142.6
    ],
-   "views_per_day": 195.9,
+   "views_per_day": 195.2,
    "kind": "other"
   },
   {
@@ -555,7 +571,7 @@
     6.8,
     15.8
    ],
-   "views_per_day": 10.3,
+   "views_per_day": 10.2,
    "kind": "other"
   },
   {
@@ -571,7 +587,7 @@
     392.6,
     916.1
    ],
-   "views_per_day": 734.2,
+   "views_per_day": 731.7,
    "kind": "other"
   },
   {
@@ -596,14 +612,14 @@
    "published": "2026-11-12",
    "privacy": "public",
    "duration_min": 11.4,
-   "views": 5891,
+   "views": 5916,
    "likes": 54,
    "comments": 4,
    "est_hours": [
-    214.6,
-    500.7
+    215.5,
+    502.8
    ],
-   "views_per_day": 807.1,
+   "views_per_day": 807.9,
    "kind": "other"
   },
   {
