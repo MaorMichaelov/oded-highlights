@@ -11,8 +11,8 @@
   },
   "state_fresh": {
    "status": "ok",
-   "detail": "live_status 0.2 min old",
-   "age_min": 0.2
+   "detail": "live_status 0.1 min old",
+   "age_min": 0.1
   },
   "transcription": {
    "status": "ok",
@@ -20,8 +20,8 @@
   },
   "last_upload": {
    "status": "warn",
-   "detail": "last draft 46 h ago and 1 clip(s) have no draft",
-   "age_h": 45.5,
+   "detail": "last draft 55 h ago and 1 clip(s) have no draft",
+   "age_h": 54.6,
    "last": "2026-11-17T06:18:46Z"
   },
   "upload_hold": {
@@ -37,8 +37,8 @@
    "detail": "0 cancelled loop run(s) in 2 h"
   },
   "queue_stall": {
-   "status": "warn",
-   "detail": "1 run(s) queued for > 60 min: ['studio-poller']"
+   "status": "ok",
+   "detail": "no stalled queue"
   },
   "stuck_clips": {
    "status": "ok",
@@ -54,11 +54,10 @@
   }
  },
  "hc_problems": [
-  "last_upload: last draft 46 h ago and 1 clip(s) have no draft",
-  "queue_stall: 1 run(s) queued for > 60 min: ['studio-poller']",
+  "last_upload: last draft 55 h ago and 1 clip(s) have no draft",
   "duplicates: duplicate draft titles: [['137995265_9037', '137995265_9082']]; overlapping ledger entries: []"
  ],
- "hc_checked_at": "2026-11-19T03:49:45Z",
+ "hc_checked_at": "2026-11-19T12:55:03Z",
  "live_loop_running": true,
  "state_age_min": 0.1,
  "live": false,
