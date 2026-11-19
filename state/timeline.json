@@ -1505,15 +1505,6 @@
    "clip_worthy": false,
    "why": "דיבור על משחק GTA 6 במשך 5 דקות",
    "closed": true
-  },
-  {
-   "from": 27600,
-   "to": 27900,
-   "title": "שיחה על זמן במשחק",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "דיבור קצר על זמן משחק",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -2071,6 +2062,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 27909,
- "updated": "2026-11-19T22:20:49Z"
+ "transcript_end": 28157,
+ "updated": "2026-11-19T22:23:26Z"
 }
