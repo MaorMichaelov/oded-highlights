@@ -59,7 +59,7 @@
  ],
  "hc_checked_at": "2026-11-19T12:55:03Z",
  "live_loop_running": true,
- "state_age_min": 2.0,
+ "state_age_min": 3.3,
  "live": true,
  "recent_failed_renders": 3,
  "stuck_clips": [
@@ -70,5 +70,5 @@
   "3 render-clip run(s) failed in the last 3 h (ids [44608819096, 44603935327, 44590922822])",
   "clips without a draft after 90 min: ['138861078_11197']"
  ],
- "checked_at": "2026-11-19T20:51:13Z"
+ "checked_at": "2026-11-19T20:55:24Z"
 }
