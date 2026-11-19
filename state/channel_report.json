@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-19T06:03:42Z",
+ "generated": "2026-11-19T06:33:48Z",
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -59,7 +59,7 @@
     0.8,
     2.0
    ],
-   "views_per_day": 14.8,
+   "views_per_day": 14.3,
    "kind": "other"
   },
   {
@@ -75,7 +75,7 @@
     2.1,
     5.0
    ],
-   "views_per_day": 40.8,
+   "views_per_day": 39.6,
    "kind": "other"
   },
   {
@@ -91,7 +91,7 @@
     2.5,
     5.9
    ],
-   "views_per_day": 36.0,
+   "views_per_day": 35.0,
    "kind": "other"
   },
   {
@@ -107,7 +107,7 @@
     2.1,
     4.9
    ],
-   "views_per_day": 33.5,
+   "views_per_day": 32.6,
    "kind": "reaction"
   },
   {
@@ -123,7 +123,7 @@
     4.4,
     10.2
    ],
-   "views_per_day": 48.9,
+   "views_per_day": 48.2,
    "kind": "other"
   },
   {
@@ -139,7 +139,7 @@
     14.2,
     33.1
    ],
-   "views_per_day": 34.3,
+   "views_per_day": 33.9,
    "kind": "other"
   },
   {
@@ -347,7 +347,7 @@
     26.9,
     62.9
    ],
-   "views_per_day": 318.1,
+   "views_per_day": 316.2,
    "kind": "other"
   },
   {
@@ -411,7 +411,7 @@
     1.6,
     3.8
    ],
-   "views_per_day": 13.2,
+   "views_per_day": 13.1,
    "kind": "other"
   },
   {
@@ -427,7 +427,7 @@
     144.2,
     336.4
    ],
-   "views_per_day": 515.7,
+   "views_per_day": 513.8,
    "kind": "other"
   },
   {
@@ -443,7 +443,7 @@
     257.4,
     600.5
    ],
-   "views_per_day": 1011.8,
+   "views_per_day": 1008.2,
    "kind": "other"
   },
   {
@@ -459,7 +459,7 @@
     61.0,
     142.2
    ],
-   "views_per_day": 214.1,
+   "views_per_day": 213.3,
    "kind": "other"
   },
   {
@@ -491,7 +491,7 @@
     390.9,
     912.1
    ],
-   "views_per_day": 792.9,
+   "views_per_day": 790.5,
    "kind": "other"
   },
   {
@@ -507,7 +507,7 @@
     3.2,
     7.5
    ],
-   "views_per_day": 17.7,
+   "views_per_day": 17.6,
    "kind": "reaction"
   },
   {
@@ -523,7 +523,7 @@
     212.7,
     496.2
    ],
-   "views_per_day": 866.8,
+   "views_per_day": 864.1,
    "kind": "other"
   },
   {
@@ -539,7 +539,7 @@
     9.4,
     21.9
    ],
-   "views_per_day": 27.7,
+   "views_per_day": 27.6,
    "kind": "other"
   },
   {
