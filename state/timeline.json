@@ -1601,10 +1601,10 @@
   {
    "from": 28200,
    "to": 29700,
-   "title": "משחק GTA VI – חקירת קוסומו",
+   "title": "משחק GTA VI עם שיחה",
    "kind": "game",
-   "clip_worthy": false,
-   "why": "שיחה קצרה על משחק בלבד",
+   "clip_worthy": true,
+   "why": "חלק רציף של משחק GTA VI עם שיחה מקיפה",
    "closed": false
   }
  ],
@@ -2199,6 +2199,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 29744,
- "updated": "2026-11-19T22:48:46Z"
+ "transcript_end": 29824,
+ "updated": "2026-11-19T22:50:02Z"
 }
