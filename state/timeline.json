@@ -1619,15 +1619,6 @@
    "clip_worthy": true,
    "why": "משך 25 דקות, משחק עם תכנים רציניים ודיאלוגים משמעותיים",
    "closed": true
-  },
-  {
-   "from": 29700,
-   "to": 30000,
-   "title": "שיחה על GTA VI והכסף",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "משך 5 דקות בלבד, שיחה כללית ללא תוכן משמעותי מעבר לשיחה",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -2227,6 +2218,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 30073,
- "updated": "2026-11-19T22:54:51Z"
+ "transcript_end": 30185,
+ "updated": "2026-11-19T23:01:59Z"
 }
