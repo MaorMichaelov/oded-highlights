@@ -1,0 +1,46 @@
+{
+ "score": 88,
+ "fail": [],
+ "warn": [
+  "audio ends abruptly (just before the end it is only 3 dB below the speech level)",
+  "clip starts inside a loud sound (8 dB below the speech level)"
+ ],
+ "metrics": {
+  "audio": {
+   "duration_s": 1038.57,
+   "floor_db": -100.0,
+   "speech_db": -17.9,
+   "dyn_db": 82.1,
+   "tail_rms_db": -20.9,
+   "tail_rel_speech_db": -2.9,
+   "head_rel_speech_db": -8.5,
+   "lead_silence_s": 0.02,
+   "trail_silence_s": 0.02,
+   "lufs": -18.7,
+   "tp": -2.7,
+   "sync": {
+    "v_dur": 1038.549349,
+    "a_dur": 1038.564333,
+    "dur_diff_s": 0.015,
+    "start_diff_s": 0.021,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 5.864104
+  },
+  "title_flags": [],
+  "title_truth": {
+   "missing_words": [
+    "מציג",
+    "סקינים",
+    "ופתיחת",
+    "הצ'אט",
+    "מתפרץ"
+   ],
+   "missing_names": [],
+   "bad_quotes": [],
+   "ratio": 0.56,
+   "checked": 9
+  }
+ }
+}
