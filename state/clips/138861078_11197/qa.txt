@@ -1,6 +1,56 @@
-model failed gemini-flash-latest: HTTP Error 503: Service Unavailable { "error": { "code": 503, "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.", "status": "UNAVAILABLE" } }
-model failed gemini-flash-latest: HTTP Error 503: Service Unavailable { "error": { "code": 503, "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.", "status": "UNAVAILABLE" } }
-model failed gemini-3.8-flash: HTTP Error 503: Service Unavailable { "error": { "code": 503, "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.", "status": "UNAVAILABLE" } }
-model failed gemini-3.7-flash: HTTP Error 503: Service Unavailable { "error": { "code": 503, "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.", "status": "UNAVAILABLE" } }
-model failed gemini-3.6-flash: HTTP Error 503: Service Unavailable { "error": { "code": 503, "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.", "status": "UNAVAILABLE" } }
-model failed gemini-2.5-flash: HTTP Error 404: Not Found { "error": { "code": 404, "message": "This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://aistudio.google.com/docs/get-started).", "status": "NOT_FOUND" } }
+model: gemini-flash-latest
+SCORE: 6/10
+
+### 1. ציר זמן של שינויים (Timeline)
+* **00:00 - 00:08**: טיזר/הוק מהמשחק (A Way Out). מצלמת פנים בצד ימין למעלה, צ'אט מתחתיה, לוגו פינה שמאלית עליונה, כתוביות מודגשות בירוק/לבן בתחתית. חיתוכים מהירים (00:02, 00:05, 00:07).
+* **00:08 - 00:10**: אינטרו אנימציה ממותג ("Oded Highlights") עם לוגו עגול וקרני אור ירוקות, אפקט קול של מעברון/סאונד אפקט.
+* **00:10 - 00:15**: מעבר למסך מחשב/דפדפן (אתר הגרלות/גלגל), חלונית משחק משמאל למעלה, מצלמת פנים מימין למעלה.
+* **00:15 - 00:19**: הופעת פופ-אפ הנעה להרשמה (Subscribe / Like) בתחתית המסך.
+* **00:20 - 00:26**: התרעת תרומה (Donation Alert - קול + אנימציה של דולר ירוק).
+* **00:35 - 00:40**: מעבר לדפדפן עם מפת GTA VI.
+* **00:40 - 01:04**: מעבר לתפריט PlayStation 5 (Astro's Playroom / GTA VI).
+* **01:14 - 01:55**: קאט חד חזרה למשחק (קטע סינמטי במסעדה).
+* **01:26 - 01:33**: התרעת תרומה מונפשת על פני המסך.
+* **01:56 - 02:04**: הילוך איטי וזום על פני הדמות הנשית, מוזיקת מתח, ואפקט שחור-לבן קצר לפני מעבר לסצנת כלא.
+* **02:04 - 02:29**: גיימפליי בתוך תא הכלא, ללא מוזיקה חיצונית, אינטראקציה עם הצ'אט.
+
+---
+
+### 2. מה מוצג ומה הושמט
+* **מוצג**: רגעי מפתח עלילתיים מהמשחק, מעברים טכניים קצרים בין תפריטים, ותגובות בולטות של הסטרימר.
+* **הושמט**: חלקי המתנה ארוכים, קריאת צ'אט מונוטונית וזמני טעינה ממושכים, במטרה לשמור על קצב מהיר.
+
+---
+
+### 3. ספירות וזמנים
+* **מספר חיתוכים (Cuts)**: כ-9 חיתוכים מרכזיים.
+* **הקטע הקצר ביותר**: כ-2 שניות (חיתוכי הפתיח 00:00–00:08).
+* **הקטע הארוך ביותר**: כ-40 שניות (סצנת השיטוט בתפריטי ה-PS5).
+* **התחלות וסיומים**: רוב הקטעים נחתכים באמצע משפט בדיבור ספונטני, אך חלקם מתחילים בתחילת אירוע משחקי.
+
+---
+
+### 4. מבנה 10 השניות הראשונות
+פתיח מהיר הבנוי מ-3 קטעי הוק קצרים מתוך המשחק בליווי כתוביות בולטות, המובילים ישירות לסרטון אינטרו ממותג (Sting) עם לוגו הערוץ ב-00:08.
+
+---
+
+### 5. דרישות לעורך (חיקוי הסגנון)
+* שמירה על מיקום קבוע של מצלמת פנים (ימין עליון) וצ'אט חי.
+* הוספת כתוביות פופ-אפ גדולות (ירוק/לבן) ברגעי שיא.
+* שילוב אלמנט אינטרו ממותג ואנימציית סאבסק scribe קבועה.
+
+---
+
+### בדיקת איכות (Quality Check)
+* **(a) פתיחה**: כוללת הוק של רגעים נבחרים, אינטרו קצר ופופ-אפ סאבסק scribe קריא ותקין.
+* **(b) כתוביות ועימוד**: כתוביות קריאות ומתוזמנות, פריסת מסך יציבה ללא חיתוך אלמנטים קריטיים.
+* **(c) התחלות משפט**: חלק מהקטעים מתחילים באמצע הברה או משפט קטוע.
+* **(d) שתיקות (Dead air)**: קיימת מריחה קלה ורגעים שקטים סביב 00:42–00:50.
+* **(e) שפה בוטה**: שימוש במילים גסות ("על הזין שלי", "מטומטם").
+* **(f) סאונד וקליפינג**: עוצמת שמע מאוזנת ברובה, אין עיוותים קיצוניים.
+* **(g) ציון עניין**: **6/10** – קצב סביר ודינמי ברובו, אך קטעי התפריטים מאטים את הרצף.
+* **(h) ליקויים קונקרטיים**:
+  1. קטיעת משפטים בצורה חדה מדי בחלק מהמעברים (כגון במעבר ב-01:14).
+  2. קטע תפריט PS5 ארוך וסטטי (00:41–01:05) שפוגע ברצף הגיימפליי.
+  3. הופעת התרעות תרומה שמסתירות חלקים מרכזיים מהעלילה/משחק.
