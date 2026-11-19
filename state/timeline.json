@@ -1727,10 +1727,10 @@
   {
    "from": 31200,
    "to": 31800,
-   "title": "הצעה לתכנון התקפה ב‑GTA VI",
+   "title": "התקפות וימשך במשחק",
    "kind": "game",
    "clip_worthy": false,
-   "why": "",
+   "why": "משך 10 דקות בלבד, לא עומד בקריטריונים של 15 דקות",
    "closed": false
   }
  ],
@@ -2367,6 +2367,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 31841,
- "updated": "2026-11-19T23:23:51Z"
+ "transcript_end": 31936,
+ "updated": "2026-11-19T23:25:30Z"
 }
