@@ -3,7 +3,7 @@
  "checks": {
   "live_loop": {
    "status": "ok",
-   "detail": "1 run(s) active"
+   "detail": "2 run(s) active"
   },
   "channel_loops": {
    "status": "ok",
@@ -11,34 +11,34 @@
   },
   "state_fresh": {
    "status": "ok",
-   "detail": "live_status 0.1 min old",
-   "age_min": 0.1
+   "detail": "live_status 6.2 min old",
+   "age_min": 6.2
   },
   "transcription": {
    "status": "ok",
-   "detail": "lag 710 segments, live=False"
+   "detail": "lag 11 segments, live=True"
   },
   "last_upload": {
-   "status": "warn",
-   "detail": "last draft 55 h ago and 1 clip(s) have no draft",
-   "age_h": 54.6,
-   "last": "2026-11-17T06:18:46Z"
+   "status": "ok",
+   "detail": "last draft 0.1 h ago",
+   "age_h": 0.1,
+   "last": "2026-11-19T21:23:07Z"
   },
   "upload_hold": {
    "status": "ok",
    "detail": "no hold, no quota wait"
   },
   "failed_runs": {
-   "status": "ok",
-   "detail": "0 failed run(s) in 3 h"
+   "status": "warn",
+   "detail": "3 failed run(s) in 3 h: ['render-clip']"
   },
   "cancelled_runs": {
    "status": "ok",
    "detail": "0 cancelled loop run(s) in 2 h"
   },
   "queue_stall": {
-   "status": "ok",
-   "detail": "no stalled queue"
+   "status": "warn",
+   "detail": "1 run(s) queued for > 60 min: ['studio-poller']"
   },
   "stuck_clips": {
    "status": "ok",
@@ -54,10 +54,11 @@
   }
  },
  "hc_problems": [
-  "last_upload: last draft 55 h ago and 1 clip(s) have no draft",
+  "failed_runs: 3 failed run(s) in 3 h: ['render-clip']",
+  "queue_stall: 1 run(s) queued for > 60 min: ['studio-poller']",
   "duplicates: duplicate draft titles: [['137995265_9037', '137995265_9082']]; overlapping ledger entries: []"
  ],
- "hc_checked_at": "2026-11-19T12:55:03Z",
+ "hc_checked_at": "2026-11-19T21:26:40Z",
  "live_loop_running": true,
  "state_age_min": 5.3,
  "live": true,
