@@ -59,16 +59,16 @@
  ],
  "hc_checked_at": "2026-11-19T12:55:03Z",
  "live_loop_running": true,
- "state_age_min": 2.9,
+ "state_age_min": 9.5,
  "live": true,
- "recent_failed_renders": 1,
+ "recent_failed_renders": 2,
  "stuck_clips": [
   "138861078_11197"
  ],
  "pending_candidates": 0,
  "problems": [
-  "1 render-clip run(s) failed in the last 3 h (ids [44590922822])",
+  "2 render-clip run(s) failed in the last 3 h (ids [44603935327, 44590922822])",
   "clips without a draft after 90 min: ['138861078_11197']"
  ],
- "checked_at": "2026-11-19T20:17:14Z"
+ "checked_at": "2026-11-19T20:27:11Z"
 }
