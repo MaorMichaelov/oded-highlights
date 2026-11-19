@@ -1329,6 +1329,29 @@
     "עדכונים"
    ],
    "v": 2
+  },
+  "104": {
+   "label": "מדריך תכנון התקפה ב‑GTA VI",
+   "kind": "game",
+   "kw": [
+    "GTA VI",
+    "התקפה",
+    "סימן",
+    "ק'",
+    "משחק"
+   ],
+   "v": 2
+  },
+  "105": {
+   "label": "חוזר לשחק GTA VI אחרי הפסקה",
+   "kind": "game",
+   "kw": [
+    "GTA VI",
+    "סוני",
+    "חזרתי",
+    "משחק"
+   ],
+   "v": 2
   }
  },
  "spans": [
@@ -1691,6 +1714,24 @@
    "clip_worthy": false,
    "why": "הקטע הוא רק 5 דקות ולא עומד במינימום של 15 דקות לתוכן קוהרנטי, ולכן אינו ראוי להיכנס לקליפ.",
    "closed": true
+  },
+  {
+   "from": 30900,
+   "to": 31200,
+   "title": "תגובה לחדשות GTA VI",
+   "kind": "reaction",
+   "clip_worthy": false,
+   "why": "",
+   "closed": true
+  },
+  {
+   "from": 31200,
+   "to": 31800,
+   "title": "הצעה לתכנון התקפה ב‑GTA VI",
+   "kind": "game",
+   "clip_worthy": false,
+   "why": "",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -2312,8 +2353,20 @@
    "to": 31200,
    "label": "מדבר על GTA VI וחדשות המשחק",
    "kind": "reaction"
+  },
+  {
+   "from": 31200,
+   "to": 31500,
+   "label": "מדריך תכנון התקפה ב‑GTA VI",
+   "kind": "game"
+  },
+  {
+   "from": 31500,
+   "to": 31800,
+   "label": "חוזר לשחק GTA VI אחרי הפסקה",
+   "kind": "game"
   }
  ],
- "transcript_end": 31235,
- "updated": "2026-11-19T23:22:24Z"
+ "transcript_end": 31841,
+ "updated": "2026-11-19T23:23:51Z"
 }
