@@ -1808,10 +1808,10 @@
   {
    "from": 32700,
    "to": 33300,
-   "title": "שחק ב-Grand Theft Auto VI",
+   "title": "משחק GTA VI",
    "kind": "game",
    "clip_worthy": false,
-   "why": "קטע של 5 דקות בלבד, לא קוהרנטי למעלה מ-15 דקות",
+   "why": "קטע 5 דקות של משחק",
    "closed": false
   }
  ],
@@ -2478,6 +2478,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 33345,
- "updated": "2026-11-19T23:48:58Z"
+ "transcript_end": 33432,
+ "updated": "2026-11-19T23:50:47Z"
 }

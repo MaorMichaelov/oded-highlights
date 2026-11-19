@@ -1,13 +1,13 @@
 {
- "generated": "2026-11-19T23:19:26Z",
+ "generated": "2026-11-19T23:50:43Z",
  "channel": {
   "title": "STREAM IL",
-  "subscribers": 1880,
+  "subscribers": 1890,
   "views": 21910,
   "videos": 18
  },
  "totals": {
-  "videos_total": 43,
+  "videos_total": 44,
   "videos_public": 19,
   "views": 22335,
   "likes": 218,
@@ -46,6 +46,22 @@
   "ZA70shTHhSk"
  ],
  "videos": [
+  {
+   "id": "2XAZT2Fvs5A",
+   "title": "\"זה לא כספת, יא בני זונות, זה מקרר!\" עודד מתבלבל בשוד!",
+   "published": "2026-11-19",
+   "privacy": "private",
+   "duration_min": 20.6,
+   "views": 0,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.0
+   ],
+   "views_per_day": 0.0,
+   "kind": "other"
+  },
   {
    "id": "No0IAxBkBCg",
    "title": "\"זה 800 שקלים, ידידי!\" עודד פותח תיבות ומשחק מונופול בסאבתון!",
@@ -123,7 +139,7 @@
     0.1,
     0.2
    ],
-   "views_per_day": 6.5,
+   "views_per_day": 5.7,
    "kind": "game"
   },
   {
@@ -171,7 +187,7 @@
     0.3,
     0.8
    ],
-   "views_per_day": 26.2,
+   "views_per_day": 23.5,
    "kind": "other"
   },
   {
@@ -187,7 +203,7 @@
     0.1,
     0.1
    ],
-   "views_per_day": 5.0,
+   "views_per_day": 4.5,
    "kind": "other"
   },
   {
@@ -203,7 +219,7 @@
     0.9,
     2.1
    ],
-   "views_per_day": 63.1,
+   "views_per_day": 58.1,
    "kind": "other"
   },
   {
@@ -219,7 +235,7 @@
     1.2,
     2.8
    ],
-   "views_per_day": 10.0,
+   "views_per_day": 9.9,
    "kind": "other"
   },
   {
@@ -235,7 +251,7 @@
     2.4,
     5.7
    ],
-   "views_per_day": 23.1,
+   "views_per_day": 22.7,
    "kind": "other"
   },
   {
@@ -251,7 +267,7 @@
     2.9,
     6.8
    ],
-   "views_per_day": 20.8,
+   "views_per_day": 20.5,
    "kind": "other"
   },
   {
@@ -267,7 +283,7 @@
     2.2,
     5.1
    ],
-   "views_per_day": 17.7,
+   "views_per_day": 17.5,
    "kind": "reaction"
   },
   {
@@ -283,7 +299,7 @@
     4.7,
     11.1
    ],
-   "views_per_day": 35.6,
+   "views_per_day": 35.2,
    "kind": "other"
   },
   {
@@ -299,7 +315,7 @@
     15.5,
     36.2
    ],
-   "views_per_day": 27.0,
+   "views_per_day": 26.8,
    "kind": "other"
   },
   {
@@ -507,7 +523,7 @@
     26.9,
     62.9
    ],
-   "views_per_day": 264.3,
+   "views_per_day": 263.0,
    "kind": "other"
   },
   {
@@ -587,7 +603,7 @@
     146.2,
     341.2
    ],
-   "views_per_day": 465.8,
+   "views_per_day": 464.3,
    "kind": "other"
   },
   {
@@ -603,7 +619,7 @@
     258.2,
     602.4
    ],
-   "views_per_day": 904.4,
+   "views_per_day": 901.4,
    "kind": "other"
   },
   {
@@ -619,7 +635,7 @@
     61.1,
     142.7
    ],
-   "views_per_day": 191.5,
+   "views_per_day": 190.8,
    "kind": "other"
   },
   {
@@ -651,7 +667,7 @@
     393.1,
     917.2
    ],
-   "views_per_day": 719.5,
+   "views_per_day": 717.4,
    "kind": "other"
   },
   {
@@ -667,7 +683,7 @@
     3.2,
     7.5
    ],
-   "views_per_day": 16.0,
+   "views_per_day": 15.9,
    "kind": "reaction"
   },
   {
@@ -683,7 +699,7 @@
     215.7,
     503.3
    ],
-   "views_per_day": 794.3,
+   "views_per_day": 792.0,
    "kind": "other"
   },
   {
@@ -699,7 +715,7 @@
     9.6,
     22.3
    ],
-   "views_per_day": 25.8,
+   "views_per_day": 25.7,
    "kind": "other"
   },
   {

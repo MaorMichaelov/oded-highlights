@@ -1,13 +1,23 @@
 {
- "fetched_at": "2026-11-19T23:19:26Z",
- "fetched_epoch": 1795130366.8855953,
+ "fetched_at": "2026-11-19T23:50:43Z",
+ "fetched_epoch": 1795132243.637591,
  "channel": {
   "title": "STREAM IL",
-  "subscribers": 1880,
+  "subscribers": 1890,
   "views": 21910,
   "videos": 18
  },
  "videos": [
+  {
+   "id": "2XAZT2Fvs5A",
+   "title": "\"זה לא כספת, יא בני זונות, זה מקרר!\" עודד מתבלבל בשוד!",
+   "published": "2026-11-19T23:13:19Z",
+   "privacy": "private",
+   "duration": "PT20M34S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
   {
    "id": "No0IAxBkBCg",
    "title": "\"זה 800 שקלים, ידידי!\" עודד פותח תיבות ומשחק מונופול בסאבתון!",
