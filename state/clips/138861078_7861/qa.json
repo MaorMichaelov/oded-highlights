@@ -1,0 +1,41 @@
+{
+ "score": 94,
+ "fail": [],
+ "warn": [
+  "clip starts inside a loud sound (2 dB below the speech level)"
+ ],
+ "metrics": {
+  "audio": {
+   "duration_s": 1076.57,
+   "floor_db": -53.5,
+   "speech_db": -16.4,
+   "dyn_db": 37.1,
+   "tail_rms_db": -27.2,
+   "tail_rel_speech_db": -10.8,
+   "head_rel_speech_db": -1.9,
+   "lead_silence_s": 0.03,
+   "trail_silence_s": 0.02,
+   "lufs": -17.2,
+   "tp": -3.7,
+   "sync": {
+    "v_dur": 1076.55,
+    "a_dur": 1076.564979,
+    "dur_diff_s": 0.015,
+    "start_diff_s": 0.021,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 6.225146
+  },
+  "title_flags": [],
+  "title_truth": {
+   "missing_words": [
+    "אתגר"
+   ],
+   "missing_names": [],
+   "bad_quotes": [],
+   "ratio": 0.17,
+   "checked": 6
+  }
+ }
+}

@@ -369,10 +369,15 @@
    "who": "עודד, צ'אט, אילון (אורח)",
    "peak": "11:33"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/zRelwNeFMfE",
+  "draft_at": "2026-11-19T19:03:24Z",
+  "quality_errors": [],
   "auto": true
  },
  {
