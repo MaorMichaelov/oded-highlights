@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-19T19:03:18Z",
- "fetched_epoch": 1795114998.3180354,
+ "fetched_at": "2026-11-19T19:36:07Z",
+ "fetched_epoch": 1795116967.6540956,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -8,6 +8,16 @@
   "videos": 18
  },
  "videos": [
+  {
+   "id": "zRelwNeFMfE",
+   "title": "\"תקוף בסכום!\" (אתגר ציור, בוס והגרלות)!",
+   "published": "2026-11-19T18:58:20Z",
+   "privacy": "private",
+   "duration": "PT17M57S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
   {
    "id": "HRZSCiubnps",
    "title": "“מה הסיכוי, אחי!” – עודד משחק קנבס ציור ומונופול עם הצ'אט!",
@@ -24,7 +34,7 @@
    "published": "2026-11-19T18:44:29Z",
    "privacy": "public",
    "duration": "PT21M26S",
-   "views": 4,
+   "views": 5,
    "likes": 1,
    "comments": 0
   },
@@ -324,7 +334,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 5287,
+   "views": 5300,
    "likes": 29,
    "comments": 1
   },

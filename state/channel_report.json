@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-19T19:03:18Z",
+ "generated": "2026-11-19T19:36:07Z",
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -7,18 +7,18 @@
   "videos": 18
  },
  "totals": {
-  "videos_total": 37,
+  "videos_total": 38,
   "videos_public": 19,
-  "views": 22262,
+  "views": 22276,
   "likes": 218,
-  "est_hours_low": 1124.6,
-  "est_hours_high": 2624.0
+  "est_hours_low": 1125.5,
+  "est_hours_high": 2626.4
  },
  "by_kind": {
   "other": {
    "n": 16,
-   "views": 22117,
-   "est_hours_mid": 1865.3
+   "views": 22131,
+   "est_hours_mid": 1866.9
   },
   "reaction": {
    "n": 2,
@@ -47,6 +47,22 @@
  ],
  "videos": [
   {
+   "id": "zRelwNeFMfE",
+   "title": "\"תקוף בסכום!\" (אתגר ציור, בוס והגרלות)!",
+   "published": "2026-11-19",
+   "privacy": "private",
+   "duration_min": 17.9,
+   "views": 0,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.0
+   ],
+   "views_per_day": 0.0,
+   "kind": "other"
+  },
+  {
    "id": "HRZSCiubnps",
    "title": "“מה הסיכוי, אחי!” – עודד משחק קנבס ציור ומונופול עם הצ'אט!",
    "published": "2026-11-19",
@@ -68,14 +84,14 @@
    "published": "2026-11-19",
    "privacy": "public",
    "duration_min": 21.4,
-   "views": 4,
+   "views": 5,
    "likes": 1,
    "comments": 0,
    "est_hours": [
     0.3,
-    0.6
+    0.8
    ],
-   "views_per_day": 80.0,
+   "views_per_day": 100.0,
    "kind": "other"
   },
   {
@@ -107,7 +123,7 @@
     0.5,
     1.1
    ],
-   "views_per_day": 105.9,
+   "views_per_day": 81.3,
    "kind": "other"
   },
   {
@@ -123,7 +139,7 @@
     1.2,
     2.8
    ],
-   "views_per_day": 11.5,
+   "views_per_day": 11.3,
    "kind": "other"
   },
   {
@@ -139,7 +155,7 @@
     2.4,
     5.7
    ],
-   "views_per_day": 26.4,
+   "views_per_day": 25.9,
    "kind": "other"
   },
   {
@@ -155,7 +171,7 @@
     2.9,
     6.8
    ],
-   "views_per_day": 23.8,
+   "views_per_day": 23.3,
    "kind": "other"
   },
   {
@@ -171,7 +187,7 @@
     2.2,
     5.1
    ],
-   "views_per_day": 20.2,
+   "views_per_day": 19.8,
    "kind": "reaction"
   },
   {
@@ -187,7 +203,7 @@
     4.7,
     11.1
    ],
-   "views_per_day": 38.7,
+   "views_per_day": 38.3,
    "kind": "other"
   },
   {
@@ -203,7 +219,7 @@
     15.8,
     36.8
    ],
-   "views_per_day": 29.4,
+   "views_per_day": 29.2,
    "kind": "other"
   },
   {
@@ -411,7 +427,7 @@
     26.9,
     62.9
    ],
-   "views_per_day": 275.9,
+   "views_per_day": 274.3,
    "kind": "other"
   },
   {
@@ -491,7 +507,7 @@
     145.8,
     340.1
    ],
-   "views_per_day": 477.3,
+   "views_per_day": 475.7,
    "kind": "other"
   },
   {
@@ -507,7 +523,7 @@
     258.0,
     602.0
    ],
-   "views_per_day": 928.8,
+   "views_per_day": 925.5,
    "kind": "other"
   },
   {
@@ -523,7 +539,7 @@
     61.1,
     142.6
    ],
-   "views_per_day": 196.6,
+   "views_per_day": 195.9,
    "kind": "other"
   },
   {
@@ -548,14 +564,14 @@
    "published": "2026-11-12",
    "privacy": "public",
    "duration_min": 30.9,
-   "views": 5287,
+   "views": 5300,
    "likes": 29,
    "comments": 1,
    "est_hours": [
-    391.7,
-    913.9
+    392.6,
+    916.1
    ],
-   "views_per_day": 734.7,
+   "views_per_day": 734.2,
    "kind": "other"
   },
   {
@@ -571,7 +587,7 @@
     3.2,
     7.5
    ],
-   "views_per_day": 16.4,
+   "views_per_day": 16.3,
    "kind": "reaction"
   },
   {
@@ -587,7 +603,7 @@
     214.6,
     500.7
    ],
-   "views_per_day": 809.6,
+   "views_per_day": 807.1,
    "kind": "other"
   },
   {
@@ -603,7 +619,7 @@
     9.5,
     22.2
    ],
-   "views_per_day": 26.2,
+   "views_per_day": 26.1,
    "kind": "other"
   },
   {
