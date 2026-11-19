@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-19T21:13:05Z",
+ "generated": "2026-11-19T21:46:23Z",
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -7,7 +7,7 @@
   "videos": 18
  },
  "totals": {
-  "videos_total": 40,
+  "videos_total": 42,
   "videos_public": 19,
   "views": 22320,
   "likes": 218,
@@ -47,6 +47,38 @@
  ],
  "videos": [
   {
+   "id": "b5je5QyZb2k",
+   "title": "זה מטורף, צ'אט, זה אחד המרגשים! עודד מצייר קנבס ב‑GTA VI (GTA VI)!",
+   "published": "2026-11-19",
+   "privacy": "private",
+   "duration_min": 16.4,
+   "views": 0,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.0
+   ],
+   "views_per_day": 0.0,
+   "kind": "game"
+  },
+  {
+   "id": "I0hkdFblYeE",
+   "title": "\"יש לי פה נשק של אחנונים ששילמו כסף!\" עודד פותח את הנשק!",
+   "published": "2026-11-19",
+   "privacy": "private",
+   "duration_min": 17.4,
+   "views": 0,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.0
+   ],
+   "views_per_day": 0.0,
+   "kind": "other"
+  },
+  {
    "id": "zJ_SZstK_AY",
    "title": "\"תראה איזה יפה הוא צייר!\": עודד מגיב לציורים של הצ'אט ועובר ל-GTA!",
    "published": "2026-11-19",
@@ -75,7 +107,7 @@
     0.1,
     0.2
    ],
-   "views_per_day": 15.3,
+   "views_per_day": 11.3,
    "kind": "game"
   },
   {
@@ -123,7 +155,7 @@
     0.3,
     0.8
    ],
-   "views_per_day": 48.5,
+   "views_per_day": 39.6,
    "kind": "other"
   },
   {
@@ -139,7 +171,7 @@
     0.1,
     0.1
    ],
-   "views_per_day": 8.9,
+   "views_per_day": 7.4,
    "kind": "other"
   },
   {
@@ -155,7 +187,7 @@
     1.0,
     2.3
    ],
-   "views_per_day": 102.6,
+   "views_per_day": 90.0,
    "kind": "other"
   },
   {
@@ -171,7 +203,7 @@
     1.2,
     2.8
    ],
-   "views_per_day": 10.7,
+   "views_per_day": 10.5,
    "kind": "other"
   },
   {
@@ -187,7 +219,7 @@
     2.4,
     5.7
    ],
-   "views_per_day": 24.6,
+   "views_per_day": 24.2,
    "kind": "other"
   },
   {
@@ -203,7 +235,7 @@
     2.9,
     6.8
    ],
-   "views_per_day": 22.2,
+   "views_per_day": 21.8,
    "kind": "other"
   },
   {
@@ -219,7 +251,7 @@
     2.2,
     5.1
    ],
-   "views_per_day": 18.9,
+   "views_per_day": 18.6,
    "kind": "reaction"
   },
   {
@@ -235,7 +267,7 @@
     4.7,
     11.1
    ],
-   "views_per_day": 37.1,
+   "views_per_day": 36.7,
    "kind": "other"
   },
   {
@@ -251,7 +283,7 @@
     15.5,
     36.2
    ],
-   "views_per_day": 28.0,
+   "views_per_day": 27.7,
    "kind": "other"
   },
   {
@@ -459,7 +491,7 @@
     26.9,
     62.9
    ],
-   "views_per_day": 269.9,
+   "views_per_day": 268.4,
    "kind": "other"
   },
   {
@@ -523,7 +555,7 @@
     1.7,
     4.0
    ],
-   "views_per_day": 12.4,
+   "views_per_day": 12.3,
    "kind": "other"
   },
   {
@@ -539,7 +571,7 @@
     146.1,
     340.9
    ],
-   "views_per_day": 471.8,
+   "views_per_day": 470.1,
    "kind": "other"
   },
   {
@@ -555,7 +587,7 @@
     258.1,
     602.3
    ],
-   "views_per_day": 916.4,
+   "views_per_day": 913.2,
    "kind": "other"
   },
   {
@@ -571,7 +603,7 @@
     61.1,
     142.7
    ],
-   "views_per_day": 194.0,
+   "views_per_day": 193.4,
    "kind": "other"
   },
   {
@@ -587,7 +619,7 @@
     6.8,
     15.8
    ],
-   "views_per_day": 10.2,
+   "views_per_day": 10.1,
    "kind": "other"
   },
   {
@@ -603,7 +635,7 @@
     392.6,
     916.1
    ],
-   "views_per_day": 727.4,
+   "views_per_day": 725.1,
    "kind": "other"
   },
   {
@@ -619,7 +651,7 @@
     3.2,
     7.5
    ],
-   "views_per_day": 16.2,
+   "views_per_day": 16.1,
    "kind": "reaction"
   },
   {
@@ -635,7 +667,7 @@
     215.5,
     502.8
    ],
-   "views_per_day": 803.1,
+   "views_per_day": 800.6,
    "kind": "other"
   },
   {
@@ -651,7 +683,7 @@
     9.5,
     22.2
    ],
-   "views_per_day": 25.9,
+   "views_per_day": 25.8,
    "kind": "other"
   },
   {

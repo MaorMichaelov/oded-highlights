@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-19T21:13:05Z",
- "fetched_epoch": 1795122785.226084,
+ "fetched_at": "2026-11-19T21:46:23Z",
+ "fetched_epoch": 1795124783.2219834,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -8,6 +8,26 @@
   "videos": 18
  },
  "videos": [
+  {
+   "id": "b5je5QyZb2k",
+   "title": "זה מטורף, צ'אט, זה אחד המרגשים! עודד מצייר קנבס ב‑GTA VI (GTA VI)!",
+   "published": "2026-11-19T21:38:36Z",
+   "privacy": "private",
+   "duration": "PT16M26S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
+  {
+   "id": "I0hkdFblYeE",
+   "title": "\"יש לי פה נשק של אחנונים ששילמו כסף!\" עודד פותח את הנשק!",
+   "published": "2026-11-19T21:22:58Z",
+   "privacy": "private",
+   "duration": "PT17M23S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
   {
    "id": "zJ_SZstK_AY",
    "title": "\"תראה איזה יפה הוא צייר!\": עודד מגיב לציורים של הצ'אט ועובר ל-GTA!",
@@ -409,5 +429,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 110
+ "total_uploads_incl_private": 112
 }
