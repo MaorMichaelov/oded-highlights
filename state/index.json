@@ -407,10 +407,15 @@
    "who": "עודד, מר אלפא, הצ'אט",
    "peak": "08:34"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/b5je5QyZb2k",
+  "draft_at": "2026-11-19T21:39:24Z",
+  "quality_errors": [],
   "auto": true
  },
  {
