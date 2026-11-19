@@ -1792,15 +1792,6 @@
    "clip_worthy": true,
    "why": "שיחה רציפה בן 15 דקות בנושאי GTA 6, חתונה והתרבות הקשורה",
    "closed": true
-  },
-  {
-   "from": 32700,
-   "to": 33000,
-   "title": "משחק GTA VI ותגובות",
-   "kind": "game",
-   "clip_worthy": false,
-   "why": "קטע משחק של 5 דקות בלבד",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -2460,6 +2451,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 33068,
- "updated": "2026-11-19T23:45:20Z"
+ "transcript_end": 33227,
+ "updated": "2026-11-19T23:47:34Z"
 }
