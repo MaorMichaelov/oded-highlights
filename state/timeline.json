@@ -1745,15 +1745,6 @@
    "clip_worthy": false,
    "why": "",
    "closed": true
-  },
-  {
-   "from": 31800,
-   "to": 32100,
-   "title": "סדר הכסף לחתונה",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -2395,6 +2386,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 32170,
- "updated": "2026-11-19T23:29:49Z"
+ "transcript_end": 32298,
+ "updated": "2026-11-19T23:31:42Z"
 }
