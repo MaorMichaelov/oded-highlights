@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-19T20:41:25Z",
+ "generated": "2026-11-19T21:13:05Z",
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -7,18 +7,18 @@
   "videos": 18
  },
  "totals": {
-  "videos_total": 39,
+  "videos_total": 40,
   "videos_public": 19,
-  "views": 22316,
+  "views": 22320,
   "likes": 218,
-  "est_hours_low": 1126.8,
-  "est_hours_high": 2629.8
+  "est_hours_low": 1127.0,
+  "est_hours_high": 2630.3
  },
  "by_kind": {
   "other": {
    "n": 16,
-   "views": 22171,
-   "est_hours_mid": 1869.3
+   "views": 22175,
+   "est_hours_mid": 1869.5
   },
   "reaction": {
    "n": 2,
@@ -47,6 +47,22 @@
  ],
  "videos": [
   {
+   "id": "zJ_SZstK_AY",
+   "title": "\"תראה איזה יפה הוא צייר!\": עודד מגיב לציורים של הצ'אט ועובר ל-GTA!",
+   "published": "2026-11-19",
+   "privacy": "private",
+   "duration_min": 21.4,
+   "views": 0,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.0
+   ],
+   "views_per_day": 0.0,
+   "kind": "reaction"
+  },
+  {
    "id": "SxZP4FNw_L4",
    "title": "זה היה משוגע, אחי! (GTA VI)!",
    "published": "2026-11-19",
@@ -59,7 +75,7 @@
     0.1,
     0.2
    ],
-   "views_per_day": 20.0,
+   "views_per_day": 15.3,
    "kind": "game"
   },
   {
@@ -107,7 +123,7 @@
     0.3,
     0.8
    ],
-   "views_per_day": 61.6,
+   "views_per_day": 48.5,
    "kind": "other"
   },
   {
@@ -123,7 +139,7 @@
     0.1,
     0.1
    ],
-   "views_per_day": 11.0,
+   "views_per_day": 8.9,
    "kind": "other"
   },
   {
@@ -132,14 +148,14 @@
    "published": "2026-11-19",
    "privacy": "public",
    "duration_min": 17.9,
-   "views": 16,
+   "views": 17,
    "likes": 5,
    "comments": 0,
    "est_hours": [
-    0.9,
-    2.1
+    1.0,
+    2.3
    ],
-   "views_per_day": 111.3,
+   "views_per_day": 102.6,
    "kind": "other"
   },
   {
@@ -155,7 +171,7 @@
     1.2,
     2.8
    ],
-   "views_per_day": 10.9,
+   "views_per_day": 10.7,
    "kind": "other"
   },
   {
@@ -171,7 +187,7 @@
     2.4,
     5.7
    ],
-   "views_per_day": 25.0,
+   "views_per_day": 24.6,
    "kind": "other"
   },
   {
@@ -187,7 +203,7 @@
     2.9,
     6.8
    ],
-   "views_per_day": 22.5,
+   "views_per_day": 22.2,
    "kind": "other"
   },
   {
@@ -203,7 +219,7 @@
     2.2,
     5.1
    ],
-   "views_per_day": 19.2,
+   "views_per_day": 18.9,
    "kind": "reaction"
   },
   {
@@ -219,7 +235,7 @@
     4.7,
     11.1
    ],
-   "views_per_day": 37.5,
+   "views_per_day": 37.1,
    "kind": "other"
   },
   {
@@ -235,7 +251,7 @@
     15.5,
     36.2
    ],
-   "views_per_day": 28.2,
+   "views_per_day": 28.0,
    "kind": "other"
   },
   {
@@ -276,14 +292,14 @@
    "published": "2026-11-16",
    "privacy": "private",
    "duration_min": 28.8,
-   "views": 1,
+   "views": 0,
    "likes": 0,
    "comments": 0,
    "est_hours": [
-    0.1,
-    0.2
+    0.0,
+    0.0
    ],
-   "views_per_day": 0.3,
+   "views_per_day": 0.0,
    "kind": "other"
   },
   {
@@ -443,7 +459,7 @@
     26.9,
     62.9
    ],
-   "views_per_day": 271.3,
+   "views_per_day": 269.9,
    "kind": "other"
   },
   {
@@ -523,7 +539,7 @@
     146.1,
     340.9
    ],
-   "views_per_day": 473.4,
+   "views_per_day": 471.8,
    "kind": "other"
   },
   {
@@ -532,14 +548,14 @@
    "published": "2026-11-13",
    "privacy": "public",
    "duration_min": 9.6,
-   "views": 5962,
+   "views": 5965,
    "likes": 54,
    "comments": 3,
    "est_hours": [
-    258.0,
-    602.0
+    258.1,
+    602.3
    ],
-   "views_per_day": 919.1,
+   "views_per_day": 916.4,
    "kind": "other"
   },
   {
@@ -555,7 +571,7 @@
     61.1,
     142.7
    ],
-   "views_per_day": 194.7,
+   "views_per_day": 194.0,
    "kind": "other"
   },
   {
@@ -587,7 +603,7 @@
     392.6,
     916.1
    ],
-   "views_per_day": 729.6,
+   "views_per_day": 727.4,
    "kind": "other"
   },
   {
@@ -619,7 +635,7 @@
     215.5,
     502.8
    ],
-   "views_per_day": 805.5,
+   "views_per_day": 803.1,
    "kind": "other"
   },
   {
@@ -635,7 +651,7 @@
     9.5,
     22.2
    ],
-   "views_per_day": 26.0,
+   "views_per_day": 25.9,
    "kind": "other"
   },
   {
@@ -651,7 +667,7 @@
     2.2,
     5.2
    ],
-   "views_per_day": 6.3,
+   "views_per_day": 6.2,
    "kind": "other"
   },
   {
