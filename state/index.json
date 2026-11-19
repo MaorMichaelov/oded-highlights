@@ -426,10 +426,15 @@
    "who": "עודד, צ'אט (ניתאי, איתי, מר אלפא, ליאד)",
    "peak": "00:45"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/No0IAxBkBCg",
+  "draft_at": "2026-11-19T22:28:58Z",
+  "quality_errors": [],
   "auto": true
  },
  {

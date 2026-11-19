@@ -1,0 +1,44 @@
+{
+ "score": 94,
+ "fail": [],
+ "warn": [
+  "clip starts inside a loud sound (7 dB below the speech level)"
+ ],
+ "metrics": {
+  "audio": {
+   "duration_s": 950.77,
+   "floor_db": -51.3,
+   "speech_db": -16.5,
+   "dyn_db": 34.9,
+   "tail_rms_db": -27.2,
+   "tail_rel_speech_db": -10.7,
+   "head_rel_speech_db": -6.6,
+   "lead_silence_s": 0.02,
+   "trail_silence_s": 0.08,
+   "lufs": -17.3,
+   "tp": -2.2,
+   "sync": {
+    "v_dur": 950.749349,
+    "a_dur": 950.757667,
+    "dur_diff_s": 0.008,
+    "start_diff_s": 0.021,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 4.384667
+  },
+  "title_flags": [],
+  "title_truth": {
+   "missing_words": [
+    "פותח",
+    "ומשחק",
+    "מונופול",
+    "בסאבתון"
+   ],
+   "missing_names": [],
+   "bad_quotes": [],
+   "ratio": 0.5,
+   "checked": 8
+  }
+ }
+}
