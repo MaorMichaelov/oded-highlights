@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-19T22:18:10Z",
- "fetched_epoch": 1795126690.9498668,
+ "fetched_at": "2026-11-19T22:48:43Z",
+ "fetched_epoch": 1795128523.0363407,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -8,6 +8,16 @@
   "videos": 18
  },
  "videos": [
+  {
+   "id": "No0IAxBkBCg",
+   "title": "\"זה 800 שקלים, ידידי!\" עודד פותח תיבות ומשחק מונופול בסאבתון!",
+   "published": "2026-11-19T22:28:25Z",
+   "privacy": "private",
+   "duration": "PT15M51S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
   {
    "id": "b5je5QyZb2k",
    "title": "זה מטורף, צ'אט, זה אחד המרגשים! עודד מצייר קנבס ב‑GTA VI (GTA VI)!",
@@ -94,7 +104,7 @@
    "published": "2026-11-19T17:14:29Z",
    "privacy": "public",
    "duration": "PT17M55S",
-   "views": 16,
+   "views": 17,
    "likes": 5,
    "comments": 0
   },
@@ -429,5 +439,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 112
+ "total_uploads_incl_private": 113
 }

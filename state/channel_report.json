@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-19T22:18:10Z",
+ "generated": "2026-11-19T22:48:43Z",
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1880,
@@ -7,17 +7,17 @@
   "videos": 18
  },
  "totals": {
-  "videos_total": 42,
+  "videos_total": 43,
   "videos_public": 19,
-  "views": 22335,
+  "views": 22336,
   "likes": 218,
-  "est_hours_low": 1128.0,
-  "est_hours_high": 2632.3
+  "est_hours_low": 1128.1,
+  "est_hours_high": 2632.5
  },
  "by_kind": {
   "other": {
    "n": 16,
-   "views": 22190,
+   "views": 22191,
    "est_hours_mid": 1871.3
   },
   "reaction": {
@@ -46,6 +46,22 @@
   "ZA70shTHhSk"
  ],
  "videos": [
+  {
+   "id": "No0IAxBkBCg",
+   "title": "\"זה 800 שקלים, ידידי!\" עודד פותח תיבות ומשחק מונופול בסאבתון!",
+   "published": "2026-11-19",
+   "privacy": "private",
+   "duration_min": 15.8,
+   "views": 0,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.0
+   ],
+   "views_per_day": 0.0,
+   "kind": "other"
+  },
   {
    "id": "b5je5QyZb2k",
    "title": "זה מטורף, צ'אט, זה אחד המרגשים! עודד מצייר קנבס ב‑GTA VI (GTA VI)!",
@@ -107,7 +123,7 @@
     0.1,
     0.2
    ],
-   "views_per_day": 9.0,
+   "views_per_day": 7.6,
    "kind": "game"
   },
   {
@@ -155,7 +171,7 @@
     0.3,
     0.8
    ],
-   "views_per_day": 33.7,
+   "views_per_day": 29.5,
    "kind": "other"
   },
   {
@@ -171,7 +187,7 @@
     0.1,
     0.1
    ],
-   "views_per_day": 6.3,
+   "views_per_day": 5.6,
    "kind": "other"
   },
   {
@@ -180,14 +196,14 @@
    "published": "2026-11-19",
    "privacy": "public",
    "duration_min": 17.9,
-   "views": 16,
+   "views": 17,
    "likes": 5,
    "comments": 0,
    "est_hours": [
-    0.9,
-    2.1
+    1.0,
+    2.3
    ],
-   "views_per_day": 75.9,
+   "views_per_day": 73.2,
    "kind": "other"
   },
   {
@@ -203,7 +219,7 @@
     1.2,
     2.8
    ],
-   "views_per_day": 10.3,
+   "views_per_day": 10.2,
    "kind": "other"
   },
   {
@@ -219,7 +235,7 @@
     2.4,
     5.7
    ],
-   "views_per_day": 23.8,
+   "views_per_day": 23.4,
    "kind": "other"
   },
   {
@@ -235,7 +251,7 @@
     2.9,
     6.8
    ],
-   "views_per_day": 21.5,
+   "views_per_day": 21.1,
    "kind": "other"
   },
   {
@@ -251,7 +267,7 @@
     2.2,
     5.1
    ],
-   "views_per_day": 18.3,
+   "views_per_day": 18.0,
    "kind": "reaction"
   },
   {
@@ -267,7 +283,7 @@
     4.7,
     11.1
    ],
-   "views_per_day": 36.3,
+   "views_per_day": 35.9,
    "kind": "other"
   },
   {
@@ -283,7 +299,7 @@
     15.5,
     36.2
    ],
-   "views_per_day": 27.5,
+   "views_per_day": 27.2,
    "kind": "other"
   },
   {
@@ -491,7 +507,7 @@
     26.9,
     62.9
    ],
-   "views_per_day": 267.0,
+   "views_per_day": 265.7,
    "kind": "other"
   },
   {
@@ -555,7 +571,7 @@
     1.7,
     4.0
    ],
-   "views_per_day": 12.3,
+   "views_per_day": 12.2,
    "kind": "other"
   },
   {
@@ -571,7 +587,7 @@
     146.2,
     341.2
    ],
-   "views_per_day": 468.8,
+   "views_per_day": 467.3,
    "kind": "other"
   },
   {
@@ -587,7 +603,7 @@
     258.2,
     602.4
    ],
-   "views_per_day": 910.2,
+   "views_per_day": 907.3,
    "kind": "other"
   },
   {
@@ -603,7 +619,7 @@
     61.1,
     142.7
    ],
-   "views_per_day": 192.7,
+   "views_per_day": 192.1,
    "kind": "other"
   },
   {
@@ -635,7 +651,7 @@
     393.1,
     917.2
    ],
-   "views_per_day": 723.7,
+   "views_per_day": 721.6,
    "kind": "other"
   },
   {
@@ -651,7 +667,7 @@
     3.2,
     7.5
    ],
-   "views_per_day": 16.1,
+   "views_per_day": 16.0,
    "kind": "reaction"
   },
   {
@@ -667,7 +683,7 @@
     215.7,
     503.3
    ],
-   "views_per_day": 798.9,
+   "views_per_day": 796.6,
    "kind": "other"
   },
   {
@@ -683,7 +699,7 @@
     9.6,
     22.3
    ],
-   "views_per_day": 25.9,
+   "views_per_day": 25.8,
    "kind": "other"
   },
   {
