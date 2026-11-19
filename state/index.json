@@ -369,10 +369,15 @@
    "who": "עודד והצ'אט",
    "peak": "02:29"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/zJ_SZstK_AY",
+  "draft_at": "2026-11-19T20:42:29Z",
+  "quality_errors": [],
   "auto": true
  },
  {
