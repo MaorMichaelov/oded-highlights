@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-20T01:57:24Z",
- "fetched_epoch": 1795139844.3360229,
+ "fetched_at": "2026-11-20T02:27:39Z",
+ "fetched_epoch": 1795141659.1919909,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1890,
@@ -8,6 +8,16 @@
   "videos": 18
  },
  "videos": [
+  {
+   "id": "FYwhYNPWLnU",
+   "title": "\"בואו נתקדם, הלאה לאחד הבא!\" עודד נדהם מהתרומות בלייב!",
+   "published": "2026-11-20T02:07:50Z",
+   "privacy": "private",
+   "duration": "PT14M52S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
   {
    "id": "2XAZT2Fvs5A",
    "title": "\"זה לא כספת, יא בני זונות, זה מקרר!\" עודד מתבלבל בשוד!",
@@ -154,7 +164,7 @@
    "published": "2026-11-18T12:09:02Z",
    "privacy": "public",
    "duration": "PT26M25S",
-   "views": 26,
+   "views": 27,
    "likes": 4,
    "comments": 0
   },
@@ -364,7 +374,7 @@
    "published": "2026-11-13T09:00:02Z",
    "privacy": "public",
    "duration": "PT9M37S",
-   "views": 5966,
+   "views": 5969,
    "likes": 54,
    "comments": 3
   },
@@ -384,7 +394,7 @@
    "published": "2026-11-12T14:29:45Z",
    "privacy": "public",
    "duration": "PT28M35S",
-   "views": 74,
+   "views": 76,
    "likes": 2,
    "comments": 0
   },
@@ -394,7 +404,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 5306,
+   "views": 5308,
    "likes": 29,
    "comments": 1
   },
@@ -449,5 +459,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 114
+ "total_uploads_incl_private": 115
 }

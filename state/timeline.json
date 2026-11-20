@@ -2380,15 +2380,6 @@
    "clip_worthy": true,
    "why": "30‑דקות של שיחה משמעותית עם צ'אט",
    "closed": true
-  },
-  {
-   "from": 42300,
-   "to": 42600,
-   "title": "Kick – כללי וסצנה",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "30‑דקות של דיון על Kick ורכיבים כלכליים",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -3240,6 +3231,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 42798,
- "updated": "2026-11-20T02:26:13Z"
+ "transcript_end": 42887,
+ "updated": "2026-11-20T02:27:41Z"
 }
