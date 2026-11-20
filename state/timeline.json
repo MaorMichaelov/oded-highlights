@@ -238,15 +238,6 @@
    "clip_worthy": true,
    "why": "המשך התוכן הקוהרנטי – חטיפים, מנטוס, הצפה, קנבאס",
    "closed": true
-  },
-  {
-   "from": 3600,
-   "to": 3900,
-   "title": "דיבור על מכירת חטיפים",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "דיון נוסף על חטיפים, מכירה, קנבאס והטלה",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -330,6 +321,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 10543,
- "updated": "2026-11-20T17:34:50Z"
+ "transcript_end": 10662,
+ "updated": "2026-11-20T17:37:03Z"
 }
