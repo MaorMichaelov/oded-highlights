@@ -1966,115 +1966,121 @@
    ],
    "v": 2,
    "rv": 1
+  },
+  "154": {
+   "label": "מגיב לכתבה על GTA 6 והמחירים בישראל",
+   "kind": "reaction",
+   "kw": [
+    "תלונה",
+    "GT6",
+    "צ'אט",
+    "זמן"
+   ],
+   "v": 2,
+   "rv": 1,
+   "react": {
+    "what": "כתבה על GTA 6 והמחירים בישראל",
+    "who": ""
+   }
+  },
+  "155": {
+   "label": "שקט",
+   "kind": "idle",
+   "kw": [],
+   "v": 2,
+   "rv": 1
+  },
+  "156": {
+   "label": "שקט",
+   "kind": "idle",
+   "kw": [],
+   "v": 2,
+   "rv": 1
+  },
+  "157": {
+   "label": "שקיעה במצב שינה",
+   "kind": "idle",
+   "kw": [],
+   "v": 2,
+   "rv": 1
+  },
+  "158": {
+   "label": "שקיעה במצב שינה",
+   "kind": "idle",
+   "kw": [],
+   "v": 2,
+   "rv": 1
+  },
+  "159": {
+   "label": "שקיעה במצב שינה",
+   "kind": "idle",
+   "kw": [],
+   "v": 2,
+   "rv": 1
   }
  },
  "spans": [
   {
    "from": 0,
-   "to": 300,
-   "title": "מתנצל ומבקש מהצ'אט להמתין",
+   "to": 2400,
+   "title": "הצגת הלייב והמתנה לצ'אט",
    "kind": "chat",
    "clip_worthy": true,
-   "why": "חלק מהשיחה הקצרה עם הצ'אט, מתחיל את השידור",
+   "why": "מתחיל עם צ'אט רציף של 40 דקות ללא שינוי משמעותי, מתאים לחיתוך של עד שעה",
    "closed": true
   },
   {
-   "from": 300,
-   "to": 1200,
-   "title": "צ’אט חם והתחלה",
-   "kind": "chat",
-   "clip_worthy": true,
-   "why": "התחלה מלאה באנרגיה, צ’אט פעיל, מבוא נושאים",
-   "closed": true
-  },
-  {
-   "from": 1200,
-   "to": 2100,
-   "title": "הצגת מונופול ותגמולים",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "קצרה וכוללת מידע על משחק מונופול, גיפטים והגרלות",
-   "closed": true
-  },
-  {
-   "from": 2100,
-   "to": 2700,
-   "title": "הסבר תרומות ופרויקטים",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "תוכן משמעותי, מידע על תרומות, גיפטים, קיקים",
-   "closed": true
-  },
-  {
-   "from": 2700,
+   "from": 2400,
    "to": 3300,
-   "title": "שיחה והסבר מונופול",
+   "title": "תרומות, מתנות ופרויקטים",
    "kind": "talk",
-   "clip_worthy": false,
-   "why": "לא עברה 15 דקות",
+   "clip_worthy": true,
+   "why": "15 דקות של שיחה ממוקדת על תרומות ומתנות – מספיק זמן לקליפ משמעותי",
    "closed": true
   },
   {
    "from": 3300,
-   "to": 3600,
-   "title": "הסבר מכירות פומביות",
-   "kind": "event",
-   "clip_worthy": false,
-   "why": "5 דקות",
-   "closed": true
-  },
-  {
-   "from": 3600,
-   "to": 3900,
-   "title": "הסבר חוקים וקיק",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "5 דקות",
-   "closed": true
-  },
-  {
-   "from": 3900,
    "to": 4200,
-   "title": "הגרלות וקהילה",
+   "title": "הסבר על מכירות פומביות וגרלות",
    "kind": "event",
-   "clip_worthy": false,
-   "why": "5 דקות",
+   "clip_worthy": true,
+   "why": "אירוע של 15 דקות עם תוכן קבוע (מכירות פומביות, גרלות) – מתאים לחיתוך",
    "closed": true
   },
   {
    "from": 4200,
-   "to": 5400,
-   "title": "שיחה ותרומות",
+   "to": 4800,
+   "title": "הצגת גיפטים, מניעת חיבור ו-GTA",
    "kind": "talk",
-   "clip_worthy": true,
-   "why": "10 דקות",
+   "clip_worthy": false,
+   "why": "10 דקות של שיחה כללית, פחות מהסף של 15 דקות",
    "closed": true
   },
   {
-   "from": 5400,
+   "from": 4800,
    "to": 5700,
-   "title": "הגרלות קארדפול",
-   "kind": "event",
-   "clip_worthy": false,
-   "why": "5 דקות",
+   "title": "משחק במונופול והדגמת מודים",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "15 דקות של פעילות ממוקדת (משחק, מודינג) – קטע מתאים לקליפ",
    "closed": true
   },
   {
    "from": 5700,
-   "to": 6300,
-   "title": "הגרלות פתיחת תיבות",
+   "to": 6000,
+   "title": "פתיחת תיבות והגרלות בצ'אט",
    "kind": "talk",
    "clip_worthy": false,
-   "why": "5 דקות",
+   "why": "קצר מדי",
    "closed": true
   },
   {
-   "from": 6300,
+   "from": 6000,
    "to": 6900,
-   "title": "ציור קנבס",
+   "title": "קנבס ציור והתקדמות במונופול",
    "kind": "event",
-   "clip_worthy": false,
-   "why": "5 דקות",
+   "clip_worthy": true,
+   "why": "15 דקות של פעילות יצירתית ומשחקית",
    "closed": true
   },
   {
@@ -2083,385 +2089,124 @@
    "title": "הגרלות וקניית כפתורים",
    "kind": "talk",
    "clip_worthy": true,
-   "why": "5 דקות",
+   "why": "קצר",
    "closed": true
   },
   {
    "from": 8100,
    "to": 9000,
-   "title": "אתגר ציור חללית",
+   "title": "אתגר ציור חללית והגרלת בוס",
    "kind": "event",
-   "clip_worthy": false,
-   "why": "5 דקות",
+   "clip_worthy": true,
+   "why": "15 דקות של פעילות אינטראקטיבית עם הצופים",
    "closed": true
   },
   {
    "from": 9000,
    "to": 10800,
-   "title": "הישרדות בחוף",
+   "title": "תיאור הישרדות בחוף",
    "kind": "talk",
    "clip_worthy": true,
-   "why": "5 דקות",
+   "why": "קצר",
    "closed": true
   },
   {
    "from": 10800,
    "to": 11100,
-   "title": "הוראת מיפוי",
+   "title": "הורדת אפליקציית מיפוי לשחקן",
    "kind": "reaction",
-   "clip_worthy": false,
-   "why": "5 דקות",
+   "clip_worthy": true,
+   "why": "ריאקשן של 5 דקות על נושא טכני, נחשב קטע משמעותי",
    "closed": true
   },
   {
    "from": 11100,
    "to": 12300,
-   "title": "התחלת משחק GTA",
+   "title": "משחק GTA VI והקשר למונופול",
    "kind": "game",
-   "clip_worthy": false,
-   "why": "5 דקות",
+   "clip_worthy": true,
+   "why": "15 דקות של משחק פעיל עם אינטראקציה",
    "closed": true
   },
   {
    "from": 12300,
    "to": 12600,
-   "title": "התלהבות מהטריילר",
+   "title": "התלהבות מהטריילר של GTA VI",
    "kind": "talk",
    "clip_worthy": false,
-   "why": "5 דקות",
+   "why": "קצר",
    "closed": true
   },
   {
    "from": 12600,
    "to": 12900,
-   "title": "תגובה ל-DLC GTA 5",
+   "title": "תגובה לכתבה על DLC ל‑GTA 5",
    "kind": "reaction",
-   "clip_worthy": false,
-   "why": "5 דקות",
+   "clip_worthy": true,
+   "why": "ריאקשן של לפחות 5 דקות על נושא מרכזי",
    "closed": true
   },
   {
    "from": 12900,
-   "to": 14700,
-   "title": "הגידול FPS ב-GTA VI",
+   "to": 14400,
+   "title": "משחק GTA VI – בעיות FPS, מפה, גרפיקה ומשימות",
    "kind": "game",
-   "clip_worthy": false,
-   "why": "5 דקות",
+   "clip_worthy": true,
+   "why": "25 דקות של משחק רציף עם נושאים שונים – קטע משמעותי",
    "closed": true
   },
   {
-   "from": 14700,
+   "from": 14400,
    "to": 15000,
-   "title": "משחק GTA 6 עם תרומות",
+   "title": "שיחה על GTA 6 עם צ'אט והגרלות",
    "kind": "talk",
    "clip_worthy": false,
-   "why": "5 דקות",
+   "why": "קצר",
    "closed": true
   },
   {
    "from": 15000,
    "to": 15300,
-   "title": "קליפים ואפליקציה GTA",
+   "title": "הצגת קטעי קליפים ואפליקציית GTA",
    "kind": "reaction",
-   "clip_worthy": false,
-   "why": "5 דקות",
+   "clip_worthy": true,
+   "why": "ריאקשן של 5 דקות על חומר וידאו",
    "closed": true
   },
   {
    "from": 15300,
    "to": 16200,
-   "title": "משחק עם מודים",
+   "title": "משחק GTA VI עם מודים וקריאת צ'אט",
    "kind": "game",
-   "clip_worthy": false,
-   "why": "5 דקות",
+   "clip_worthy": true,
+   "why": "15 דקות של משחק עם מודינג ותגובות צ'אט",
    "closed": true
   },
   {
    "from": 16200,
    "to": 16500,
-   "title": "הגרלת פרסים",
+   "title": "הגרלת פרסים וקידום GTA VI",
    "kind": "event",
    "clip_worthy": false,
-   "why": "5 דקות",
+   "why": "קצר",
    "closed": true
   },
   {
    "from": 16500,
-   "to": 18600,
-   "title": "דיבור על GTA VI",
+   "to": 17100,
+   "title": "דיבורים על GTA VI והצטרפות לשידור",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "קצר",
+   "closed": true
+  },
+  {
+   "from": 17100,
+   "to": 18000,
+   "title": "הסבר כללי והעמקת חוקים של מונופול",
    "kind": "talk",
    "clip_worthy": true,
-   "why": "5 דקות",
-   "closed": true
-  },
-  {
-   "from": 18600,
-   "to": 19800,
-   "title": "רכבים ב-GTA VI",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "5 דקות",
-   "closed": true
-  },
-  {
-   "from": 19800,
-   "to": 20400,
-   "title": "משחק GTA VI והבית",
-   "kind": "game",
-   "clip_worthy": false,
-   "why": "5 דקות",
-   "closed": true
-  },
-  {
-   "from": 20400,
-   "to": 20700,
-   "title": "הפעלת Kick ל-GTA 6",
-   "kind": "event",
-   "clip_worthy": false,
-   "why": "5 דקות",
-   "closed": true
-  },
-  {
-   "from": 20700,
-   "to": 21300,
-   "title": "דיון ב‑GTA VI",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "דיבור קצר על המשחק בלבד",
-   "closed": true
-  },
-  {
-   "from": 21300,
-   "to": 22500,
-   "title": "דייג ב‑GTA VI",
-   "kind": "game",
-   "clip_worthy": false,
-   "why": "קצר מדי",
-   "closed": true
-  },
-  {
-   "from": 22500,
-   "to": 23400,
-   "title": "פתיחת קופסאות וגרלות GTA VI",
-   "kind": "event",
-   "clip_worthy": false,
-   "why": "קצר מדי",
-   "closed": true
-  },
-  {
-   "from": 23400,
-   "to": 25500,
-   "title": "דיון ב‑Just Chatting",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "קצר מדי",
-   "closed": true
-  },
-  {
-   "from": 25500,
-   "to": 27600,
-   "title": "שיחה פתוחה ופתיחת חבילות",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "קצר מדי",
-   "closed": true
-  },
-  {
-   "from": 27600,
-   "to": 28200,
-   "title": "דיבור על זמן משחק",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "קצר מדי",
-   "closed": true
-  },
-  {
-   "from": 28200,
-   "to": 29700,
-   "title": "משחק GTA VI ודיון",
-   "kind": "game",
-   "clip_worthy": false,
-   "why": "קצר מדי",
-   "closed": true
-  },
-  {
-   "from": 29700,
-   "to": 30300,
-   "title": "דיבור על GTA VI וכסף",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "קצר מדי",
-   "closed": true
-  },
-  {
-   "from": 30300,
-   "to": 30600,
-   "title": "דיבור חסר משמעות",
-   "kind": "idle",
-   "clip_worthy": false,
-   "why": "לא קוהרנטי",
-   "closed": true
-  },
-  {
-   "from": 30600,
-   "to": 30900,
-   "title": "שיחה על GTA 6",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "קצר מדי",
-   "closed": true
-  },
-  {
-   "from": 30900,
-   "to": 31200,
-   "title": "ריאציה לחדשות GTA VI",
-   "kind": "reaction",
-   "clip_worthy": true,
-   "why": "ריאציה של 5 דקות על חדשות",
-   "closed": true
-  },
-  {
-   "from": 31200,
-   "to": 31800,
-   "title": "תכנון התקפה GTA VI",
-   "kind": "game",
-   "clip_worthy": false,
-   "why": "קצר מדי",
-   "closed": true
-  },
-  {
-   "from": 31800,
-   "to": 32700,
-   "title": "דיבור על הוצאות",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "קצר מדי",
-   "closed": true
-  },
-  {
-   "from": 32700,
-   "to": 33300,
-   "title": "המשחק עם טוקי",
-   "kind": "game",
-   "clip_worthy": false,
-   "why": "קצר מדי",
-   "closed": true
-  },
-  {
-   "from": 33300,
-   "to": 34500,
-   "title": "הקבלה של תשלום",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "קצר מדי",
-   "closed": true
-  },
-  {
-   "from": 34500,
-   "to": 35100,
-   "title": "משחק GTA VI",
-   "kind": "game",
-   "clip_worthy": false,
-   "why": "קצר מדי",
-   "closed": true
-  },
-  {
-   "from": 35100,
-   "to": 35400,
-   "title": "ריאציה לוואטסאפ",
-   "kind": "reaction",
-   "clip_worthy": true,
-   "why": "ריאציה של 5 דקות לוואטסאפ",
-   "closed": true
-  },
-  {
-   "from": 35400,
-   "to": 36300,
-   "title": "משחק GTA VI",
-   "kind": "game",
-   "clip_worthy": false,
-   "why": "קצר מדי",
-   "closed": true
-  },
-  {
-   "from": 36300,
-   "to": 36600,
-   "title": "דיבור על GTA 6",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "קצר מדי",
-   "closed": true
-  },
-  {
-   "from": 36600,
-   "to": 37500,
-   "title": "משחק GTA 6 וחיפוש שוטר",
-   "kind": "game",
-   "clip_worthy": false,
-   "why": "קצר מדי",
-   "closed": true
-  },
-  {
-   "from": 37500,
-   "to": 38700,
-   "title": "דיבור על GTA 6",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "קצר מדי",
-   "closed": true
-  },
-  {
-   "from": 38700,
-   "to": 42600,
-   "title": "שיחה חופשית, דיבור כללי ופתיחת תיבות",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "אינטראקציה רציפה עם צ\"אט, דיונים על מוצרים, משחקים ותוכן יומיומי",
-   "closed": true
-  },
-  {
-   "from": 42600,
-   "to": 42900,
-   "title": "תגובה למגוון רמקולים",
-   "kind": "reaction",
-   "clip_worthy": true,
-   "why": "מגיב לוידאו בנושא חיבור רמקולים – 5 דקות של תגובה",
-   "closed": true
-  },
-  {
-   "from": 42900,
-   "to": 43800,
-   "title": "בדיקת רמקולים וצליל",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "שיחה על מצב הרמקולים ובעיית סאונד",
-   "closed": true
-  },
-  {
-   "from": 43800,
-   "to": 44100,
-   "title": "שיחה כללית עם הצ'אט",
-   "kind": "idle",
-   "clip_worthy": false,
-   "why": "דיון כללי על ציוד ושאלות מהצ'אט",
-   "closed": true
-  },
-  {
-   "from": 44100,
-   "to": 44700,
-   "title": "פסק זמן בין סגמנטים",
-   "kind": "idle",
-   "clip_worthy": false,
-   "why": "המתנה או ניתוח תוכן",
-   "closed": true
-  },
-  {
-   "from": 44700,
-   "to": 45900,
-   "title": "שיחה על חולצות ותכניות TTS",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "תוכן אמיתי, אורכו 20 דקות",
+   "why": "15 דקות של הסבר מקיף על חוקי המשחק",
    "closed": true
   }
  ],
@@ -3372,8 +3117,26 @@
    "to": 46200,
    "label": "שידור לא ברור",
    "kind": "idle"
+  },
+  {
+   "from": 46200,
+   "to": 46500,
+   "label": "מגיב לכתבה על GTA 6 והמחירים בישראל",
+   "kind": "reaction"
+  },
+  {
+   "from": 46500,
+   "to": 47100,
+   "label": "שקט",
+   "kind": "idle"
+  },
+  {
+   "from": 47100,
+   "to": 48000,
+   "label": "שקיעה במצב שינה",
+   "kind": "idle"
   }
  ],
- "transcript_end": 46427,
- "updated": "2026-11-20T06:39:46Z"
+ "transcript_end": 58090,
+ "updated": "2026-11-20T06:41:35Z"
 }
