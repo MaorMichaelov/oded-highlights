@@ -3009,15 +3009,6 @@
    "clip_worthy": false,
    "why": "שיחה קצרה ושטחית עם צחוק",
    "closed": true
-  },
-  {
-   "from": 66300,
-   "to": 66600,
-   "title": "שיחה אקראית",
-   "kind": "idle",
-   "clip_worthy": false,
-   "why": "שיחה קצרה עם מילים אקראיות ללא תוכן משמעותי",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -4085,6 +4076,6 @@
    "kind": "idle"
   }
  ],
- "transcript_end": 66612,
- "updated": "2026-11-20T09:03:42Z"
+ "transcript_end": 66642,
+ "updated": "2026-11-20T09:04:56Z"
 }
