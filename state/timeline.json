@@ -1504,6 +1504,18 @@
     "נשק"
    ],
    "v": 2
+  },
+  "118": {
+   "label": "משחק GTA VI ומתלונן על חיות במשחק",
+   "kind": "game",
+   "kw": [
+    "GTA VI",
+    "שוטר",
+    "תנינים",
+    "חיות",
+    "תנועה"
+   ],
+   "v": 2
   }
  },
  "spans": [
@@ -1947,6 +1959,24 @@
    "clip_worthy": true,
    "why": "שידור משחק של GTA VI עם ביקורת על חיבור",
    "closed": true
+  },
+  {
+   "from": 35100,
+   "to": 35400,
+   "title": "תגובה לכתבה על GTA VI",
+   "kind": "reaction",
+   "clip_worthy": false,
+   "why": "קטע של 5 דקות בלבד, לכן לא עומד במינימום 6 דקות ל־clip-worthy",
+   "closed": true
+  },
+  {
+   "from": 35400,
+   "to": 35700,
+   "title": "שיח במשחק GTA VI",
+   "kind": "game",
+   "clip_worthy": false,
+   "why": "קטע של 5 דקות בלבד, אינו עומד במינימום 15 דקות ל־clip-worthy",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -2652,8 +2682,14 @@
    "to": 35400,
    "label": "דיבר על שיחת וואטסאפ בנושא GTA VI",
    "kind": "reaction"
+  },
+  {
+   "from": 35400,
+   "to": 35700,
+   "label": "משחק GTA VI ומתלונן על חיות במשחק",
+   "kind": "game"
   }
  ],
- "transcript_end": 35626,
- "updated": "2026-11-20T00:26:50Z"
+ "transcript_end": 35711,
+ "updated": "2026-11-20T00:28:29Z"
 }
