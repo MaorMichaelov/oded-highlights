@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-20T03:17:01Z",
- "fetched_epoch": 1795144621.1644812,
+ "fetched_at": "2026-11-20T03:50:21Z",
+ "fetched_epoch": 1795146621.532702,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1890,
@@ -8,6 +8,16 @@
   "videos": 18
  },
  "videos": [
+  {
+   "id": "j1aAcKYdmas",
+   "title": "\"לא, חבר ספר, אני לא מסתפר!\" עודד צוחק בשידור ומגיב לצ'אט ולתרומות!",
+   "published": "2026-11-20T03:08:15Z",
+   "privacy": "private",
+   "duration": "PT22M57S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
   {
    "id": "FYwhYNPWLnU",
    "title": "\"בואו נתקדם, הלאה לאחד הבא!\" עודד נדהם מהתרומות בלייב!",
@@ -104,7 +114,7 @@
    "published": "2026-11-19T18:44:29Z",
    "privacy": "public",
    "duration": "PT21M26S",
-   "views": 8,
+   "views": 10,
    "likes": 1,
    "comments": 0
   },
@@ -374,7 +384,7 @@
    "published": "2026-11-13T09:00:02Z",
    "privacy": "public",
    "duration": "PT9M37S",
-   "views": 5969,
+   "views": 5974,
    "likes": 54,
    "comments": 3
   },
@@ -384,7 +394,7 @@
    "published": "2026-11-13T08:00:35Z",
    "privacy": "public",
    "duration": "PT15M2S",
-   "views": 1273,
+   "views": 1272,
    "likes": 19,
    "comments": 2
   },
@@ -404,7 +414,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 5312,
+   "views": 5309,
    "likes": 29,
    "comments": 1
   },
