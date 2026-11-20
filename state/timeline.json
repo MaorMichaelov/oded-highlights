@@ -3448,6 +3448,24 @@
    "clip_worthy": false,
    "why": "תכנון בלבד, אין משחק בפועל",
    "closed": true
+  },
+  {
+   "from": 73200,
+   "to": 73500,
+   "title": "חוויית קנייה של מוצר",
+   "kind": "reaction",
+   "clip_worthy": true,
+   "why": "ריאק्शन על חוויית קנייה, משך >6 דקות, תוכן קוהרנטי וערכי",
+   "closed": true
+  },
+  {
+   "from": 73500,
+   "to": 74100,
+   "title": "שיחה ללא כיוון ברור",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "שיחה מפוזרת ולא קוהרנטית, אין נושא מרכזי של 15 דקות או יותר",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -4659,6 +4677,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 77529,
- "updated": "2026-11-20T12:08:35Z"
+ "transcript_end": 77739,
+ "updated": "2026-11-20T12:11:10Z"
 }
