@@ -1,0 +1,43 @@
+{
+ "score": 94,
+ "fail": [],
+ "warn": [
+  "clip starts inside a loud sound (2 dB below the speech level)"
+ ],
+ "metrics": {
+  "audio": {
+   "duration_s": 891.52,
+   "floor_db": -100.0,
+   "speech_db": -18.7,
+   "dyn_db": 81.3,
+   "tail_rms_db": -28.9,
+   "tail_rel_speech_db": -10.2,
+   "head_rel_speech_db": -1.9,
+   "lead_silence_s": 0.02,
+   "trail_silence_s": 0.01,
+   "lufs": -19.4,
+   "tp": -4.2,
+   "sync": {
+    "v_dur": 891.499674,
+    "a_dur": 891.521313,
+    "dur_diff_s": 0.022,
+    "start_diff_s": 0.021,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 5.985875
+  },
+  "title_flags": [],
+  "title_truth": {
+   "missing_words": [
+    "נדהם",
+    "מהתרומות",
+    "בלייב"
+   ],
+   "missing_names": [],
+   "bad_quotes": [],
+   "ratio": 0.38,
+   "checked": 8
+  }
+ }
+}

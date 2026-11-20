@@ -464,10 +464,15 @@
    "who": "עודד, הצ'אט, מר אלפא, WFKT",
    "peak": "03:05"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/FYwhYNPWLnU",
+  "draft_at": "2026-11-20T02:08:21Z",
+  "quality_errors": [],
   "auto": true
  },
  {
