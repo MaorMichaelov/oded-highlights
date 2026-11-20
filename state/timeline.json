@@ -3275,6 +3275,15 @@
    "clip_worthy": false,
    "why": "אין תזמון מפורש של פעילות",
    "closed": true
+  },
+  {
+   "from": 70800,
+   "to": 71400,
+   "title": "שידור בוקר מבולגן ו-Just Chatting",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "שני הקטעים הם של דיאלוג עם צ'אט בלבד ולא מכילים תוכן משמעותי מעבר ל-10 דקות",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -4421,5 +4430,5 @@
   }
  ],
  "transcript_end": 72541,
- "updated": "2026-11-20T10:43:45Z"
+ "updated": "2026-11-20T10:44:49Z"
 }
