@@ -3388,6 +3388,51 @@
    "clip_worthy": true,
    "why": "התחלת השידור עם קטעים אמיתיים של התעוררות, שיחה ראשונית והצגתם של קהל",
    "closed": true
+  },
+  {
+   "from": 71100,
+   "to": 71400,
+   "title": "שידור Just Chatting עם תגובות וקריאות",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "צ'אט כללי וללא תוכן קוהרנטי של 15+ דקות",
+   "closed": true
+  },
+  {
+   "from": 71400,
+   "to": 71700,
+   "title": "שיחת קיק וידאלוק",
+   "kind": "idle",
+   "clip_worthy": false,
+   "why": "שיחה בלתי ממוקדת, תקלות או המתנה",
+   "closed": true
+  },
+  {
+   "from": 71700,
+   "to": 72900,
+   "title": "מתקלח ומדבר על חולצה",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "שיחה קצרה ולא קוהרנטית לאורך זמן",
+   "closed": true
+  },
+  {
+   "from": 72900,
+   "to": 73200,
+   "title": "תכנון משחק חדש",
+   "kind": "game",
+   "clip_worthy": false,
+   "why": "תכנון בלבד, אין משחק בפועל",
+   "closed": true
+  },
+  {
+   "from": 73200,
+   "to": 73500,
+   "title": "חוויית קנייה של מוצר",
+   "kind": "reaction",
+   "clip_worthy": true,
+   "why": "ריאקשן על חוויית קנייה, קטע של 5 דקות עומד במינימום של 6 דקות למיקוד ריאקשן, ולכן נחשב clip_worthy",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -4587,6 +4632,6 @@
    "kind": "reaction"
   }
  ],
- "transcript_end": 77199,
- "updated": "2026-11-20T12:01:25Z"
+ "transcript_end": 77378,
+ "updated": "2026-11-20T12:04:01Z"
 }
