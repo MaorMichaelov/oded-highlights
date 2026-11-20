@@ -1947,15 +1947,6 @@
    "clip_worthy": true,
    "why": "שידור משחק של GTA VI עם ביקורת על חיבור",
    "closed": true
-  },
-  {
-   "from": 35100,
-   "to": 35400,
-   "title": "ריאקשן לוואטסאפ על GTA VI",
-   "kind": "reaction",
-   "clip_worthy": true,
-   "why": "תגובה לכתבה/בידור 6+ דקות על GTA VI",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -2663,6 +2654,6 @@
    "kind": "reaction"
   }
  ],
- "transcript_end": 35411,
- "updated": "2026-11-20T00:23:14Z"
+ "transcript_end": 35500,
+ "updated": "2026-11-20T00:24:27Z"
 }
