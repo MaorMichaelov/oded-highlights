@@ -294,6 +294,15 @@
    "clip_worthy": false,
    "why": "ריאציה קצרה לכתבה/מוצר",
    "closed": true
+  },
+  {
+   "from": 4200,
+   "to": 4800,
+   "title": "טיימרים, קרדיטים ומשחקים",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "צ’אט רגיל",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -395,6 +404,6 @@
    "kind": "chat"
   }
  ],
- "transcript_end": 14183,
- "updated": "2026-11-20T18:34:54Z"
+ "transcript_end": 14264,
+ "updated": "2026-11-20T18:36:18Z"
 }
