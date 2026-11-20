@@ -1914,15 +1914,6 @@
    "clip_worthy": true,
    "why": "סוג קואורדינטיבי של 5 דקות עם פעילות אמיתית",
    "closed": true
-  },
-  {
-   "from": 34500,
-   "to": 34800,
-   "title": "משחק GTA VI ומתלונן על חיבור",
-   "kind": "game",
-   "clip_worthy": false,
-   "why": "שידור משחק עם תלונות טכניות בלבד",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -2618,6 +2609,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 34827,
- "updated": "2026-11-20T00:13:41Z"
+ "transcript_end": 34936,
+ "updated": "2026-11-20T00:15:08Z"
 }
