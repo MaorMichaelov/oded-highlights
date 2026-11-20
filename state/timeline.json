@@ -742,10 +742,10 @@
   {
    "from": 12000,
    "to": 12900,
-   "title": "GTA VI Gameplay & Discussion",
+   "title": "הדאגה הגרפית של GTA VI",
    "kind": "game",
-   "clip_worthy": true,
-   "why": "Continuous 15‑minute segment of active gameplay with commentary, problem‑solving, and audience interaction",
+   "clip_worthy": false,
+   "why": "קטע קצר של 5 דקות ללא תכנים משותפים מעבר ל־הדעה על גרפיקה",
    "closed": false
   }
  ],
@@ -992,6 +992,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 33138,
- "updated": "2026-11-20T23:50:43Z"
+ "transcript_end": 33224,
+ "updated": "2026-11-20T23:52:10Z"
 }
