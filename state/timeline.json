@@ -3201,6 +3201,24 @@
    "clip_worthy": false,
    "why": "קטע קצר (5 דקות) של דיון אישי ללא תוכן משמעותי לקטיעה",
    "closed": true
+  },
+  {
+   "from": 69000,
+   "to": 69300,
+   "title": "שינה ומחשבה",
+   "kind": "idle",
+   "clip_worthy": false,
+   "why": "צ'אט כללי וקטעי שינה",
+   "closed": true
+  },
+  {
+   "from": 69300,
+   "to": 69600,
+   "title": "שיחה אקראית בחדר",
+   "kind": "idle",
+   "clip_worthy": false,
+   "why": "צ'אט כללי וקטעי שינה",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -4329,5 +4347,5 @@
   }
  ],
  "transcript_end": 69992,
- "updated": "2026-11-20T09:59:32Z"
+ "updated": "2026-11-20T10:00:53Z"
 }
