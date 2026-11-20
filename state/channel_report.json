@@ -1,34 +1,34 @@
 {
- "generated": "2026-11-20T09:13:14Z",
+ "generated": "2026-11-20T09:44:05Z",
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1890,
   "views": 22361,
-  "videos": 18
+  "videos": 23
  },
  "totals": {
-  "videos_total": 54,
-  "videos_public": 19,
-  "views": 22434,
-  "likes": 219,
-  "est_hours_low": 1133.3,
-  "est_hours_high": 2644.5
+  "videos_total": 55,
+  "videos_public": 25,
+  "views": 22450,
+  "likes": 229,
+  "est_hours_low": 1134.5,
+  "est_hours_high": 2647.1
  },
  "by_kind": {
+  "short": {
+   "n": 2,
+   "views": 0,
+   "est_hours_mid": 0.0
+  },
   "other": {
-   "n": 16,
-   "views": 22287,
-   "est_hours_mid": 1879.7
+   "n": 21,
+   "views": 22303,
+   "est_hours_mid": 1881.7
   },
   "reaction": {
    "n": 2,
    "views": 147,
    "est_hours_mid": 9.2
-  },
-  "short": {
-   "n": 1,
-   "views": 0,
-   "est_hours_mid": 0.0
   }
  },
  "top_views": [
@@ -46,6 +46,102 @@
   "ZA70shTHhSk"
  ],
  "videos": [
+  {
+   "id": "UgS9AoWnOI0",
+   "title": "עודד משחק GTA 6 לראשונה - פרק 1",
+   "published": "2026-11-20",
+   "privacy": "public",
+   "duration_min": 0,
+   "views": 0,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.0
+   ],
+   "views_per_day": 0.0,
+   "kind": "short"
+  },
+  {
+   "id": "b5je5QyZb2k",
+   "title": "זה אחד המרגשים! עודד מצייר על הקנבס בלייב",
+   "published": "2026-11-20",
+   "privacy": "public",
+   "duration_min": 16.4,
+   "views": 3,
+   "likes": 2,
+   "comments": 0,
+   "est_hours": [
+    0.2,
+    0.4
+   ],
+   "views_per_day": 60.0,
+   "kind": "other"
+  },
+  {
+   "id": "FYwhYNPWLnU",
+   "title": "תראו כמה אנשים קיבלו כסף! עודד נדהם מהתרומות בלייב",
+   "published": "2026-11-20",
+   "privacy": "public",
+   "duration_min": 14.9,
+   "views": 3,
+   "likes": 2,
+   "comments": 0,
+   "est_hours": [
+    0.1,
+    0.3
+   ],
+   "views_per_day": 60.0,
+   "kind": "other"
+  },
+  {
+   "id": "CiqujKrVTEc",
+   "title": "עודד ב-GTA 6 יוצא למשימה בשטח!",
+   "published": "2026-11-20",
+   "privacy": "public",
+   "duration_min": 22.5,
+   "views": 1,
+   "likes": 2,
+   "comments": 0,
+   "est_hours": [
+    0.1,
+    0.2
+   ],
+   "views_per_day": 20.0,
+   "kind": "other"
+  },
+  {
+   "id": "SxZP4FNw_L4",
+   "title": "זה היה משוגע, אחי! עודד ב-GTA 6",
+   "published": "2026-11-20",
+   "privacy": "public",
+   "duration_min": 33.3,
+   "views": 7,
+   "likes": 2,
+   "comments": 0,
+   "est_hours": [
+    0.6,
+    1.3
+   ],
+   "views_per_day": 140.0,
+   "kind": "other"
+  },
+  {
+   "id": "NZi4JUGiRbU",
+   "title": "עודד מתלהב משיחה מצחיקה בצ׳אט: זה משוגע!",
+   "published": "2026-11-20",
+   "privacy": "public",
+   "duration_min": 33.1,
+   "views": 2,
+   "likes": 2,
+   "comments": 0,
+   "est_hours": [
+    0.2,
+    0.4
+   ],
+   "views_per_day": 40.0,
+   "kind": "other"
+  },
   {
    "id": "Fg3CmT92K4A",
    "title": "\"זה צריך להעלים ראיות!\" עודד עושה שטויות ומסתבך בלייב!",
@@ -91,23 +187,7 @@
     0.1,
     0.2
    ],
-   "views_per_day": 15.9,
-   "kind": "other"
-  },
-  {
-   "id": "CiqujKrVTEc",
-   "title": "\"רק עכשיו אני שם לב לזה!\" עודד מגלה את המשימות הראשיות!",
-   "published": "2026-11-20",
-   "privacy": "private",
-   "duration_min": 22.5,
-   "views": 0,
-   "likes": 0,
-   "comments": 0,
-   "est_hours": [
-    0.0,
-    0.0
-   ],
-   "views_per_day": 0.0,
+   "views_per_day": 11.9,
    "kind": "other"
   },
   {
@@ -139,23 +219,7 @@
     0.1,
     0.2
    ],
-   "views_per_day": 10.7,
-   "kind": "other"
-  },
-  {
-   "id": "NZi4JUGiRbU",
-   "title": "וואט דה פאק, וואט דה פאק. שתיים זה משוגע! עודד מתלהב משיחה מצחיקה בצ'אט!",
-   "published": "2026-11-20",
-   "privacy": "private",
-   "duration_min": 33.1,
-   "views": 0,
-   "likes": 0,
-   "comments": 0,
-   "est_hours": [
-    0.0,
-    0.0
-   ],
-   "views_per_day": 0.0,
+   "views_per_day": 8.7,
    "kind": "other"
   },
   {
@@ -191,22 +255,6 @@
    "kind": "reaction"
   },
   {
-   "id": "FYwhYNPWLnU",
-   "title": "\"בואו נתקדם, הלאה לאחד הבא!\" עודד נדהם מהתרומות בלייב!",
-   "published": "2026-11-20",
-   "privacy": "private",
-   "duration_min": 14.9,
-   "views": 0,
-   "likes": 0,
-   "comments": 0,
-   "est_hours": [
-    0.0,
-    0.0
-   ],
-   "views_per_day": 0.0,
-   "kind": "other"
-  },
-  {
    "id": "2XAZT2Fvs5A",
    "title": "\"זה לא כספת, יא בני זונות, זה מקרר!\" עודד מתבלבל בשוד!",
    "published": "2026-11-19",
@@ -239,22 +287,6 @@
    "kind": "other"
   },
   {
-   "id": "b5je5QyZb2k",
-   "title": "זה מטורף, צ'אט, זה אחד המרגשים! עודד מצייר קנבס ב‑GTA VI (GTA VI)!",
-   "published": "2026-11-19",
-   "privacy": "private",
-   "duration_min": 16.4,
-   "views": 0,
-   "likes": 0,
-   "comments": 0,
-   "est_hours": [
-    0.0,
-    0.0
-   ],
-   "views_per_day": 0.0,
-   "kind": "game"
-  },
-  {
    "id": "I0hkdFblYeE",
    "title": "\"יש לי פה נשק של אחנונים ששילמו כסף!\" עודד פותח את הנשק!",
    "published": "2026-11-19",
@@ -285,22 +317,6 @@
    ],
    "views_per_day": 0.0,
    "kind": "reaction"
-  },
-  {
-   "id": "SxZP4FNw_L4",
-   "title": "זה היה משוגע, אחי! (GTA VI)!",
-   "published": "2026-11-19",
-   "privacy": "private",
-   "duration_min": 33.3,
-   "views": 1,
-   "likes": 0,
-   "comments": 0,
-   "est_hours": [
-    0.1,
-    0.2
-   ],
-   "views_per_day": 1.8,
-   "kind": "game"
   },
   {
    "id": "zRelwNeFMfE",
@@ -347,7 +363,7 @@
     1.2,
     2.7
    ],
-   "views_per_day": 28.2,
+   "views_per_day": 27.2,
    "kind": "other"
   },
   {
@@ -379,7 +395,7 @@
     2.2,
     5.1
    ],
-   "views_per_day": 57.1,
+   "views_per_day": 55.3,
    "kind": "other"
   },
   {
@@ -395,7 +411,7 @@
     1.3,
     3.0
    ],
-   "views_per_day": 8.3,
+   "views_per_day": 8.2,
    "kind": "other"
   },
   {
@@ -411,7 +427,7 @@
     2.7,
     6.2
    ],
-   "views_per_day": 19.5,
+   "views_per_day": 19.3,
    "kind": "other"
   },
   {
@@ -427,7 +443,7 @@
     2.9,
     6.8
    ],
-   "views_per_day": 16.2,
+   "views_per_day": 16.0,
    "kind": "other"
   },
   {
@@ -443,7 +459,7 @@
     2.3,
     5.3
    ],
-   "views_per_day": 14.4,
+   "views_per_day": 14.2,
    "kind": "reaction"
   },
   {
@@ -459,7 +475,7 @@
     4.7,
     11.1
    ],
-   "views_per_day": 30.0,
+   "views_per_day": 29.7,
    "kind": "other"
   },
   {
@@ -475,7 +491,7 @@
     15.1,
     35.2
    ],
-   "views_per_day": 22.6,
+   "views_per_day": 22.4,
    "kind": "other"
   },
   {
@@ -683,7 +699,7 @@
     26.9,
     62.9
    ],
-   "views_per_day": 241.0,
+   "views_per_day": 239.9,
    "kind": "other"
   },
   {
@@ -719,19 +735,19 @@
    "kind": "other"
   },
   {
-   "id": "riHgpZ1wJmA",
-   "title": "\"זה יהיה פסיכי!\" עודד מתכנן סבתון GTA 6 עם פרסים!",
+   "id": "3H3rP1V0mLQ",
+   "title": "עודד מבקש מהצופים שלו לא לראות GTA 6 אצל סטרימרים אחרים!",
    "published": "2026-11-15",
    "privacy": "private",
-   "duration_min": 4.1,
-   "views": 0,
-   "likes": 0,
+   "duration_min": 5.3,
+   "views": 1126,
+   "likes": 26,
    "comments": 0,
    "est_hours": [
-    0.0,
-    0.0
+    26.9,
+    62.9
    ],
-   "views_per_day": 0.0,
+   "views_per_day": 239.9,
    "kind": "other"
   },
   {
@@ -763,7 +779,7 @@
     146.8,
     342.6
    ],
-   "views_per_day": 440.2,
+   "views_per_day": 438.8,
    "kind": "other"
   },
   {
@@ -779,7 +795,7 @@
     258.5,
     603.2
    ],
-   "views_per_day": 852.3,
+   "views_per_day": 849.7,
    "kind": "other"
   },
   {
@@ -795,7 +811,7 @@
     61.2,
     142.9
    ],
-   "views_per_day": 180.6,
+   "views_per_day": 180.0,
    "kind": "other"
   },
   {
@@ -827,7 +843,7 @@
     394.3,
     920.1
    ],
-   "views_per_day": 683.6,
+   "views_per_day": 681.7,
    "kind": "other"
   },
   {
@@ -843,7 +859,7 @@
     3.2,
     7.6
    ],
-   "views_per_day": 15.3,
+   "views_per_day": 15.2,
    "kind": "reaction"
   },
   {
@@ -859,7 +875,7 @@
     216.3,
     504.7
    ],
-   "views_per_day": 754.8,
+   "views_per_day": 752.8,
    "kind": "other"
   },
   {
