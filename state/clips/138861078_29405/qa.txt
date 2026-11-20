@@ -1,6 +1,56 @@
+model failed gemini-flash-latest: The read operation timed out 
 model failed gemini-flash-latest: HTTP Error 503: Service Unavailable { "error": { "code": 503, "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.", "status": "UNAVAILABLE" } }
-model failed gemini-flash-latest: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease 
-model failed gemini-3.8-flash: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease ret
+model failed gemini-3.8-flash: The read operation timed out 
 model failed gemini-3.7-flash: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease ret
-model failed gemini-3.6-flash: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease ret
-model failed gemini-2.5-flash: HTTP Error 404: Not Found { "error": { "code": 404, "message": "This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://aistudio.google.com/docs/get-started).", "status": "NOT_FOUND" } }
+model: gemini-3.6-flash
+SCORE: 6/10
+
+### 1. טיימליין שינויים ויזואליים וקוליים
+* **00:00 - 00:08**: קטע הוק מהמשחק GTA V. מצלמת פנים בפינה ימנית עליונה, כתוביות בולטות בתחתית.
+* **00:08 - 00:10**: מעברון אינטרו ממותג ("Oded Highlights") עם אפקט קולי וכתובית ירוקה.
+* **00:11 - 00:15**: חזרה למשחק (גוף שלישי, גנבת אופנוע).
+* **00:15 - 00:20**: הופעת פופ-אפ הנעה לפעולה (לייק וסאב) בפינה ימנית תחתונה.
+* **00:21 - 00:46**: שימוש בטלפון במשחק, פריצת האופנוע ונסיעה.
+* **00:46 - 00:54**: מעבר מבט מצלמה לעוף הציפור (Top-down view) מעל האופנוע.
+* **00:55 - 01:14**: שיחת טלפון נכנסת ונסיעה ברחוב.
+* **01:15 - 02:29**: חיתוך לסצנת תיקון הכיור והדיאלוג בבית.
+
+---
+
+### 2. מה מוצג ומה הושמט
+* **מוצג**: רגעי מפתח מצחיקים מהגיימפלי (דיאלוגים, משימות וסיטואציות קומיות).
+* **הושמט**: נסיעות ארוכות, קטעי הליכה מתים ושיחות IRL לא רלוונטיות של הסטרימר. החיתוכים נעשו כדי לשמור על קצב מהיר.
+
+---
+
+### 3. ספירת חיתוכים ומבנה
+* **מספר חיתוכים מרכזיים**: 3-4 חיתוכים בולטים.
+* **הקטע הקצר ביותר**: מעברון האינטרו (2 שניות).
+* **הקטע הארוך ביותר**: סצנת הבית והכיור (כ-74 שניות).
+* **מבנה קטע**: הקטעים מתחילים ומסתיימים ברובם בתחילת/סוף משפט או אירוע.
+
+---
+
+### 4. פתיח והוק (Hook & Intro)
+10 השניות הראשונות מורכבות מהוק קצר ומצחיק מתוך המשחק (8 שניות) כדי למשוך את הצופה, ומיד אחריו מעברון ממותג קצר.
+
+---
+
+### 5. הנחיות לעורך (Copy-cat Editor)
+* שמירה על מיקום קבוע למצלמת הסטרימר (פינה ימנית עליונה).
+* כתוביות גדולות ומתוזמנות היטב בתחתית המסך.
+* שילוב פופ-אפ הנעה לפעולה ומעברון מעוצב עם אפקט קולי.
+
+---
+
+### 6. בדיקת איכות (Quality Check)
+* **(a) פתיח והוק**: קיים הוק אפקטיבי, מעברון ממותג ופופ-אפ קריא.
+* **(b) כתוביות ולייאאוט**: קריא, מסונכרן היטב, ללא הסתרת אלמנטים קריטיים.
+* **(c) תחילת תוכן**: התוכן מתוזמן לתחילת משפטים.
+* **(d) שתיקות**: אין קטעי שתיקה או שטחים מתים.
+* **(e) שפה פוגענית**: קיימת שפה בוטה/קללות קלות של הסטרימר.
+* **(f) סאונד**: מאוזן ונקי, ללא עיוותים.
+* **(g) ציון עניין**: 6/10 – תוכן גיימפלי משעשע בקצב טוב.
+* **(h) ליקויים עיקריים**:
+  1. שפה מעט בוטה בחלק מקטעי הדיבור.
+  2. קטע הדיאלוג השני ארוך יחסית ללא חיתוכי ביניים.

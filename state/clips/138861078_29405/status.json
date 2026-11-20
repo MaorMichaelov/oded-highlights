@@ -1,23 +1,23 @@
 {
  "cut": {
   "state": "done",
-  "at": "2026-11-20T07:39:42Z",
-  "seconds": 713.4
+  "at": "2026-11-20T08:05:21Z",
+  "seconds": 590.7
  },
  "edit": {
   "state": "done",
-  "at": "2026-11-20T07:42:21Z",
-  "seconds": 142.5
+  "at": "2026-11-20T08:07:20Z",
+  "seconds": 118.3
  },
  "quality": {
   "state": "done",
-  "at": "2026-11-20T07:42:45Z",
-  "seconds": 21.7
+  "at": "2026-11-20T08:07:39Z",
+  "seconds": 17.8
  },
  "draft": {
   "state": "done",
-  "at": "2026-11-20T07:42:59Z",
+  "at": "2026-11-20T08:07:40Z",
   "url": "https://youtu.be/ir3kLq1hhCU",
-  "seconds": 12.6
+  "seconds": 0.7
  }
 }
