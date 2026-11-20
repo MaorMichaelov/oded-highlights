@@ -1,24 +1,24 @@
 {
- "generated": "2026-11-20T10:44:44Z",
+ "generated": "2026-11-20T11:15:29Z",
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1890,
   "views": 22361,
-  "videos": 24
+  "videos": 25
  },
  "totals": {
-  "videos_total": 55,
-  "videos_public": 25,
-  "views": 22454,
-  "likes": 232,
-  "est_hours_low": 1135.4,
-  "est_hours_high": 2649.2
+  "videos_total": 56,
+  "videos_public": 26,
+  "views": 22460,
+  "likes": 234,
+  "est_hours_low": 1136.1,
+  "est_hours_high": 2650.7
  },
  "by_kind": {
   "other": {
-   "n": 22,
-   "views": 22307,
-   "est_hours_mid": 1883.2
+   "n": 23,
+   "views": 22313,
+   "est_hours_mid": 1884.0
   },
   "reaction": {
    "n": 2,
@@ -47,6 +47,22 @@
  ],
  "videos": [
   {
+   "id": "8W5Mg9Z5ocQ",
+   "title": "הרגעים הכי מצחיקים של עודד ב-GTA 6!",
+   "published": "2026-11-20",
+   "privacy": "public",
+   "duration_min": 20.6,
+   "views": 3,
+   "likes": 2,
+   "comments": 0,
+   "est_hours": [
+    0.2,
+    0.5
+   ],
+   "views_per_day": 60.0,
+   "kind": "other"
+  },
+  {
    "id": "UgS9AoWnOI0",
    "title": "עודד משחק GTA 6 לראשונה - פרק 1",
    "published": "2026-11-20",
@@ -59,7 +75,7 @@
     0.9,
     2.0
    ],
-   "views_per_day": 80.0,
+   "views_per_day": 79.7,
    "kind": "other"
   },
   {
@@ -75,7 +91,7 @@
     0.2,
     0.4
    ],
-   "views_per_day": 52.2,
+   "views_per_day": 38.1,
    "kind": "other"
   },
   {
@@ -91,7 +107,7 @@
     0.1,
     0.3
    ],
-   "views_per_day": 51.8,
+   "views_per_day": 37.8,
    "kind": "other"
   },
   {
@@ -107,7 +123,7 @@
     0.1,
     0.2
    ],
-   "views_per_day": 17.1,
+   "views_per_day": 12.5,
    "kind": "other"
   },
   {
@@ -123,7 +139,7 @@
     0.6,
     1.3
    ],
-   "views_per_day": 118.0,
+   "views_per_day": 86.8,
    "kind": "other"
   },
   {
@@ -139,7 +155,7 @@
     0.2,
     0.4
    ],
-   "views_per_day": 33.4,
+   "views_per_day": 24.6,
    "kind": "other"
   },
   {
@@ -180,14 +196,14 @@
    "published": "2026-11-20",
    "privacy": "private",
    "duration_min": 21.9,
-   "views": 0,
+   "views": 1,
    "likes": 0,
    "comments": 0,
    "est_hours": [
-    0.0,
-    0.0
+    0.1,
+    0.2
    ],
-   "views_per_day": 0.0,
+   "views_per_day": 6.8,
    "kind": "other"
   },
   {
@@ -219,7 +235,7 @@
     0.1,
     0.2
    ],
-   "views_per_day": 6.4,
+   "views_per_day": 5.6,
    "kind": "other"
   },
   {
@@ -356,14 +372,14 @@
    "published": "2026-11-19",
    "privacy": "public",
    "duration_min": 21.4,
-   "views": 16,
+   "views": 17,
    "likes": 1,
    "comments": 0,
    "est_hours": [
-    1.1,
-    2.6
+    1.2,
+    2.7
    ],
-   "views_per_day": 24.0,
+   "views_per_day": 24.7,
    "kind": "other"
   },
   {
@@ -379,7 +395,7 @@
     0.1,
     0.1
    ],
-   "views_per_day": 1.5,
+   "views_per_day": 1.4,
    "kind": "other"
   },
   {
@@ -388,14 +404,14 @@
    "published": "2026-11-19",
    "privacy": "public",
    "duration_min": 17.9,
-   "views": 36,
+   "views": 38,
    "likes": 6,
    "comments": 0,
    "est_hours": [
-    2.1,
-    4.8
+    2.2,
+    5.1
    ],
-   "views_per_day": 49.4,
+   "views_per_day": 50.6,
    "kind": "other"
   },
   {
@@ -404,14 +420,14 @@
    "published": "2026-11-18",
    "privacy": "public",
    "duration_min": 26.5,
-   "views": 17,
+   "views": 15,
    "likes": 1,
    "comments": 0,
    "est_hours": [
-    1.4,
-    3.4
+    1.3,
+    3.0
    ],
-   "views_per_day": 9.1,
+   "views_per_day": 7.9,
    "kind": "other"
   },
   {
@@ -427,7 +443,7 @@
     2.7,
     6.2
    ],
-   "views_per_day": 18.9,
+   "views_per_day": 18.7,
    "kind": "other"
   },
   {
@@ -443,7 +459,7 @@
     2.9,
     6.8
    ],
-   "views_per_day": 15.7,
+   "views_per_day": 15.5,
    "kind": "other"
   },
   {
@@ -459,7 +475,7 @@
     2.3,
     5.3
    ],
-   "views_per_day": 13.9,
+   "views_per_day": 13.8,
    "kind": "reaction"
   },
   {
@@ -475,7 +491,7 @@
     4.7,
     11.1
    ],
-   "views_per_day": 29.2,
+   "views_per_day": 29.0,
    "kind": "other"
   },
   {
@@ -484,14 +500,14 @@
    "published": "2026-11-17",
    "privacy": "public",
    "duration_min": 93.8,
-   "views": 67,
+   "views": 69,
    "likes": 8,
    "comments": 0,
    "est_hours": [
-    15.1,
-    35.2
+    15.5,
+    36.2
    ],
-   "views_per_day": 22.1,
+   "views_per_day": 22.6,
    "kind": "other"
   },
   {
@@ -699,7 +715,7 @@
     26.9,
     62.9
    ],
-   "views_per_day": 237.8,
+   "views_per_day": 236.7,
    "kind": "other"
   },
   {
@@ -708,22 +724,6 @@
    "published": "2026-11-15",
    "privacy": "private",
    "duration_min": 16.2,
-   "views": 0,
-   "likes": 0,
-   "comments": 0,
-   "est_hours": [
-    0.0,
-    0.0
-   ],
-   "views_per_day": 0.0,
-   "kind": "other"
-  },
-  {
-   "id": "2DmQJZzvpmQ",
-   "title": "\"זה האב טיפוס הראשוני של לוז!\" עודד מדבר על החולצה החדשה עם אור!",
-   "published": "2026-11-15",
-   "privacy": "private",
-   "duration_min": 7.0,
    "views": 0,
    "likes": 0,
    "comments": 0,
@@ -747,7 +747,23 @@
     26.9,
     62.9
    ],
-   "views_per_day": 237.8,
+   "views_per_day": 236.7,
+   "kind": "other"
+  },
+  {
+   "id": "riHgpZ1wJmA",
+   "title": "\"זה יהיה פסיכי!\" עודד מתכנן סבתון GTA 6 עם פרסים!",
+   "published": "2026-11-15",
+   "privacy": "private",
+   "duration_min": 4.1,
+   "views": 0,
+   "likes": 0,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.0
+   ],
+   "views_per_day": 0.0,
    "kind": "other"
   },
   {
@@ -779,7 +795,7 @@
     146.8,
     342.6
    ],
-   "views_per_day": 436.2,
+   "views_per_day": 434.9,
    "kind": "other"
   },
   {
@@ -795,7 +811,7 @@
     258.6,
     603.3
    ],
-   "views_per_day": 844.8,
+   "views_per_day": 842.3,
    "kind": "other"
   },
   {
@@ -811,7 +827,7 @@
     61.2,
     142.9
    ],
-   "views_per_day": 178.9,
+   "views_per_day": 178.4,
    "kind": "other"
   },
   {
@@ -843,7 +859,7 @@
     394.3,
     920.1
    ],
-   "views_per_day": 678.1,
+   "views_per_day": 676.2,
    "kind": "other"
   },
   {
@@ -875,7 +891,7 @@
     216.3,
     504.7
    ],
-   "views_per_day": 748.8,
+   "views_per_day": 746.8,
    "kind": "other"
   },
   {
@@ -891,7 +907,7 @@
     9.6,
     22.3
    ],
-   "views_per_day": 24.4,
+   "views_per_day": 24.3,
    "kind": "other"
   },
   {
@@ -907,7 +923,7 @@
     2.3,
     5.3
    ],
-   "views_per_day": 6.0,
+   "views_per_day": 5.9,
    "kind": "other"
   },
   {

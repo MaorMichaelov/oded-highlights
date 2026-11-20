@@ -1,13 +1,23 @@
 {
- "fetched_at": "2026-11-20T10:44:44Z",
- "fetched_epoch": 1795171484.7660642,
+ "fetched_at": "2026-11-20T11:15:29Z",
+ "fetched_epoch": 1795173329.648744,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1890,
   "views": 22361,
-  "videos": 24
+  "videos": 25
  },
  "videos": [
+  {
+   "id": "8W5Mg9Z5ocQ",
+   "title": "הרגעים הכי מצחיקים של עודד ב-GTA 6!",
+   "published": "2026-11-20T10:50:51Z",
+   "privacy": "public",
+   "duration": "PT20M36S",
+   "views": 3,
+   "likes": 2,
+   "comments": 0
+  },
   {
    "id": "UgS9AoWnOI0",
    "title": "עודד משחק GTA 6 לראשונה - פרק 1",
@@ -94,7 +104,7 @@
    "published": "2026-11-20T07:42:47Z",
    "privacy": "private",
    "duration": "PT21M52S",
-   "views": 0,
+   "views": 1,
    "likes": 0,
    "comments": 0
   },
@@ -204,7 +214,7 @@
    "published": "2026-11-19T18:44:29Z",
    "privacy": "public",
    "duration": "PT21M26S",
-   "views": 16,
+   "views": 17,
    "likes": 1,
    "comments": 0
   },
@@ -224,7 +234,7 @@
    "published": "2026-11-19T17:14:29Z",
    "privacy": "public",
    "duration": "PT17M55S",
-   "views": 36,
+   "views": 38,
    "likes": 6,
    "comments": 0
   },
@@ -234,7 +244,7 @@
    "published": "2026-11-18T13:48:16Z",
    "privacy": "public",
    "duration": "PT26M28S",
-   "views": 17,
+   "views": 15,
    "likes": 1,
    "comments": 0
   },
@@ -284,7 +294,7 @@
    "published": "2026-11-17T10:00:01Z",
    "privacy": "public",
    "duration": "PT1H33M46S",
-   "views": 67,
+   "views": 69,
    "likes": 8,
    "comments": 0
   },
@@ -429,16 +439,6 @@
    "comments": 0
   },
   {
-   "id": "2DmQJZzvpmQ",
-   "title": "\"זה האב טיפוס הראשוני של לוז!\" עודד מדבר על החולצה החדשה עם אור!",
-   "published": "2026-11-15T16:30:12Z",
-   "privacy": "private",
-   "duration": "PT7M",
-   "views": 0,
-   "likes": 0,
-   "comments": 0
-  },
-  {
    "id": "3H3rP1V0mLQ",
    "title": "עודד מבקש מהצופים שלו לא לראות GTA 6 אצל סטרימרים אחרים!",
    "published": "2026-11-15T17:05:45Z",
@@ -446,6 +446,16 @@
    "duration": "PT5M19S",
    "views": 1126,
    "likes": 26,
+   "comments": 0
+  },
+  {
+   "id": "riHgpZ1wJmA",
+   "title": "\"זה יהיה פסיכי!\" עודד מתכנן סבתון GTA 6 עם פרסים!",
+   "published": "2026-11-15T16:19:12Z",
+   "privacy": "private",
+   "duration": "PT4M7S",
+   "views": 0,
+   "likes": 0,
    "comments": 0
   },
   {
@@ -559,5 +569,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 125
+ "total_uploads_incl_private": 126
 }
