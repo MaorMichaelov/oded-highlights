@@ -582,15 +582,6 @@
    "clip_worthy": true,
    "why": "15 דקות רצופות של שיחה על משימות GTA 6, אימון כדורסל וקניית בגדים – תוכן ממוקד וקוהרנטי המתאים לקטע וידאו של חצי שעה.",
    "closed": true
-  },
-  {
-   "from": 9300,
-   "to": 11100,
-   "title": "שיחה על GTA VI וחוויות",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "קטע קצר של דיבור בלבד",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -800,6 +791,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 28124,
- "updated": "2026-11-20T22:28:10Z"
+ "transcript_end": 28260,
+ "updated": "2026-11-20T22:29:47Z"
 }
