@@ -3043,11 +3043,20 @@
   },
   {
    "from": 66600,
-   "to": 67200,
-   "title": "שינה",
+   "to": 66900,
+   "title": "דיבורים חסרי משמעות",
    "kind": "idle",
-   "clip_worthy": false,
-   "why": "קטגוריית שינה עם דיבור חסרי משמעות והסתובבות מילים ללא תוכן משמעותי.",
+   "clip_worthy": true,
+   "why": "קטגוריה Just Sleeping, חיבור רציף של 5 דקות",
+   "closed": true
+  },
+  {
+   "from": 66900,
+   "to": 67200,
+   "title": "מסתובב בין מילים",
+   "kind": "idle",
+   "clip_worthy": true,
+   "why": "קטגוריה Just Sleeping, חיבור רציף של 5 דקות",
    "closed": false
   }
  ],
@@ -4129,5 +4138,5 @@
   }
  ],
  "transcript_end": 67239,
- "updated": "2026-11-20T09:15:45Z"
+ "updated": "2026-11-20T09:16:45Z"
 }
