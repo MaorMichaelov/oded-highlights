@@ -585,11 +585,56 @@
   },
   {
    "from": 9300,
-   "to": 11100,
-   "title": "שיחה ממושכת על GTA VI",
+   "to": 9600,
+   "title": "דיון על GTA VI והחוויות במשחק",
    "kind": "talk",
    "clip_worthy": true,
-   "why": "רצף של 30 דקות של דיון קוהרנטי על GTA VI, כולל חוויות, השוואות ל‑GTA V, והתרגשות מהמשחק – עומד בדרישות של 15+ דקות ותוכן משמעותי.",
+   "why": "סדרה קוהרנטית של 5 דקות עם תוכן משמעותי על המשחק.",
+   "closed": true
+  },
+  {
+   "from": 9600,
+   "to": 9900,
+   "title": "שיתוף חוויות ב‑GTA VI",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "המשך נושא דומה, 5 דקות קוהרנטיות.",
+   "closed": true
+  },
+  {
+   "from": 9900,
+   "to": 10200,
+   "title": "הנאה והמשכיות GTA VI",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "משך 5 דקות של שיחה בעלת תוכן ממשי.",
+   "closed": true
+  },
+  {
+   "from": 10200,
+   "to": 10500,
+   "title": "כניסת כרישים ב‑GTA VI",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "שיחה ספציפית על אירוע ייחודי במשחק.",
+   "closed": true
+  },
+  {
+   "from": 10500,
+   "to": 10800,
+   "title": "קשר בין GTA V ל‑GTA VI",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "דיבור על היסטוריה והשוואות, 5 דקות קוהרנטיות.",
+   "closed": true
+  },
+  {
+   "from": 10800,
+   "to": 11100,
+   "title": "הערכת משחקים וספרות ב‑GTA",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "שיחה על ספרות ותרבות הקשורים למשחק, 5 דקות.",
    "closed": false
   }
  ],
@@ -800,6 +845,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 28366,
- "updated": "2026-11-20T22:31:48Z"
+ "transcript_end": 28485,
+ "updated": "2026-11-20T22:33:19Z"
 }
