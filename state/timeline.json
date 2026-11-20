@@ -3151,15 +3151,6 @@
    "clip_worthy": false,
    "why": "צ'אט שקט ולא משמעותי",
    "closed": true
-  },
-  {
-   "from": 68400,
-   "to": 68700,
-   "title": "שיחות משעממות",
-   "kind": "idle",
-   "clip_worthy": false,
-   "why": "צ'אט שקט ללא תוכן משמעותי",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -4269,6 +4260,6 @@
    "kind": "idle"
   }
  ],
- "transcript_end": 68817,
- "updated": "2026-11-20T09:41:54Z"
+ "transcript_end": 68991,
+ "updated": "2026-11-20T09:42:59Z"
 }
