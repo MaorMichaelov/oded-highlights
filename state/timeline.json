@@ -1879,6 +1879,222 @@
    "clip_worthy": true,
    "why": "תוכן משמעותי, מידע על תרומות, גיפטים, קיקים",
    "closed": true
+  },
+  {
+   "from": 2700,
+   "to": 3300,
+   "title": "שיחה והסבר מונופול",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "לא עברה 15 דקות",
+   "closed": true
+  },
+  {
+   "from": 3300,
+   "to": 3600,
+   "title": "הסבר מכירות פומביות",
+   "kind": "event",
+   "clip_worthy": false,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 3600,
+   "to": 3900,
+   "title": "הסבר חוקים וקיק",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 3900,
+   "to": 4200,
+   "title": "הגרלות וקהילה",
+   "kind": "event",
+   "clip_worthy": false,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 4200,
+   "to": 5400,
+   "title": "שיחה ותרומות",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "10 דקות",
+   "closed": true
+  },
+  {
+   "from": 5400,
+   "to": 5700,
+   "title": "הגרלות קארדפול",
+   "kind": "event",
+   "clip_worthy": false,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 5700,
+   "to": 6300,
+   "title": "הגרלות פתיחת תיבות",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 6300,
+   "to": 6900,
+   "title": "ציור קנבס",
+   "kind": "event",
+   "clip_worthy": false,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 6900,
+   "to": 8100,
+   "title": "הגרלות וקניית כפתורים",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 8100,
+   "to": 9000,
+   "title": "אתגר ציור חללית",
+   "kind": "event",
+   "clip_worthy": false,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 9000,
+   "to": 10800,
+   "title": "הישרדות בחוף",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 10800,
+   "to": 11100,
+   "title": "הוראת מיפוי",
+   "kind": "reaction",
+   "clip_worthy": false,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 11100,
+   "to": 12300,
+   "title": "התחלת משחק GTA",
+   "kind": "game",
+   "clip_worthy": false,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 12300,
+   "to": 12600,
+   "title": "התלהבות מהטריילר",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 12600,
+   "to": 12900,
+   "title": "תגובה ל-DLC GTA 5",
+   "kind": "reaction",
+   "clip_worthy": false,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 12900,
+   "to": 14700,
+   "title": "הגידול FPS ב-GTA VI",
+   "kind": "game",
+   "clip_worthy": false,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 14700,
+   "to": 15000,
+   "title": "משחק GTA 6 עם תרומות",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 15000,
+   "to": 15300,
+   "title": "קליפים ואפליקציה GTA",
+   "kind": "reaction",
+   "clip_worthy": false,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 15300,
+   "to": 16200,
+   "title": "משחק עם מודים",
+   "kind": "game",
+   "clip_worthy": false,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 16200,
+   "to": 16500,
+   "title": "הגרלת פרסים",
+   "kind": "event",
+   "clip_worthy": false,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 16500,
+   "to": 18600,
+   "title": "דיבור על GTA VI",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 18600,
+   "to": 19800,
+   "title": "רכבים ב-GTA VI",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 19800,
+   "to": 20400,
+   "title": "משחק GTA VI והבית",
+   "kind": "game",
+   "clip_worthy": false,
+   "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 20400,
+   "to": 20700,
+   "title": "הפעלת Kick ל-GTA 6",
+   "kind": "event",
+   "clip_worthy": false,
+   "why": "5 דקות",
+   "closed": true
   }
  ],
  "seg_v": 5,
@@ -2742,6 +2958,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 43218,
- "updated": "2026-11-20T02:34:25Z"
+ "transcript_end": 43368,
+ "updated": "2026-11-20T02:41:40Z"
 }
