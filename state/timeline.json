@@ -3201,15 +3201,6 @@
    "clip_worthy": false,
    "why": "קטע קצר (5 דקות) של דיון אישי ללא תוכן משמעותי לקטיעה",
    "closed": true
-  },
-  {
-   "from": 69000,
-   "to": 69600,
-   "title": "שינה ושטויות",
-   "kind": "idle",
-   "clip_worthy": false,
-   "why": "צ'אט כללי ללא פעילות משמעותית, אין תוכן קוהרנטי לשימוש כקלאיפ",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -4337,6 +4328,6 @@
    "kind": "idle"
   }
  ],
- "transcript_end": 69788,
- "updated": "2026-11-20T09:57:17Z"
+ "transcript_end": 69918,
+ "updated": "2026-11-20T09:58:25Z"
 }
