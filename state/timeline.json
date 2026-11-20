@@ -1603,6 +1603,19 @@
    ],
    "v": 2,
    "rv": 1
+  },
+  "126": {
+   "label": "שוחח על GTA VI ומשתף תכנים",
+   "kind": "talk",
+   "kw": [
+    "GTA VI",
+    "משחק",
+    "קליפ",
+    "YouTube",
+    "דייג"
+   ],
+   "v": 2,
+   "rv": 1
   }
  },
  "spans": [
@@ -2082,6 +2095,15 @@
    "clip_worthy": false,
    "why": "הצגת מצבים פשוטים במשחק",
    "closed": true
+  },
+  {
+   "from": 37500,
+   "to": 38100,
+   "title": "שיחה על GTA VI והמסלול לבריחה",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "קטע קצר של שיחה בלבד",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -2835,8 +2857,14 @@
    "to": 37800,
    "label": "דיבר על GTA VI ומסלול הבריחה",
    "kind": "talk"
+  },
+  {
+   "from": 37800,
+   "to": 38100,
+   "label": "שוחח על GTA VI ומשתף תכנים",
+   "kind": "talk"
   }
  ],
- "transcript_end": 38027,
- "updated": "2026-11-20T01:06:58Z"
+ "transcript_end": 38113,
+ "updated": "2026-11-20T01:08:54Z"
 }
