@@ -2983,10 +2983,10 @@
   {
    "from": 65700,
    "to": 66300,
-   "title": "בדיקה",
+   "title": "בדיקת לייב",
    "kind": "talk",
    "clip_worthy": false,
-   "why": "\"talk\" segment of 5 minutes – not long enough for clip-worthy content.",
+   "why": "קטע קצר של 5 דקות בלבד",
    "closed": false
   }
  ],
@@ -4050,5 +4050,5 @@
   }
  ],
  "transcript_end": 66400,
- "updated": "2026-11-20T09:00:11Z"
+ "updated": "2026-11-20T09:01:16Z"
 }
