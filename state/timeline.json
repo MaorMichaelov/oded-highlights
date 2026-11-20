@@ -2099,10 +2099,10 @@
   {
    "from": 37500,
    "to": 38100,
-   "title": "שיחה על GTA VI והמסלול לבריחה",
+   "title": "דבר על GTA VI ומסלול הבריחה",
    "kind": "talk",
    "clip_worthy": false,
-   "why": "קטע קצר של שיחה בלבד",
+   "why": "קטע קוֹרֵץ (5 דקות) של שיחה ללא נושא קוהרנטי ארוך",
    "closed": false
   }
  ],
@@ -2865,6 +2865,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 38113,
- "updated": "2026-11-20T01:08:54Z"
+ "transcript_end": 38238,
+ "updated": "2026-11-20T01:11:14Z"
 }
