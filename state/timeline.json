@@ -2126,15 +2126,6 @@
    "clip_worthy": true,
    "why": "מלא 5 דקות של תוכן מעניין בנושא GTA VI עם דיון וחדשות",
    "closed": true
-  },
-  {
-   "from": 38100,
-   "to": 38400,
-   "title": "צ'אט ותודות",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "קיצור של 5 דקות של דיבור כללית עם צ'אט ותודות לתורמים",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -2902,6 +2893,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 38528,
- "updated": "2026-11-20T01:16:29Z"
+ "transcript_end": 38688,
+ "updated": "2026-11-20T01:18:56Z"
 }
