@@ -1841,6 +1841,19 @@
    ],
    "v": 2,
    "rv": 1
+  },
+  "144": {
+   "label": "מנסה לחבר Bluetooth ו-USB",
+   "kind": "talk",
+   "kw": [
+    "Bluetooth",
+    "USB",
+    "חיבור",
+    "קול",
+    "קונקשן"
+   ],
+   "v": 2,
+   "rv": 1
   }
  },
  "spans": [
@@ -2094,6 +2107,195 @@
    "kind": "event",
    "clip_worthy": false,
    "why": "5 דקות",
+   "closed": true
+  },
+  {
+   "from": 20700,
+   "to": 21300,
+   "title": "דיון ב‑GTA VI",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "דיבור קצר על המשחק בלבד",
+   "closed": true
+  },
+  {
+   "from": 21300,
+   "to": 22500,
+   "title": "דייג ב‑GTA VI",
+   "kind": "game",
+   "clip_worthy": false,
+   "why": "קצר מדי",
+   "closed": true
+  },
+  {
+   "from": 22500,
+   "to": 23400,
+   "title": "פתיחת קופסאות וגרלות GTA VI",
+   "kind": "event",
+   "clip_worthy": false,
+   "why": "קצר מדי",
+   "closed": true
+  },
+  {
+   "from": 23400,
+   "to": 25500,
+   "title": "דיון ב‑Just Chatting",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "קצר מדי",
+   "closed": true
+  },
+  {
+   "from": 25500,
+   "to": 27600,
+   "title": "שיחה פתוחה ופתיחת חבילות",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "קצר מדי",
+   "closed": true
+  },
+  {
+   "from": 27600,
+   "to": 28200,
+   "title": "דיבור על זמן משחק",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "קצר מדי",
+   "closed": true
+  },
+  {
+   "from": 28200,
+   "to": 29700,
+   "title": "משחק GTA VI ודיון",
+   "kind": "game",
+   "clip_worthy": false,
+   "why": "קצר מדי",
+   "closed": true
+  },
+  {
+   "from": 29700,
+   "to": 30300,
+   "title": "דיבור על GTA VI וכסף",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "קצר מדי",
+   "closed": true
+  },
+  {
+   "from": 30300,
+   "to": 30600,
+   "title": "דיבור חסר משמעות",
+   "kind": "idle",
+   "clip_worthy": false,
+   "why": "לא קוהרנטי",
+   "closed": true
+  },
+  {
+   "from": 30600,
+   "to": 30900,
+   "title": "שיחה על GTA 6",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "קצר מדי",
+   "closed": true
+  },
+  {
+   "from": 30900,
+   "to": 31200,
+   "title": "ריאציה לחדשות GTA VI",
+   "kind": "reaction",
+   "clip_worthy": true,
+   "why": "ריאציה של 5 דקות על חדשות",
+   "closed": true
+  },
+  {
+   "from": 31200,
+   "to": 31800,
+   "title": "תכנון התקפה GTA VI",
+   "kind": "game",
+   "clip_worthy": false,
+   "why": "קצר מדי",
+   "closed": true
+  },
+  {
+   "from": 31800,
+   "to": 32700,
+   "title": "דיבור על הוצאות",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "קצר מדי",
+   "closed": true
+  },
+  {
+   "from": 32700,
+   "to": 33300,
+   "title": "המשחק עם טוקי",
+   "kind": "game",
+   "clip_worthy": false,
+   "why": "קצר מדי",
+   "closed": true
+  },
+  {
+   "from": 33300,
+   "to": 34500,
+   "title": "הקבלה של תשלום",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "קצר מדי",
+   "closed": true
+  },
+  {
+   "from": 34500,
+   "to": 35100,
+   "title": "משחק GTA VI",
+   "kind": "game",
+   "clip_worthy": false,
+   "why": "קצר מדי",
+   "closed": true
+  },
+  {
+   "from": 35100,
+   "to": 35400,
+   "title": "ריאציה לוואטסאפ",
+   "kind": "reaction",
+   "clip_worthy": true,
+   "why": "ריאציה של 5 דקות לוואטסאפ",
+   "closed": true
+  },
+  {
+   "from": 35400,
+   "to": 36300,
+   "title": "משחק GTA VI",
+   "kind": "game",
+   "clip_worthy": false,
+   "why": "קצר מדי",
+   "closed": true
+  },
+  {
+   "from": 36300,
+   "to": 36600,
+   "title": "דיבור על GTA 6",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "קצר מדי",
+   "closed": true
+  },
+  {
+   "from": 36600,
+   "to": 37500,
+   "title": "משחק GTA 6 וחיפוש שוטר",
+   "kind": "game",
+   "clip_worthy": false,
+   "why": "קצר מדי",
+   "closed": true
+  },
+  {
+   "from": 37500,
+   "to": 38700,
+   "title": "דיבור על GTA 6",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "קצר מדי",
    "closed": true
   }
  ],
@@ -2956,8 +3158,14 @@
    "to": 43200,
    "label": "דן מתקשר את מצב הרמקולים ומדווח על בעיית סאונד",
    "kind": "talk"
+  },
+  {
+   "from": 43200,
+   "to": 43500,
+   "label": "מנסה לחבר Bluetooth ו-USB",
+   "kind": "talk"
   }
  ],
- "transcript_end": 43368,
- "updated": "2026-11-20T02:41:40Z"
+ "transcript_end": 43700,
+ "updated": "2026-11-20T02:52:13Z"
 }
