@@ -294,15 +294,6 @@
    "clip_worthy": false,
    "why": "ריאציה קצרה לכתבה/מוצר",
    "closed": true
-  },
-  {
-   "from": 4200,
-   "to": 4800,
-   "title": "דיון על טיימרים ומשחקים",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "צ׳אט כללי ללא תקלות",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -404,6 +395,6 @@
    "kind": "chat"
   }
  ],
- "transcript_end": 11654,
- "updated": "2026-11-20T17:54:02Z"
+ "transcript_end": 11833,
+ "updated": "2026-11-20T17:55:40Z"
 }
