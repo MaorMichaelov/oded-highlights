@@ -2623,6 +2623,18 @@
    ],
    "v": 2,
    "rv": 1
+  },
+  "220": {
+   "label": "מודה לגיף נדב וגיא",
+   "kind": "chat",
+   "kw": [
+    "תודה",
+    "גיף",
+    "נדב",
+    "גיא"
+   ],
+   "v": 2,
+   "rv": 1
   }
  },
  "spans": [
@@ -2970,11 +2982,11 @@
   },
   {
    "from": 65700,
-   "to": 66000,
-   "title": "בדיקה והצגת תודה",
+   "to": 66300,
+   "title": "בדיקה",
    "kind": "talk",
-   "clip_worthy": true,
-   "why": "קטע נוסף של 5 דקות, תכנים דומים, מותר לכלול בקופץ",
+   "clip_worthy": false,
+   "why": "\"talk\" segment of 5 minutes – not long enough for clip-worthy content.",
    "closed": false
   }
  ],
@@ -4029,8 +4041,14 @@
    "to": 66000,
    "label": "תודה ומדבר על בדיקה",
    "kind": "talk"
+  },
+  {
+   "from": 66000,
+   "to": 66300,
+   "label": "מודה לגיף נדב וגיא",
+   "kind": "chat"
   }
  ],
- "transcript_end": 66114,
- "updated": "2026-11-20T08:58:26Z"
+ "transcript_end": 66400,
+ "updated": "2026-11-20T09:00:11Z"
 }
