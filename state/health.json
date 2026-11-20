@@ -59,7 +59,7 @@
  ],
  "hc_checked_at": "2026-11-20T02:34:53Z",
  "live_loop_running": true,
- "state_age_min": 26.0,
+ "state_age_min": 18.3,
  "live": true,
  "recent_failed_renders": 0,
  "stuck_clips": [
@@ -67,8 +67,7 @@
  ],
  "pending_candidates": 0,
  "problems": [
-  "live loop is running but state is 26 min old (stuck?)",
   "clips without a draft after 90 min: ['138861078_11197']"
  ],
- "checked_at": "2026-11-20T07:53:41Z"
+ "checked_at": "2026-11-20T08:12:34Z"
 }

@@ -1,13 +1,43 @@
 {
- "fetched_at": "2026-11-20T07:25:55Z",
- "fetched_epoch": 1795159555.6155174,
+ "fetched_at": "2026-11-20T08:12:33Z",
+ "fetched_epoch": 1795162353.4604452,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1890,
-  "views": 21910,
+  "views": 22361,
   "videos": 18
  },
  "videos": [
+  {
+   "id": "ir3kLq1hhCU",
+   "title": "\"ג'ייסון, היא רוצה את הביצה שלך, תיזהר!\" עודד ב-GTA!",
+   "published": "2026-11-20T07:42:47Z",
+   "privacy": "private",
+   "duration": "PT21M52S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
+  {
+   "id": "CiqujKrVTEc",
+   "title": "\"רק עכשיו אני שם לב לזה!\" עודד מגלה את המשימות הראשיות!",
+   "published": "2026-11-20T07:41:42Z",
+   "privacy": "private",
+   "duration": "PT22M31S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
+  {
+   "id": "17_tXvRd7ms",
+   "title": "\"אני לוקח את הזמן!\" עודד מדבר בשיחה על GTA, הגרפיקה והמשימות!",
+   "published": "2026-11-20T07:32:50Z",
+   "privacy": "private",
+   "duration": "PT9M40S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
   {
    "id": "avhTTeCAiSI",
    "title": "\"אתם יודעים איזה קשה היה לי השבוע!\" – עודד מתאר שבוע קשה והצ'אט מתפוצץ!",
@@ -499,5 +529,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 119
+ "total_uploads_incl_private": 122
 }
