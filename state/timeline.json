@@ -294,15 +294,6 @@
    "clip_worthy": false,
    "why": "ריאציה קצרה לכתבה/מוצר",
    "closed": true
-  },
-  {
-   "from": 4200,
-   "to": 4800,
-   "title": "צ'אט כללי על טיימרים, קרדיטים, בוקר ומכירות",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "הקטעים הם שיחות בלתי ממוקדות (Just Chatting) ללא תוכן קוהרנטי של 15 דקות, ולכן אינם מתאימים ל‑clip_worthy",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -404,6 +395,6 @@
    "kind": "chat"
   }
  ],
- "transcript_end": 16419,
- "updated": "2026-11-20T19:12:51Z"
+ "transcript_end": 16542,
+ "updated": "2026-11-20T19:14:20Z"
 }
