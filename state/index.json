@@ -445,10 +445,15 @@
    "who": "עודד, הצ'אט, קיריג, ניתאי, טדי",
    "peak": "20:18"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/NZi4JUGiRbU",
+  "draft_at": "2026-11-20T04:07:46Z",
+  "quality_errors": [],
   "auto": true
  },
  {

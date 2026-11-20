@@ -1,0 +1,43 @@
+model failed gemini-flash-latest: HTTP Error 503: Service Unavailable { "error": { "code": 503, "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.", "status": "UNAVAILABLE" } }
+model failed gemini-flash-latest: HTTP Error 503: Service Unavailable { "error": { "code": 503, "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.", "status": "UNAVAILABLE" } }
+model failed gemini-3.8-flash: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease ret
+model failed gemini-3.7-flash: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease ret
+model: gemini-3.6-flash
+SCORE: 6/10
+
+### 1. ציר זמן של שינויים חזותיים ושמע
+* **00:00 - 00:08**: מסך המשחק מלא, מצלמת סטרימר בפינה הימנית העליונה, כתוביות צהובות/ירוקות בתחתית.
+* **00:08 - 00:11**: פתיח ומעברון מותג ("Oded Highlights") מלווה באפקט קולי.
+* **00:11 - 00:15**: מעבר מהיר להצגת שולחן העבודה.
+* **00:15 - 02:30**: חזרה למסך המשחק, הופעת פופ-אפ הרשמה לערוץ (00:16), ומעברים בין מהלכי משחק ולוח ציור.
+
+### 2. מה מוצג ומה הושמט
+* **מוצג**: רגעי השיא במשחק המונופול, תגובות הסטרימר, והודעות הישגים.
+* **הושמט**: זמני המתנה ארוכים, שתיקות ושיחות רקע שאינן נוגעות למתרחש במשחק, כדי לשמור על קצב דינמי.
+
+### 3. ספירות ונתונים
+* **מספר חיתוכים**: 4 חיתוכים מרכזיים.
+* **הקטע הקצר ביותר**: כ-3 שניות (הצגת שולחן העבודה).
+* **הקטע הארוך ביותר**: כ-75 שניות.
+* **אופי החיתוך**: החיתוכים מתבצעים בעיקר בסיומי משפטים או במעבר בין שלבים במשחק.
+
+### 4. כותרת ופתיח (10 השניות הראשונות)
+הסרטון נפתח ברגע מתוח מתוך המשחק בליווי כתוביות בולטות, ומיד לאחר מכן עובר למעברון מותג קצר המבהיר את מהות הסרטון.
+
+### 5. הנחיות לשילוב בעריכה (Copy-Cat)
+* שילוב מעברון מעבר ממותג עם אפקט שמע.
+* כתוביות צבעוניות (צהוב/ירוק) ממורכזות למטה.
+* חיתוך הדוק של רגעים מתים.
+* הוספת אלמנטים הנעה לפעולה (סאב/לייק).
+
+### 6. בקרת איכות (Quality Check)
+* **(א) פתיח ופופ-אפ**: קים הוק ראשוני, מעברון מותג ופופ-אפ הרשמה קריא וברור.
+* **(ב) כתוביות ולייאאוט**: הכתוביות מסונכרנות היטב, מיקום המצלמה אינו מפריע ללוח המשחק.
+* **(ג) התחלת משפטים**: הקטעים נחתכים בצורה נכונה בראשית משפט.
+* **(ד) זמני שתיקה**: אין פרקי שקט מיותרים.
+* **(ה) שפה פוגענית**: נשמעת שפה גסה קלה ב-01:01 ("בן זונה").
+* **(ו) סאונד**: עוצמת השמע יציבה ולא נרשמו עיוותים.
+* **(ז) ציון עניין**: 6/10 – עריכה קצבית לתוכן גיימינג סטנדרטי.
+* **(ח) רשימת ליקויים**:
+  1. קטע שולחן העבודה (00:11) נראה לא קשור ונחתך בפתאומיות.
+  2. שימוש בשפה בלתי הולמת ב-01:01.

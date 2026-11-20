@@ -1,0 +1,40 @@
+{
+ "score": 100,
+ "fail": [],
+ "warn": [],
+ "metrics": {
+  "audio": {
+   "duration_s": 1986.35,
+   "floor_db": -56.3,
+   "speech_db": -16.9,
+   "dyn_db": 39.4,
+   "tail_rms_db": -43.5,
+   "tail_rel_speech_db": -26.5,
+   "head_rel_speech_db": -26.0,
+   "lead_silence_s": 0.03,
+   "trail_silence_s": 0.14,
+   "lufs": -17.6,
+   "tp": -2.3,
+   "sync": {
+    "v_dur": 1986.333008,
+    "a_dur": 1986.344646,
+    "dur_diff_s": 0.012,
+    "start_diff_s": 0.021,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 4.486854
+  },
+  "title_flags": [],
+  "title_truth": {
+   "missing_words": [
+    "מתלהב",
+    "מצחיקה"
+   ],
+   "missing_names": [],
+   "bad_quotes": [],
+   "ratio": 0.2,
+   "checked": 10
+  }
+ }
+}
