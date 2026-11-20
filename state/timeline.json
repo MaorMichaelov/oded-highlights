@@ -3499,15 +3499,6 @@
    "clip_worthy": true,
    "why": "ריאק्शन על חוויית קנייה, משך >6 דקות, תוכן קוהרנטי וערכי",
    "closed": true
-  },
-  {
-   "from": 73500,
-   "to": 74700,
-   "title": "שיחה חופשית עם הצ'אט",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "קטגוריית Just Chatting קצרה מדי (15 דקות) ללא תוכן קוהרנטי משמעותי מעבר לשיחה יומיומית",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -4737,6 +4728,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 84839,
- "updated": "2026-11-20T14:07:53Z"
+ "transcript_end": 84968,
+ "updated": "2026-11-20T14:09:02Z"
 }
