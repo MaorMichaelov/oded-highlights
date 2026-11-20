@@ -3273,15 +3273,6 @@
    "clip_worthy": false,
    "why": "אין תזמון מפורש של פעילות",
    "closed": true
-  },
-  {
-   "from": 70800,
-   "to": 71400,
-   "title": "שידור בוקר מבולגן",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "שידור קוטוב עם שינה ושיחה כללית",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -4428,5 +4419,5 @@
   }
  ],
  "transcript_end": 71709,
- "updated": "2026-11-20T10:28:09Z"
+ "updated": "2026-11-20T10:29:13Z"
 }
