@@ -3,7 +3,7 @@
  "checks": {
   "live_loop": {
    "status": "ok",
-   "detail": "2 run(s) active"
+   "detail": "1 run(s) active"
   },
   "channel_loops": {
    "status": "ok",
@@ -11,26 +11,26 @@
   },
   "state_fresh": {
    "status": "ok",
-   "detail": "live_status 6.2 min old",
-   "age_min": 6.2
+   "detail": "live_status 1.5 min old",
+   "age_min": 1.5
   },
   "transcription": {
    "status": "ok",
-   "detail": "lag 11 segments, live=True"
+   "detail": "lag 0 segments, live=True"
   },
   "last_upload": {
    "status": "ok",
-   "detail": "last draft 0.1 h ago",
-   "age_h": 0.1,
-   "last": "2026-11-19T21:23:07Z"
+   "detail": "last draft 0.4 h ago",
+   "age_h": 0.4,
+   "last": "2026-11-20T02:08:21Z"
   },
   "upload_hold": {
    "status": "ok",
    "detail": "no hold, no quota wait"
   },
   "failed_runs": {
-   "status": "warn",
-   "detail": "3 failed run(s) in 3 h: ['render-clip']"
+   "status": "ok",
+   "detail": "0 failed run(s) in 3 h"
   },
   "cancelled_runs": {
    "status": "ok",
@@ -54,11 +54,10 @@
   }
  },
  "hc_problems": [
-  "failed_runs: 3 failed run(s) in 3 h: ['render-clip']",
   "queue_stall: 1 run(s) queued for > 60 min: ['studio-poller']",
   "duplicates: duplicate draft titles: [['137995265_9037', '137995265_9082']]; overlapping ledger entries: []"
  ],
- "hc_checked_at": "2026-11-19T21:26:40Z",
+ "hc_checked_at": "2026-11-20T02:34:53Z",
  "live_loop_running": true,
  "state_age_min": 0.8,
  "live": true,
