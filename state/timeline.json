@@ -80,6 +80,15 @@
    "clip_worthy": false,
    "why": "קטע קצר (5 דקות) של משחק בלבד",
    "closed": true
+  },
+  {
+   "from": 1500,
+   "to": 2100,
+   "title": "בדיקת נתוני צ'אט ודרגות",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "צ'אט כללי ונתונים סטטיסטיים, ללא תוכן קוהרנטי של 15 דקות או יותר",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -109,6 +118,6 @@
    "kind": "chat"
   }
  ],
- "transcript_end": 2854,
- "updated": "2026-11-20T15:26:20Z"
+ "transcript_end": 2950,
+ "updated": "2026-11-20T15:28:13Z"
 }
