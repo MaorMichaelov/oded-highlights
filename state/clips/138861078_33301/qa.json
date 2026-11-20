@@ -1,0 +1,41 @@
+{
+ "score": 94,
+ "fail": [],
+ "warn": [
+  "clip starts inside a loud sound (4 dB below the speech level)"
+ ],
+ "metrics": {
+  "audio": {
+   "duration_s": 1350.27,
+   "floor_db": -48.7,
+   "speech_db": -18.5,
+   "dyn_db": 30.2,
+   "tail_rms_db": -30.0,
+   "tail_rel_speech_db": -11.5,
+   "head_rel_speech_db": -3.7,
+   "lead_silence_s": 0.03,
+   "trail_silence_s": 0.02,
+   "lufs": -19.9,
+   "tp": -2.2,
+   "sync": {
+    "v_dur": 1350.249674,
+    "a_dur": 1350.257979,
+    "dur_diff_s": 0.008,
+    "start_diff_s": 0.021,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 4.440146
+  },
+  "title_flags": [],
+  "title_truth": {
+   "missing_words": [
+    "מגלה"
+   ],
+   "missing_names": [],
+   "bad_quotes": [],
+   "ratio": 0.2,
+   "checked": 5
+  }
+ }
+}
