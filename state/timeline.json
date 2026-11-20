@@ -3503,10 +3503,10 @@
   {
    "from": 73500,
    "to": 74700,
-   "title": "שיחה לא מובנת ללא כיוון",
+   "title": "שיחה פתוחה",
    "kind": "talk",
    "clip_worthy": true,
-   "why": "צ'אט כללי, ללא נושא קוהרנטי",
+   "why": "",
    "closed": false
   }
  ],
@@ -4737,6 +4737,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 83945,
- "updated": "2026-11-20T13:53:49Z"
+ "transcript_end": 84126,
+ "updated": "2026-11-20T13:55:55Z"
 }
