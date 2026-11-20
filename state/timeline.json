@@ -3023,11 +3023,20 @@
   },
   {
    "from": 66300,
-   "to": 66900,
-   "title": "שיחה לא משמעותית",
+   "to": 66600,
+   "title": "שיחה קצרה עם מילים אקראיות",
    "kind": "idle",
    "clip_worthy": false,
-   "why": "קטע של שיחה חסרת משמעות עם מילים אקראיות, ללא תוכן קוהרנטי ולכן אינו ראוי לקליפ",
+   "why": "קטגוריה: Just Sleeping, שיחה חסרת תוכן",
+   "closed": true
+  },
+  {
+   "from": 66600,
+   "to": 66900,
+   "title": "דיבורים חסרי משמעות",
+   "kind": "idle",
+   "clip_worthy": false,
+   "why": "קטגוריה: Just Sleeping, שיחה חסרת תוכן",
    "closed": false
   }
  ],
@@ -4102,6 +4111,6 @@
    "kind": "idle"
   }
  ],
- "transcript_end": 66936,
- "updated": "2026-11-20T09:09:16Z"
+ "transcript_end": 67029,
+ "updated": "2026-11-20T09:10:29Z"
 }
