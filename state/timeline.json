@@ -130,15 +130,6 @@
    "clip_worthy": false,
    "why": "צ'אט כללי, סטטיסטיקות וארגון חבילה – אינו נושא קוהרנטי של 15 דקות+ ולא ריאק्शन",
    "closed": true
-  },
-  {
-   "from": 2100,
-   "to": 3000,
-   "title": "צ'אט מסודר עם מילות מקוטעות",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "פחות מ-15 דקות, שיח כללי בלבד",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -186,6 +177,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 6855,
- "updated": "2026-11-20T16:32:49Z"
+ "transcript_end": 6944,
+ "updated": "2026-11-20T16:34:43Z"
 }
