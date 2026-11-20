@@ -1830,7 +1830,17 @@
    }
   }
  },
- "spans": [],
+ "spans": [
+  {
+   "from": 0,
+   "to": 300,
+   "title": "מתנצל ומבקש מהצ'אט להמתין",
+   "kind": "chat",
+   "clip_worthy": true,
+   "why": "חלק מהשיחה הקצרה עם הצ'אט, מתחיל את השידור",
+   "closed": true
+  }
+ ],
  "seg_v": 5,
  "timeline": [
   {
@@ -2686,6 +2696,6 @@
    "kind": "reaction"
   }
  ],
- "transcript_end": 42958,
- "updated": "2026-11-20T02:29:13Z"
+ "transcript_end": 43063,
+ "updated": "2026-11-20T02:32:29Z"
 }
