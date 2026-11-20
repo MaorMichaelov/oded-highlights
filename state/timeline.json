@@ -1,9 +1,29 @@
 {
  "vod": "139115664",
- "chunks": {},
+ "chunks": {
+  "0": {
+   "label": "בודק בעיית KPP ומתכנן לשחק GTA",
+   "kind": "chat",
+   "kw": [
+    "KPP",
+    "צ'אט",
+    "GTA",
+    "סנדוויץ'",
+    "מודים"
+   ],
+   "v": 2
+  }
+ },
  "spans": [],
  "seg_v": 5,
- "timeline": [],
- "transcript_end": 219,
- "updated": "2026-11-20T14:42:26Z"
+ "timeline": [
+  {
+   "from": 0,
+   "to": 300,
+   "label": "בודק בעיית KPP ומתכנן לשחק GTA",
+   "kind": "chat"
+  }
+ ],
+ "transcript_end": 311,
+ "updated": "2026-11-20T14:44:09Z"
 }
