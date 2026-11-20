@@ -3499,6 +3499,15 @@
    "clip_worthy": true,
    "why": "ריאק्शन על חוויית קנייה, משך >6 דקות, תוכן קוהרנטי וערכי",
    "closed": true
+  },
+  {
+   "from": 73500,
+   "to": 74700,
+   "title": "שיחה כללית",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "שיחה לא מובנת/צ'אט כללי ללא תוכן קוהרנטי",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -4728,6 +4737,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 83021,
- "updated": "2026-11-20T13:37:21Z"
+ "transcript_end": 83142,
+ "updated": "2026-11-20T13:39:38Z"
 }
