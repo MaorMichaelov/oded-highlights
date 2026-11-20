@@ -1,0 +1,40 @@
+{
+ "score": 100,
+ "fail": [],
+ "warn": [],
+ "metrics": {
+  "audio": {
+   "duration_s": 1367.47,
+   "floor_db": -71.9,
+   "speech_db": -15.7,
+   "dyn_db": 56.1,
+   "tail_rms_db": -52.2,
+   "tail_rel_speech_db": -36.4,
+   "head_rel_speech_db": -42.5,
+   "lead_silence_s": 0.29,
+   "trail_silence_s": 0.13,
+   "lufs": -16.1,
+   "tp": -1.0,
+   "sync": {
+    "v_dur": 1367.449023,
+    "a_dur": 1367.470667,
+    "dur_diff_s": 0.022,
+    "start_diff_s": 0.021,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0
+  },
+  "title_flags": [],
+  "title_truth": {
+   "missing_words": [
+    "מתאר",
+    "מתפוצץ"
+   ],
+   "missing_names": [],
+   "bad_quotes": [],
+   "ratio": 0.2,
+   "checked": 10
+  }
+ }
+}
