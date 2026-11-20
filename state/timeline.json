@@ -294,6 +294,15 @@
    "clip_worthy": false,
    "why": "ריאציה קצרה לכתבה/מוצר",
    "closed": true
+  },
+  {
+   "from": 4200,
+   "to": 4800,
+   "title": "שיחה כללית",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "קטגוריית Just Chatting עם תוכן קצר ולא קוהרנטי מעל 15 דקות, ולכן לא מתאימם לקטע מיוחד",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -395,6 +404,6 @@
    "kind": "chat"
   }
  ],
- "transcript_end": 13603,
- "updated": "2026-11-20T18:25:31Z"
+ "transcript_end": 13721,
+ "updated": "2026-11-20T18:27:01Z"
 }
