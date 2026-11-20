@@ -1,13 +1,33 @@
 {
- "fetched_at": "2026-11-20T08:43:00Z",
- "fetched_epoch": 1795164180.9470296,
+ "fetched_at": "2026-11-20T09:13:14Z",
+ "fetched_epoch": 1795165994.1144896,
  "channel": {
-  "title": "STREAM IL",
+  "title": "ODED HIGHLIGHTS",
   "subscribers": 1890,
   "views": 22361,
   "videos": 18
  },
  "videos": [
+  {
+   "id": "Fg3CmT92K4A",
+   "title": "\"זה צריך להעלים ראיות!\" עודד עושה שטויות ומסתבך בלייב!",
+   "published": "2026-11-20T08:38:50Z",
+   "privacy": "private",
+   "duration": "PT21M31S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
+  {
+   "id": "gZbgRkINHAU",
+   "title": "עודד נקרע מצחוק בבריחה ב-GTA!",
+   "published": "2026-11-20T08:34:35Z",
+   "privacy": "private",
+   "duration": "PT29M55S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
   {
    "id": "ir3kLq1hhCU",
    "title": "\"ג'ייסון, היא רוצה את הביצה שלך, תיזהר!\" עודד ב-GTA!",
@@ -174,7 +194,7 @@
    "published": "2026-11-19T18:44:29Z",
    "privacy": "public",
    "duration": "PT21M26S",
-   "views": 12,
+   "views": 17,
    "likes": 1,
    "comments": 0
   },
@@ -194,7 +214,7 @@
    "published": "2026-11-19T17:14:29Z",
    "privacy": "public",
    "duration": "PT17M55S",
-   "views": 36,
+   "views": 38,
    "likes": 6,
    "comments": 0
   },
@@ -214,7 +234,7 @@
    "published": "2026-11-18T12:59:59Z",
    "privacy": "public",
    "duration": "PT23M4S",
-   "views": 35,
+   "views": 36,
    "likes": 4,
    "comments": 0
   },
@@ -454,7 +474,7 @@
    "published": "2026-11-13T08:00:35Z",
    "privacy": "public",
    "duration": "PT15M2S",
-   "views": 1272,
+   "views": 1273,
    "likes": 19,
    "comments": 2
   },
@@ -464,7 +484,7 @@
    "published": "2026-11-12T14:29:45Z",
    "privacy": "public",
    "duration": "PT28M35S",
-   "views": 76,
+   "views": 77,
    "likes": 2,
    "comments": 0
   },
@@ -474,7 +494,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 5320,
+   "views": 5323,
    "likes": 29,
    "comments": 1
   },
@@ -494,7 +514,7 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 5932,
+   "views": 5938,
    "likes": 54,
    "comments": 4
   },
