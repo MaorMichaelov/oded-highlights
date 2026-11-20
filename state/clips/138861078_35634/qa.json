@@ -1,0 +1,43 @@
+{
+ "score": 69,
+ "fail": [
+  "silence of 15s inside the video"
+ ],
+ "warn": [
+  "clip starts inside a loud sound (0 dB below the speech level)"
+ ],
+ "metrics": {
+  "audio": {
+   "duration_s": 1794.29,
+   "floor_db": -50.6,
+   "speech_db": -18.3,
+   "dyn_db": 32.3,
+   "tail_rms_db": -32.4,
+   "tail_rel_speech_db": -14.1,
+   "head_rel_speech_db": -0.4,
+   "lead_silence_s": 0.02,
+   "trail_silence_s": 0.18,
+   "lufs": -18.9,
+   "tp": -2.1,
+   "sync": {
+    "v_dur": 1794.266341,
+    "a_dur": 1794.274646,
+    "dur_diff_s": 0.008,
+    "start_diff_s": 0.021,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 14.814312
+  },
+  "title_flags": [],
+  "title_truth": {
+   "missing_words": [
+    "נקרע"
+   ],
+   "missing_names": [],
+   "bad_quotes": [],
+   "ratio": 0.33,
+   "checked": 3
+  }
+ }
+}
