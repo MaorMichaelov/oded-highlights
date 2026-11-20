@@ -2358,15 +2358,6 @@
    "clip_worthy": true,
    "why": "קטע מלא בנושאי הוראות והגדרות חומרה, משך 5 דקות",
    "closed": true
-  },
-  {
-   "from": 42000,
-   "to": 42300,
-   "title": "שיחת עצות עם הצ׳אט",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "שיחה אינטראקטיבית עם הצ׳אט על עצות ורעיונות, משך 5 דקות",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -3212,6 +3203,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 42368,
- "updated": "2026-11-20T02:19:13Z"
+ "transcript_end": 42416,
+ "updated": "2026-11-20T02:20:20Z"
 }
