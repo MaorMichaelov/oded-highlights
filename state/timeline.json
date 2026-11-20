@@ -298,10 +298,10 @@
   {
    "from": 4200,
    "to": 4800,
-   "title": "טיימרים & קרדיטים",
+   "title": "טיימרים, קרדיטים ומשחקים",
    "kind": "talk",
    "clip_worthy": false,
-   "why": "שיחה כללית",
+   "why": "פדיון כללית של צ'אט",
    "closed": false
   }
  ],
@@ -404,6 +404,6 @@
    "kind": "chat"
   }
  ],
- "transcript_end": 17981,
- "updated": "2026-11-20T19:38:15Z"
+ "transcript_end": 18064,
+ "updated": "2026-11-20T19:39:32Z"
 }
