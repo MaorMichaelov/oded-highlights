@@ -3029,15 +3029,6 @@
    "clip_worthy": false,
    "why": "קטגוריה: Just Sleeping, שיחה חסרת תוכן",
    "closed": true
-  },
-  {
-   "from": 66600,
-   "to": 66900,
-   "title": "דיבורים חסרי משמעות",
-   "kind": "idle",
-   "clip_worthy": false,
-   "why": "קטגוריה: Just Sleeping, שיחה חסרת תוכן",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -4111,6 +4102,6 @@
    "kind": "idle"
   }
  ],
- "transcript_end": 67029,
- "updated": "2026-11-20T09:10:29Z"
+ "transcript_end": 67114,
+ "updated": "2026-11-20T09:11:38Z"
 }
