@@ -294,15 +294,6 @@
    "clip_worthy": false,
    "why": "ריאציה קצרה לכתבה/מוצר",
    "closed": true
-  },
-  {
-   "from": 4200,
-   "to": 4800,
-   "title": "שיחה על טיימרים וקרדיטים",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "שיחה כללית ללא תוכן מדויק",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -404,6 +395,6 @@
    "kind": "chat"
   }
  ],
- "transcript_end": 12973,
- "updated": "2026-11-20T18:14:53Z"
+ "transcript_end": 13057,
+ "updated": "2026-11-20T18:16:21Z"
 }
