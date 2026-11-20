@@ -127,15 +127,6 @@
    "clip_worthy": false,
    "why": "צ'אט כללי, סטטיסטיקות וארגון חבילה – אינו נושא קוהרנטי של 15 דקות+ ולא ריאק्शन",
    "closed": true
-  },
-  {
-   "from": 2100,
-   "to": 3000,
-   "title": "צ'אט חופשי",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -183,6 +174,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 4711,
- "updated": "2026-11-20T15:58:54Z"
+ "transcript_end": 4892,
+ "updated": "2026-11-20T16:00:18Z"
 }
