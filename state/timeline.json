@@ -211,15 +211,6 @@
    "clip_worthy": false,
    "why": "קטע קצר (10 דקות) עם דיאלוג בלתי ממוקד ושימוש במילים מקוטעות – לא נושא קוהרנטי של 15 דקות ומעלה",
    "closed": true
-  },
-  {
-   "from": 2700,
-   "to": 3900,
-   "title": "צ'אט מבלבל עם אזכורים לבישול",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "קצר ולא קוהרנטי",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -303,6 +294,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 10152,
- "updated": "2026-11-20T17:28:07Z"
+ "transcript_end": 10270,
+ "updated": "2026-11-20T17:29:43Z"
 }
