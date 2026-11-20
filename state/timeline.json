@@ -2463,15 +2463,6 @@
    "clip_worthy": true,
    "why": "תוכן אמיתי, אורכו 20 דקות",
    "closed": true
-  },
-  {
-   "from": 45900,
-   "to": 46200,
-   "title": "שידור לא ברור / שינה",
-   "kind": "idle",
-   "clip_worthy": false,
-   "why": "צפייה ללא תוכן משמעותי",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -3383,6 +3374,6 @@
    "kind": "idle"
   }
  ],
- "transcript_end": 46244,
- "updated": "2026-11-20T03:50:57Z"
+ "transcript_end": 46427,
+ "updated": "2026-11-20T03:52:58Z"
 }
