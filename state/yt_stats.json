@@ -1,20 +1,30 @@
 {
- "fetched_at": "2026-11-20T21:40:04Z",
- "fetched_epoch": 1795210804.302411,
+ "fetched_at": "2026-11-20T22:10:22Z",
+ "fetched_epoch": 1795212622.6188846,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1890,
   "views": 22361,
-  "videos": 28
+  "videos": 29
  },
  "videos": [
+  {
+   "id": "cgUA5QAivg8",
+   "title": "עודד מגיב לרונן ג'יג'י שמגיב לו ולאור במטבח!",
+   "published": "2026-11-20T21:41:09Z",
+   "privacy": "public",
+   "duration": "PT19M59S",
+   "views": 4,
+   "likes": 1,
+   "comments": 0
+  },
   {
    "id": "yxHQ0tTBYoY",
    "title": "עודד ממשיך לשחק GTA 6 - פרק 2",
    "published": "2026-11-20T18:37:27Z",
    "privacy": "public",
    "duration": "PT2H32M42S",
-   "views": 3,
+   "views": 4,
    "likes": 3,
    "comments": 0
   },
@@ -44,7 +54,7 @@
    "published": "2026-11-20T10:50:51Z",
    "privacy": "public",
    "duration": "PT20M36S",
-   "views": 9,
+   "views": 14,
    "likes": 3,
    "comments": 0
   },
@@ -84,7 +94,7 @@
    "published": "2026-11-20T09:20:37Z",
    "privacy": "public",
    "duration": "PT22M31S",
-   "views": 9,
+   "views": 10,
    "likes": 2,
    "comments": 0
   },
@@ -104,7 +114,7 @@
    "published": "2026-11-20T09:18:30Z",
    "privacy": "public",
    "duration": "PT33M7S",
-   "views": 16,
+   "views": 22,
    "likes": 2,
    "comments": 0
   },
@@ -504,7 +514,7 @@
    "published": "2026-11-13T09:30:26Z",
    "privacy": "public",
    "duration": "PT14M55S",
-   "views": 3087,
+   "views": 3085,
    "likes": 16,
    "comments": 0
   },
@@ -544,7 +554,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 5389,
+   "views": 5374,
    "likes": 29,
    "comments": 1
   },
@@ -564,7 +574,7 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 5961,
+   "views": 5960,
    "likes": 54,
    "comments": 4
   },
@@ -574,7 +584,7 @@
    "published": "2026-11-11T17:52:12Z",
    "privacy": "public",
    "duration": "PT14M5S",
-   "views": 213,
+   "views": 212,
    "likes": 7,
    "comments": 0
   },
