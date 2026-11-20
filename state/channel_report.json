@@ -1,24 +1,24 @@
 {
- "generated": "2026-11-20T17:00:49Z",
+ "generated": "2026-11-20T17:31:06Z",
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1890,
   "views": 22361,
-  "videos": 25
+  "videos": 27
  },
  "totals": {
-  "videos_total": 56,
-  "videos_public": 26,
-  "views": 22586,
-  "likes": 237,
-  "est_hours_low": 1145.3,
-  "est_hours_high": 2672.5
+  "videos_total": 58,
+  "videos_public": 28,
+  "views": 22600,
+  "likes": 240,
+  "est_hours_low": 1146.7,
+  "est_hours_high": 2675.6
  },
  "by_kind": {
   "other": {
-   "n": 23,
-   "views": 22438,
-   "est_hours_mid": 1899.5
+   "n": 25,
+   "views": 22452,
+   "est_hours_mid": 1902.0
   },
   "reaction": {
    "n": 2,
@@ -47,19 +47,51 @@
  ],
  "videos": [
   {
+   "id": "6fCe4Neqc3g",
+   "title": "חלמתי על איתן ניסים! עודד מתקשר אליו בלייב",
+   "published": "2026-11-20",
+   "privacy": "public",
+   "duration_min": 15.4,
+   "views": 2,
+   "likes": 2,
+   "comments": 0,
+   "est_hours": [
+    0.1,
+    0.2
+   ],
+   "views_per_day": 40.0,
+   "kind": "other"
+  },
+  {
+   "id": "sb_nwuvABPc",
+   "title": "אמא של עודד בלייב! הוא מתחנן שתשלח אוכל",
+   "published": "2026-11-20",
+   "privacy": "public",
+   "duration_min": 11.7,
+   "views": 0,
+   "likes": 1,
+   "comments": 0,
+   "est_hours": [
+    0.0,
+    0.0
+   ],
+   "views_per_day": 0.0,
+   "kind": "other"
+  },
+  {
    "id": "8W5Mg9Z5ocQ",
    "title": "הרגעים הכי מצחיקים של עודד ב-GTA 6!",
    "published": "2026-11-20",
    "privacy": "public",
    "duration_min": 20.6,
-   "views": 4,
+   "views": 5,
    "likes": 3,
    "comments": 0,
    "est_hours": [
     0.3,
-    0.6
+    0.8
    ],
-   "views_per_day": 15.6,
+   "views_per_day": 18.0,
    "kind": "other"
   },
   {
@@ -68,14 +100,14 @@
    "published": "2026-11-20",
    "privacy": "public",
    "duration_min": 91.0,
-   "views": 12,
+   "views": 13,
    "likes": 4,
    "comments": 0,
    "est_hours": [
-    2.6,
-    6.1
+    2.8,
+    6.6
    ],
-   "views_per_day": 41.4,
+   "views_per_day": 41.8,
    "kind": "other"
   },
   {
@@ -84,14 +116,14 @@
    "published": "2026-11-20",
    "privacy": "public",
    "duration_min": 16.4,
-   "views": 4,
+   "views": 6,
    "likes": 2,
    "comments": 0,
    "est_hours": [
-    0.2,
-    0.5
+    0.3,
+    0.7
    ],
-   "views_per_day": 12.6,
+   "views_per_day": 17.7,
    "kind": "other"
   },
   {
@@ -100,14 +132,14 @@
    "published": "2026-11-20",
    "privacy": "public",
    "duration_min": 14.9,
-   "views": 15,
+   "views": 11,
    "likes": 2,
    "comments": 0,
    "est_hours": [
-    0.7,
-    1.7
+    0.5,
+    1.2
    ],
-   "views_per_day": 47.0,
+   "views_per_day": 32.3,
    "kind": "other"
   },
   {
@@ -116,14 +148,14 @@
    "published": "2026-11-20",
    "privacy": "public",
    "duration_min": 22.5,
-   "views": 6,
+   "views": 7,
    "likes": 2,
    "comments": 0,
    "est_hours": [
-    0.4,
-    1.0
+    0.5,
+    1.2
    ],
-   "views_per_day": 18.8,
+   "views_per_day": 20.6,
    "kind": "other"
   },
   {
@@ -132,14 +164,14 @@
    "published": "2026-11-20",
    "privacy": "public",
    "duration_min": 33.3,
-   "views": 15,
+   "views": 17,
    "likes": 3,
    "comments": 0,
    "est_hours": [
-    1.2,
-    2.8
+    1.4,
+    3.2
    ],
-   "views_per_day": 46.8,
+   "views_per_day": 49.8,
    "kind": "other"
   },
   {
@@ -148,14 +180,14 @@
    "published": "2026-11-20",
    "privacy": "public",
    "duration_min": 33.1,
-   "views": 10,
+   "views": 12,
    "likes": 2,
    "comments": 0,
    "est_hours": [
-    0.8,
-    1.9
+    1.0,
+    2.2
    ],
-   "views_per_day": 31.1,
+   "views_per_day": 35.1,
    "kind": "other"
   },
   {
@@ -203,7 +235,7 @@
     0.1,
     0.2
    ],
-   "views_per_day": 2.6,
+   "views_per_day": 2.4,
    "kind": "other"
   },
   {
@@ -235,7 +267,7 @@
     0.1,
     0.2
    ],
-   "views_per_day": 2.4,
+   "views_per_day": 2.3,
    "kind": "other"
   },
   {
@@ -372,14 +404,14 @@
    "published": "2026-11-19",
    "privacy": "public",
    "duration_min": 21.4,
-   "views": 29,
+   "views": 31,
    "likes": 1,
    "comments": 0,
    "est_hours": [
-    2.0,
-    4.6
+    2.1,
+    5.0
    ],
-   "views_per_day": 31.2,
+   "views_per_day": 32.7,
    "kind": "other"
   },
   {
@@ -395,7 +427,7 @@
     0.1,
     0.1
    ],
-   "views_per_day": 1.1,
+   "views_per_day": 1.0,
    "kind": "other"
   },
   {
@@ -411,7 +443,7 @@
     3.0,
     7.0
    ],
-   "views_per_day": 52.5,
+   "views_per_day": 51.4,
    "kind": "other"
   },
   {
@@ -427,7 +459,7 @@
     1.4,
     3.4
    ],
-   "views_per_day": 8.0,
+   "views_per_day": 7.9,
    "kind": "other"
   },
   {
@@ -443,7 +475,7 @@
     2.7,
     6.2
    ],
-   "views_per_day": 16.6,
+   "views_per_day": 16.5,
    "kind": "other"
   },
   {
@@ -452,14 +484,14 @@
    "published": "2026-11-18",
    "privacy": "public",
    "duration_min": 40.7,
-   "views": 32,
+   "views": 30,
    "likes": 1,
    "comments": 0,
    "est_hours": [
-    3.1,
-    7.3
+    2.9,
+    6.8
    ],
-   "views_per_day": 14.7,
+   "views_per_day": 13.6,
    "kind": "other"
   },
   {
@@ -475,7 +507,7 @@
     2.4,
     5.5
    ],
-   "views_per_day": 12.7,
+   "views_per_day": 12.6,
    "kind": "reaction"
   },
   {
@@ -491,7 +523,7 @@
     4.8,
     11.2
    ],
-   "views_per_day": 27.0,
+   "views_per_day": 26.8,
    "kind": "other"
   },
   {
@@ -507,7 +539,7 @@
     16.0,
     37.3
    ],
-   "views_per_day": 21.6,
+   "views_per_day": 21.4,
    "kind": "other"
   },
   {
@@ -715,7 +747,7 @@
     26.9,
     62.9
    ],
-   "views_per_day": 225.4,
+   "views_per_day": 224.4,
    "kind": "other"
   },
   {
@@ -779,7 +811,7 @@
     1.8,
     4.1
    ],
-   "views_per_day": 11.4,
+   "views_per_day": 11.3,
    "kind": "other"
   },
   {
@@ -795,7 +827,7 @@
     147.1,
     343.3
    ],
-   "views_per_day": 421.5,
+   "views_per_day": 420.2,
    "kind": "other"
   },
   {
@@ -804,14 +836,14 @@
    "published": "2026-11-13",
    "privacy": "public",
    "duration_min": 9.6,
-   "views": 5979,
+   "views": 5977,
    "likes": 54,
    "comments": 3,
    "est_hours": [
     258.7,
-    603.7
+    603.5
    ],
-   "views_per_day": 815.3,
+   "views_per_day": 812.7,
    "kind": "other"
   },
   {
@@ -827,7 +859,7 @@
     61.2,
     142.9
    ],
-   "views_per_day": 172.6,
+   "views_per_day": 172.1,
    "kind": "other"
   },
   {
@@ -836,14 +868,14 @@
    "published": "2026-11-12",
    "privacy": "public",
    "duration_min": 28.6,
-   "views": 77,
+   "views": 84,
    "likes": 2,
    "comments": 0,
    "est_hours": [
-    7.0,
-    16.4
+    7.7,
+    17.9
    ],
-   "views_per_day": 9.5,
+   "views_per_day": 10.3,
    "kind": "other"
   },
   {
@@ -852,14 +884,14 @@
    "published": "2026-11-12",
    "privacy": "public",
    "duration_min": 30.9,
-   "views": 5344,
+   "views": 5346,
    "likes": 29,
    "comments": 1,
    "est_hours": [
-    395.9,
-    923.7
+    396.0,
+    924.1
    ],
-   "views_per_day": 658.8,
+   "views_per_day": 657.4,
    "kind": "other"
   },
   {
@@ -875,7 +907,7 @@
     3.2,
     7.6
    ],
-   "views_per_day": 14.7,
+   "views_per_day": 14.6,
    "kind": "reaction"
   },
   {
@@ -891,7 +923,7 @@
     216.9,
     506.1
    ],
-   "views_per_day": 726.9,
+   "views_per_day": 725.0,
    "kind": "other"
   },
   {

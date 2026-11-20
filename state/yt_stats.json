@@ -1,20 +1,40 @@
 {
- "fetched_at": "2026-11-20T17:00:49Z",
- "fetched_epoch": 1795194049.0048018,
+ "fetched_at": "2026-11-20T17:31:06Z",
+ "fetched_epoch": 1795195866.9412649,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1890,
   "views": 22361,
-  "videos": 25
+  "videos": 27
  },
  "videos": [
+  {
+   "id": "6fCe4Neqc3g",
+   "title": "חלמתי על איתן ניסים! עודד מתקשר אליו בלייב",
+   "published": "2026-11-20T17:03:33Z",
+   "privacy": "public",
+   "duration": "PT15M23S",
+   "views": 2,
+   "likes": 2,
+   "comments": 0
+  },
+  {
+   "id": "sb_nwuvABPc",
+   "title": "אמא של עודד בלייב! הוא מתחנן שתשלח אוכל",
+   "published": "2026-11-20T17:01:13Z",
+   "privacy": "public",
+   "duration": "PT11M40S",
+   "views": 0,
+   "likes": 1,
+   "comments": 0
+  },
   {
    "id": "8W5Mg9Z5ocQ",
    "title": "הרגעים הכי מצחיקים של עודד ב-GTA 6!",
    "published": "2026-11-20T10:50:51Z",
    "privacy": "public",
    "duration": "PT20M36S",
-   "views": 4,
+   "views": 5,
    "likes": 3,
    "comments": 0
   },
@@ -24,7 +44,7 @@
    "published": "2026-11-20T10:03:16Z",
    "privacy": "public",
    "duration": "PT1H31M1S",
-   "views": 12,
+   "views": 13,
    "likes": 4,
    "comments": 0
   },
@@ -34,7 +54,7 @@
    "published": "2026-11-20T09:21:58Z",
    "privacy": "public",
    "duration": "PT16M26S",
-   "views": 4,
+   "views": 6,
    "likes": 2,
    "comments": 0
   },
@@ -44,7 +64,7 @@
    "published": "2026-11-20T09:21:17Z",
    "privacy": "public",
    "duration": "PT14M52S",
-   "views": 15,
+   "views": 11,
    "likes": 2,
    "comments": 0
   },
@@ -54,7 +74,7 @@
    "published": "2026-11-20T09:20:37Z",
    "privacy": "public",
    "duration": "PT22M31S",
-   "views": 6,
+   "views": 7,
    "likes": 2,
    "comments": 0
   },
@@ -64,7 +84,7 @@
    "published": "2026-11-20T09:19:19Z",
    "privacy": "public",
    "duration": "PT33M18S",
-   "views": 15,
+   "views": 17,
    "likes": 3,
    "comments": 0
   },
@@ -74,7 +94,7 @@
    "published": "2026-11-20T09:18:30Z",
    "privacy": "public",
    "duration": "PT33M7S",
-   "views": 10,
+   "views": 12,
    "likes": 2,
    "comments": 0
   },
@@ -214,7 +234,7 @@
    "published": "2026-11-19T18:44:29Z",
    "privacy": "public",
    "duration": "PT21M26S",
-   "views": 29,
+   "views": 31,
    "likes": 1,
    "comments": 0
   },
@@ -264,7 +284,7 @@
    "published": "2026-11-18T12:44:29Z",
    "privacy": "public",
    "duration": "PT40M42S",
-   "views": 32,
+   "views": 30,
    "likes": 1,
    "comments": 0
   },
@@ -484,7 +504,7 @@
    "published": "2026-11-13T09:00:02Z",
    "privacy": "public",
    "duration": "PT9M37S",
-   "views": 5979,
+   "views": 5977,
    "likes": 54,
    "comments": 3
   },
@@ -504,7 +524,7 @@
    "published": "2026-11-12T14:29:45Z",
    "privacy": "public",
    "duration": "PT28M35S",
-   "views": 77,
+   "views": 84,
    "likes": 2,
    "comments": 0
   },
@@ -514,7 +534,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 5344,
+   "views": 5346,
    "likes": 29,
    "comments": 1
   },
