@@ -2312,11 +2312,38 @@
   },
   {
    "from": 40800,
-   "to": 42000,
-   "title": "פתיחת תיבות וצ’אט",
+   "to": 41100,
+   "title": "פתיחת תיבות וצ'אט",
    "kind": "talk",
    "clip_worthy": true,
-   "why": "",
+   "why": "שיחה קוהרנטית עם אורסקול ודיון במתנות",
+   "closed": true
+  },
+  {
+   "from": 41100,
+   "to": 41400,
+   "title": "הסבר על קנבס ותיקים",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "דיון בנושא פרסים ושקפים",
+   "closed": true
+  },
+  {
+   "from": 41400,
+   "to": 41700,
+   "title": "דיבורים על חולצות ומשימות",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "שיחה על חבילות, משימות ושגרת היום",
+   "closed": true
+  },
+  {
+   "from": 41700,
+   "to": 42000,
+   "title": "חיפוש הוראות ושקילת רמקולים",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "שיחה על נושאים טכניים ודיון בפרקטיות",
    "closed": false
   }
  ],
@@ -3157,6 +3184,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 42198,
- "updated": "2026-11-20T02:16:43Z"
+ "transcript_end": 42251,
+ "updated": "2026-11-20T02:17:50Z"
 }
