@@ -551,10 +551,10 @@
   {
    "from": 9300,
    "to": 10200,
-   "title": "שיחה על GTA VI",
+   "title": "שיחות על GTA VI",
    "kind": "talk",
    "clip_worthy": true,
-   "why": "רצף של 15 דקות של דיון קוהרנטי על GTA VI, כולל חוויות, משימות והנאה מהמשחק",
+   "why": "30 דקות של דיון רציף ועמוק בנושא GTA VI",
    "closed": false
   }
  ],
@@ -747,6 +747,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 25628,
- "updated": "2026-11-20T21:45:24Z"
+ "transcript_end": 25690,
+ "updated": "2026-11-20T21:48:03Z"
 }
