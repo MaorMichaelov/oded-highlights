@@ -2082,15 +2082,6 @@
    "clip_worthy": false,
    "why": "הצגת מצבים פשוטים במשחק",
    "closed": true
-  },
-  {
-   "from": 37500,
-   "to": 37800,
-   "title": "דיון במסלול הבריחה ב-GTA 6",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "שיחה קצרה על אסטרטגיה",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -2846,6 +2837,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 37866,
- "updated": "2026-11-20T01:04:10Z"
+ "transcript_end": 37939,
+ "updated": "2026-11-20T01:05:24Z"
 }
