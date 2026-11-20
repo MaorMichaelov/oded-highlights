@@ -3273,6 +3273,15 @@
    "clip_worthy": false,
    "why": "אין תזמון מפורש של פעילות",
    "closed": true
+  },
+  {
+   "from": 70800,
+   "to": 71400,
+   "title": "התעוררות ושידור בוקר מבולגן",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "פתיחה של השידור, שינה ובוקר – תוכן רגיל ללא אירוע משמעותי או ריאק्शन.",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -4418,6 +4427,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 71509,
- "updated": "2026-11-20T10:25:33Z"
+ "transcript_end": 71621,
+ "updated": "2026-11-20T10:26:41Z"
 }
