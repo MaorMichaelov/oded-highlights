@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-19T23:50:43Z",
- "fetched_epoch": 1795132243.637591,
+ "fetched_at": "2026-11-20T00:21:41Z",
+ "fetched_epoch": 1795134101.375275,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1890,
@@ -94,7 +94,7 @@
    "published": "2026-11-19T18:44:29Z",
    "privacy": "public",
    "duration": "PT21M26S",
-   "views": 5,
+   "views": 8,
    "likes": 1,
    "comments": 0
   },
@@ -114,7 +114,7 @@
    "published": "2026-11-19T17:14:29Z",
    "privacy": "public",
    "duration": "PT17M55S",
-   "views": 16,
+   "views": 30,
    "likes": 5,
    "comments": 0
   },
@@ -134,7 +134,7 @@
    "published": "2026-11-18T12:59:59Z",
    "privacy": "public",
    "duration": "PT23M4S",
-   "views": 33,
+   "views": 34,
    "likes": 4,
    "comments": 0
   },
@@ -354,7 +354,7 @@
    "published": "2026-11-13T09:30:26Z",
    "privacy": "public",
    "duration": "PT14M55S",
-   "views": 3063,
+   "views": 3065,
    "likes": 16,
    "comments": 0
   },
@@ -364,7 +364,7 @@
    "published": "2026-11-13T09:00:02Z",
    "privacy": "public",
    "duration": "PT9M37S",
-   "views": 5966,
+   "views": 5969,
    "likes": 54,
    "comments": 3
   },
@@ -384,7 +384,7 @@
    "published": "2026-11-12T14:29:45Z",
    "privacy": "public",
    "duration": "PT28M35S",
-   "views": 74,
+   "views": 76,
    "likes": 2,
    "comments": 0
   },
@@ -394,7 +394,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 5306,
+   "views": 5308,
    "likes": 29,
    "comments": 1
   },
@@ -414,7 +414,7 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 5921,
+   "views": 5926,
    "likes": 54,
    "comments": 4
   },
