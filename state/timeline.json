@@ -303,15 +303,6 @@
    "clip_worthy": true,
    "why": "מדי 15+ דקות של תוכן משמעותי בנושא ניהול זמן ומשחקים",
    "closed": true
-  },
-  {
-   "from": 4500,
-   "to": 4800,
-   "title": "ברכת בוקר ומכירות לצ'אט",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "15+ דקות של דיון בתוכן מכירתי וברכות בוקר",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -413,6 +404,6 @@
    "kind": "chat"
   }
  ],
- "transcript_end": 18162,
- "updated": "2026-11-20T19:40:48Z"
+ "transcript_end": 18212,
+ "updated": "2026-11-20T19:42:01Z"
 }
