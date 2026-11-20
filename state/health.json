@@ -60,7 +60,7 @@
  ],
  "hc_checked_at": "2026-11-19T21:26:40Z",
  "live_loop_running": true,
- "state_age_min": 0.4,
+ "state_age_min": 0.8,
  "live": true,
  "recent_failed_renders": 0,
  "stuck_clips": [
@@ -70,5 +70,5 @@
  "problems": [
   "clips without a draft after 90 min: ['138861078_11197']"
  ],
- "checked_at": "2026-11-20T01:05:24Z"
+ "checked_at": "2026-11-20T01:06:58Z"
 }
