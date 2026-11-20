@@ -1,6 +1,52 @@
-model failed gemini-flash-latest: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease 
-model failed gemini-flash-latest: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease 
-model failed gemini-3.8-flash: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease ret
-model failed gemini-3.7-flash: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease ret
-model failed gemini-3.6-flash: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease ret
-model failed gemini-2.5-flash: HTTP Error 404: Not Found { "error": { "code": 404, "message": "This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://aistudio.google.com/docs/get-started).", "status": "NOT_FOUND" } }
+model failed gemini-flash-latest: HTTP Error 503: Service Unavailable { "error": { "code": 503, "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.", "status": "UNAVAILABLE" } }
+model failed gemini-flash-latest: HTTP Error 503: Service Unavailable { "error": { "code": 503, "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.", "status": "UNAVAILABLE" } }
+model failed gemini-3.8-flash: HTTP Error 503: Service Unavailable { "error": { "code": 503, "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.", "status": "UNAVAILABLE" } }
+model failed gemini-3.7-flash: HTTP Error 503: Service Unavailable { "error": { "code": 503, "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.", "status": "UNAVAILABLE" } }
+model: gemini-3.6-flash
+SCORE: 6/10
+
+### 1. לוח זמנים ושינויים ויזואליים/קוליים
+* **00:00 - 00:09:** מסך גיימפלי מלא, פייס-קאם וצ'אט בפינה ימנית עליונה. כתוביות דינמיות (ירוק/לבן) בתחתית.
+* **00:09 - 00:11:** אודרו/פתיח ממותג של "ODED HIGHLIGHTS" עם אפקט קולי.
+* **00:11 - 01:15:** קטע גיימפלי מרכזי: נסיעה בטנדר. ב-00:16 מופיע פופ-אפ הרשמה לערוץ.
+* **00:15 - 02:29:** חיתוך לקטע גיימפלי שני: פריצה למגרש המשטרתי וחיפוש בטנדר/ניידת.
+
+---
+
+### 2. מה מוצג ומה נחתך
+* **מוצג:** מומנטים נבחרים מתוך הסטרים (נסיעה, תגובות, חדירה למגרש משטרתי).
+* **נחתך:** קטעי רכיבה ממושכים ללא דיבור, הפסקות דיבור ושטיקים שאינם קשורים למשחק.
+
+---
+
+### 3. ספירת חיתוכים ומבנה
+* **סה"כ חיתוכים:** 3 חיתוכים ראשיים.
+* **החלק הארוך ביותר:** כ-64 שניות (00:11 - 01:15).
+* **החלק הקצר ביותר:** כ-9 שניות (00:00 - 00:09).
+* **נקודות חיתוך:** הקטעים מתחילים ומסתיימים בסיום משפט או רעיון.
+
+---
+
+### 4. כותרת ופתיח (Hook)
+10 השניות הראשונות משמשות כפתיח קצר (Hook) המציג קטע דיבור קצבי של הסטרימר עם כתוביות מובלטות, ומיד לאחר מכן מעברון מותג.
+
+---
+
+### 5. הנחיות לשכפול העריכה
+* פייס-קאם בפינה ימנית עליונה לצד הצ'אט.
+* כתוביות בולטות בצבע ירוק-זרחני ולבן.
+* מעברון ממותג עם אפקט קולי בין קטעים.
+
+---
+
+### 6. בדיקת איכות (Quality Check)
+* **(א) פתיח:** קיים הוק קצר ומעברון מעוצב וקריא.
+* **(ב) כתוביות/לייאאוט:** מסונכרנים היטב ולא קטועים.
+* **(ג) רצף הדיבור:** מתחיל בתחילת משפט בצורה טבעית.
+* **(ד) שתיקות:** אין פרקי זמן של שתיקה או שטח מת.
+* **(ה) תוכן פוגעני:** שפה חופשית/סלנג גיימינג קל בלבד.
+* **(ו) סאונד:** עוצמת שמע מאוזנת ללא דיסטורשן.
+* **(ז) ציון עניין:** 6/10 – קצב טוב, תוכן גיימינג סטנדרטי.
+* **(ח) ליקויים:**
+  1. כתוביות תחתונות מכיסות מעט ממשק משחק.
+  2. מעבר סאונד מעט חד בכניסה למעברון ב-00:09.
