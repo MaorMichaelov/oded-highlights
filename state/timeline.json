@@ -3284,15 +3284,6 @@
    "clip_worthy": true,
    "why": "התחלת השידור עם קטעים אמיתיים של התעוררות, שיחה ראשונית והצגתם של קהל",
    "closed": true
-  },
-  {
-   "from": 71100,
-   "to": 71400,
-   "title": "שידור Just Chatting – תגובות וקריאות",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "קטע שיחה עם צ'אט, קריאות ותגובות אמיתיות שמתחילים את ההזדמנות לכניסה ל־chat",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -4438,6 +4429,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 75993,
- "updated": "2026-11-20T11:40:18Z"
+ "transcript_end": 76119,
+ "updated": "2026-11-20T11:42:41Z"
 }
