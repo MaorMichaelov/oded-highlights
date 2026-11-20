@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-20T12:19:03Z",
- "fetched_epoch": 1795177143.7819464,
+ "fetched_at": "2026-11-20T12:53:23Z",
+ "fetched_epoch": 1795179203.7113667,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1890,
@@ -15,7 +15,7 @@
    "privacy": "public",
    "duration": "PT20M36S",
    "views": 4,
-   "likes": 2,
+   "likes": 3,
    "comments": 0
   },
   {
@@ -24,7 +24,7 @@
    "published": "2026-11-20T10:03:16Z",
    "privacy": "public",
    "duration": "PT1H31M1S",
-   "views": 4,
+   "views": 9,
    "likes": 3,
    "comments": 0
   },
@@ -34,8 +34,8 @@
    "published": "2026-11-20T09:21:58Z",
    "privacy": "public",
    "duration": "PT16M26S",
-   "views": 0,
-   "likes": 0,
+   "views": 4,
+   "likes": 2,
    "comments": 0
   },
   {
@@ -44,7 +44,7 @@
    "published": "2026-11-20T09:21:17Z",
    "privacy": "public",
    "duration": "PT14M52S",
-   "views": 3,
+   "views": 5,
    "likes": 2,
    "comments": 0
   },
@@ -54,7 +54,7 @@
    "published": "2026-11-20T09:20:37Z",
    "privacy": "public",
    "duration": "PT22M31S",
-   "views": 1,
+   "views": 3,
    "likes": 2,
    "comments": 0
   },
@@ -64,7 +64,7 @@
    "published": "2026-11-20T09:19:19Z",
    "privacy": "public",
    "duration": "PT33M18S",
-   "views": 8,
+   "views": 10,
    "likes": 2,
    "comments": 0
   },
@@ -74,7 +74,7 @@
    "published": "2026-11-20T09:18:30Z",
    "privacy": "public",
    "duration": "PT33M7S",
-   "views": 2,
+   "views": 8,
    "likes": 2,
    "comments": 0
   },
@@ -214,7 +214,7 @@
    "published": "2026-11-19T18:44:29Z",
    "privacy": "public",
    "duration": "PT21M26S",
-   "views": 18,
+   "views": 29,
    "likes": 1,
    "comments": 0
   },
@@ -234,7 +234,7 @@
    "published": "2026-11-19T17:14:29Z",
    "privacy": "public",
    "duration": "PT17M55S",
-   "views": 38,
+   "views": 49,
    "likes": 6,
    "comments": 0
   },
@@ -274,7 +274,7 @@
    "published": "2026-11-18T12:09:02Z",
    "privacy": "public",
    "duration": "PT26M25S",
-   "views": 27,
+   "views": 28,
    "likes": 4,
    "comments": 0
   },
@@ -284,7 +284,7 @@
    "published": "2026-11-17T18:43:03Z",
    "privacy": "public",
    "duration": "PT18M59S",
-   "views": 78,
+   "views": 79,
    "likes": 3,
    "comments": 0
   },
@@ -294,7 +294,7 @@
    "published": "2026-11-17T10:00:01Z",
    "privacy": "public",
    "duration": "PT1H33M46S",
-   "views": 69,
+   "views": 71,
    "likes": 8,
    "comments": 0
   },
@@ -464,7 +464,7 @@
    "published": "2026-11-13T10:00:09Z",
    "privacy": "public",
    "duration": "PT4M43S",
-   "views": 81,
+   "views": 83,
    "likes": 3,
    "comments": 0
   },
@@ -474,7 +474,7 @@
    "published": "2026-11-13T09:30:26Z",
    "privacy": "public",
    "duration": "PT14M55S",
-   "views": 3077,
+   "views": 3079,
    "likes": 16,
    "comments": 0
   },
@@ -514,7 +514,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 5323,
+   "views": 5344,
    "likes": 29,
    "comments": 1
   },
@@ -534,7 +534,7 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 5938,
+   "views": 5950,
    "likes": 54,
    "comments": 4
   },
