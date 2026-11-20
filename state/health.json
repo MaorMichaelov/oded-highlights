@@ -61,8 +61,12 @@
  "state_age_min": 0.2,
  "live": true,
  "recent_failed_renders": 0,
- "stuck_clips": [],
+ "stuck_clips": [
+  "138861078_11197"
+ ],
  "pending_candidates": 0,
- "problems": [],
- "checked_at": "2026-11-20T10:52:59Z"
+ "problems": [
+  "clips without a draft after 90 min: ['138861078_11197']"
+ ],
+ "checked_at": "2026-11-20T10:54:00Z"
 }
