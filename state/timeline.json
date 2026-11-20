@@ -2035,15 +2035,6 @@
    "clip_worthy": false,
    "why": "",
    "closed": true
-  },
-  {
-   "from": 36600,
-   "to": 36900,
-   "title": "חיפוש אחרי שוטר ב‑GTA 6",
-   "kind": "game",
-   "clip_worthy": false,
-   "why": "",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -2781,6 +2772,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 36908,
- "updated": "2026-11-20T00:48:52Z"
+ "transcript_end": 37036,
+ "updated": "2026-11-20T00:50:13Z"
 }
