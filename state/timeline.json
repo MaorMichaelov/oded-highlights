@@ -670,10 +670,10 @@
   {
    "from": 10800,
    "to": 12000,
-   "title": "הערכת GTA VI ומשחקים דומים",
+   "title": "דיברתי על GTA VI",
    "kind": "talk",
    "clip_worthy": true,
-   "why": "קטע של 5 דקות בלבד, אין נושא קוהרנטי של 15 דקות או יותר",
+   "why": "",
    "closed": false
   }
  ],
@@ -902,6 +902,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 29656,
- "updated": "2026-11-20T22:54:38Z"
+ "transcript_end": 29864,
+ "updated": "2026-11-20T22:57:35Z"
 }
