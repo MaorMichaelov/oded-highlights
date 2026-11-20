@@ -1,0 +1,44 @@
+{
+ "score": 94,
+ "fail": [],
+ "warn": [
+  "clip starts inside a loud sound (2 dB below the speech level)"
+ ],
+ "metrics": {
+  "audio": {
+   "duration_s": 1376.79,
+   "floor_db": -51.0,
+   "speech_db": -16.5,
+   "dyn_db": 34.5,
+   "tail_rms_db": -63.0,
+   "tail_rel_speech_db": -46.4,
+   "head_rel_speech_db": -2.3,
+   "lead_silence_s": 0.02,
+   "trail_silence_s": 0.79,
+   "lufs": -17.5,
+   "tp": -2.2,
+   "sync": {
+    "v_dur": 1376.766992,
+    "a_dur": 1376.785312,
+    "dur_diff_s": 0.018,
+    "start_diff_s": 0.021,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 0.0
+  },
+  "title_flags": [],
+  "title_truth": {
+   "missing_words": [
+    "צוחק",
+    "בשידור",
+    "ומגיב",
+    "ולתרומות"
+   ],
+   "missing_names": [],
+   "bad_quotes": [],
+   "ratio": 0.5,
+   "checked": 8
+  }
+ }
+}

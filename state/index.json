@@ -369,10 +369,15 @@
    "who": "עודד, דיוויד, הצ'אט",
    "peak": "00:34"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/j1aAcKYdmas",
+  "draft_at": "2026-11-20T03:08:35Z",
+  "quality_errors": [],
   "auto": true
  },
  {
