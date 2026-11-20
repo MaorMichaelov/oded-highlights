@@ -294,15 +294,6 @@
    "clip_worthy": false,
    "why": "ריאציה קצרה לכתבה/מוצר",
    "closed": true
-  },
-  {
-   "from": 4200,
-   "to": 4800,
-   "title": "שיחה כללית על טיימרים, קרדיטים, משחקים ובוקר",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "הקטע הוא צ'אט כללי ללא תוכן קוהרנטי של 15 דקות+ ולא ריאקשן לכתבה/סרטון, ולכן אינו מתאים לשיבוץ כ‑clip_worthy",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -404,6 +395,6 @@
    "kind": "chat"
   }
  ],
- "transcript_end": 13802,
- "updated": "2026-11-20T18:28:17Z"
+ "transcript_end": 13868,
+ "updated": "2026-11-20T18:29:31Z"
 }
