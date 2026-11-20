@@ -3275,6 +3275,15 @@
    "clip_worthy": false,
    "why": "אין תזמון מפורש של פעילות",
    "closed": true
+  },
+  {
+   "from": 70800,
+   "to": 71400,
+   "title": "הקמת שידור בוקר מבולגן",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "קטע של 5 דקות בלבד, ללא תוכן קוהרנטי של 15 דקות או יותר ולא ריאקשן לכתבה/סרטון.",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -4420,6 +4429,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 75428,
- "updated": "2026-11-20T11:30:12Z"
+ "transcript_end": 75478,
+ "updated": "2026-11-20T11:31:38Z"
 }
