@@ -666,6 +666,15 @@
    "clip_worthy": true,
    "why": "דיבור על היסטוריה והשוואות, 5 דקות קוהרנטיות.",
    "closed": true
+  },
+  {
+   "from": 10800,
+   "to": 12000,
+   "title": "הערכת GTA VI ומשחקים דומים",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "קטע של 5 דקות בלבד, אין נושא קוהרנטי של 15 דקות או יותר",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -893,6 +902,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 29533,
- "updated": "2026-11-20T22:51:06Z"
+ "transcript_end": 29656,
+ "updated": "2026-11-20T22:54:38Z"
 }
