@@ -627,15 +627,6 @@
    "clip_worthy": true,
    "why": "דיבור על היסטוריה והשוואות, 5 דקות קוהרנטיות.",
    "closed": true
-  },
-  {
-   "from": 10800,
-   "to": 11100,
-   "title": "הערכת משחקים וספרות ב‑GTA",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "שיחה על ספרות ותרבות הקשורים למשחק, 5 דקות.",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -845,6 +836,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 28485,
- "updated": "2026-11-20T22:33:19Z"
+ "transcript_end": 28546,
+ "updated": "2026-11-20T22:34:29Z"
 }
