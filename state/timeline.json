@@ -1984,10 +1984,10 @@
   {
    "from": 35400,
    "to": 36000,
-   "title": "GTA VI וחרבות חיות",
+   "title": "GTA VI - תלונות על חיות במשחק",
    "kind": "game",
    "clip_worthy": false,
-   "why": "שילוב משחק ותגובות קצרות, 10 דקות בלבד, ללא קוהרנטיות ארוכה",
+   "why": "",
    "closed": false
   }
  ],
@@ -2708,6 +2708,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 36189,
- "updated": "2026-11-20T00:36:12Z"
+ "transcript_end": 36227,
+ "updated": "2026-11-20T00:37:20Z"
 }
