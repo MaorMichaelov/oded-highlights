@@ -1,0 +1,43 @@
+{
+ "score": 94,
+ "fail": [],
+ "warn": [
+  "true peak 0.3 dBFS (clipping)"
+ ],
+ "metrics": {
+  "audio": {
+   "duration_s": 1290.9,
+   "floor_db": -55.2,
+   "speech_db": -18.3,
+   "dyn_db": 36.8,
+   "tail_rms_db": -43.3,
+   "tail_rel_speech_db": -24.9,
+   "head_rel_speech_db": -10.8,
+   "lead_silence_s": 0.08,
+   "trail_silence_s": 0.19,
+   "lufs": -19.1,
+   "tp": 0.3,
+   "sync": {
+    "v_dur": 1290.883008,
+    "a_dur": 1290.897979,
+    "dur_diff_s": 0.015,
+    "start_diff_s": 0.021,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 4.407292
+  },
+  "title_flags": [],
+  "title_truth": {
+   "missing_words": [
+    "שטויות",
+    "ומסתבך",
+    "בלייב"
+   ],
+   "missing_names": [],
+   "bad_quotes": [],
+   "ratio": 0.43,
+   "checked": 7
+  }
+ }
+}
