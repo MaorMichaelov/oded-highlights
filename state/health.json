@@ -58,11 +58,11 @@
  ],
  "hc_checked_at": "2026-11-20T18:47:54Z",
  "live_loop_running": true,
- "state_age_min": 3.1,
+ "state_age_min": 3.0,
  "live": true,
  "recent_failed_renders": 0,
  "stuck_clips": [],
  "pending_candidates": 0,
  "problems": [],
- "checked_at": "2026-11-20T21:21:48Z"
+ "checked_at": "2026-11-20T21:25:46Z"
 }
