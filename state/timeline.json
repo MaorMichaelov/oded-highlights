@@ -2014,15 +2014,6 @@
    "clip_worthy": false,
    "why": "קטע קטעי 5 דקות במשחק GTA VI שמדבר על חיות",
    "closed": true
-  },
-  {
-   "from": 36300,
-   "to": 36600,
-   "title": "שיחה על חוויות משחק ב-GTA VI",
-   "kind": "talk",
-   "clip_worthy": false,
-   "why": "קטע קטעי 5 דקות שיחה",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -2754,6 +2745,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 36789,
- "updated": "2026-11-20T00:46:01Z"
+ "transcript_end": 36849,
+ "updated": "2026-11-20T00:47:27Z"
 }
