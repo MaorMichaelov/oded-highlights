@@ -1492,6 +1492,18 @@
     "מארטון"
    ],
    "v": 2
+  },
+  "117": {
+   "label": "דיבר על שיחת וואטסאפ בנושא GTA VI",
+   "kind": "reaction",
+   "kw": [
+    "GTA VI",
+    "וואטסאפ",
+    "הגנבה",
+    "תמונות",
+    "נשק"
+   ],
+   "v": 2
   }
  },
  "spans": [
@@ -1930,10 +1942,19 @@
   {
    "from": 34500,
    "to": 35100,
-   "title": "GTA VI Gameplay & Connection Issues",
+   "title": "התחלת משחק GTA VI",
    "kind": "game",
    "clip_worthy": true,
-   "why": "The streamer plays GTA VI, discusses gameplay mechanics, and addresses connectivity problems in a cohesive 10‑minute segment",
+   "why": "שידור משחק של GTA VI עם ביקורת על חיבור",
+   "closed": true
+  },
+  {
+   "from": 35100,
+   "to": 35400,
+   "title": "ריאקשן לוואטסאפ על GTA VI",
+   "kind": "reaction",
+   "clip_worthy": true,
+   "why": "תגובה לכתבה/בידור 6+ דקות על GTA VI",
    "closed": false
   }
  ],
@@ -2634,8 +2655,14 @@
    "to": 35100,
    "label": "מתלונן על GTA VI ומשחק במשימה",
    "kind": "game"
+  },
+  {
+   "from": 35100,
+   "to": 35400,
+   "label": "דיבר על שיחת וואטסאפ בנושא GTA VI",
+   "kind": "reaction"
   }
  ],
- "transcript_end": 35297,
- "updated": "2026-11-20T00:21:43Z"
+ "transcript_end": 35411,
+ "updated": "2026-11-20T00:23:14Z"
 }
