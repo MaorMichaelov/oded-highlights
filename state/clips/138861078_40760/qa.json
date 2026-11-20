@@ -1,0 +1,44 @@
+{
+ "score": 94,
+ "fail": [],
+ "warn": [
+  "clip starts inside a loud sound (3 dB below the speech level)"
+ ],
+ "metrics": {
+  "audio": {
+   "duration_s": 1123.42,
+   "floor_db": -100.0,
+   "speech_db": -21.5,
+   "dyn_db": 78.5,
+   "tail_rms_db": -100.0,
+   "tail_rel_speech_db": -78.5,
+   "head_rel_speech_db": -3.0,
+   "lead_silence_s": 0.03,
+   "trail_silence_s": 0.76,
+   "lufs": -21.0,
+   "tp": -5.0,
+   "sync": {
+    "v_dur": 1123.4,
+    "a_dur": 1123.414979,
+    "dur_diff_s": 0.015,
+    "start_diff_s": 0.021,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 5.599
+  },
+  "title_flags": [],
+  "title_truth": {
+   "missing_words": [
+    "מסתלבט",
+    "הצ'אט",
+    "ומסתבך",
+    "חלק"
+   ],
+   "missing_names": [],
+   "bad_quotes": [],
+   "ratio": 0.44,
+   "checked": 9
+  }
+ }
+}

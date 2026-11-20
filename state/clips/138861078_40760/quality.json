@@ -1,0 +1,15 @@
+{
+ "errors": [],
+ "warnings": [],
+ "info": {
+  "width": 1920,
+  "height": 1080,
+  "fps": 60.0,
+  "mbps": 12.2,
+  "duration": 1123.4,
+  "planned_body": 1198.6,
+  "expected": 1123.4,
+  "lufs": -21.0,
+  "source": "1920,1080,60/1\n\n1920,1080,60/1"
+ }
+}
