@@ -1,6 +1,54 @@
-model failed gemini-flash-latest: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease 
-model failed gemini-flash-latest: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease 
-model failed gemini-3.8-flash: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease ret
-model failed gemini-3.7-flash: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease ret
-model failed gemini-3.6-flash: HTTP Error 429: Too Many Requests { "error": { "code": 429, "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\nPlease ret
-model failed gemini-2.5-flash: HTTP Error 404: Not Found { "error": { "code": 404, "message": "This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://aistudio.google.com/docs/get-started).", "status": "NOT_FOUND" } }
+model: gemini-flash-latest
+SCORE: 6/10
+
+### 1. ציר זמן של שינויים (Timeline)
+* **00:00 - 00:08**: הוק פתיחה מהיר. לוח המשחק ממלא את המסך, מצלמת פנים בפינה הימנית העליונה, כתוביות דינמיות בצבעי צהוב-סגול בתחתית.
+* **00:08 - 00:10**: אינטרו/סטינגר ממותג בצבעי ירוק-שחור עם הלוגו "ODED HIGHLIGHTS" וכתובית תחתונה "הרגעים הכי טובים של עודד".
+* **00:10 - 01:15**: סצנת שיחת הטלפון. לוח מונופול על רוב המסך, מצלמת פנים בצד ימין למעלה, צ'אט חי בצד ימין.
+  * ב-**00:16**: פופ-אפ אנימציה של סאבסקרייב ("תן לייק וסאב, כדי להיות מקצבצב!").
+* **01:15**: חיתוך (Jump-cut) קדימה בציר הזמן של המשחק.
+* **01:25 - 01:27**: מעבר קצר למסך שולחן העבודה של המחשב וחזרה מהירה לחלון המשחק.
+* **01:28 - 02:30**: המשך רצף המשחק, תגובות קוליות למהלכים ולתוצאות הקוביות ("דאבל", גניבת כסף).
+
+---
+
+### 2. מה מוצג ומה הושמט
+* **מוצג**: לוח המשחק ברשת, תגובות הסטרימר במצלמה, ושיחת טלפון הומוריסטית על עיסוקים וחברים.
+* **הושמט**: זמני המתנה ארוכים בין תורות, שתיקות ארוכות, והתעסקויות טכניות מחוץ למהלכים המרכזיים.
+
+---
+
+### 3. ספירות
+* **סך הכל חיתוכים**: כ-4 חיתוכים נראים.
+* **המקטע הקצר ביותר**: מעבר הפתיח (כ-2 שניות).
+* **המקטע הארוך ביותר ללא קטיעה**: קטע שיחת הטלפון (כ-65 שניות).
+* **התחלות וסיומים**: המקטעים מתחילים בדרך כלל בתחילת משפט, אך הסיום נקטע באמצע דיבור.
+
+---
+
+### 4. כותרת / הוק (10 שניות ראשונות)
+* בנוי מקטע קצר ומצחיק של שיחת הטלפון המבליט את הדינמיקה ("את החברים שלך... חבר ספר"), מלווה בכתוביות קופצות, ומיד לאחריו סטינגר מעבר קצר לערוץ.
+
+---
+
+### 5. דגשים לשכפול העריכה
+* שמירה על מצלמת פנים בפינה הימנית מעל המשחק.
+* הוספת כתוביות בולטות (פונט עבה, צבע צהוב/סגול עם מסגרת כהה) בקטעי השיא.
+* שילוב סטינגר מותאם אישית לפתיחה ופופ-אפ להרשמה בתחילת הסרטון.
+
+---
+
+### בדיקת איכות (Quality Check)
+* **(a) פתיחה**: יש הוק קצר, אינטרו ממותג ופופ-אפ סאבסקרייב קריא וברור ב-00:16.
+* **(b) כתוביות ומבנה**: הכתוביות בהוק מסונכרנות היטב; בהמשך הסרטון חסרות כתוביות לדיאלוג.
+* **(c) תחילת תוכן**: מתחיל באופן ברור, אם כי ההוק מעט מהיר מדי.
+* **(d) שתיקות וזמן מת**: קיימות שניות ארוכות של שקט בין 02:18 ל-02:26.
+* **(e) שפה פוגענית**: נשמעת קללה מפורשת ("בן זונה", 00:56) שאינה מצונזרת.
+* **(f) שמע ואיזון**: רמת השמע של הסטרימר טובה, קולו של האדם בטלפון מעט עמום אך מובן.
+* **(g) ציון עניין**: 6/10 – שיחה הומוריסטית ואינטראקציה טובה, אך הקצב יורד בחלק השני.
+* **(h) רשימת ליקויים קונקרטיים**:
+  1. קפיצה לשולחן העבודה של המחשב ב-01:26 שפוגעת ברציפות.
+  2. היעדר כתוביות בחלק העיקרי של שיחת הטלפון.
+  3. קטע שקט מתמשך ללא פעילות בין 02:18 ל-02:26 הדורש חיתוך.
+  4. שימוש בקללה ללא צנזור קולי/ויזואלי.
+  5. קטיעה פתאומית בסיום הסרטון באמצע מילה.
