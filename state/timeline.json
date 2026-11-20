@@ -2064,10 +2064,10 @@
   {
    "from": 36600,
    "to": 37500,
-   "title": "חיפוש אחרי שוטר ב־GTA 6",
+   "title": "חיפוש אחרי שוטר ב-GTA 6",
    "kind": "game",
-   "clip_worthy": false,
-   "why": "קטע של 5 דקות במשחק, ללא רצף של 15 דקות קוהרנטי.",
+   "clip_worthy": true,
+   "why": "משך 5 דקות עם משחקיות משמעותית",
    "closed": false
   }
  ],
@@ -2818,6 +2818,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 37698,
- "updated": "2026-11-20T01:01:23Z"
+ "transcript_end": 37774,
+ "updated": "2026-11-20T01:02:38Z"
 }
