@@ -3162,6 +3162,24 @@
    "clip_worthy": false,
    "why": "צ'אט שקט ולא משמעותי",
    "closed": true
+  },
+  {
+   "from": 68400,
+   "to": 68700,
+   "title": "שינה והקצאת זמן",
+   "kind": "idle",
+   "clip_worthy": false,
+   "why": "צ'אט כללי ללא תוכן משמעותי, שוטה מילים חסרות משמעות",
+   "closed": true
+  },
+  {
+   "from": 68700,
+   "to": 69000,
+   "title": "תכנון רווח היום",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "קטע תכנון קצר (5 דקות) ללא משך של 15 דקות ולא ריאקשן לתוכן חיצוני",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -4277,6 +4295,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 69201,
- "updated": "2026-11-20T09:46:37Z"
+ "transcript_end": 69291,
+ "updated": "2026-11-20T09:48:20Z"
 }
