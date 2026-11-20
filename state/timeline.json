@@ -2374,11 +2374,20 @@
   },
   {
    "from": 42000,
-   "to": 42600,
-   "title": "שיחות עצות ורעיונות",
+   "to": 42300,
+   "title": "צ'אט – עצות ורעיונות",
    "kind": "talk",
-   "clip_worthy": false,
-   "why": "שיחה כללית עם הצ'אט",
+   "clip_worthy": true,
+   "why": "30‑דקות של שיחה משמעותית עם צ'אט",
+   "closed": true
+  },
+  {
+   "from": 42300,
+   "to": 42600,
+   "title": "Kick – כללי וסצנה",
+   "kind": "talk",
+   "clip_worthy": true,
+   "why": "30‑דקות של דיון על Kick ורכיבים כלכליים",
    "closed": false
   }
  ],
@@ -3231,6 +3240,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 42725,
- "updated": "2026-11-20T02:25:01Z"
+ "transcript_end": 42798,
+ "updated": "2026-11-20T02:26:13Z"
 }
