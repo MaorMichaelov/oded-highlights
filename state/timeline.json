@@ -294,6 +294,15 @@
    "clip_worthy": false,
    "why": "ריאציה קצרה לכתבה/מוצר",
    "closed": true
+  },
+  {
+   "from": 4200,
+   "to": 4800,
+   "title": "צ'אט כללי",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "הקטעים הם שיחה חופשית (Just Chatting) ללא נושא קוהרנטי של 15 דקות, ללא תוכן משחק, ריאקציה או פעילות מיוחדת, ולכן אינם ראויים לקליפ.",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -395,6 +404,6 @@
    "kind": "chat"
   }
  ],
- "transcript_end": 15972,
- "updated": "2026-11-20T19:05:09Z"
+ "transcript_end": 16090,
+ "updated": "2026-11-20T19:07:14Z"
 }
