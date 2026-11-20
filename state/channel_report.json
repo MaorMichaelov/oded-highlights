@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-20T15:58:50Z",
+ "generated": "2026-11-20T16:29:27Z",
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1890,
@@ -9,16 +9,16 @@
  "totals": {
   "videos_total": 56,
   "videos_public": 26,
-  "views": 22591,
+  "views": 22589,
   "likes": 237,
-  "est_hours_low": 1145.9,
-  "est_hours_high": 2673.9
+  "est_hours_low": 1145.8,
+  "est_hours_high": 2673.5
  },
  "by_kind": {
   "other": {
    "n": 23,
-   "views": 22443,
-   "est_hours_mid": 1900.5
+   "views": 22441,
+   "est_hours_mid": 1900.3
   },
   "reaction": {
    "n": 2,
@@ -59,7 +59,7 @@
     0.3,
     0.8
    ],
-   "views_per_day": 23.4,
+   "views_per_day": 21.3,
    "kind": "other"
   },
   {
@@ -75,7 +75,7 @@
     2.8,
     6.6
    ],
-   "views_per_day": 52.6,
+   "views_per_day": 48.5,
    "kind": "other"
   },
   {
@@ -91,7 +91,7 @@
     0.3,
     0.7
    ],
-   "views_per_day": 21.8,
+   "views_per_day": 20.2,
    "kind": "other"
   },
   {
@@ -107,7 +107,7 @@
     0.5,
     1.2
    ],
-   "views_per_day": 39.8,
+   "views_per_day": 37.0,
    "kind": "other"
   },
   {
@@ -123,7 +123,7 @@
     0.5,
     1.2
    ],
-   "views_per_day": 25.3,
+   "views_per_day": 23.5,
    "kind": "other"
   },
   {
@@ -139,7 +139,7 @@
     1.4,
     3.2
    ],
-   "views_per_day": 61.3,
+   "views_per_day": 56.9,
    "kind": "other"
   },
   {
@@ -155,7 +155,7 @@
     1.0,
     2.2
    ],
-   "views_per_day": 43.2,
+   "views_per_day": 40.1,
    "kind": "other"
   },
   {
@@ -203,7 +203,7 @@
     0.1,
     0.2
    ],
-   "views_per_day": 2.9,
+   "views_per_day": 2.7,
    "kind": "other"
   },
   {
@@ -235,7 +235,7 @@
     0.1,
     0.2
    ],
-   "views_per_day": 2.7,
+   "views_per_day": 2.5,
    "kind": "other"
   },
   {
@@ -379,7 +379,7 @@
     2.1,
     5.0
    ],
-   "views_per_day": 35.0,
+   "views_per_day": 34.2,
    "kind": "other"
   },
   {
@@ -411,7 +411,7 @@
     3.0,
     7.0
    ],
-   "views_per_day": 54.9,
+   "views_per_day": 53.7,
    "kind": "other"
   },
   {
@@ -427,7 +427,7 @@
     1.4,
     3.4
    ],
-   "views_per_day": 8.1,
+   "views_per_day": 8.0,
    "kind": "other"
   },
   {
@@ -443,7 +443,7 @@
     2.7,
     6.2
    ],
-   "views_per_day": 16.9,
+   "views_per_day": 16.8,
    "kind": "other"
   },
   {
@@ -459,7 +459,7 @@
     2.9,
     6.8
    ],
-   "views_per_day": 14.1,
+   "views_per_day": 13.9,
    "kind": "other"
   },
   {
@@ -475,7 +475,7 @@
     2.4,
     5.5
    ],
-   "views_per_day": 13.0,
+   "views_per_day": 12.8,
    "kind": "reaction"
   },
   {
@@ -491,7 +491,7 @@
     4.8,
     11.2
    ],
-   "views_per_day": 27.4,
+   "views_per_day": 27.2,
    "kind": "other"
   },
   {
@@ -507,7 +507,7 @@
     16.0,
     37.3
    ],
-   "views_per_day": 21.9,
+   "views_per_day": 21.7,
    "kind": "other"
   },
   {
@@ -715,7 +715,7 @@
     26.9,
     62.9
    ],
-   "views_per_day": 227.3,
+   "views_per_day": 226.3,
    "kind": "other"
   },
   {
@@ -735,19 +735,19 @@
    "kind": "other"
   },
   {
-   "id": "3H3rP1V0mLQ",
-   "title": "עודד מבקש מהצופים שלו לא לראות GTA 6 אצל סטרימרים אחרים!",
+   "id": "2DmQJZzvpmQ",
+   "title": "\"זה האב טיפוס הראשוני של לוז!\" עודד מדבר על החולצה החדשה עם אור!",
    "published": "2026-11-15",
    "privacy": "private",
-   "duration_min": 5.3,
-   "views": 1126,
-   "likes": 26,
+   "duration_min": 7.0,
+   "views": 0,
+   "likes": 0,
    "comments": 0,
    "est_hours": [
-    26.9,
-    62.9
+    0.0,
+    0.0
    ],
-   "views_per_day": 227.3,
+   "views_per_day": 0.0,
    "kind": "other"
   },
   {
@@ -795,7 +795,7 @@
     147.1,
     343.3
    ],
-   "views_per_day": 423.9,
+   "views_per_day": 422.7,
    "kind": "other"
   },
   {
@@ -811,7 +811,7 @@
     258.7,
     603.5
    ],
-   "views_per_day": 819.8,
+   "views_per_day": 817.4,
    "kind": "other"
   },
   {
@@ -827,7 +827,7 @@
     61.2,
     142.9
    ],
-   "views_per_day": 173.6,
+   "views_per_day": 173.1,
    "kind": "other"
   },
   {
@@ -843,7 +843,7 @@
     7.0,
     16.4
    ],
-   "views_per_day": 9.6,
+   "views_per_day": 9.5,
    "kind": "other"
   },
   {
@@ -852,14 +852,14 @@
    "published": "2026-11-12",
    "privacy": "public",
    "duration_min": 30.9,
-   "views": 5346,
+   "views": 5344,
    "likes": 29,
    "comments": 1,
    "est_hours": [
-    396.0,
-    924.1
+    395.9,
+    923.7
    ],
-   "views_per_day": 662.6,
+   "views_per_day": 660.6,
    "kind": "other"
   },
   {
@@ -891,7 +891,7 @@
     216.9,
     506.1
    ],
-   "views_per_day": 730.7,
+   "views_per_day": 728.8,
    "kind": "other"
   },
   {
@@ -907,7 +907,7 @@
     9.6,
     22.3
    ],
-   "views_per_day": 23.8,
+   "views_per_day": 23.7,
    "kind": "other"
   },
   {

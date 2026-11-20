@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-20T15:58:50Z",
- "fetched_epoch": 1795190330.6256332,
+ "fetched_at": "2026-11-20T16:29:27Z",
+ "fetched_epoch": 1795192167.672579,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1890,
@@ -439,13 +439,13 @@
    "comments": 0
   },
   {
-   "id": "3H3rP1V0mLQ",
-   "title": "עודד מבקש מהצופים שלו לא לראות GTA 6 אצל סטרימרים אחרים!",
-   "published": "2026-11-15T17:05:45Z",
+   "id": "2DmQJZzvpmQ",
+   "title": "\"זה האב טיפוס הראשוני של לוז!\" עודד מדבר על החולצה החדשה עם אור!",
+   "published": "2026-11-15T16:30:12Z",
    "privacy": "private",
-   "duration": "PT5M19S",
-   "views": 1126,
-   "likes": 26,
+   "duration": "PT7M",
+   "views": 0,
+   "likes": 0,
    "comments": 0
   },
   {
@@ -514,7 +514,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 5346,
+   "views": 5344,
    "likes": 29,
    "comments": 1
   },
@@ -569,5 +569,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 126
+ "total_uploads_incl_private": 129
 }
