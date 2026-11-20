@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-20T03:50:21Z",
- "fetched_epoch": 1795146621.532702,
+ "fetched_at": "2026-11-20T04:21:15Z",
+ "fetched_epoch": 1795148475.1559267,
  "channel": {
   "title": "STREAM IL",
   "subscribers": 1890,
@@ -8,6 +8,26 @@
   "videos": 18
  },
  "videos": [
+  {
+   "id": "NZi4JUGiRbU",
+   "title": "וואט דה פאק, וואט דה פאק. שתיים זה משוגע! עודד מתלהב משיחה מצחיקה בצ'אט!",
+   "published": "2026-11-20T04:06:20Z",
+   "privacy": "private",
+   "duration": "PT33M7S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
+  {
+   "id": "oIVoO3kTkSA",
+   "title": "\"אין לך תיבה אחת!\" עודד מסתלבט על הצ'אט ומסתבך עם הרמקולים! (חלק 2/2)",
+   "published": "2026-11-20T03:54:30Z",
+   "privacy": "private",
+   "duration": "PT18M44S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
   {
    "id": "j1aAcKYdmas",
    "title": "\"לא, חבר ספר, אני לא מסתפר!\" עודד צוחק בשידור ומגיב לצ'אט ולתרומות!",
@@ -114,7 +134,7 @@
    "published": "2026-11-19T18:44:29Z",
    "privacy": "public",
    "duration": "PT21M26S",
-   "views": 10,
+   "views": 12,
    "likes": 1,
    "comments": 0
   },
@@ -374,7 +394,7 @@
    "published": "2026-11-13T09:30:26Z",
    "privacy": "public",
    "duration": "PT14M55S",
-   "views": 3070,
+   "views": 3071,
    "likes": 16,
    "comments": 0
   },
@@ -414,7 +434,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 5309,
+   "views": 5313,
    "likes": 29,
    "comments": 1
   },
@@ -469,5 +489,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 116
+ "total_uploads_incl_private": 118
 }
