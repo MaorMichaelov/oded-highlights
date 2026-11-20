@@ -549,10 +549,15 @@
    "who": "עודד, חברים בשיחה והצ'אט",
    "peak": "04:39"
   },
-  "stages": {},
-  "draft": null,
-  "draft_at": null,
-  "quality_errors": null,
+  "stages": {
+   "cut": "done",
+   "edit": "done",
+   "quality": "done",
+   "draft": "done"
+  },
+  "draft": "https://youtu.be/17_tXvRd7ms",
+  "draft_at": "2026-11-20T07:33:00Z",
+  "quality_errors": [],
   "auto": true
  },
  {
