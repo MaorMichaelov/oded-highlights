@@ -742,10 +742,10 @@
   {
    "from": 12000,
    "to": 12900,
-   "title": "ביקורת על גרפיקה ב‑GTA VI",
+   "title": "תלונה על גרפיקה ב‑GTA VI",
    "kind": "game",
-   "clip_worthy": false,
-   "why": "",
+   "clip_worthy": true,
+   "why": "דיאלוג קוהרנטי של 5 דקות עם נושא ספציפי",
    "closed": false
   }
  ],
@@ -992,6 +992,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 32016,
- "updated": "2026-11-20T23:32:01Z"
+ "transcript_end": 32061,
+ "updated": "2026-11-20T23:33:10Z"
 }
