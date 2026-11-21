@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-21T01:15:01Z",
- "fetched_epoch": 1795223701.6167033,
+ "fetched_at": "2026-11-21T01:46:10Z",
+ "fetched_epoch": 1795225570.0060225,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1890,
@@ -24,7 +24,7 @@
    "published": "2026-11-20T21:41:09Z",
    "privacy": "public",
    "duration": "PT19M59S",
-   "views": 4,
+   "views": 7,
    "likes": 1,
    "comments": 0
   },
@@ -34,7 +34,7 @@
    "published": "2026-11-20T18:37:27Z",
    "privacy": "public",
    "duration": "PT2H32M42S",
-   "views": 4,
+   "views": 8,
    "likes": 3,
    "comments": 0
   },
@@ -64,7 +64,7 @@
    "published": "2026-11-20T10:50:51Z",
    "privacy": "public",
    "duration": "PT20M36S",
-   "views": 14,
+   "views": 23,
    "likes": 3,
    "comments": 0
   },
@@ -74,8 +74,8 @@
    "published": "2026-11-20T10:03:16Z",
    "privacy": "public",
    "duration": "PT1H31M1S",
-   "views": 22,
-   "likes": 5,
+   "views": 24,
+   "likes": 6,
    "comments": 0
   },
   {
@@ -124,7 +124,7 @@
    "published": "2026-11-20T09:18:30Z",
    "privacy": "public",
    "duration": "PT33M7S",
-   "views": 22,
+   "views": 24,
    "likes": 2,
    "comments": 0
   },
@@ -584,7 +584,7 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 5980,
+   "views": 5989,
    "likes": 54,
    "comments": 4
   },
