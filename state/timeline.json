@@ -967,10 +967,10 @@
   {
    "from": 15600,
    "to": 16500,
-   "title": "GTA 6 – שיחות מבלבלות",
+   "title": "משחק GTA VI – שיחות מבלבלות",
    "kind": "game",
-   "clip_worthy": false,
-   "why": "קטע של 5 דקות, אינו עומד בדרישה של 15 דקות או תגובה לכתבה.",
+   "clip_worthy": true,
+   "why": "משך 15 דקות עם gameplay אמיתי ותרבות שיחה מעניינת",
    "closed": false
   }
  ],
@@ -1289,6 +1289,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 74729,
- "updated": "2026-11-21T11:24:35Z"
+ "transcript_end": 74863,
+ "updated": "2026-11-21T11:26:57Z"
 }
