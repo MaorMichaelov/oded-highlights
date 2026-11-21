@@ -751,10 +751,10 @@
   {
    "from": 12300,
    "to": 12900,
-   "title": "גילוי הזומבים ב‑GTA VI",
+   "title": "גילוי זומבים ב‑GTA VI",
    "kind": "game",
    "clip_worthy": false,
-   "why": "קטע של 5 דקות בלבד, לא חורג מ‑15 דקות ולכן אינו מתאים לקליפ",
+   "why": "קטע של 5 דקות בלבד, לא עומד ב־15 דקות נדרש לציון clip_worthy",
    "closed": false
   }
  ],
@@ -1001,6 +1001,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 39197,
- "updated": "2026-11-21T01:31:28Z"
+ "transcript_end": 39250,
+ "updated": "2026-11-21T01:32:39Z"
 }
