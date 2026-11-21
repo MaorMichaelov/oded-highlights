@@ -1052,15 +1052,6 @@
    "clip_worthy": true,
    "why": "",
    "closed": true
-  },
-  {
-   "from": 17400,
-   "to": 18300,
-   "title": "משחק GTA VI",
-   "kind": "game",
-   "clip_worthy": true,
-   "why": "משך של 15 דקות של משחק רציף ב‑GTA VI עם שיחות על קרקרים, בעיות במשחק, תכנון הרגת בוס, גניבת כסף והמשך המשחק – נושא קוהרנטי ועניין גבוה לצפייה.",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -1414,6 +1405,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 81671,
- "updated": "2026-11-21T13:24:15Z"
+ "transcript_end": 82033,
+ "updated": "2026-11-21T13:29:33Z"
 }
