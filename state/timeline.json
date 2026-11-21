@@ -963,6 +963,15 @@
    "clip_worthy": false,
    "why": "דיבורים בלתי מחוברים, שפה רועשת ולא קוהרנטית, ללא תוכן משמעותי",
    "closed": true
+  },
+  {
+   "from": 15600,
+   "to": 16500,
+   "title": "משחק GTA עם שיחות מבלבלות",
+   "kind": "game",
+   "clip_worthy": false,
+   "why": "קטע בן 5 דקות בלבד",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -1280,6 +1289,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 70848,
- "updated": "2026-11-21T10:19:49Z"
+ "transcript_end": 70959,
+ "updated": "2026-11-21T10:20:58Z"
 }
