@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-20T23:43:02Z",
- "fetched_epoch": 1795218182.4014013,
+ "fetched_at": "2026-11-21T00:13:08Z",
+ "fetched_epoch": 1795219988.0441713,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1890,
@@ -8,6 +8,16 @@
   "videos": 29
  },
  "videos": [
+  {
+   "id": "FltbJNzQixc",
+   "title": "עודד ממשיך לשחק GTA 6 - פרק 3",
+   "published": "2026-11-20T23:45:52Z",
+   "privacy": "public",
+   "duration": "PT1H36M21S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
   {
    "id": "cgUA5QAivg8",
    "title": "עודד מגיב לרונן ג'יג'י שמגיב לו ולאור במטבח!",
@@ -24,7 +34,7 @@
    "published": "2026-11-20T18:37:27Z",
    "privacy": "public",
    "duration": "PT2H32M42S",
-   "views": 2,
+   "views": 4,
    "likes": 3,
    "comments": 0
   },
@@ -34,7 +44,7 @@
    "published": "2026-11-20T17:03:33Z",
    "privacy": "public",
    "duration": "PT15M23S",
-   "views": 26,
+   "views": 24,
    "likes": 4,
    "comments": 0
   },
@@ -44,7 +54,7 @@
    "published": "2026-11-20T17:01:13Z",
    "privacy": "public",
    "duration": "PT11M40S",
-   "views": 11,
+   "views": 14,
    "likes": 4,
    "comments": 0
   },
@@ -54,7 +64,7 @@
    "published": "2026-11-20T10:50:51Z",
    "privacy": "public",
    "duration": "PT20M36S",
-   "views": 19,
+   "views": 14,
    "likes": 3,
    "comments": 0
   },
@@ -104,7 +114,7 @@
    "published": "2026-11-20T09:19:19Z",
    "privacy": "public",
    "duration": "PT33M18S",
-   "views": 26,
+   "views": 25,
    "likes": 3,
    "comments": 0
   },
@@ -114,7 +124,7 @@
    "published": "2026-11-20T09:18:30Z",
    "privacy": "public",
    "duration": "PT33M7S",
-   "views": 24,
+   "views": 22,
    "likes": 2,
    "comments": 0
   },
@@ -554,7 +564,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 5410,
+   "views": 5414,
    "likes": 29,
    "comments": 1
   },
@@ -609,5 +619,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 131
+ "total_uploads_incl_private": 132
 }
