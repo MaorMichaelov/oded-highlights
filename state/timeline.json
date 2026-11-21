@@ -1283,12 +1283,12 @@
   },
   {
    "from": 21300,
-   "to": 21900,
-   "title": "שיחה כללית ומוזיקה",
+   "to": 21600,
+   "title": "שיחות מבלבלות ומופשטות",
    "kind": "talk",
    "clip_worthy": false,
-   "why": "צ׳אט רגיל עם מוסיקת רקע, לא נושא קוהרנטי של 15+ דקות",
-   "closed": false
+   "why": "chat only",
+   "closed": true
   }
  ],
  "seg_v": 5,
@@ -1732,6 +1732,6 @@
    "kind": "chat"
   }
  ],
- "transcript_end": 92500,
- "updated": "2026-11-21T16:20:41Z"
+ "transcript_end": 92623,
+ "updated": "2026-11-21T16:22:19Z"
 }
