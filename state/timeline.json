@@ -967,10 +967,10 @@
   {
    "from": 15600,
    "to": 16500,
-   "title": "GTA VI – שיחות מבלבלות",
+   "title": "GTA VI במסע המרתקים",
    "kind": "game",
-   "clip_worthy": true,
-   "why": "המשך משחק עם דיאלוגים מצחיקים",
+   "clip_worthy": false,
+   "why": "קטע משחק קצר של 5 דקות",
    "closed": false
   }
  ],
@@ -1289,6 +1289,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 77947,
- "updated": "2026-11-21T12:18:03Z"
+ "transcript_end": 78071,
+ "updated": "2026-11-21T12:19:30Z"
 }
