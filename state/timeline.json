@@ -738,6 +738,15 @@
    "clip_worthy": false,
    "why": "",
    "closed": true
+  },
+  {
+   "from": 12000,
+   "to": 12900,
+   "title": "GTA VI – גרפיקה, זומבים ומשימת ראשית",
+   "kind": "game",
+   "clip_worthy": true,
+   "why": "הקטע כולו הוא רצף של משחק ב‑GTA VI עם שיחה על גרפיקה, מציאת זומבים ודיון על משימה – נושא קוהרנטי של יותר מ‑15 דקות עם תוכן משמעותי.",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -983,6 +992,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 36879,
- "updated": "2026-11-21T00:52:58Z"
+ "transcript_end": 36947,
+ "updated": "2026-11-21T00:54:16Z"
 }
