@@ -738,15 +738,6 @@
    "clip_worthy": false,
    "why": "",
    "closed": true
-  },
-  {
-   "from": 12000,
-   "to": 12900,
-   "title": "דיון במשחק GTA VI",
-   "kind": "game",
-   "clip_worthy": true,
-   "why": "הסרטון מכסה 15 דקות של משחק ותוכן משמעותי (תלונות על גרפיקה, גילוי זומבים, דיון במשימה).",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -992,6 +983,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 35684,
- "updated": "2026-11-21T00:33:09Z"
+ "transcript_end": 35773,
+ "updated": "2026-11-21T00:34:20Z"
 }
