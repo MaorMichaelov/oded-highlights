@@ -1,0 +1,41 @@
+{
+ "score": 94,
+ "fail": [],
+ "warn": [
+  "audio ends abruptly (just before the end it is only 2 dB below the speech level)"
+ ],
+ "metrics": {
+  "audio": {
+   "duration_s": 1387.24,
+   "floor_db": -78.7,
+   "speech_db": -16.4,
+   "dyn_db": 62.3,
+   "tail_rms_db": -18.4,
+   "tail_rel_speech_db": -2.0,
+   "head_rel_speech_db": -18.0,
+   "lead_silence_s": 0.02,
+   "trail_silence_s": 0.02,
+   "lufs": -17.3,
+   "tp": -2.2,
+   "sync": {
+    "v_dur": 1387.215365,
+    "a_dur": 1387.227,
+    "dur_diff_s": 0.012,
+    "start_diff_s": 0.021,
+    "has_audio": true,
+    "has_video": true
+   },
+   "max_silence_s": 5.784458
+  },
+  "title_flags": [],
+  "title_truth": {
+   "missing_words": [
+    "הצ'אט"
+   ],
+   "missing_names": [],
+   "bad_quotes": [],
+   "ratio": 0.14,
+   "checked": 7
+  }
+ }
+}
