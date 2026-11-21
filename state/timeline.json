@@ -738,6 +738,15 @@
    "clip_worthy": false,
    "why": "",
    "closed": true
+  },
+  {
+   "from": 12000,
+   "to": 12900,
+   "title": "תלונה על גרפיקה ב‑GTA VI",
+   "kind": "game",
+   "clip_worthy": true,
+   "why": "חלק קוהרנטי של 5 דקות עם תוכן אמיתי",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -983,6 +992,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 35371,
- "updated": "2026-11-21T00:28:52Z"
+ "transcript_end": 35502,
+ "updated": "2026-11-21T00:30:35Z"
 }
