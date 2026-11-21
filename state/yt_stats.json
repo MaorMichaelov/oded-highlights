@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-21T02:16:59Z",
- "fetched_epoch": 1795227419.0114596,
+ "fetched_at": "2026-11-21T02:47:15Z",
+ "fetched_epoch": 1795229235.8437736,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1890,
@@ -24,7 +24,7 @@
    "published": "2026-11-20T21:41:09Z",
    "privacy": "public",
    "duration": "PT19M59S",
-   "views": 7,
+   "views": 8,
    "likes": 1,
    "comments": 0
   },
@@ -34,7 +34,7 @@
    "published": "2026-11-20T18:37:27Z",
    "privacy": "public",
    "duration": "PT2H32M42S",
-   "views": 8,
+   "views": 6,
    "likes": 3,
    "comments": 0
   },
@@ -44,7 +44,7 @@
    "published": "2026-11-20T17:03:33Z",
    "privacy": "public",
    "duration": "PT15M23S",
-   "views": 32,
+   "views": 26,
    "likes": 4,
    "comments": 0
   },
@@ -54,7 +54,7 @@
    "published": "2026-11-20T17:01:13Z",
    "privacy": "public",
    "duration": "PT11M40S",
-   "views": 21,
+   "views": 11,
    "likes": 4,
    "comments": 0
   },
@@ -64,7 +64,7 @@
    "published": "2026-11-20T10:50:51Z",
    "privacy": "public",
    "duration": "PT20M36S",
-   "views": 25,
+   "views": 19,
    "likes": 3,
    "comments": 0
   },
@@ -74,7 +74,7 @@
    "published": "2026-11-20T10:03:16Z",
    "privacy": "public",
    "duration": "PT1H31M1S",
-   "views": 24,
+   "views": 23,
    "likes": 6,
    "comments": 0
   },
@@ -84,7 +84,7 @@
    "published": "2026-11-20T09:21:58Z",
    "privacy": "public",
    "duration": "PT16M26S",
-   "views": 23,
+   "views": 20,
    "likes": 2,
    "comments": 0
   },
@@ -534,7 +534,7 @@
    "published": "2026-11-13T09:00:02Z",
    "privacy": "public",
    "duration": "PT9M37S",
-   "views": 5981,
+   "views": 5984,
    "likes": 54,
    "comments": 3
   },
@@ -544,7 +544,7 @@
    "published": "2026-11-13T08:00:35Z",
    "privacy": "public",
    "duration": "PT15M2S",
-   "views": 1274,
+   "views": 1276,
    "likes": 19,
    "comments": 2
   },
@@ -564,7 +564,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 5414,
+   "views": 5432,
    "likes": 29,
    "comments": 1
   },
