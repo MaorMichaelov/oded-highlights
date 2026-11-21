@@ -1,21 +1,21 @@
 {
- "fetched_at": "2026-11-21T00:13:08Z",
- "fetched_epoch": 1795219988.0441713,
+ "fetched_at": "2026-11-21T00:44:16Z",
+ "fetched_epoch": 1795221856.3708434,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1890,
-  "views": 22361,
-  "videos": 29
+  "views": 22501,
+  "videos": 30
  },
  "videos": [
   {
    "id": "FltbJNzQixc",
    "title": "עודד ממשיך לשחק GTA 6 - פרק 3",
-   "published": "2026-11-20T23:45:52Z",
+   "published": "2026-11-21T00:27:55Z",
    "privacy": "public",
    "duration": "PT1H36M21S",
-   "views": 0,
-   "likes": 0,
+   "views": 2,
+   "likes": 1,
    "comments": 0
   },
   {
@@ -544,7 +544,7 @@
    "published": "2026-11-13T08:00:35Z",
    "privacy": "public",
    "duration": "PT15M2S",
-   "views": 1273,
+   "views": 1274,
    "likes": 19,
    "comments": 2
   },
