@@ -738,15 +738,6 @@
    "clip_worthy": false,
    "why": "",
    "closed": true
-  },
-  {
-   "from": 12000,
-   "to": 12900,
-   "title": "הביקורת על גרפיקה",
-   "kind": "game",
-   "clip_worthy": true,
-   "why": "משך 5 דקות עם דיון משמעותי בנושא גרפיקה של GTA VI",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -992,6 +983,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 36131,
- "updated": "2026-11-21T00:40:42Z"
+ "transcript_end": 36206,
+ "updated": "2026-11-21T00:41:53Z"
 }
