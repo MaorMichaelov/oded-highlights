@@ -850,10 +850,10 @@
   {
    "from": 13800,
    "to": 14700,
-   "title": "חיפוש ספינה והיתקפות ב‑GTA VI",
+   "title": "משחק GTA VI והליכים",
    "kind": "game",
-   "clip_worthy": false,
-   "why": "קטע של 5 דקות בלבד, נושא צר ורצוף, אינו עומד בתנאי של 15 דקות או יותר.",
+   "clip_worthy": true,
+   "why": "משחק רציף GTA VI",
    "closed": false
   }
  ],
@@ -1137,5 +1137,5 @@
   }
  ],
  "transcript_end": 45220,
- "updated": "2026-11-21T05:39:16Z"
+ "updated": "2026-11-21T05:40:18Z"
 }
