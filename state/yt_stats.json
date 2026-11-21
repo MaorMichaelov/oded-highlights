@@ -1,6 +1,6 @@
 {
- "fetched_at": "2026-11-21T14:36:52Z",
- "fetched_epoch": 1795271812.3468647,
+ "fetched_at": "2026-11-21T15:07:59Z",
+ "fetched_epoch": 1795273679.7566764,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1890,
@@ -8,6 +8,16 @@
   "videos": 33
  },
  "videos": [
+  {
+   "id": "vHFvMfZPxMg",
+   "title": "\"אני הייתי עושה בדיקת אבהות!\" עודד מדבר על GTA VI וצוחק עם הצ'אט!",
+   "published": "2026-11-21T14:42:44Z",
+   "privacy": "private",
+   "duration": "PT23M8S",
+   "views": 0,
+   "likes": 0,
+   "comments": 0
+  },
   {
    "id": "r7EHh40xZk8",
    "title": "עודד ממשיך לשחק GTA 6 - פרק 5",
@@ -104,7 +114,7 @@
    "published": "2026-11-20T10:03:16Z",
    "privacy": "public",
    "duration": "PT1H31M1S",
-   "views": 30,
+   "views": 32,
    "likes": 7,
    "comments": 2
   },
@@ -324,7 +334,7 @@
    "published": "2026-11-18T13:48:16Z",
    "privacy": "public",
    "duration": "PT26M28S",
-   "views": 18,
+   "views": 19,
    "likes": 2,
    "comments": 0
   },
@@ -554,7 +564,7 @@
    "published": "2026-11-13T09:30:26Z",
    "privacy": "public",
    "duration": "PT14M55S",
-   "views": 3108,
+   "views": 3110,
    "likes": 16,
    "comments": 0
   },
@@ -574,7 +584,7 @@
    "published": "2026-11-13T08:00:35Z",
    "privacy": "public",
    "duration": "PT15M2S",
-   "views": 1279,
+   "views": 1280,
    "likes": 19,
    "comments": 2
   },
@@ -594,7 +604,7 @@
    "published": "2026-11-12T14:20:35Z",
    "privacy": "public",
    "duration": "PT30M52S",
-   "views": 5456,
+   "views": 5468,
    "likes": 29,
    "comments": 1
   },
@@ -614,7 +624,7 @@
    "published": "2026-11-12T12:25:28Z",
    "privacy": "public",
    "duration": "PT11M23S",
-   "views": 6004,
+   "views": 6015,
    "likes": 54,
    "comments": 4
   },
@@ -649,5 +659,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 135
+ "total_uploads_incl_private": 136
 }

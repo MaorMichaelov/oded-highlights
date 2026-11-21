@@ -1284,7 +1284,7 @@
    "title": "שיחות מבלבלות ומופשטות",
    "kind": "talk",
    "clip_worthy": false,
-   "why": "צ'אט בלבד ללא תוכן משמעותי",
+   "why": "רק צ'אט ללא תוכן קונסיסטנטי.",
    "closed": false
   }
  ],
@@ -1729,6 +1729,6 @@
    "kind": "chat"
   }
  ],
- "transcript_end": 88061,
- "updated": "2026-11-21T15:06:27Z"
+ "transcript_end": 88150,
+ "updated": "2026-11-21T15:08:04Z"
 }
