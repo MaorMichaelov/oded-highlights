@@ -747,6 +747,15 @@
    "clip_worthy": false,
    "why": "קטן מדי לא להיות קטע בקליפ",
    "closed": true
+  },
+  {
+   "from": 12300,
+   "to": 12900,
+   "title": "זומבים ב‑GTA VI",
+   "kind": "game",
+   "clip_worthy": false,
+   "why": "קטע של 5 דקות בלבד, ללא תוכן קוהרנטי של 15 דקות או יותר",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -992,6 +1001,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 40974,
- "updated": "2026-11-21T02:01:43Z"
+ "transcript_end": 41079,
+ "updated": "2026-11-21T02:03:46Z"
 }
