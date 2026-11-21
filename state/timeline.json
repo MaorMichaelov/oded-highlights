@@ -967,10 +967,10 @@
   {
    "from": 15600,
    "to": 16500,
-   "title": "שיחות ומרחקים במשחק GTA VI",
+   "title": "GTA VI: שיחות מבלבלות",
    "kind": "game",
-   "clip_worthy": true,
-   "why": "מקטעים של 15 דקות עם משחק אמיתי וקטעי דיבור משמעותיים",
+   "clip_worthy": false,
+   "why": "",
    "closed": false
   }
  ],
@@ -1289,6 +1289,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 73137,
- "updated": "2026-11-21T10:58:19Z"
+ "transcript_end": 73218,
+ "updated": "2026-11-21T10:59:27Z"
 }
