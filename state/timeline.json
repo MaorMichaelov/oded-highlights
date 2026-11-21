@@ -751,10 +751,10 @@
   {
    "from": 12300,
    "to": 12900,
-   "title": "מגלה זומבים ב‑GTA VI",
+   "title": "גילוי זומבים ב‑GTA VI",
    "kind": "game",
    "clip_worthy": false,
-   "why": "שחקן מציג תרחיש של זומבים במשחק",
+   "why": "קטע של 5 דקות בלבד, אינו מגיע לסף של 15 דקות לתוכן קוהרנטי, ולכן אינו נחשב ל‑clip_worthy.",
    "closed": false
   }
  ],
@@ -1001,6 +1001,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 39436,
- "updated": "2026-11-21T01:36:15Z"
+ "transcript_end": 39556,
+ "updated": "2026-11-21T01:38:18Z"
 }
