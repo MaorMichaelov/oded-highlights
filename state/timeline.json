@@ -751,10 +751,10 @@
   {
    "from": 12300,
    "to": 12900,
-   "title": "GTA VI – זומבים ומשימות",
+   "title": "זומבים ב‑GTA VI",
    "kind": "game",
    "clip_worthy": false,
-   "why": "",
+   "why": "קטע של 5 דקות בלבד, ללא תוכן קוהרנטי של 15 דקות",
    "closed": false
   }
  ],
@@ -1001,6 +1001,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 44677,
- "updated": "2026-11-21T03:02:48Z"
+ "transcript_end": 44688,
+ "updated": "2026-11-21T03:03:55Z"
 }
