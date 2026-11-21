@@ -751,10 +751,10 @@
   {
    "from": 12300,
    "to": 12900,
-   "title": "זומבים ב‑GTA VI",
+   "title": "גיימינג‑GTA VI",
    "kind": "game",
    "clip_worthy": false,
-   "why": "קטע משחק של 5 דקות בלבד, אין תוכן קוהרנטי של 15 דקות ומעלה",
+   "why": "",
    "closed": false
   }
  ],
@@ -1001,6 +1001,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 40171,
- "updated": "2026-11-21T01:49:12Z"
+ "transcript_end": 40337,
+ "updated": "2026-11-21T01:50:34Z"
 }
