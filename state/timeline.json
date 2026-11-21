@@ -1334,15 +1334,6 @@
    "clip_worthy": false,
    "why": "שיחה חופשית, הומור והפרעות בקול – אין תוכן קוהרנטי ארוך מספיק לשימור.",
    "closed": true
-  },
-  {
-   "from": 21900,
-   "to": 22800,
-   "title": "דיון בהעברות ופרסים",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "שיחה כללית ללא נושא קוהרנטי של 15 דקות",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -1804,6 +1795,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 93999,
- "updated": "2026-11-21T16:45:44Z"
+ "transcript_end": 94121,
+ "updated": "2026-11-21T16:47:51Z"
 }
