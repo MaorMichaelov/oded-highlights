@@ -1223,15 +1223,6 @@
    "clip_worthy": true,
    "why": "נושא קוהרנטי של 5 דקות עם תוכן מעניין",
    "closed": true
-  },
-  {
-   "from": 20700,
-   "to": 21000,
-   "title": "הצעת ניקוי ציורים",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "נושא קוהרנטי של 5 דקות עם תוכן מעניין",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -1657,6 +1648,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 85453,
- "updated": "2026-11-21T14:32:58Z"
+ "transcript_end": 85903,
+ "updated": "2026-11-21T14:34:55Z"
 }
