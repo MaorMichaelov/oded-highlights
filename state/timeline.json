@@ -1325,6 +1325,24 @@
    "clip_worthy": false,
    "why": "chat only",
    "closed": true
+  },
+  {
+   "from": 21600,
+   "to": 21900,
+   "title": "צ'אט כללי והומור",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "שיחה חופשית, הומור והפרעות בקול – אין תוכן קוהרנטי ארוך מספיק לשימור.",
+   "closed": true
+  },
+  {
+   "from": 21900,
+   "to": 22800,
+   "title": "שיחה על פרסים, טיסות ותקלות",
+   "kind": "talk",
+   "clip_worthy": false,
+   "why": "דיון רציף בנושא פרסים, העברות, טיסות ותקלות כספיות, אך משך קטן מ‑15 דקות ולכן לא נחשב לקליפ.",
+   "closed": false
   }
  ],
  "seg_v": 5,
@@ -1786,6 +1804,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 93785,
- "updated": "2026-11-21T16:41:55Z"
+ "transcript_end": 93870,
+ "updated": "2026-11-21T16:43:48Z"
 }
