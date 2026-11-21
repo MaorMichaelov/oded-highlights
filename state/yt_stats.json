@@ -1,13 +1,23 @@
 {
- "fetched_at": "2026-11-21T09:26:07Z",
- "fetched_epoch": 1795253167.0793424,
+ "fetched_at": "2026-11-21T09:56:59Z",
+ "fetched_epoch": 1795255019.4882567,
  "channel": {
   "title": "ODED HIGHLIGHTS",
   "subscribers": 1890,
   "views": 22655,
-  "videos": 31
+  "videos": 32
  },
  "videos": [
+  {
+   "id": "23HoC5B3j8M",
+   "title": "עודד מחפש בולדוג צרפתי לאימוץ אחרי שלקחו את ז'ורז'!",
+   "published": "2026-11-21T09:38:09Z",
+   "privacy": "public",
+   "duration": "PT31M51S",
+   "views": 1,
+   "likes": 1,
+   "comments": 0
+  },
   {
    "id": "S9V8s-xYrHM",
    "title": "עודד ממשיך לשחק GTA 6 - פרק 4",
@@ -74,8 +84,8 @@
    "published": "2026-11-20T10:50:51Z",
    "privacy": "public",
    "duration": "PT20M36S",
-   "views": 29,
-   "likes": 3,
+   "views": 30,
+   "likes": 4,
    "comments": 0
   },
   {
@@ -84,7 +94,7 @@
    "published": "2026-11-20T10:03:16Z",
    "privacy": "public",
    "duration": "PT1H31M1S",
-   "views": 29,
+   "views": 30,
    "likes": 6,
    "comments": 2
   },
@@ -629,5 +639,5 @@
    "comments": 0
   }
  ],
- "total_uploads_incl_private": 134
+ "total_uploads_incl_private": 135
 }
