@@ -747,15 +747,6 @@
    "clip_worthy": false,
    "why": "קטן מדי לא להיות קטע בקליפ",
    "closed": true
-  },
-  {
-   "from": 12300,
-   "to": 12900,
-   "title": "גילוי זומבים ב‑GTA VI",
-   "kind": "game",
-   "clip_worthy": true,
-   "why": "קטע עם gameplay אמיתי והתגובות הצחוקיות של הצופה",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -1001,6 +992,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 41562,
- "updated": "2026-11-21T02:11:34Z"
+ "transcript_end": 41679,
+ "updated": "2026-11-21T02:13:03Z"
 }
