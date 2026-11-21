@@ -921,15 +921,6 @@
    "clip_worthy": true,
    "why": "דיבור לא קוהרנטי אך בעל תוכן ממשי",
    "closed": true
-  },
-  {
-   "from": 15300,
-   "to": 15600,
-   "title": "דיבורים בלתי מחוברים ואי‑מתן תוכן",
-   "kind": "talk",
-   "clip_worthy": true,
-   "why": "שיחה מורכבת עם מידע מינתי ומסובך",
-   "closed": false
   }
  ],
  "seg_v": 5,
@@ -1229,6 +1220,6 @@
    "kind": "talk"
   }
  ],
- "transcript_end": 70149,
- "updated": "2026-11-21T10:13:19Z"
+ "transcript_end": 70495,
+ "updated": "2026-11-21T10:14:44Z"
 }
