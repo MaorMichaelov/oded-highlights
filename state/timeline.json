@@ -751,10 +751,10 @@
   {
    "from": 12300,
    "to": 12900,
-   "title": "GTA VI Zombie Encounter",
+   "title": "GTA VI: זומבים ו‑משימה",
    "kind": "game",
-   "clip_worthy": false,
-   "why": "5‑minute gaming segment with in‑game action",
+   "clip_worthy": true,
+   "why": "הצגת משחק פעיל במשך 10 דקות כולל אירוע משמעותי (זומבים) ושלב החלטתי במשימה.",
    "closed": false
   }
  ],
@@ -1001,6 +1001,6 @@
    "kind": "game"
   }
  ],
- "transcript_end": 41315,
- "updated": "2026-11-21T02:07:09Z"
+ "transcript_end": 41408,
+ "updated": "2026-11-21T02:08:21Z"
 }
